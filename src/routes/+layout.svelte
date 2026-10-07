@@ -10,8 +10,9 @@
 
 <svelte:head>
 	<style>
+body { background: #000; }
 .stars, .stars-2, .shooting-star, .milky-way { position: fixed; inset: 0; pointer-events: none; }
-.stars { z-index: 50; background: radial-gradient(1px 1px at 30px 40px, #fff, transparent 70%); opacity: 0.12; }
+.stars { z-index: 50; opacity: 0.18; background-image: radial-gradient(1px 1px at 24px 32px, #fff, transparent 70%), radial-gradient(0.8px 0.8px at 68px 16px, #fff, transparent 70%), radial-gradient(0.9px 0.9px at 112px 48px, #fff, transparent 70%), radial-gradient(1px 1px at 156px 24px, #fff, transparent 70%); background-size: 200px 120px; }
 </style>
 
 	<link rel="icon" href={favicon} />
