@@ -309,7 +309,7 @@ input[type='range'].seek {
 
 @keyframes twinkle {
 	0%, 100% { opacity: 0.08; transform: scale(1); }
-	50% { opacity: 0.25; transform: scale(1.02); }
+	50% { opacity: 0.4; transform: scale(1.02); }
 }
 
 @keyframes shoot {
@@ -357,7 +357,7 @@ input[type='range'].seek {
 	background-repeat: repeat;
 	background-size: 220px 140px, 280px 160px, 240px 150px, 260px 130px, 300px 170px, 200px 120px, 320px 180px, 260px 160px;
 	opacity: 0.35;
-	animation: twinkle 30s ease-in-out infinite alternate;
+	animation: twinkle 45s ease-in-out infinite alternate;
 	mix-blend-mode: screen;
 }
 
@@ -399,7 +399,7 @@ input[type='range'].seek {
 	animation-delay: 14s;
 	animation-duration: 5.5s;
 	animation-delay: 60s;
-	opacity: 0.25;
+	opacity: 0.4;
 }
 
 .shooting-star--3 {
