@@ -9,16 +9,16 @@
 
 <header class="sticky top-0 z-50 border-b border-cream/10 bg-night/85 backdrop-blur-md">
 	<div class="mx-auto flex h-16 max-w-[1400px] items-center gap-5 px-5 md:h-[68px]">
-		<a href="#top" class="flex shrink-0 items-center gap-2.5 font-semibold tracking-tight">
+		<a href="/" class="flex shrink-0 items-center gap-2.5 font-semibold tracking-tight">
 			<IconMoon size={20} stroke={1.5} class="text-lamp" />
 			<span>All Nighter</span>
 		</a>
 
 		<div class="ml-auto flex items-center gap-5">
 			<nav class="hidden items-center gap-6 text-sm text-taupe md:flex lg:gap-7">
-				<a class="transition-colors hover:text-cream" href="#room">The room</a>
-				<a class="transition-colors hover:text-cream" href="#nights">How a night runs</a>
-				<a class="transition-colors hover:text-cream" href="#archive">Archive</a>
+				<a class="transition-colors hover:text-cream" href="/room">The room</a>
+				<a class="transition-colors hover:text-cream" href="/#nights">How a night runs</a>
+				<a class="transition-colors hover:text-cream" href="/archive">Archive</a>
 			</nav>
 
 			{#if live}

@@ -35,6 +35,11 @@ jobs:
         env:
           BASE_PATH: /${{ github.event.repository.name }}
 
+      - name: Fix HTML paths for GitHub Pages
+        run: |
+          cp build/room.html build/room/index.html 2>/dev/null || true
+          cp build/archive.html build/archive/index.html 2>/dev/null || true
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

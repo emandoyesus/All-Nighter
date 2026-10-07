@@ -18,7 +18,7 @@
 				A shared room for our all-nighters: one countdown, one queue, everyone awake and building.
 			</p>
 			<div class="mt-8 flex flex-wrap gap-3">
-				<a href="#room" class="btn btn-primary">Open the room</a>
+				<a href="/room" class="btn btn-primary">Open the room</a>
 				<a href={TELEGRAM_URL} class="btn btn-ghost">
 					<IconBrandTelegram size={16} stroke={1.5} />
 					Join the Telegram
