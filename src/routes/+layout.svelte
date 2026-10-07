@@ -9,6 +9,11 @@
 </script>
 
 <svelte:head>
+	<style>
+.stars, .stars-2, .shooting-star, .milky-way { position: fixed; inset: 0; pointer-events: none; }
+.stars { z-index: 50; background: radial-gradient(1px 1px at 30px 40px, #fff, transparent 70%); opacity: 0.12; }
+</style>
+
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
