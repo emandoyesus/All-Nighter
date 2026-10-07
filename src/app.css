@@ -10,9 +10,9 @@
 	--font-display: 'Space Grotesk Variable', 'Space Grotesk', system-ui, sans-serif;
 	--font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
 
-	--color-night: #100c09;
-	--color-night-2: #16120d;
-	--color-night-3: #1d1811;
+	--color-night: #000000;
+	--color-night-2: #070707;
+	--color-night-3: #0b0b0b;
 	--color-cream: #f3ece1;
 	--color-taupe: #b6ab99;
 	--color-faint: #8d8373;
@@ -36,7 +36,7 @@
 	}
 
 	body {
-		background: radial-gradient(1200px 800px at 50% 0%, #1b1710 0%, var(--color-night) 60%, #0f0d09 100%);
+		background: #050505;
 		color: var(--color-cream);
 		font-family: var(--font-display);
 		-webkit-font-smoothing: antialiased;
@@ -357,7 +357,7 @@ input[type='range'].seek {
 		radial-gradient(1px 1px at 168px 32px, #aba69a, rgba(171, 166, 154, 0));
 	background-repeat: repeat;
 	background-size: 220px 110px, 260px 130px, 240px 120px, 280px 140px, 200px 100px;
-	opacity: 0.48;
+	opacity: 0.22;
 	animation: twinkle 10s ease-in-out infinite alternate;
 	mix-blend-mode: screen;
 }
@@ -374,7 +374,7 @@ input[type='range'].seek {
 		radial-gradient(0.9px 0.9px at 154px 74px, #ccc9bf, rgba(204, 201, 191, 0));
 	background-repeat: repeat;
 	background-size: 180px 90px, 220px 110px, 200px 100px, 240px 120px;
-	opacity: 0.36;
+	opacity: 0.16;
 	animation: twinkle 14s ease-in-out infinite alternate-reverse;
 	mix-blend-mode: screen;
 }
@@ -399,7 +399,7 @@ input[type='range'].seek {
 	height: 0.9px;
 	animation-delay: 14s;
 	animation-duration: 13s;
-	opacity: 0.86;
+	opacity: 0.45;
 }
 
 .shooting-star--3 {
@@ -408,5 +408,5 @@ input[type='range'].seek {
 	height: 1.2px;
 	animation-delay: 21s;
 	animation-duration: 19s;
-	opacity: 0.92;
+	opacity: 0.5;
 }
