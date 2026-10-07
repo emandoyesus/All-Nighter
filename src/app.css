@@ -1,0 +1,306 @@
+/*
+ * All Nighter design tokens.
+ * Theme: locked dark. This is a night-desk product; the darkness is the brand,
+ * not a mode. One accent only: lamp (desk-lamp amber), used identically everywhere.
+ * Shape lock: surfaces 14px, fields 10px, buttons and badges pill.
+ */
+@import 'tailwindcss';
+
+@theme {
+	--font-display: 'Space Grotesk Variable', 'Space Grotesk', system-ui, sans-serif;
+	--font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
+
+	--color-night: #14110d;
+	--color-night-2: #1a1611;
+	--color-night-3: #211b14;
+	--color-cream: #f3ece1;
+	--color-taupe: #b6ab99;
+	--color-faint: #8d8373;
+	--color-lamp: #eaa54a;
+	--color-lamp-2: #f4b765;
+
+	--radius-card: 14px;
+	--radius-field: 10px;
+}
+
+@layer base {
+	html {
+		scroll-behavior: smooth;
+		scroll-padding-top: 5rem;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		html {
+			scroll-behavior: auto;
+		}
+	}
+
+	body {
+		background: var(--color-night);
+		color: var(--color-cream);
+		font-family: var(--font-display);
+		-webkit-font-smoothing: antialiased;
+		text-rendering: optimizeLegibility;
+	}
+
+	::selection {
+		background: var(--color-lamp);
+		color: var(--color-night);
+	}
+
+	:focus-visible {
+		outline: 2px solid var(--color-lamp);
+		outline-offset: 2px;
+		border-radius: 4px;
+	}
+
+	h1,
+	h2,
+	h3 {
+		text-wrap: balance;
+	}
+
+	p {
+		text-wrap: pretty;
+	}
+}
+
+/* --- shared type bits ------------------------------------------------- */
+
+.eyebrow {
+	font-family: var(--font-mono);
+	font-size: 11px;
+	line-height: 1.4;
+	letter-spacing: 0.2em;
+	text-transform: uppercase;
+	color: var(--color-faint);
+}
+
+.num {
+	font-family: var(--font-mono);
+	font-variant-numeric: tabular-nums;
+}
+
+/* --- buttons (pill lock) --------------------------------------------- */
+
+.btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	height: 2.5rem;
+	padding: 0 1.15rem;
+	border-radius: 999px;
+	font-size: 0.9rem;
+	font-weight: 500;
+	white-space: nowrap;
+	transition:
+		background-color 0.2s ease,
+		border-color 0.2s ease,
+		transform 0.15s ease;
+}
+
+.btn:active {
+	transform: translateY(1px);
+}
+
+.btn-primary {
+	background: var(--color-lamp);
+	color: var(--color-night);
+}
+
+.btn-primary:hover {
+	background: var(--color-lamp-2);
+}
+
+.btn-ghost {
+	border: 1px solid color-mix(in srgb, var(--color-cream) 22%, transparent);
+	color: var(--color-cream);
+}
+
+.btn-ghost:hover {
+	background: color-mix(in srgb, var(--color-cream) 7%, transparent);
+	border-color: color-mix(in srgb, var(--color-cream) 34%, transparent);
+}
+
+.btn-sm {
+	height: 2.1rem;
+	padding: 0 0.85rem;
+	font-size: 0.8rem;
+}
+
+/* --- surfaces --------------------------------------------------------- */
+
+.panel {
+	background: var(--color-night-3);
+	border: 1px solid color-mix(in srgb, var(--color-cream) 9%, transparent);
+	border-radius: var(--radius-card);
+}
+
+/* --- photo treatment (warm, lamp-lit) --------------------------------- */
+
+.photo-warm {
+	filter: saturate(0.82) sepia(0.28) brightness(0.82) contrast(1.06);
+}
+
+/* --- atmosphere ------------------------------------------------------- */
+
+.lamp-glow {
+	background: radial-gradient(
+		640px 420px at 72% 18%,
+		color-mix(in srgb, var(--color-lamp) 13%, transparent),
+		transparent 70%
+	);
+}
+
+.grain-layer {
+	position: fixed;
+	inset: 0;
+	z-index: 60;
+	pointer-events: none;
+	opacity: 0.055;
+	mix-blend-mode: overlay;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* --- reveal on scroll ------------------------------------------------- */
+
+[data-reveal] {
+	opacity: 0;
+	transform: translateY(20px);
+	transition:
+		opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+		transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+	transition-delay: var(--reveal-delay, 0ms);
+}
+
+[data-reveal].revealed {
+	opacity: 1;
+	transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	[data-reveal] {
+		opacity: 1;
+		transform: none;
+		transition: none;
+	}
+}
+
+/* --- live equalizer (motivated: playing state) ------------------------ */
+
+@keyframes eq-bar {
+	0%,
+	100% {
+		transform: scaleY(0.3);
+	}
+	50% {
+		transform: scaleY(1);
+	}
+}
+
+.eq-bar {
+	transform-origin: bottom;
+	animation: eq-bar 0.9s ease-in-out infinite;
+}
+
+@keyframes soft-blink {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.3;
+	}
+}
+
+.soft-blink {
+	animation: soft-blink 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.eq-bar,
+	.soft-blink {
+		animation: none;
+	}
+}
+
+/* --- icon buttons ------------------------------------------------------ */
+
+.icon-btn {
+	display: grid;
+	place-items: center;
+	height: 2rem;
+	width: 2rem;
+	flex-shrink: 0;
+	border-radius: 999px;
+	color: var(--color-taupe);
+	transition:
+		background-color 0.15s ease,
+		color 0.15s ease;
+}
+
+.icon-btn:hover:not(:disabled) {
+	background: color-mix(in srgb, var(--color-cream) 8%, transparent);
+	color: var(--color-cream);
+}
+
+.icon-btn:disabled {
+	opacity: 0.35;
+	cursor: not-allowed;
+}
+
+/* --- hero entry (motivated: first paint hierarchy) --------------------- */
+
+@keyframes rise-in {
+	from {
+		opacity: 0;
+		transform: translateY(16px);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+.hero-rise {
+	animation: rise-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.hero-delay-1 {
+	animation-delay: 0.1s;
+}
+
+.hero-delay-2 {
+	animation-delay: 0.22s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.hero-rise {
+		animation: none;
+	}
+}
+
+/* --- range inputs (progress / seek) ----------------------------------- */
+
+input[type='range'].seek {
+	accent-color: var(--color-lamp);
+	height: 1.25rem;
+	cursor: pointer;
+}
+
+/* --- archive rail scrollbar ------------------------------------------- */
+
+.rail {
+	scrollbar-width: thin;
+	scrollbar-color: color-mix(in srgb, var(--color-cream) 18%, transparent) transparent;
+}
+
+.rail::-webkit-scrollbar {
+	height: 6px;
+}
+
+.rail::-webkit-scrollbar-thumb {
+	background: color-mix(in srgb, var(--color-cream) 18%, transparent);
+	border-radius: 999px;
+}
