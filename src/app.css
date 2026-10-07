@@ -343,15 +343,18 @@ input[type='range'].seek {
 	z-index: 40;
 	pointer-events: none;
 	background-image:
-		radial-gradient(1px 1px at 18px 22px, #ffffff, rgba(255, 255, 255, 0)),
-		radial-gradient(0.8px 0.8px at 52px 78px, #ffffff, rgba(255, 255, 255, 0)),
-		radial-gradient(0.6px 0.6px at 94px 38px, #ffffff, rgba(255, 255, 255, 0)),
-		radial-gradient(0.7px 0.7px at 138px 86px, #ffffff, rgba(255, 255, 255, 0)),
-		radial-gradient(0.5px 0.5px at 172px 26px, #ffffff, rgba(255, 255, 255, 0));
+		radial-gradient(1px 1px at 16px 24px, #ffffff, rgba(255, 255, 255, 0)),
+		radial-gradient(1.2px 1.2px at 84px 16px, #ffffff, rgba(255, 255, 255, 0)),
+		radial-gradient(0.8px 0.8px at 48px 92px, #ffffff, rgba(255, 255, 255, 0)),
+		radial-gradient(0.6px 0.6px at 124px 48px, #ffffff, rgba(255, 255, 255, 0)),
+		radial-gradient(0.9px 0.9px at 156px 84px, #ffffff, rgba(255, 255, 255, 0)),
+		radial-gradient(0.5px 0.5px at 196px 36px, #ffffff, rgba(255, 255, 255, 0)),
+		radial-gradient(1px 1px at 24px 112px, #ffffff, rgba(255, 255, 255, 0)),
+		radial-gradient(0.7px 0.7px at 104px 128px, #ffffff, rgba(255, 255, 255, 0));
 	background-repeat: repeat;
-	background-size: 240px 120px, 280px 140px, 220px 110px, 300px 150px, 200px 100px;
-	opacity: 0.1;
-	animation: twinkle 40s ease-in-out infinite alternate;
+	background-size: 220px 140px, 280px 160px, 240px 150px, 260px 130px, 300px 170px, 200px 120px, 320px 180px, 260px 160px;
+	opacity: 0.09;
+	animation: twinkle 60s ease-in-out infinite alternate;
 	mix-blend-mode: screen;
 }
 
