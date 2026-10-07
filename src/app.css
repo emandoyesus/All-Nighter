@@ -343,7 +343,7 @@ input[type='range'].seek {
 .stars {
 	position: fixed;
 	inset: 0;
-	z-index: 40;
+	z-index: 50;
 	pointer-events: none;
 	background-image:
 		radial-gradient(1px 1px at 16px 24px, #ffffff, rgba(255, 255, 255, 0)),
@@ -356,7 +356,7 @@ input[type='range'].seek {
 		radial-gradient(0.7px 0.7px at 104px 128px, #ffffff, rgba(255, 255, 255, 0));
 	background-repeat: repeat;
 	background-size: 220px 140px, 280px 160px, 240px 150px, 260px 130px, 300px 170px, 200px 120px, 320px 180px, 260px 160px;
-	opacity: 0.09;
+	opacity: 0.35;
 	animation: twinkle 60s ease-in-out infinite alternate;
 	mix-blend-mode: screen;
 }
@@ -373,7 +373,7 @@ input[type='range'].seek {
 		radial-gradient(0.5px 0.5px at 158px 78px, #ffffff, rgba(255, 255, 255, 0));
 	background-repeat: repeat;
 	background-size: 200px 100px, 240px 120px, 180px 90px, 220px 110px;
-	opacity: 0.05;
+	opacity: 0.12;
 	animation: twinkle 40s ease-in-out infinite alternate;
 	mix-blend-mode: screen;
 }
@@ -409,7 +409,7 @@ input[type='range'].seek {
 	animation-delay: 21s;
 	animation-duration: 6.5s;
 	animation-delay: 95s;
-	opacity: 0.25;
+	opacity: 0.35;
 }
 
 .milky-way {
