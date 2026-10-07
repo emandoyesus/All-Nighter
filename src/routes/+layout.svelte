@@ -14,6 +14,7 @@
 
 <div class="stars" aria-hidden="true"></div>
 <div class="stars-2" aria-hidden="true"></div>
+<div class="milky-way" aria-hidden="true"></div>
 <div class="shooting-star" aria-hidden="true"></div>
 <div class="shooting-star shooting-star--2" aria-hidden="true"></div>
 <div class="shooting-star shooting-star--3" aria-hidden="true"></div>

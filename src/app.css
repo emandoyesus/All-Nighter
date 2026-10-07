@@ -411,3 +411,15 @@ input[type='range'].seek {
 	animation-delay: 95s;
 	opacity: 0.25;
 }
+
+.milky-way {
+	position: fixed;
+	inset: 0;
+	z-index: 39;
+	pointer-events: none;
+	background:
+		radial-gradient(60vw 30vh at 20% 10%, rgba(160, 190, 255, 0.08) 0%, rgba(160, 190, 255, 0.02) 40%, rgba(0,0,0,0) 100%),
+		radial-gradient(80vw 20vh at 70% 5%, rgba(200, 180, 255, 0.06) 0%, rgba(200, 180, 255, 0.01) 45%, rgba(0,0,0,0) 100%);
+	mix-blend-mode: screen;
+	opacity: 0.4;
+}
