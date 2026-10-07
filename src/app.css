@@ -1,0 +1,117 @@
+
+.stars {
+	position: fixed;
+	inset: 0;
+	z-index: 50;
+	pointer-events: none;
+	background-image:
+		radial-gradient(1px 1px at 24px 32px, #ffffff, rgba(255,255,255,0)),
+		radial-gradient(0.8px 0.8px at 68px 16px, #ffffff, rgba(255,255,255,0)),
+		radial-gradient(0.9px 0.9px at 112px 48px, #ffffff, rgba(255,255,255,0)),
+		radial-gradient(1.2px 1.2px at 156px 24px, #ffffff, rgba(255,255,255,0)),
+		radial-gradient(0.7px 0.7px at 200px 72px, #ffffff, rgba(255,255,255,0)),
+		radial-gradient(1px 1px at 244px 36px, #ffffff, rgba(255,255,255,0)),
+		radial-gradient(0.8px 0.8px at 288px 84px, #ffffff, rgba(255,255,255,0)),
+		radial-gradient(0.6px 0.6px at 56px 108px, #ffffff, rgba(255,255,255,0)),
+		radial-gradient(1px 1px at 124px 124px, #ffffff, rgba(255,255,255,0)),
+		radial-gradient(0.9px 0.9px at 192px 148px, #ffffff, rgba(255,255,255,0)),
+		radial-gradient(0.7px 0.7px at 260px 132px, #ffffff, rgba(255,255,255,0));
+	background-repeat: repeat;
+	background-size: 320px 180px, 340px 200px, 300px 160px, 360px 220px, 320px 190px, 380px 210px, 340px 200px, 300px 170px, 360px 230px, 340px 210px, 380px 220px;
+	opacity: 0.12;
+	mix-blend-mode: screen;
+}
+
+.stars-2 {
+	position: fixed;
+	inset: 0;
+	z-index: 49;
+	pointer-events: none;
+	background-image:
+		radial-gradient(0.8px 0.8px at 40px 60px, #ffffff, rgba(255,255,255,0)),
+		radial-gradient(0.6px 0.6px at 92px 84px, #ffffff, rgba(255,255,255,0)),
+		radial-gradient(0.7px 0.7px at 148px 52px, #ffffff, rgba(255,255,255,0)),
+		radial-gradient(0.5px 0.5px at 204px 76px, #ffffff, rgba(255,255,255,0)),
+		radial-gradient(0.6px 0.6px at 260px 48px, #ffffff, rgba(255,255,255,0)),
+		radial-gradient(0.7px 0.7px at 72px 132px, #ffffff, rgba(255,255,255,0)),
+		radial-gradient(0.5px 0.5px at 156px 156px, #ffffff, rgba(255,255,255,0)),
+		radial-gradient(0.6px 0.6px at 228px 124px, #ffffff, rgba(255,255,255,0));
+	background-repeat: repeat;
+	background-size: 280px 160px, 300px 180px, 260px 150px, 320px 190px, 340px 200px, 240px 170px, 360px 220px, 300px 180px;
+	opacity: 0.08;
+	mix-blend-mode: screen;
+}
+
+.milky-way {
+	position: fixed;
+	inset: 0;
+	z-index: 39;
+	pointer-events: none;
+	background:
+		radial-gradient(60vw 30vh at 20% 10%, rgba(160, 190, 255, 0.05) 0%, rgba(160, 190, 255, 0.01) 40%, rgba(0,0,0,0) 100%),
+		radial-gradient(80vw 20vh at 70% 5%, rgba(200, 180, 255, 0.04) 0%, rgba(200, 180, 255, 0.01) 45%, rgba(0,0,0,0) 100%);
+	mix-blend-mode: screen;
+	opacity: 0.25;
+}
+
+@keyframes shoot {
+	0% {
+		transform: translate3d(-30vw, -10vh, 0) rotate(23deg);
+		opacity: 0;
+	}
+	4% {
+		opacity: 1;
+	}
+	8% {
+		opacity: 0.9;
+	}
+	96% {
+		opacity: 0.4;
+	}
+	100% {
+		transform: translate3d(130vw, 65vh, 0) rotate(23deg);
+		opacity: 0;
+	}
+}
+
+.shooting-star {
+	position: fixed;
+	top: 8vh;
+	left: 0;
+	z-index: 61;
+	width: 140px;
+	height: 0.6px;
+	background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.08) 20%, rgba(255,255,255,0.25) 45%, rgba(255,255,255,0.7) 72%, rgba(255,255,255,1) 92%, rgba(255,255,255,0) 92.01%);
+	filter: drop-shadow(0 0 1px #ffffff) drop-shadow(0 0 8px rgba(200,220,255,0.35));
+	animation: shoot 6s linear infinite;
+	animation-delay: 20s;
+	pointer-events: none;
+}
+
+.shooting-star--2 {
+	top: 18vh;
+	width: 130px;
+	height: 0.8px;
+	animation: shoot 5.5s linear infinite;
+	animation-delay: 60s;
+	opacity: 0.8;
+}
+
+.shooting-star--3 {
+	top: 32vh;
+	width: 160px;
+	height: 0.9px;
+	animation: shoot 6.5s linear infinite;
+	animation-delay: 95s;
+	opacity: 0.9;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.stars,
+	.stars-2,
+	.stars-far,
+	.shooting-star,
+	.milky-way {
+		animation: none !important;
+	}
+}
