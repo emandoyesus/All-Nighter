@@ -321,17 +321,17 @@ input[type='range'].seek {
 
 @keyframes shoot {
 	0% {
-		transform: translateX(-20vw) translateY(-10vh) rotate(20deg);
+		transform: translateX(-25vw) translateY(-12vh) rotate(25deg);
 		opacity: 0;
 	}
-	8% {
-		opacity: 1;
+	6% {
+		opacity: 0.9;
 	}
-	92% {
-		opacity: 0.8;
+	94% {
+		opacity: 0.5;
 	}
 	100% {
-		transform: translateX(120vw) translateY(60vh) rotate(20deg);
+		transform: translateX(125vw) translateY(70vh) rotate(25deg);
 		opacity: 0;
 	}
 }
@@ -350,15 +350,15 @@ input[type='range'].seek {
 	z-index: 40;
 	pointer-events: none;
 	background-image:
-		radial-gradient(2px 2px at 12px 24px, #f7f5ee, rgba(247, 245, 238, 0)),
-		radial-gradient(1.6px 1.6px at 48px 76px, #e2dfd2, rgba(226, 223, 210, 0)),
-		radial-gradient(1.8px 1.8px at 92px 44px, #d0ccc0, rgba(208, 204, 192, 0)),
-		radial-gradient(1.4px 1.4px at 136px 84px, #bdb9af, rgba(189, 185, 175, 0)),
-		radial-gradient(1px 1px at 168px 32px, #aba69a, rgba(171, 166, 154, 0));
+		radial-gradient(1px 1px at 18px 22px, #ffffff, rgba(255, 255, 255, 0)),
+		radial-gradient(0.8px 0.8px at 52px 78px, #ffffff, rgba(255, 255, 255, 0)),
+		radial-gradient(0.6px 0.6px at 94px 38px, #ffffff, rgba(255, 255, 255, 0)),
+		radial-gradient(0.7px 0.7px at 138px 86px, #ffffff, rgba(255, 255, 255, 0)),
+		radial-gradient(0.5px 0.5px at 172px 26px, #ffffff, rgba(255, 255, 255, 0));
 	background-repeat: repeat;
-	background-size: 220px 110px, 260px 130px, 240px 120px, 280px 140px, 200px 100px;
-	opacity: 0.22;
-	animation: twinkle 10s ease-in-out infinite alternate;
+	background-size: 240px 120px, 280px 140px, 220px 110px, 300px 150px, 200px 100px;
+	opacity: 0.14;
+	animation: twinkle 16s ease-in-out infinite alternate;
 	mix-blend-mode: screen;
 }
 
@@ -368,14 +368,14 @@ input[type='range'].seek {
 	z-index: 40;
 	pointer-events: none;
 	background-image:
-		radial-gradient(1px 1px at 26px 54px, #f3f1e7, rgba(243, 241, 231, 0)),
-		radial-gradient(1px 1px at 74px 94px, #e7e5db, rgba(231, 229, 219, 0)),
-		radial-gradient(0.8px 0.8px at 114px 34px, #d8d5c9, rgba(216, 213, 201, 0)),
-		radial-gradient(0.9px 0.9px at 154px 74px, #ccc9bf, rgba(204, 201, 191, 0));
+		radial-gradient(0.6px 0.6px at 32px 58px, #ffffff, rgba(255, 255, 255, 0)),
+		radial-gradient(0.5px 0.5px at 78px 98px, #ffffff, rgba(255, 255, 255, 0)),
+		radial-gradient(0.4px 0.4px at 118px 38px, #ffffff, rgba(255, 255, 255, 0)),
+		radial-gradient(0.5px 0.5px at 158px 78px, #ffffff, rgba(255, 255, 255, 0));
 	background-repeat: repeat;
-	background-size: 180px 90px, 220px 110px, 200px 100px, 240px 120px;
-	opacity: 0.16;
-	animation: twinkle 14s ease-in-out infinite alternate-reverse;
+	background-size: 200px 100px, 240px 120px, 180px 90px, 220px 110px;
+	opacity: 0.08;
+	animation: twinkle 22s ease-in-out infinite alternate-reverse;
 	mix-blend-mode: screen;
 }
 
@@ -384,29 +384,31 @@ input[type='range'].seek {
 	top: 8vh;
 	left: 0;
 	z-index: 41;
-	width: 90px;
-	height: 0.6px;
-	background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 30%, rgba(255,255,255,0) 100%);
-	filter: drop-shadow(0 0 4px rgba(255,255,255,0.4));
-	animation: shoot 16s linear infinite;
-	animation-delay: 7s;
+	width: 60px;
+	height: 0.4px;
+	background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.9) 15%, rgba(255,255,255,0.25) 70%, rgba(255,255,255,0) 100%);
+	filter: drop-shadow(0 0 3px rgba(255,255,255,0.8));
+	animation: shoot 9s linear infinite;
+	animation-delay: 12s;
 	pointer-events: none;
 }
 
 .shooting-star--2 {
 	top: 18vh;
-	width: 70px;
-	height: 0.5px;
+	width: 45px;
+	height: 0.3px;
 	animation-delay: 14s;
-	animation-duration: 13s;
-	opacity: 0.2;
+	animation-duration: 8s;
+	animation-delay: 24s;
+	opacity: 0.16;
 }
 
 .shooting-star--3 {
 	top: 32vh;
-	width: 100px;
-	height: 0.7px;
+	width: 55px;
+	height: 0.35px;
 	animation-delay: 21s;
-	animation-duration: 19s;
+	animation-duration: 10s;
+	animation-delay: 38s;
 	opacity: 0.25;
 }
