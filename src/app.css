@@ -311,7 +311,6 @@ input[type='range'].seek {
 
 /* --- cosmos: stars + shooting meteors ------------------------------- */
 
-/* twinkle removed */
 
 	50% { opacity: 0.4; transform: scale(1.02); }
 }
