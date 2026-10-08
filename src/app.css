@@ -10,9 +10,9 @@
 	--font-display: 'Space Grotesk Variable', 'Space Grotesk', system-ui, sans-serif;
 	--font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
 
-	--color-night: #14110d;
-	--color-night-2: #1a1611;
-	--color-night-3: #211b14;
+	--color-night: #04060b;
+	--color-night-2: #080b12;
+	--color-night-3: #0e1119;
 	--color-cream: #f3ece1;
 	--color-taupe: #b6ab99;
 	--color-faint: #8d8373;
@@ -36,7 +36,11 @@
 	}
 
 	body {
-		background: var(--color-night);
+		background:
+			radial-gradient(120% 90% at 78% -10%, rgba(28, 40, 74, 0.5) 0%, transparent 55%),
+			radial-gradient(90% 70% at 12% 108%, rgba(46, 32, 18, 0.45) 0%, transparent 60%),
+			var(--color-night);
+		background-attachment: fixed;
 		color: var(--color-cream);
 		font-family: var(--font-display);
 		-webkit-font-smoothing: antialiased;
@@ -303,4 +307,185 @@ input[type='range'].seek {
 .rail::-webkit-scrollbar-thumb {
 	background: color-mix(in srgb, var(--color-cream) 18%, transparent);
 	border-radius: 999px;
+}
+
+/* --- cosmos: a real sky ----------------------------------------------- */
+/*
+ * Fixed, behind all content. Three speckle layers at different scales give
+ * depth and defeat the repetition of a single tile; a handful of bright stars
+ * carry a slow self-rotation of light; meteors are the one authored moment.
+ */
+
+.cosmos {
+	position: fixed;
+	inset: 0;
+	z-index: -1;
+	overflow: hidden;
+	pointer-events: none;
+}
+
+.sky {
+	position: absolute;
+	inset: 0;
+	background-repeat: repeat;
+	mix-blend-mode: screen;
+}
+
+/* distant field — cool, faint, dense */
+.sky--far {
+	opacity: 0.5;
+	background-image:
+		radial-gradient(0.6px 0.6px at 12px 41px, #cbd9ff, transparent),
+		radial-gradient(0.5px 0.5px at 88px 17px, #ffffff, transparent),
+		radial-gradient(0.6px 0.6px at 141px 96px, #cbd9ff, transparent),
+		radial-gradient(0.5px 0.5px at 203px 58px, #ffffff, transparent),
+		radial-gradient(0.6px 0.6px at 267px 133px, #b9c9ff, transparent),
+		radial-gradient(0.5px 0.5px at 44px 172px, #ffffff, transparent),
+		radial-gradient(0.6px 0.6px at 318px 22px, #cbd9ff, transparent),
+		radial-gradient(0.5px 0.5px at 175px 210px, #ffffff, transparent),
+		radial-gradient(0.6px 0.6px at 96px 258px, #cbd9ff, transparent),
+		radial-gradient(0.5px 0.5px at 240px 300px, #ffffff, transparent),
+		radial-gradient(0.6px 0.6px at 30px 320px, #b9c9ff, transparent),
+		radial-gradient(0.5px 0.5px at 300px 244px, #ffffff, transparent),
+		radial-gradient(0.6px 0.6px at 128px 348px, #cbd9ff, transparent),
+		radial-gradient(0.5px 0.5px at 216px 372px, #ffffff, transparent),
+		radial-gradient(0.6px 0.6px at 350px 318px, #cbd9ff, transparent),
+		radial-gradient(0.5px 0.5px at 68px 96px, #ffffff, transparent);
+	background-size: 372px 396px;
+}
+
+/* mid field — mixed temperatures */
+.sky--mid {
+	opacity: 0.85;
+	background-image:
+		radial-gradient(1px 1px at 40px 70px, #ffffff, transparent),
+		radial-gradient(0.9px 0.9px at 150px 30px, #d6e2ff, transparent),
+		radial-gradient(1px 1px at 260px 120px, #ffe9c8, transparent),
+		radial-gradient(0.9px 0.9px at 70px 200px, #ffffff, transparent),
+		radial-gradient(1px 1px at 330px 180px, #cbd9ff, transparent),
+		radial-gradient(0.9px 0.9px at 200px 260px, #ffffff, transparent),
+		radial-gradient(1px 1px at 110px 330px, #ffd9a8, transparent),
+		radial-gradient(0.9px 0.9px at 380px 300px, #ffffff, transparent),
+		radial-gradient(1px 1px at 290px 400px, #d6e2ff, transparent),
+		radial-gradient(0.9px 0.9px at 20px 430px, #ffffff, transparent);
+	background-size: 480px 470px;
+}
+
+/* near field — few, crisp, bright */
+.sky--near {
+	opacity: 1;
+	background-image:
+		radial-gradient(1.4px 1.4px at 220px 90px, #ffffff, transparent 60%),
+		radial-gradient(1.2px 1.2px at 60px 300px, #dfe8ff, transparent 60%),
+		radial-gradient(1.3px 1.3px at 400px 240px, #ffffff, transparent 60%),
+		radial-gradient(1.1px 1.2px at 330px 480px, #ffe4bc, transparent 60%),
+		radial-gradient(1.2px 1.2px at 140px 520px, #ffffff, transparent 60%);
+	background-size: 620px 620px;
+}
+
+/* the galactic band */
+.sky--milky {
+	background: linear-gradient(
+		118deg,
+		transparent 34%,
+		rgba(150, 175, 240, 0.055) 46%,
+		rgba(206, 198, 255, 0.075) 50%,
+		rgba(150, 175, 255, 0.05) 54%,
+		transparent 68%
+	);
+	filter: blur(18px);
+	opacity: 0.9;
+}
+
+/* bright stars — slow, subtle self-shine */
+.star {
+	position: absolute;
+	left: var(--x);
+	top: var(--y);
+	width: var(--s, 3px);
+	height: var(--s, 3px);
+	margin: calc(var(--s, 3px) / -2);
+	border-radius: 50%;
+	background: radial-gradient(circle, #ffffff 0%, rgba(255, 255, 255, 0.85) 22%, rgba(190, 214, 255, 0.35) 48%, transparent 72%);
+	filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.7)) drop-shadow(0 0 9px rgba(160, 196, 255, 0.4));
+	animation: star-shine var(--d, 7s) ease-in-out infinite alternate;
+	animation-delay: var(--dl, 0s);
+}
+
+.star--warm {
+	background: radial-gradient(circle, #fff6ea 0%, rgba(255, 236, 210, 0.85) 22%, rgba(255, 200, 150, 0.35) 48%, transparent 72%);
+	filter: drop-shadow(0 0 3px rgba(255, 245, 230, 0.7)) drop-shadow(0 0 9px rgba(255, 200, 140, 0.4));
+}
+
+@keyframes star-shine {
+	from {
+		opacity: 0.62;
+		transform: scale(0.94);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1.06);
+	}
+}
+
+/* meteors */
+.meteor {
+	position: absolute;
+	top: var(--y, 0);
+	left: -30vw;
+	width: 160px;
+	height: 1.5px;
+	border-radius: 999px;
+	background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.08) 34%, rgba(214, 228, 255, 0.55) 78%, #ffffff 100%);
+	filter: drop-shadow(0 0 4px rgba(190, 214, 255, 0.65));
+	transform: rotate(var(--a, 22deg));
+	transform-origin: right center;
+	opacity: 0;
+	animation: meteor var(--dur, 7s) linear infinite;
+	animation-delay: var(--delay, 0s);
+}
+
+.meteor::after {
+	content: '';
+	position: absolute;
+	right: -2px;
+	top: 50%;
+	width: 5px;
+	height: 5px;
+	margin-top: -2.5px;
+	border-radius: 50%;
+	background: #ffffff;
+	box-shadow:
+		0 0 6px rgba(255, 255, 255, 0.9),
+		0 0 14px rgba(180, 210, 255, 0.6);
+}
+
+@keyframes meteor {
+	0% {
+		transform: translate3d(0, 0, 0) rotate(var(--a, 22deg));
+		opacity: 0;
+	}
+	3% {
+		opacity: 1;
+	}
+	9% {
+		opacity: 0.9;
+	}
+	13% {
+		opacity: 0;
+	}
+	100% {
+		transform: translate3d(150vw, 90vh, 0) rotate(var(--a, 22deg));
+		opacity: 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.star {
+		animation: none;
+		opacity: 1;
+	}
+	.meteor {
+		display: none;
+	}
 }
