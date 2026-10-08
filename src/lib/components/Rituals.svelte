@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { asset } from '$app/paths';
 	import { reveal } from '#lib/reveal';
 </script>
 
@@ -15,11 +16,11 @@
 			use:reveal
 		>
 			<!-- Swap for a photo of your actual setup -->
-			<img
-				src="https://picsum.photos/seed/all-nighter-doors-open/900/640"
-				alt=""
-				width="900"
-				height="640"
+<img
+					src={asset('nights/ritual.jpg')}
+					alt="A dim room lit by a laptop screen during a late-night session"
+					width="1200"
+					height="800"
 				loading="lazy"
 				class="photo-warm absolute inset-0 h-full w-full object-cover"
 			/>

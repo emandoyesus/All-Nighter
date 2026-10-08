@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { asset } from '$app/paths';
 	import Nav from '#lib/components/Nav.svelte';
 	import { nights } from '#lib/data/archive';
 	import IconArrowLeft from '@tabler/icons-svelte/icons/arrow-left';
@@ -29,7 +30,7 @@
 			{#each nights as night (night.seed)}
 				<article class="flex h-full flex-col overflow-hidden rounded-card bg-night ring-1 ring-cream/10">
 					<img
-						src="https://picsum.photos/seed/{night.seed}/800/500"
+						src={asset(night.img)}
 						alt=""
 						width="800"
 						height="500"

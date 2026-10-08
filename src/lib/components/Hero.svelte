@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { asset } from '$app/paths';
 	import { TELEGRAM_URL } from '#lib/config';
 	import IconBrandTelegram from '@tabler/icons-svelte/icons/brand-telegram';
 </script>
@@ -27,10 +28,9 @@
 		</div>
 
 		<figure class="hero-rise hero-delay-1 relative">
-			<!-- Swap this placeholder for a real photo from one of your nights -->
 			<img
-				src="https://picsum.photos/seed/night-desk-lamp/1000/1250"
-				alt=""
+				src={asset('nights/hero.jpg')}
+				alt="Someone working late at a laptop in a dim room"
 				width="1000"
 				height="1250"
 				class="photo-warm aspect-[4/5] w-full rounded-card object-cover ring-1 ring-cream/10"

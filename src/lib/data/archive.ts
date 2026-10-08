@@ -1,3 +1,5 @@
+import type { AssetPath } from '$app/types';
+
 // Sample data. Replace with your own nights (dates, notes, counts) in src/lib/data/archive.ts.
 export type Night = {
 	date: string;
@@ -8,6 +10,7 @@ export type Night = {
 	tracks: number;
 	heads: number;
 	seed: string;
+	img: AssetPath;
 };
 
 export const nights: Night[] = [
@@ -19,7 +22,8 @@ export const nights: Night[] = [
 		hours: '7h 12m',
 		tracks: 41,
 		heads: 6,
-		seed: 'all-nighter-mar14'
+		seed: 'all-nighter-mar14',
+		img: 'nights/night-1.jpg'
 	},
 	{
 		date: 'Apr 28',
@@ -29,7 +33,8 @@ export const nights: Night[] = [
 		hours: '9h 03m',
 		tracks: 57,
 		heads: 8,
-		seed: 'all-nighter-apr28'
+		seed: 'all-nighter-apr28',
+		img: 'nights/night-2.jpg'
 	},
 	{
 		date: 'Jun 03',
@@ -39,7 +44,8 @@ export const nights: Night[] = [
 		hours: '5h 47m',
 		tracks: 33,
 		heads: 5,
-		seed: 'all-nighter-jun03'
+		seed: 'all-nighter-jun03',
+		img: 'nights/night-3.jpg'
 	},
 	{
 		date: 'Sep 22',
@@ -49,6 +55,7 @@ export const nights: Night[] = [
 		hours: '6h 28m',
 		tracks: 46,
 		heads: 7,
-		seed: 'all-nighter-sep22'
+		seed: 'all-nighter-sep22',
+		img: 'nights/night-4.jpg'
 	}
 ];

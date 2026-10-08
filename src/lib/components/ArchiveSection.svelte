@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { asset } from '$app/paths';
 	import { nights } from '#lib/data/archive';
 	import { reveal } from '#lib/reveal';
 </script>
@@ -16,7 +17,7 @@
 					use:reveal={i * 70}
 				>
 					<img
-						src="https://picsum.photos/seed/{night.seed}/800/500"
+						src={asset(night.img)}
 						alt=""
 						width="800"
 						height="500"
