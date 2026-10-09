@@ -26,7 +26,7 @@
 	</section>
 
 	<section class="mx-auto max-w-[1400px] px-5 py-10 md:py-14">
-		<div class="archive-grid">
+		<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 			{#each nights as night (night.seed)}
 				<article class="flex h-full flex-col overflow-hidden rounded-card bg-night ring-1 ring-cream/10">
 					<img
