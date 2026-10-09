@@ -13,7 +13,7 @@
 		<div class="rail mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-5">
 			{#each nights as night, i (night.seed)}
 				<article
-					class="w-[82vw] max-w-[400px] shrink-0 snap-start overflow-hidden rounded-card bg-night ring-1 ring-cream/10 sm:w-[60vw] lg:w-[380px]"
+					class="w-[72vw] max-w-[300px] shrink-0 snap-start overflow-hidden rounded-card bg-night ring-1 ring-cream/10 sm:w-[44vw] lg:w-[288px] xl:w-[300px]"
 					use:reveal={i * 70}
 				>
 					<img

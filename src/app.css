@@ -309,6 +309,24 @@ input[type='range'].seek {
 	border-radius: 999px;
 }
 
+/* --- archive grid: fluid columns that follow the window ----------------- */
+/*
+ * auto-fill + minmax lets cards grow to fill the viewport: one full-width
+ * card on phones, then 2 / 3 / 4+ as the window widens. No fixed breakpoints.
+ */
+
+.archive-grid {
+	display: grid;
+	gap: 1rem;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+}
+
+@media (min-width: 1100px) {
+	.archive-grid {
+		grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+	}
+}
+
 /* --- cosmos: a real sky ----------------------------------------------- */
 /*
  * Fixed, behind all content. Three speckle layers at different scales give
