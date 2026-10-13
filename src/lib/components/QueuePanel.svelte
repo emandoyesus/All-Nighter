@@ -26,11 +26,9 @@
 		busy = true;
 		const meta = await fetchVideoMeta(id);
 		busy = false;
-		if (!meta) {
-			error = 'Could not read that video. Check the link and try again.';
-			return;
-		}
-		room.add(id, meta.title, meta.channel, room.name);
+		const title = meta?.title ?? `YouTube track (${id})`;
+		const channel = meta?.channel ?? 'YouTube';
+		room.add(id, title, channel, room.name);
 		draft = '';
 	}
 

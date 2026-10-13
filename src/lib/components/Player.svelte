@@ -139,6 +139,28 @@
 		}
 	}
 
+	function handleKeydown(e: KeyboardEvent): void {
+		const target = e.target as HTMLElement | null;
+		if (
+			target?.tagName === 'INPUT' ||
+			target?.tagName === 'TEXTAREA' ||
+			target?.isContentEditable
+		) {
+			return;
+		}
+
+		if (e.code === 'Space') {
+			e.preventDefault();
+			toggle();
+		} else if (e.key === 'm' || e.key === 'M') {
+			e.preventDefault();
+			toggleMute();
+		} else if ((e.key === 'n' || e.key === 'N') && e.shiftKey) {
+			e.preventDefault();
+			skip();
+		}
+	}
+
 	onMount(() => {
 		let alive = true;
 
@@ -229,6 +251,8 @@
 		if (ready) applyToPlayer();
 	});
 </script>
+
+<svelte:window onkeydown={handleKeydown} />
 
 <div class="panel overflow-hidden">
 	<div class="flex items-center justify-between gap-3 border-b border-cream/10 px-4 py-3">

@@ -4,9 +4,24 @@
 	import IconDoorEnter from '@tabler/icons-svelte/icons/door-enter';
 	import IconUsers from '@tabler/icons-svelte/icons/users';
 	import IconMoon from '@tabler/icons-svelte/icons/moon';
+	import IconCopy from '@tabler/icons-svelte/icons/copy';
+	import IconCheck from '@tabler/icons-svelte/icons/check';
 
 	let creating = $state(false);
 	let draft = $state('');
+	let copiedSlug = $state<string | null>(null);
+
+	async function copyInvite(slug: string): Promise<void> {
+		try {
+			await navigator.clipboard.writeText(room.inviteUrl(slug));
+			copiedSlug = slug;
+			window.setTimeout(() => {
+				if (copiedSlug === slug) copiedSlug = null;
+			}, 1800);
+		} catch {
+			/* clipboard blocked */
+		}
+	}
 
 	const listings = $derived(
 		[...room.directory].sort((a, b) => b.members - a.members || b.ts - a.ts)
@@ -60,13 +75,27 @@
 								room / {ad.room} · host {ad.host || 'unknown'} · {ad.members} awake
 							</p>
 						</div>
-						<button
-							class="btn btn-ghost btn-sm shrink-0"
-							onclick={() => room.requestJoin(ad.room)}
-						>
-							<IconDoorEnter size={14} stroke={1.5} />
-							Ask to join
-						</button>
+						<div class="flex items-center gap-1.5 shrink-0">
+							<button
+								class="icon-btn text-faint hover:text-cream"
+								onclick={() => copyInvite(ad.room)}
+								title={copiedSlug === ad.room ? 'Link copied!' : 'Copy room link'}
+								aria-label="Copy link for {ad.title || ad.room}"
+							>
+								{#if copiedSlug === ad.room}
+									<IconCheck size={14} stroke={2} class="text-lamp" />
+								{:else}
+									<IconCopy size={14} stroke={1.5} />
+								{/if}
+							</button>
+							<button
+								class="btn btn-ghost btn-sm"
+								onclick={() => room.requestJoin(ad.room)}
+							>
+								<IconDoorEnter size={14} stroke={1.5} />
+								Ask to join
+							</button>
+						</div>
 					</li>
 				{/each}
 			</ul>
