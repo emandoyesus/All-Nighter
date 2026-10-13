@@ -25,6 +25,9 @@
 					{initial(peer.name)}
 				</span>
 				<span class={peer.self ? 'text-cream' : 'text-taupe'}>{peer.name}</span>
+				{#if peer.status}
+					<span class="rounded-full bg-cream/8 px-1.5 py-0.2 text-[11px] text-lamp">{peer.status}</span>
+				{/if}
 			</li>
 		{/each}
 	</ul>
@@ -40,5 +43,22 @@
 			value={room.name}
 			oninput={(e) => room.setName(e.currentTarget.value)}
 		/>
+	</div>
+
+	<div class="mt-3.5">
+		<span class="mb-1.5 block text-xs text-faint">Your mood / status</span>
+		<div class="flex flex-wrap gap-1.5">
+			{#each ['🎧 Locked in', '☕ Coffee run', '🐛 Bug hunting', '🥱 4am wall'] as mood}
+				<button
+					type="button"
+					class="rounded-full px-2.5 py-1 text-xs transition-colors border {room.statusText === mood
+						? 'border-lamp bg-lamp/15 text-lamp font-medium'
+						: 'border-cream/10 bg-night/50 text-taupe hover:border-cream/25 hover:text-cream'}"
+					onclick={() => room.setStatus(room.statusText === mood ? '' : mood)}
+				>
+					{mood}
+				</button>
+			{/each}
+		</div>
 	</div>
 </div>

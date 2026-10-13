@@ -17,6 +17,19 @@
 	let frame: HTMLDivElement;
 	let player: any = null;
 	let ready = $state(false);
+	const LS_VOLUME = 'an.volume';
+	function loadSavedVolume(): number {
+		try {
+			const saved = localStorage.getItem(LS_VOLUME);
+			if (saved !== null) {
+				const n = Number(saved);
+				if (Number.isFinite(n) && n >= 0 && n <= 100) return n;
+			}
+		} catch {}
+		return 80;
+	}
+
+	let volume = $state(loadSavedVolume());
 	let unlocked = $state(false);
 	let playerState = $state(-1);
 	let localTime = $state(0);
@@ -66,13 +79,32 @@
 		if (!ready || !player) return;
 		try {
 			player.unMute();
-			player.setVolume(80);
-			muted = false;
+			player.setVolume(volume);
+			muted = volume === 0;
 			if (room.state.playing || room.state.videoId) player.playVideo();
 		} catch {
 			/* player still settling */
 		}
 		applyToPlayer();
+	}
+
+	function setVolume(val: number): void {
+		volume = Math.max(0, Math.min(100, Math.round(val)));
+		try {
+			localStorage.setItem(LS_VOLUME, String(volume));
+		} catch {}
+		if (!ready || !player) return;
+		try {
+			player.setVolume(volume);
+			if (volume === 0) {
+				player.mute();
+				muted = true;
+			} else if (muted) {
+				player.unMute();
+				muted = false;
+				unlocked = true;
+			}
+		} catch {}
 	}
 
 	function toggle(): void {
@@ -95,7 +127,9 @@
 
 	function toggleMute(): void {
 		if (!ready || !player) return;
-		if (muted) {
+		if (muted || volume === 0) {
+			const restore = volume > 0 ? volume : 80;
+			setVolume(restore);
 			player.unMute();
 			muted = false;
 			unlocked = true;
@@ -128,6 +162,7 @@
 							ready = true;
 							duration = player.getDuration?.() ?? 0;
 							if (!unlocked) player.mute();
+							else player.setVolume(volume);
 							applyToPlayer();
 						},
 						onStateChange: (e: { data: number }) => {
@@ -306,12 +341,27 @@
 			</span>
 		{/if}
 
-		<button class="icon-btn" onclick={toggleMute} disabled={!ready} aria-label={muted ? 'Unmute' : 'Mute'}>
-			{#if muted}
-				<IconVolumeOff size={17} stroke={1.5} />
-			{:else}
-				<IconVolume size={17} stroke={1.5} />
-			{/if}
-		</button>
+		<div class="flex items-center gap-1.5">
+			<button class="icon-btn" onclick={toggleMute} disabled={!ready} aria-label={muted ? 'Unmute' : 'Mute'}>
+				{#if muted || volume === 0}
+					<IconVolumeOff size={17} stroke={1.5} />
+				{:else}
+					<IconVolume size={17} stroke={1.5} />
+				{/if}
+			</button>
+
+			<input
+				type="range"
+				class="seek hidden w-16 sm:inline-block cursor-pointer"
+				min="0"
+				max="100"
+				step="1"
+				value={muted ? 0 : volume}
+				oninput={(e) => setVolume(Number(e.currentTarget.value))}
+				disabled={!ready}
+				aria-label="Volume"
+				title="Volume: {muted ? 0 : volume}%"
+			/>
+		</div>
 	</div>
 </div>

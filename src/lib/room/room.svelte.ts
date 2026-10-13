@@ -92,6 +92,7 @@ class Room {
 	room = $state('');
 	clientId = '';
 	name = $state('');
+	statusText = $state('');
 	status = $state<ConnStatus>('connecting');
 	state = $state<RoomState>(emptyState());
 	awake = $state<Peer[]>([]);
@@ -327,9 +328,14 @@ class Room {
 			return;
 		}
 		try {
-			const data = JSON.parse(text) as { name?: string; ts?: number };
+			const data = JSON.parse(text) as { name?: string; ts?: number; status?: string };
 			if (!data?.name) return;
-			this.peers.set(id, { id, name: String(data.name).slice(0, 24), ts: Number(data.ts) || 0 });
+			this.peers.set(id, {
+				id,
+				name: String(data.name).slice(0, 24),
+				status: data.status ? String(data.status).slice(0, 24) : undefined,
+				ts: Number(data.ts) || 0
+			});
 			this.flushPeers();
 		} catch {
 			/* ignore */
@@ -654,11 +660,17 @@ class Room {
 
 	announce(): void {
 		if (!this.clientId || this.joinState !== 'approved' || !this.room) return;
-		this.peers.set(this.clientId, { id: this.clientId, name: this.name, ts: Date.now(), self: true });
+		this.peers.set(this.clientId, {
+			id: this.clientId,
+			name: this.name,
+			status: this.statusText || undefined,
+			ts: Date.now(),
+			self: true
+		});
 		this.flushPeers();
 		this.pub(
 			this.presenceTopic(this.room, this.clientId),
-			JSON.stringify({ name: this.name, ts: Date.now() }),
+			JSON.stringify({ name: this.name, status: this.statusText || undefined, ts: Date.now() }),
 			true
 		);
 		this.updateAd();
@@ -675,6 +687,15 @@ class Room {
 		this.announce();
 	}
 
+	setStatus(value: string): void {
+		const cleaned = value.slice(0, 24);
+		this.statusText = cleaned;
+		this.announce();
+		if (cleaned) {
+			this.writeLog(`is now ${cleaned}`);
+		}
+	}
+
 	add(videoId: string, title: string, channel: string | undefined, addedBy: string): void {
 		const track: Track = { uid: randomId(), videoId, title, channel, addedBy };
 		this.mutate((s) => ({ ...s, queue: [...s.queue, track] }), `added “${title}”`);
@@ -685,6 +706,18 @@ class Room {
 			(s) => ({ ...s, queue: s.queue.filter((item) => item.uid !== uid) }),
 			'took a track off the queue'
 		);
+	}
+
+	moveQueue(fromIndex: number, toIndex: number): void {
+		if (fromIndex < 0 || fromIndex >= this.state.queue.length) return;
+		if (toIndex < 0 || toIndex >= this.state.queue.length) return;
+		if (fromIndex === toIndex) return;
+		this.mutate((s) => {
+			const q = [...s.queue];
+			const [item] = q.splice(fromIndex, 1);
+			q.splice(toIndex, 0, item);
+			return { ...s, queue: q };
+		});
 	}
 
 	playNow(track: Track): void {

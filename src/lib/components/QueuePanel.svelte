@@ -6,10 +6,14 @@
 	import IconX from '@tabler/icons-svelte/icons/x';
 	import IconPlay from '@tabler/icons-svelte/icons/player-play';
 	import IconAlert from '@tabler/icons-svelte/icons/alert-triangle';
+	import IconChevronUp from '@tabler/icons-svelte/icons/chevron-up';
+	import IconChevronDown from '@tabler/icons-svelte/icons/chevron-down';
+	import IconDisc from '@tabler/icons-svelte/icons/disc';
 
 	let draft = $state('');
 	let busy = $state(false);
 	let error = $state('');
+	let showCrate = $state(false);
 
 	async function submit(e: Event): Promise<void> {
 		e.preventDefault();
@@ -104,23 +108,97 @@
 							{track.addedBy}
 						</p>
 					</div>
-					<button
-						class="icon-btn"
-						onclick={() => room.playNow(track)}
-						aria-label="Play {track.title} now"
-					>
-						<IconPlay size={15} stroke={1.5} />
-					</button>
-					<button
-						class="icon-btn"
-						onclick={() => room.remove(track.uid)}
-						aria-label="Remove {track.title} from the queue"
-					>
-						<IconX size={15} stroke={1.5} />
-					</button>
+					<div class="flex items-center gap-0.5">
+						<button
+							class="icon-btn text-faint hover:text-cream disabled:opacity-20"
+							onclick={() => room.moveQueue(i, i - 1)}
+							disabled={i === 0}
+							title="Move up"
+							aria-label="Move {track.title} up"
+						>
+							<IconChevronUp size={15} stroke={1.5} />
+						</button>
+						<button
+							class="icon-btn text-faint hover:text-cream disabled:opacity-20"
+							onclick={() => room.moveQueue(i, i + 1)}
+							disabled={i === room.state.queue.length - 1}
+							title="Move down"
+							aria-label="Move {track.title} down"
+						>
+							<IconChevronDown size={15} stroke={1.5} />
+						</button>
+						<button
+							class="icon-btn"
+							onclick={() => room.playNow(track)}
+							title="Play now"
+							aria-label="Play {track.title} now"
+						>
+							<IconPlay size={15} stroke={1.5} />
+						</button>
+						<button
+							class="icon-btn"
+							onclick={() => room.remove(track.uid)}
+							title="Remove"
+							aria-label="Remove {track.title} from the queue"
+						>
+							<IconX size={15} stroke={1.5} />
+						</button>
+					</div>
 				</li>
 			{/each}
 		</ul>
+
+		<div class="border-t border-cream/10 px-4 py-3">
+			<button
+				class="flex w-full items-center justify-between py-1 text-xs text-taupe transition-colors hover:text-cream"
+				onclick={() => (showCrate = !showCrate)}
+				aria-expanded={showCrate}
+			>
+				<span class="flex items-center gap-2 font-medium">
+					<IconDisc size={15} stroke={1.5} class="text-lamp" />
+					24/7 Radios ({crate.length} picks)
+				</span>
+				<span class="num text-[11px] text-faint">
+					{showCrate ? 'Hide crate' : 'Browse crate'}
+				</span>
+			</button>
+
+			{#if showCrate}
+				<div class="mt-3 grid gap-2.5 sm:grid-cols-2">
+					{#each crate as pick, i (pick.videoId)}
+						<button
+							class="group flex items-center gap-3 rounded-field border border-cream/10 bg-night/50 p-2 text-left transition-colors hover:border-lamp/50 hover:bg-night {i ===
+							crate.length - 1
+								? 'sm:col-span-2'
+								: ''}"
+							onclick={() => startPick(pick)}
+						>
+							<img
+								src={thumbnailFor(pick.videoId)}
+								alt=""
+								width="72"
+								height="40"
+								loading="lazy"
+								class="h-10 w-[72px] shrink-0 rounded object-cover"
+							/>
+							<span class="min-w-0 flex-1">
+								<span class="block truncate text-sm">{pick.title}</span>
+								<span class="block truncate text-xs text-faint">
+									{pick.channel}
+									<span class="text-faint/70">·</span>
+									{pick.note}
+								</span>
+							</span>
+							<IconPlay
+								size={16}
+								stroke={1.5}
+								class="shrink-0 text-faint transition-colors group-hover:text-lamp"
+							/>
+						</button>
+					{/each}
+				</div>
+			{/if}
+		</div>
 	{:else}
 		<div class="mt-4 border-t border-cream/10 px-4 py-4">
 			<div class="flex items-baseline justify-between gap-3">

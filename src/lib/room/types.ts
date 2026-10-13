@@ -19,7 +19,7 @@ export type RoomState = {
 	queue: Track[];
 };
 
-export type Peer = { id: string; name: string; ts: number; self?: boolean };
+export type Peer = { id: string; name: string; ts: number; self?: boolean; status?: string };
 
 export type LogEntry = { id: string; who: string; text: string; ts: number };
 
