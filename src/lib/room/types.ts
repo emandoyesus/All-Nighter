@@ -24,3 +24,22 @@ export type Peer = { id: string; name: string; ts: number; self?: boolean };
 export type LogEntry = { id: string; who: string; text: string; ts: number };
 
 export type ConnStatus = 'connecting' | 'online' | 'solo';
+
+/** A joinable room advertised on the public directory topic. */
+export type RoomAd = {
+	room: string;
+	title: string;
+	host: string;
+	members: number;
+	ts: number;
+};
+
+/** A pending "let me in" ticket from someone outside the room. */
+export type JoinRequest = {
+	id: string;
+	name: string;
+	ts: number;
+};
+
+/** Where the visitor is in the door flow. */
+export type JoinState = 'lobby' | 'requesting' | 'waiting' | 'approved' | 'rejected';

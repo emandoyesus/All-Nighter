@@ -28,3 +28,15 @@ export const HEARTBEAT_TICK = 10_000;
 
 /** Drift (seconds) tolerated before we nudge the player back into line. */
 export const DRIFT_TOLERANCE = 1.5;
+
+/** Directory ads older than this stop being listed (rooms heartbeat every DIR_TICK). */
+export const DIR_TTL = 45_000;
+
+/** How often an occupied room refreshes its directory ad. */
+export const DIR_TICK = 15_000;
+
+/** While waiting for approval, re-ask this often (so late-joining members see the request). */
+export const REQUEST_TICK = 4_000;
+
+/** Pending join requests older than this are dropped. */
+export const REQUEST_TTL = 30_000;

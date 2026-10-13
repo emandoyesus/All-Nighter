@@ -6,15 +6,22 @@
 	import QueuePanel from '#lib/components/QueuePanel.svelte';
 	import Countdown from '#lib/components/Countdown.svelte';
 	import PresencePanel from '#lib/components/PresencePanel.svelte';
+	import RoomLobby from '#lib/components/RoomLobby.svelte';
+	import JoinGate from '#lib/components/JoinGate.svelte';
+	import JoinRequests from '#lib/components/JoinRequests.svelte';
 	import { TELEGRAM_URL } from '#lib/config';
 	import IconCopy from '@tabler/icons-svelte/icons/copy';
 	import IconCheck from '@tabler/icons-svelte/icons/check';
 	import IconBrandTelegram from '@tabler/icons-svelte/icons/brand-telegram';
 	import IconArrowLeft from '@tabler/icons-svelte/icons/arrow-left';
+	import IconLogout from '@tabler/icons-svelte/icons/logout';
 
 	let copied = $state(false);
 
 	onMount(() => room.init());
+
+	const inRoom = $derived(room.joinState === 'approved');
+	const gated = $derived(room.joinState === 'waiting' || room.joinState === 'rejected');
 
 	async function copyLink(): Promise<void> {
 		try {
@@ -38,79 +45,102 @@
 				<IconArrowLeft size={15} stroke={1.5} />
 				Back to home
 			</a>
-			<h1 class="mt-4 text-3xl font-semibold tracking-tight md:text-4xl">The room</h1>
+			<h1 class="mt-4 text-3xl font-semibold tracking-tight md:text-4xl">
+				{#if inRoom}
+					{room.title || 'The room'}
+				{:else if gated}
+					Knocking
+				{:else}
+					The rooms
+				{/if}
+			</h1>
 			<p class="mt-2 max-w-[58ch] leading-relaxed text-taupe">
-				One queue, one player, everyone awake. Share the room link with your crew.
+				{#if inRoom}
+					One queue, one player, everyone awake. Share the room link with your crew.
+				{:else if gated}
+					Wait for a member to open the door.
+				{:else}
+					Open a room and the night starts with you, or ask to join one already running.
+				{/if}
 			</p>
 		</div>
 	</section>
 
-	<section class="mx-auto max-w-[1400px] px-5 py-6 md:py-8">
-		<div class="grid gap-4 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]">
-			<div class="min-w-0">
-				<Player />
-				<QueuePanel />
-			</div>
-			<aside class="flex min-w-0 flex-col gap-4">
-				<Countdown />
-				<PresencePanel />
-
-				<div class="panel flex flex-1 flex-col p-5">
-					<div class="flex items-center justify-between gap-3">
-						<h3 class="text-sm font-medium">Lately</h3>
-						{#if room.status === 'online'}
-							<span class="inline-flex items-center gap-2 rounded-full border border-cream/15 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-taupe">
-								<span class="h-1.5 w-1.5 rounded-full bg-lamp"></span>
-								in the room
-							</span>
-						{:else if room.status === 'connecting'}
-							<span class="inline-flex items-center gap-2 rounded-full border border-cream/15 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-taupe">
-								<span class="soft-blink h-1.5 w-1.5 rounded-full bg-lamp"></span>
-								finding the room
-							</span>
-						{:else}
-							<span class="inline-flex items-center gap-2 rounded-full border border-cream/15 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
-								<span class="h-1.5 w-1.5 border border-faint rounded-full"></span>
-								solo for now
-							</span>
-						{/if}
-					</div>
-
-					{#if room.log.length > 0}
-						<ul class="num mt-3 space-y-1.5 text-xs leading-relaxed">
-							{#each room.log as entry (entry.id)}
-								<li class="truncate text-faint">
-									<span class="text-taupe">{entry.who}</span>
-									{entry.text}
-								</li>
-							{/each}
-						</ul>
-					{:else}
-						<p class="num mt-3 text-xs leading-relaxed text-faint">quiet in here. add the first track.</p>
-					{/if}
-
-					<div class="mt-auto flex items-center justify-between gap-3 pt-5">
-						<span class="num truncate text-xs text-faint">room / {room.room}</span>
-						<button class="btn btn-ghost btn-sm" onclick={copyLink}>
-							{#if copied}
-								<IconCheck size={14} stroke={1.5} />
-								Copied
-							{:else}
-								<IconCopy size={14} stroke={1.5} />
-								Copy link
-							{/if}
-						</button>
-					</div>
+	{#if inRoom}
+		<section class="mx-auto max-w-[1400px] px-5 py-6 md:py-8">
+			<div class="grid gap-4 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]">
+				<div class="min-w-0">
+					<Player />
+					<QueuePanel />
 				</div>
+				<aside class="flex min-w-0 flex-col gap-4">
+					<JoinRequests />
+					<Countdown />
+					<PresencePanel />
 
-				<a href={TELEGRAM_URL} class="btn btn-ghost w-full">
-					<IconBrandTelegram size={16} stroke={1.5} />
-					Join the Telegram
-				</a>
-			</aside>
-		</div>
-	
-</section>
+					<div class="panel flex flex-1 flex-col p-5">
+						<div class="flex items-center justify-between gap-3">
+							<h3 class="text-sm font-medium">Lately</h3>
+							{#if room.status === 'online'}
+								<span class="inline-flex items-center gap-2 rounded-full border border-cream/15 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-taupe">
+									<span class="h-1.5 w-1.5 rounded-full bg-lamp"></span>
+									in the room
+								</span>
+							{:else if room.status === 'connecting'}
+								<span class="inline-flex items-center gap-2 rounded-full border border-cream/15 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-taupe">
+									<span class="soft-blink h-1.5 w-1.5 rounded-full bg-lamp"></span>
+									finding the room
+								</span>
+							{:else}
+								<span class="inline-flex items-center gap-2 rounded-full border border-cream/15 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
+									<span class="h-1.5 w-1.5 border border-faint rounded-full"></span>
+									solo for now
+								</span>
+							{/if}
+						</div>
+
+						{#if room.log.length > 0}
+							<ul class="num mt-3 space-y-1.5 text-xs leading-relaxed">
+								{#each room.log as entry (entry.id)}
+									<li class="truncate text-faint">
+										<span class="text-taupe">{entry.who}</span>
+										{entry.text}
+									</li>
+								{/each}
+							</ul>
+						{:else}
+							<p class="num mt-3 text-xs leading-relaxed text-faint">quiet in here. add the first track.</p>
+						{/if}
+
+						<div class="mt-auto flex items-center justify-between gap-3 pt-5">
+							<span class="num truncate text-xs text-faint">room / {room.room}</span>
+							<button class="btn btn-ghost btn-sm" onclick={copyLink}>
+								{#if copied}
+									<IconCheck size={14} stroke={1.5} />
+									Copied
+								{:else}
+									<IconCopy size={14} stroke={1.5} />
+									Copy link
+								{/if}
+							</button>
+						</div>
+					</div>
+
+					<button class="btn btn-ghost w-full" onclick={() => room.leave()}>
+						Leave the room
+					</button>
+				</aside>
+			</div>
+		</section>
+	{:else if gated}
+		<section class="mx-auto max-w-[1400px] px-5 py-10 md:py-16">
+			<JoinGate />
+		</section>
+	{:else}
+		<section class="mx-auto max-w-[1400px] px-5 py-6 md:py-8">
+			<RoomLobby />
+		</section>
+	{/if}
 </main>
 
 <footer class="border-t border-cream/10">

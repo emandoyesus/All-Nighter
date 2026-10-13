@@ -465,17 +465,19 @@ input[type='range'].seek {
 		transform: translate3d(0, 0, 0) rotate(var(--a, 22deg));
 		opacity: 0;
 	}
-	3% {
+	2% {
 		opacity: 1;
 	}
-	9% {
-		opacity: 0.9;
+	18% {
+		transform: translate3d(150vw, 92vh, 0) rotate(var(--a, 22deg));
+		opacity: 1;
 	}
-	13% {
+	22% {
+		transform: translate3d(150vw, 92vh, 0) rotate(var(--a, 22deg));
 		opacity: 0;
 	}
 	100% {
-		transform: translate3d(150vw, 90vh, 0) rotate(var(--a, 22deg));
+		transform: translate3d(150vw, 92vh, 0) rotate(var(--a, 22deg));
 		opacity: 0;
 	}
 }
@@ -486,6 +488,8 @@ input[type='range'].seek {
 		opacity: 1;
 	}
 	.meteor {
-		display: none;
+		animation: none;
+		left: var(--x, 40%);
+		opacity: 0.45;
 	}
 }

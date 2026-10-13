@@ -1,5 +1,23 @@
-import { BROKERS, DEFAULT_ROOM, PRESENCE_TICK, PRESENCE_TTL } from '#lib/config';
-import type { ConnStatus, LogEntry, Peer, RoomState, Track } from './types';
+import {
+	BROKERS,
+	DIR_TICK,
+	DIR_TTL,
+	DEFAULT_ROOM,
+	PRESENCE_TICK,
+	PRESENCE_TTL,
+	REQUEST_TICK,
+	REQUEST_TTL
+} from '#lib/config';
+import type {
+	ConnStatus,
+	JoinRequest,
+	JoinState,
+	LogEntry,
+	Peer,
+	RoomAd,
+	RoomState,
+	Track
+} from './types';
 
 const LS_NAME = 'an.callsign';
 const LS_ID = 'an.client';
@@ -62,6 +80,7 @@ type MqttLike = {
 		cb?: (err?: Error) => void
 	): unknown;
 	subscribe(topics: string | string[]): unknown;
+	unsubscribe(topics: string | string[]): unknown;
 	on(event: string, cb: (...args: any[]) => void): unknown;
 	end(force?: boolean): unknown;
 };
@@ -69,7 +88,8 @@ type MqttLike = {
 const TOPIC = 'allnighter/v1';
 
 class Room {
-	readonly room: string;
+	/** Active room slug. Empty while browsing the lobby. */
+	room = $state('');
 	clientId = '';
 	name = $state('');
 	status = $state<ConnStatus>('connecting');
@@ -80,26 +100,44 @@ class Room {
 	offset = $state(0);
 	lastRemoteAt = $state(0);
 
+	/** Room lifecycle. */
+	joinState = $state<JoinState>('lobby');
+	title = $state('');
+	isHost = $state(false);
+	/** Rooms advertised on the broker right now. */
+	directory = $state<RoomAd[]>([]);
+	/** People asking to be let in (only populated for members). */
+	pending = $state<JoinRequest[]>([]);
+
 	private client: MqttLike | null = null;
 	private peers = new Map<string, Peer>();
 	private inited = false;
 	private everConnected = false;
 	private attempts = 0;
 	private offlineSince = 0;
-	private lastLocalSeq = 0;
+	private requestTimer = 0;
+	private dirTimer = 0;
 
-	constructor() {
-		const param =
-			typeof location !== 'undefined' ? new URLSearchParams(location.search).get('room') : null;
-		this.room = sanitizeRoom(param);
-	}
+	/* ------------------------------------------------------------- topics */
 
 	private t(suffix: string): string {
 		return `${TOPIC}/${this.room}/${suffix}`;
 	}
 
-	private presenceTopic(id: string): string {
-		return this.t(`p/${id}`);
+	private dirTopic(room: string): string {
+		return `${TOPIC}/dir/${room}`;
+	}
+
+	private joinTopic(room: string, id: string): string {
+		return `${TOPIC}/${room}/join/${id}`;
+	}
+
+	private decTopic(room: string, id: string): string {
+		return `${TOPIC}/${room}/dec/${id}`;
+	}
+
+	private presenceTopic(room: string, id: string): string {
+		return `${TOPIC}/${room}/p/${id}`;
 	}
 
 	/* ---------------------------------------------------------- lifecycle */
@@ -118,11 +156,30 @@ class Room {
 		window.setInterval(() => this.announce(), PRESENCE_TICK);
 		window.setInterval(() => this.tick(), 1000);
 		window.addEventListener('beforeunload', this.bye);
+
+		const param =
+			typeof location !== 'undefined' ? new URLSearchParams(location.search).get('room') : null;
+		if (param) {
+			const slug = sanitizeRoom(param);
+			let wasHost = false;
+			try {
+				wasHost = localStorage.getItem('an.host.' + slug) === '1';
+			} catch {
+				/* ignore */
+			}
+			if (wasHost) {
+				this.enterApproved(slug, slug, true);
+			} else {
+				this.requestJoin(slug);
+			}
+		}
 	}
 
 	private bye = (): void => {
 		if (!this.clientId) return;
-		this.pub(this.presenceTopic(this.clientId), '', true);
+		if (this.room && this.joinState === 'approved') {
+			this.pub(this.presenceTopic(this.room, this.clientId), '', true);
+		}
 	};
 
 	private async connect(): Promise<void> {
@@ -144,7 +201,7 @@ class Room {
 				connectTimeout: 5000,
 				clean: true,
 				will: {
-					topic: this.presenceTopic(this.clientId),
+					topic: this.presenceTopic(this.room || DEFAULT_ROOM, this.clientId),
 					payload: '',
 					retain: true,
 					qos: 0
@@ -181,9 +238,16 @@ class Room {
 				this.attempts = 0;
 				this.offlineSince = 0;
 				this.status = 'online';
-				client.subscribe([this.t('state'), this.t('p/#'), this.t('log')]);
-				this.announce();
-				if (this.state.by === this.clientId) this.publishState();
+				client.subscribe(`${TOPIC}/dir/#`);
+				if (this.room && this.joinState === 'approved') {
+					this.subscribeActive();
+					this.announce();
+					if (this.isHost) this.publishState();
+					this.updateAd();
+				} else if (this.room && this.joinState === 'waiting') {
+					this.subscribeActive();
+					this.publishRequest();
+				}
 			});
 
 			client.on('message', (topic: string, payload: Uint8Array | string) =>
@@ -210,11 +274,21 @@ class Room {
 
 	private onMessage(topic: string, raw: Uint8Array | string): void {
 		const text = typeof raw === 'string' ? raw : new TextDecoder().decode(raw);
-		if (topic.startsWith(this.t('p/'))) {
-			this.onPresence(topic.slice(this.t('p/').length), text);
+		if (!topic.startsWith(`${TOPIC}/`)) return;
+		const rel = topic.slice(TOPIC.length + 1);
+
+		if (rel.startsWith('dir/')) {
+			this.onDir(rel.slice(4), text);
 			return;
 		}
-		if (topic === this.t('state')) {
+
+		const slash = rel.indexOf('/');
+		if (slash < 0) return;
+		const slug = rel.slice(0, slash);
+		const rest = rel.slice(slash + 1);
+		if (slug !== this.room) return;
+
+		if (rest === 'state') {
 			if (!text) return;
 			try {
 				this.accept(JSON.parse(text));
@@ -223,13 +297,25 @@ class Room {
 			}
 			return;
 		}
-		if (topic === this.t('log')) {
+		if (rest === 'log') {
 			if (!text) return;
 			try {
 				this.onLog(JSON.parse(text));
 			} catch {
 				/* ignore malformed */
 			}
+			return;
+		}
+		if (rest.startsWith('p/')) {
+			this.onPresence(rest.slice(2), text);
+			return;
+		}
+		if (rest.startsWith('join/')) {
+			this.onJoinRequest(rest.slice(5), text);
+			return;
+		}
+		if (rest.startsWith('dec/')) {
+			if (rest.slice(4) === this.clientId) this.onDecision(text);
 		}
 	}
 
@@ -245,6 +331,65 @@ class Room {
 			if (!data?.name) return;
 			this.peers.set(id, { id, name: String(data.name).slice(0, 24), ts: Number(data.ts) || 0 });
 			this.flushPeers();
+		} catch {
+			/* ignore */
+		}
+	}
+
+	private onDir(slug: string, text: string): void {
+		const room = sanitizeRoom(slug);
+		if (!text) {
+			this.directory = this.directory.filter((entry) => entry.room !== room);
+			return;
+		}
+		try {
+			const ad = JSON.parse(text) as RoomAd;
+			if (!ad?.room) return;
+			const entry: RoomAd = {
+				room: sanitizeRoom(ad.room),
+				title: String(ad.title ?? ad.room).slice(0, 40),
+				host: String(ad.host ?? '').slice(0, 24),
+				members: Math.max(0, Number(ad.members) || 0),
+				ts: Number(ad.ts) || 0
+			};
+			this.directory = [...this.directory.filter((item) => item.room !== entry.room), entry];
+		} catch {
+			/* ignore malformed */
+		}
+	}
+
+	private onJoinRequest(id: string, text: string): void {
+		if (this.joinState !== 'approved') return;
+		if (id === this.clientId) return;
+		if (!text) {
+			this.pending = this.pending.filter((req) => req.id !== id);
+			return;
+		}
+		try {
+			const data = JSON.parse(text) as { name?: string; ts?: number };
+			if (!data?.name) return;
+			const ts = Number(data.ts) || Date.now();
+			if (Date.now() - ts > REQUEST_TTL) return;
+			const existing = this.pending.find((req) => req.id === id);
+			if (existing) {
+				this.pending = this.pending.map((req) => (req.id === id ? { ...req, ts } : req));
+			} else {
+				this.pending = [...this.pending, { id, name: String(data.name).slice(0, 24), ts }];
+			}
+		} catch {
+			/* ignore */
+		}
+	}
+
+	private onDecision(text: string): void {
+		try {
+			const data = JSON.parse(text) as { ok?: boolean };
+			if (data?.ok) {
+				this.admit();
+			} else if (this.joinState !== 'approved') {
+				this.stopRequesting();
+				this.joinState = 'rejected';
+			}
 		} catch {
 			/* ignore */
 		}
@@ -294,6 +439,7 @@ class Room {
 	}
 
 	private publishState(): void {
+		if (!this.room) return;
 		this.pub(this.t('state'), JSON.stringify({ ...this.state, clock: Date.now() }), true);
 	}
 
@@ -313,22 +459,209 @@ class Room {
 		const base = next(this.state);
 		const seq = options?.keepSeq ? this.state.seq || clock : clock;
 		this.state = { ...base, seq, by: this.clientId, clock };
-		if (!options?.keepSeq) this.lastLocalSeq = seq;
 		this.publishState();
 		if (logText) this.writeLog(logText);
+	}
+
+	/* --------------------------------------------------------- room lifecycle */
+
+	private subscribeActive(): void {
+		if (!this.client?.connected || !this.room) return;
+		this.client.subscribe([
+			this.t('state'),
+			this.t('p/#'),
+			this.t('log'),
+			this.t('join/#'),
+			this.decTopic(this.room, this.clientId)
+		]);
+	}
+
+	/** Create a room and step inside as its host. */
+	createRoom(name: string): void {
+		const slug = sanitizeRoom(name);
+		this.enterApproved(slug, name.trim() || slug, true);
+	}
+
+	/** Claim an unhosted or deserted room and step inside as host. */
+	claimRoom(slug: string, title?: string): void {
+		const clean = sanitizeRoom(slug);
+		this.enterApproved(clean, title?.trim() || clean, true);
+	}
+
+	/** Ask the members of `slug` to let us in. */
+	requestJoin(slug: string, title?: string): void {
+		const clean = sanitizeRoom(slug);
+		this.resetRoom();
+		this.room = clean;
+		this.title = title?.trim() || clean;
+		this.joinState = 'waiting';
+		this.syncUrl(clean);
+		this.subscribeActive();
+		this.publishRequest();
+		this.startRequesting();
+	}
+
+	private publishRequest(): void {
+		if (!this.room) return;
+		this.pub(
+			this.joinTopic(this.room, this.clientId),
+			JSON.stringify({ name: this.name, ts: Date.now() }),
+			true
+		);
+	}
+
+	private startRequesting(): void {
+		this.stopRequesting();
+		this.requestTimer = window.setInterval(() => {
+			if (this.joinState !== 'waiting') {
+				this.stopRequesting();
+				return;
+			}
+			this.publishRequest();
+		}, REQUEST_TICK);
+	}
+
+	private stopRequesting(): void {
+		if (this.requestTimer) {
+			window.clearInterval(this.requestTimer);
+			this.requestTimer = 0;
+		}
+	}
+
+	/** A member accepted us (or a retained approval arrived). */
+	private admit(): void {
+		if (this.joinState === 'approved') return;
+		this.stopRequesting();
+		this.joinState = 'approved';
+		this.syncUrl(this.room);
+		this.subscribeActive();
+		this.announce();
+		this.publishState();
+		this.startDirectory();
+	}
+
+	private enterApproved(slug: string, title: string, host: boolean): void {
+		this.resetRoom();
+		this.room = slug;
+		this.title = title;
+		this.isHost = host;
+		this.joinState = 'approved';
+		if (host) {
+			try {
+				localStorage.setItem('an.host.' + slug, '1');
+			} catch {
+				/* ignore */
+			}
+		}
+		this.syncUrl(slug);
+		this.subscribeActive();
+		this.announce();
+		this.publishState();
+		this.startDirectory();
+	}
+
+	approve(id: string): void {
+		if (!this.room) return;
+		this.pub(
+			this.decTopic(this.room, id),
+			JSON.stringify({ ok: true, by: this.name, ts: Date.now() }),
+			true
+		);
+		this.pending = this.pending.filter((req) => req.id !== id);
+	}
+
+	reject(id: string): void {
+		if (!this.room) return;
+		this.pub(this.decTopic(this.room, id), JSON.stringify({ ok: false, by: this.name, ts: Date.now() }), false);
+		this.pending = this.pending.filter((req) => req.id !== id);
+	}
+
+	/** Leave the room and return to the lobby. */
+	leave(): void {
+		if (this.room && this.joinState === 'approved') {
+			this.pub(this.presenceTopic(this.room, this.clientId), '', true);
+			if (this.isHost) this.pub(this.dirTopic(this.room), '', true);
+		}
+		if (this.room) {
+			try {
+				localStorage.removeItem('an.host.' + this.room);
+			} catch {
+				/* ignore */
+			}
+		}
+		this.resetRoom();
+		this.joinState = 'lobby';
+		this.syncUrl('');
+	}
+
+	private syncUrl(slug: string): void {
+		if (typeof window === 'undefined' || typeof history === 'undefined') return;
+		try {
+			const url = new URL(window.location.href);
+			if (slug) {
+				url.searchParams.set('room', slug);
+			} else {
+				url.searchParams.delete('room');
+			}
+			window.history.replaceState({}, '', url.toString());
+		} catch {
+			/* ignore */
+		}
+	}
+
+	/* --------------------------------------------------------- directory ad */
+
+	private startDirectory(): void {
+		this.stopDirectory();
+		this.updateAd();
+		this.dirTimer = window.setInterval(() => {
+			if (this.joinState !== 'approved' || !this.room) {
+				this.stopDirectory();
+				return;
+			}
+			this.updateAd();
+		}, DIR_TICK);
+	}
+
+	private stopDirectory(): void {
+		if (this.dirTimer) {
+			window.clearInterval(this.dirTimer);
+			this.dirTimer = 0;
+		}
+	}
+
+	private updateAd(): void {
+		if (!this.room || this.joinState !== 'approved') return;
+		this.pub(
+			this.dirTopic(this.room),
+			JSON.stringify({
+				room: this.room,
+				title: this.title || this.room,
+				host: this.isHost ? this.name : this.hostName(),
+				members: this.awake.length,
+				ts: Date.now()
+			} satisfies RoomAd),
+			true
+		);
+	}
+
+	/** Keep the original host name when other members refresh the ad. */
+	private hostName(): string {
+		return this.directory.find((entry) => entry.room === this.room)?.host || this.name;
 	}
 
 	/* -------------------------------------------------------------- actions */
 
 	announce(): void {
-		if (!this.clientId) return;
+		if (!this.clientId || this.joinState !== 'approved' || !this.room) return;
 		this.peers.set(this.clientId, { id: this.clientId, name: this.name, ts: Date.now(), self: true });
 		this.flushPeers();
 		this.pub(
-			this.presenceTopic(this.clientId),
+			this.presenceTopic(this.room, this.clientId),
 			JSON.stringify({ name: this.name, ts: Date.now() }),
 			true
 		);
+		this.updateAd();
 	}
 
 	setName(value: string): void {
@@ -431,10 +764,15 @@ class Room {
 
 	roomUrl(): string {
 		if (typeof location === 'undefined') return '';
-		return `${location.origin}${location.pathname}?room=${this.room}`;
+		return `${location.origin}${location.pathname}${this.room ? `?room=${this.room}` : ''}`;
 	}
 
-	/* ------------------------------------------------------------- housekeeping */
+	inviteUrl(slug: string): string {
+		if (typeof location === 'undefined') return '';
+		return `${location.origin}${location.pathname}?room=${sanitizeRoom(slug)}`;
+	}
+
+	/* --------------------------------------------------------- housekeeping */
 
 	private tick(): void {
 		const now = Date.now();
@@ -442,6 +780,17 @@ class Room {
 			if (id !== this.clientId && now - peer.ts > PRESENCE_TTL) this.peers.delete(id);
 		}
 		this.flushPeers();
+
+		if (this.pending.length) {
+			const present = new Set(this.awake.map((peer) => peer.id));
+			this.pending = this.pending.filter(
+				(req) => now - req.ts <= REQUEST_TTL && !present.has(req.id)
+			);
+		}
+
+		const live = this.directory.filter((entry) => now - entry.ts <= DIR_TTL);
+		if (live.length !== this.directory.length) this.directory = live;
+
 		if (this.status === 'connecting' && this.offlineSince && now - this.offlineSince > 12_000) {
 			this.status = 'solo';
 		}
@@ -452,6 +801,22 @@ class Room {
 			(a, b) => Number(!!b.self) - Number(!!a.self) || a.name.localeCompare(b.name)
 		);
 		this.awake = list;
+	}
+
+	private resetRoom(): void {
+		this.stopRequesting();
+		this.stopDirectory();
+		this.peers.clear();
+		if (this.clientId) {
+			this.peers.set(this.clientId, { id: this.clientId, name: this.name, ts: Date.now(), self: true });
+		}
+		this.flushPeers();
+		this.room = '';
+		this.title = '';
+		this.isHost = false;
+		this.state = emptyState();
+		this.log = [];
+		this.pending = [];
 	}
 }
 
