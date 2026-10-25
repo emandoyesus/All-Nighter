@@ -6,17 +6,24 @@
 	import QueuePanel from '#lib/components/QueuePanel.svelte';
 	import Countdown from '#lib/components/Countdown.svelte';
 	import PresencePanel from '#lib/components/PresencePanel.svelte';
+	import NowPlayingBar from '#lib/components/NowPlayingBar.svelte';
+	import ChatPanel from '#lib/components/ChatPanel.svelte';
 	import RoomLobby from '#lib/components/RoomLobby.svelte';
 	import JoinGate from '#lib/components/JoinGate.svelte';
 	import JoinRequests from '#lib/components/JoinRequests.svelte';
+	import ModeToggle from '#lib/components/ModeToggle.svelte';
+	import DawnRitualModal from '#lib/components/DawnRitualModal.svelte';
 	import { TELEGRAM_URL } from '#lib/config';
 	import IconCopy from '@tabler/icons-svelte/icons/copy';
 	import IconCheck from '@tabler/icons-svelte/icons/check';
-	import IconBrandTelegram from '@tabler/icons-svelte/icons/brand-telegram';
 	import IconArrowLeft from '@tabler/icons-svelte/icons/arrow-left';
 	import IconLogout from '@tabler/icons-svelte/icons/logout';
+	import IconTarget from '@tabler/icons-svelte/icons/target';
+	import IconWaveSine from '@tabler/icons-svelte/icons/wave-sine';
+	import IconSun from '@tabler/icons-svelte/icons/sun';
 
 	let copied = $state(false);
+	let showDawnModal = $state(false);
 
 	onMount(() => room.init());
 
@@ -43,24 +50,39 @@
 		<div class="mx-auto max-w-[1400px] px-5 py-10 md:py-12">
 			<a href="/" class="inline-flex items-center gap-1.5 text-sm text-taupe transition-colors hover:text-cream">
 				<IconArrowLeft size={15} stroke={1.5} />
-				Back to home
+				Tonight
 			</a>
-			<h1 class="mt-4 text-3xl font-semibold tracking-tight md:text-4xl">
+			<div class="mt-4 flex flex-wrap items-center gap-3">
+				<h1 class="text-3xl font-semibold tracking-tight md:text-4xl">
+					{#if inRoom}
+						{room.title || 'The Room'}
+					{:else if gated}
+						Knocking
+					{:else}
+						The Room
+					{/if}
+				</h1>
 				{#if inRoom}
-					{room.title || 'The room'}
-				{:else if gated}
-					Knocking
-				{:else}
-					The rooms
+					{#if room.mode === 'focus'}
+						<span class="inline-flex items-center gap-1.5 rounded-full border border-lamp/40 bg-lamp/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-lamp">
+							<IconTarget size={11} stroke={2} />
+							Focus
+						</span>
+					{:else}
+						<span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em]" style="border: 1px solid color-mix(in srgb, var(--color-amber) 40%, transparent); background: color-mix(in srgb, var(--color-amber) 10%, transparent); color: var(--color-amber)">
+							<IconWaveSine size={11} stroke={2} />
+							Break
+						</span>
+					{/if}
 				{/if}
-			</h1>
+			</div>
 			<p class="mt-2 max-w-[58ch] leading-relaxed text-taupe">
 				{#if inRoom}
 					One queue, one player, everyone awake. Share the room link with your crew.
 				{:else if gated}
 					Wait for a member to open the door.
 				{:else}
-					Open a room and the night starts with you, or ask to join one already running.
+					Open a room and the night starts with you, or knock on one already running.
 				{/if}
 			</p>
 		</div>
@@ -68,15 +90,54 @@
 
 	{#if inRoom}
 		<section class="mx-auto max-w-[1400px] px-5 py-6 md:py-8">
-			<div class="grid gap-4 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]">
+			{#if room.status !== 'online'}
+				<div class="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-card border border-lamp/30 bg-lamp/8 px-4 py-2.5">
+					<p class="text-sm text-cream">
+						{room.status === 'connecting' ? 'Reconnecting to the room…' : 'Playing solo for now.'}
+						<span class="text-taupe">Others may not hear changes yet.</span>
+					</p>
+					<button class="btn btn-ghost btn-sm" onclick={() => room.init()}>Retry</button>
+				</div>
+			{/if}
+			<NowPlayingBar />
+			<div class="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]">
 				<div class="min-w-0">
+					<div class="panel mb-3 flex flex-wrap items-center justify-between gap-2 px-4 py-2">
+						<div class="flex items-center gap-2 text-xs text-taupe">
+							<span class="h-1.5 w-1.5 rounded-full {room.state.playing ? 'bg-lamp soft-blink' : 'bg-faint'}"></span>
+							{room.state.playing ? 'Playing' : 'Paused'}
+							<span class="text-faint/70">·</span>
+							{room.state.queue.length} up next · {room.awake.length} awake
+						</div>
+						<div class="flex items-center gap-1.5">
+							{#if room.isHost}
+								<button class="btn btn-ghost btn-sm" onclick={() => room.skip()} disabled={room.state.queue.length === 0 && !room.state.current}>
+									Skip
+								</button>
+							{:else}
+								{@const needed = Math.max(1, Math.ceil(room.awake.length / 2))}
+								{@const voted = room.skipVoters.includes(room.clientId)}
+								<button
+									class="btn btn-ghost btn-sm {voted ? 'border-lamp/50 text-lamp' : ''}"
+									onclick={() => room.skipVote()}
+									disabled={room.state.queue.length === 0 && !room.state.current}
+									title="Democratic skip vote: need majority of awake listeners"
+								>
+									{voted ? `Skip vote (${room.skipVoters.length}/${needed})` : 'Vote to skip'}
+								</button>
+							{/if}
+							<button class="btn btn-ghost btn-sm" onclick={async () => { try { await navigator.clipboard.writeText(room.roomUrl()); } catch {} }}>Share room</button>
+						</div>
+					</div>
 					<Player />
 					<QueuePanel />
 				</div>
 				<aside class="flex min-w-0 flex-col gap-4">
 					<JoinRequests />
 					<Countdown />
+					<ModeToggle />
 					<PresencePanel />
+					<ChatPanel />
 
 					<div class="panel flex flex-1 flex-col p-5">
 						<div class="flex items-center justify-between gap-3">
@@ -126,11 +187,17 @@
 						</div>
 					</div>
 
+					<button class="btn btn-primary w-full text-xs" onclick={() => (showDawnModal = true)}>
+						<IconSun size={15} stroke={2} />
+						Dawn ritual · Log tonight
+					</button>
+
 					<button class="btn btn-ghost w-full" onclick={() => room.leave()}>
-						Leave the room
+						Step out
 					</button>
 				</aside>
 			</div>
+			<DawnRitualModal bind:open={showDawnModal} />
 		</section>
 	{:else if gated}
 		<section class="mx-auto max-w-[1400px] px-5 py-10 md:py-16">

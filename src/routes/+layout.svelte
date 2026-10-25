@@ -2,17 +2,70 @@
 	import '@fontsource-variable/space-grotesk';
 	import '@fontsource-variable/jetbrains-mono';
 	import '../app.css';
+	import { onMount } from 'svelte';
+	import { afterNavigate } from '$app/navigation';
 	import favicon from '#lib/assets/favicon.svg';
+	import LampCursor from '#lib/components/LampCursor.svelte';
+	import { gsap, prefersReducedMotion, ScrollTrigger, setupGsap } from '#lib/motion';
 	import type { LayoutProps } from './$types';
 
 	let { children }: LayoutProps = $props();
+
+	function getNightPhase(): 'dusk' | 'night' | 'dawn' | 'day' {
+		const hour = new Date().getHours();
+		if (hour >= 20 && hour < 23) return 'dusk';
+		if (hour >= 23 || hour < 5) return 'night';
+		if (hour >= 5 && hour < 8) return 'dawn';
+		return 'dusk';
+	}
+
+	let nightPhase = $state<'dusk' | 'night' | 'dawn' | 'day'>(getNightPhase());
+
+	onMount(() => {
+		nightPhase = getNightPhase();
+		const phaseTimer = window.setInterval(() => {
+			nightPhase = getNightPhase();
+		}, 60000);
+
+		if (prefersReducedMotion()) return () => window.clearInterval(phaseTimer);
+
+		setupGsap();
+
+		const ctx = gsap.context(() => {
+			gsap.set(['.sky--far', '.sky--mid', '.sky--near', '.sky--milky'], {
+				scale: 1.18,
+				transformOrigin: 'center'
+			});
+
+			const scroll = {
+				trigger: document.documentElement,
+				start: 'top top',
+				end: 'bottom bottom',
+				scrub: true
+			};
+
+			gsap.to('.sky--far', { yPercent: 4, ease: 'none', scrollTrigger: scroll });
+			gsap.to('.sky--mid', { yPercent: 8, ease: 'none', scrollTrigger: scroll });
+			gsap.to('.sky--near', { yPercent: 13, ease: 'none', scrollTrigger: scroll });
+			gsap.to('.sky--milky', { yPercent: 6, rotation: -2, ease: 'none', scrollTrigger: scroll });
+		});
+
+		return () => {
+			window.clearInterval(phaseTimer);
+			ctx.revert();
+		};
+	});
+
+	afterNavigate(() => {
+		requestAnimationFrame(() => ScrollTrigger.refresh());
+	});
 </script>
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-<div class="cosmos" aria-hidden="true">
+<div class="cosmos cosmos--{nightPhase}" aria-hidden="true">
 	<div class="sky sky--milky"></div>
 	<div class="sky sky--far"></div>
 	<div class="sky sky--mid"></div>
@@ -31,5 +84,7 @@
 </div>
 
 <div class="grain-layer" aria-hidden="true"></div>
+
+<LampCursor />
 
 {@render children()}

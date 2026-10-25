@@ -1,16 +1,109 @@
 <script lang="ts">
-	import { TELEGRAM_URL } from '#lib/config';
+	import { onMount } from 'svelte';
 	import { room } from '#lib/room/room.svelte';
+	import { gsap, prefersReducedMotion, setupGsap } from '#lib/motion';
+	import { magnetic } from '#lib/magnetic';
 	import IconMoon from '@tabler/icons-svelte/icons/moon';
-	import IconBrandTelegram from '@tabler/icons-svelte/icons/brand-telegram';
 	import IconMenu2 from '@tabler/icons-svelte/icons/menu-2';
 	import IconX from '@tabler/icons-svelte/icons/x';
+	import IconRadio from '@tabler/icons-svelte/icons/radio';
 
 	const live = $derived(room.state.playing);
 	let open = $state(false);
+
+	let header: HTMLElement;
+	let menuEl: HTMLElement | undefined = $state();
+	let lastY = 0;
+	let hidden = false;
+
+	onMount(() => {
+		if (prefersReducedMotion()) return;
+
+		setupGsap();
+		lastY = window.scrollY;
+
+		const onScroll = () => {
+			const y = window.scrollY;
+
+			if (open) {
+				lastY = y;
+				return;
+			}
+
+			const goingDown = y > lastY && y > 140;
+
+			if (goingDown !== hidden) {
+				hidden = goingDown;
+				gsap.to(header, {
+					yPercent: hidden ? -100 : 0,
+					duration: 0.42,
+					ease: 'power3.out',
+					overwrite: true
+				});
+			}
+
+			lastY = y;
+		};
+
+		window.addEventListener('scroll', onScroll, { passive: true });
+		return () => window.removeEventListener('scroll', onScroll);
+	});
+
+	function menuIntro(node: HTMLElement) {
+		if (prefersReducedMotion()) return {};
+
+		setupGsap();
+
+		const links = node.querySelectorAll('a');
+		gsap.fromTo(node, { opacity: 0, y: -8 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power3.out' });
+		const tween = gsap.fromTo(
+			links,
+			{ opacity: 0, y: 8 },
+			{ opacity: 1, y: 0, duration: 0.35, stagger: 0.045, delay: 0.04, ease: 'power3.out' }
+		);
+
+		return {
+			destroy() {
+				tween.kill();
+			}
+		};
+	}
+
+	function closeMenu(): void {
+		if (prefersReducedMotion() || !menuEl) {
+			open = false;
+			return;
+		}
+
+		gsap.to(menuEl, {
+			opacity: 0,
+			y: -6,
+			duration: 0.18,
+			ease: 'power2.in',
+			overwrite: true,
+			onComplete: () => (open = false)
+		});
+	}
+
+	function toggleMenu(): void {
+		if (open) {
+			closeMenu();
+			return;
+		}
+
+		open = true;
+
+		if (!prefersReducedMotion()) {
+			hidden = false;
+			gsap.to(header, { yPercent: 0, duration: 0.3, ease: 'power3.out', overwrite: true });
+		}
+	}
 </script>
 
-<header class="sticky top-0 z-50 border-b border-cream/10 bg-night/85 backdrop-blur-md">
+<header
+	bind:this={header}
+	class="sticky top-0 z-50 border-b border-cream/10 bg-night/85 backdrop-blur-md"
+>
 	<div class="mx-auto flex h-16 max-w-[1400px] items-center gap-5 px-5 md:h-[68px]">
 		<a href="/" class="flex shrink-0 items-center gap-2.5 font-semibold tracking-tight">
 			<IconMoon size={20} stroke={1.5} class="text-lamp" />
@@ -19,28 +112,34 @@
 
 		<div class="ml-auto flex items-center gap-3 sm:gap-5">
 			<nav class="hidden items-center gap-6 text-sm text-taupe md:flex lg:gap-7">
-				<a class="transition-colors hover:text-cream" href="/room">The room</a>
-				<a class="transition-colors hover:text-cream" href="/#nights">How a night runs</a>
-				<a class="transition-colors hover:text-cream" href="/archive">Archive</a>
+				<a class="transition-colors hover:text-cream" href="/">Tonight</a>
+				<a class="transition-colors hover:text-cream" href="/room">The Room</a>
+				<a class="transition-colors hover:text-cream" href="/archive">The Archive</a>
 			</nav>
 
 			{#if live}
-				<span
-					class="hidden items-center gap-2 rounded-full border border-lamp/40 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-lamp sm:inline-flex"
+				<a
+					href="/room"
+					class="hidden items-center gap-2 rounded-full border border-lamp/40 bg-lamp/8 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-lamp transition-colors hover:bg-lamp/15 sm:inline-flex"
+					use:magnetic={0.1}
 				>
 					<span class="soft-blink h-1.5 w-1.5 rounded-full bg-lamp"></span>
 					On air
-				</span>
+					<IconRadio size={12} stroke={1.5} />
+				</a>
+			{:else}
+				<a
+					href="/room"
+					class="btn btn-primary hidden text-[13px] sm:inline-flex sm:text-sm"
+					use:magnetic={0.12}
+				>
+					Open the door
+				</a>
 			{/if}
-
-			<a href={TELEGRAM_URL} class="btn btn-primary hidden text-[13px] sm:inline-flex sm:text-sm">
-				<IconBrandTelegram size={16} stroke={1.5} />
-				Join the Telegram
-			</a>
 
 			<button
 				class="icon-btn text-cream md:hidden"
-				onclick={() => (open = !open)}
+				onclick={toggleMenu}
 				aria-label={open ? 'Close menu' : 'Open menu'}
 				aria-expanded={open}
 			>
@@ -54,37 +153,40 @@
 	</div>
 
 	{#if open}
-		<div class="border-t border-cream/10 bg-night/95 px-5 py-4 backdrop-blur-lg md:hidden">
+		<div
+			class="border-t border-cream/10 bg-night/95 px-5 py-4 backdrop-blur-lg md:hidden"
+			bind:this={menuEl}
+			use:menuIntro
+		>
 			<nav class="flex flex-col gap-2.5 text-sm">
 				<a
 					class="rounded-field px-3 py-2 text-cream transition-colors hover:bg-cream/5"
-					href="/room"
-					onclick={() => (open = false)}
+					href="/"
+					onclick={closeMenu}
 				>
-					The room
+					Tonight
 				</a>
 				<a
 					class="rounded-field px-3 py-2 text-taupe transition-colors hover:bg-cream/5 hover:text-cream"
-					href="/#nights"
-					onclick={() => (open = false)}
+					href="/room"
+					onclick={closeMenu}
 				>
-					How a night runs
+					The Room
 				</a>
 				<a
 					class="rounded-field px-3 py-2 text-taupe transition-colors hover:bg-cream/5 hover:text-cream"
 					href="/archive"
-					onclick={() => (open = false)}
+					onclick={closeMenu}
 				>
-					Archive
+					The Archive
 				</a>
-				<div class="pt-2">
+				<div class="pt-1">
 					<a
-						href={TELEGRAM_URL}
+						href="/room"
 						class="btn btn-primary w-full text-xs"
-						onclick={() => (open = false)}
+						onclick={closeMenu}
 					>
-						<IconBrandTelegram size={15} stroke={1.5} />
-						Join the Telegram
+						Open the door
 					</a>
 				</div>
 			</nav>

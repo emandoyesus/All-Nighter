@@ -9,6 +9,7 @@ import {
 	REQUEST_TTL
 } from '#lib/config';
 import type {
+	ChatMessage,
 	ConnStatus,
 	JoinRequest,
 	JoinState,
@@ -16,7 +17,8 @@ import type {
 	Peer,
 	RoomAd,
 	RoomState,
-	Track
+	Track,
+	TrackSource
 } from './types';
 
 const LS_NAME = 'an.callsign';
@@ -35,6 +37,41 @@ function randomId(): string {
 	} catch {
 		return 'id-' + Math.random().toString(36).slice(2, 10);
 	}
+}
+
+export function parseTrackUrl(url: string): { source: 'youtube' | 'spotify' | 'soundcloud' | null; id: string | null } {
+	const input = url.trim();
+	if (!input) return { source: null, id: null };
+	try {
+		const u = new URL(input);
+		const host = u.hostname.replace('www.', '');
+		if (host === 'youtu.be') {
+			return { source: 'youtube', id: u.pathname.replace('/', '') };
+		}
+		if (host === 'youtube.com' || host === 'm.youtube.com' || host === 'music.youtube.com') {
+			if (u.pathname === '/watch') {
+				return { source: 'youtube', id: u.searchParams.get('v') };
+			}
+			if (u.pathname.startsWith('/shorts/')) {
+				return { source: 'youtube', id: u.pathname.split('/')[2] ?? null };
+			}
+			if (u.pathname.startsWith('/live/')) {
+				return { source: 'youtube', id: u.pathname.split('/')[2] ?? null };
+			}
+		}
+		if (host === 'open.spotify.com') {
+			const parts = u.pathname.split('/').filter(Boolean);
+			if (parts.length >= 2 && (parts[0] === 'track' || parts[0] === 'album' || parts[0] === 'playlist')) {
+				return { source: 'spotify', id: parts[1] };
+			}
+		}
+		if (host === 'soundcloud.com') {
+			return { source: 'soundcloud', id: u.pathname.replace(/^\//, '') };
+		}
+	} catch {
+		// maybe just an id
+	}
+	return { source: null, id: null };
 }
 
 function loadOrMake(key: string, fallback: () => string): string {
@@ -63,11 +100,13 @@ function emptyState(): RoomState {
 		seq: 0,
 		by: '',
 		videoId: null,
+		source: 'youtube',
 		current: null,
 		playing: false,
 		position: 0,
 		clock: 0,
-		queue: []
+		queue: [],
+		chat: []
 	};
 }
 
@@ -105,10 +144,16 @@ class Room {
 	joinState = $state<JoinState>('lobby');
 	title = $state('');
 	isHost = $state(false);
+	/** Current room mode: 'focus' (chat quiet, calm queue) or 'break' (aux open). */
+	mode = $state<'focus' | 'break'>('focus');
+	/** This user's one-line intention for the night. */
+	intention = $state('');
 	/** Rooms advertised on the broker right now. */
 	directory = $state<RoomAd[]>([]);
 	/** People asking to be let in (only populated for members). */
 	pending = $state<JoinRequest[]>([]);
+	/** Client IDs that voted to skip current track. */
+	skipVoters = $state<string[]>([]);
 
 	private client: MqttLike | null = null;
 	private peers = new Map<string, Peer>();
@@ -307,6 +352,15 @@ class Room {
 			}
 			return;
 		}
+		if (rest === 'chat') {
+			if (!text) return;
+			try {
+				this.onChat(JSON.parse(text));
+			} catch {
+				/* ignore malformed */
+			}
+			return;
+		}
 		if (rest.startsWith('p/')) {
 			this.onPresence(rest.slice(2), text);
 			return;
@@ -328,12 +382,13 @@ class Room {
 			return;
 		}
 		try {
-			const data = JSON.parse(text) as { name?: string; ts?: number; status?: string };
+			const data = JSON.parse(text) as { name?: string; ts?: number; status?: string; intention?: string };
 			if (!data?.name) return;
 			this.peers.set(id, {
 				id,
 				name: String(data.name).slice(0, 24),
 				status: data.status ? String(data.status).slice(0, 24) : undefined,
+				intention: data.intention ? String(data.intention).slice(0, 80) : undefined,
 				ts: Number(data.ts) || 0
 			});
 			this.flushPeers();
@@ -420,17 +475,34 @@ class Room {
 			seq: incomingSeq,
 			by: incomingBy,
 			videoId: msg.videoId ?? null,
+			source: msg.source,
 			current: msg.current ?? null,
 			playing: !!msg.playing,
 			position: Number(msg.position) || 0,
 			clock: Number(msg.clock) || now,
-			queue: Array.isArray(msg.queue) ? msg.queue : []
+			queue: Array.isArray(msg.queue) ? msg.queue : [],
+			chat: this.state.chat ?? []
 		};
 	}
 
 	private onLog(entry: LogEntry): void {
 		if (!entry?.id || this.log.some((item) => item.id === entry.id)) return;
 		this.log = [{ ...entry, ts: entry.ts || Date.now() }, ...this.log].slice(0, 7);
+	}
+
+	private onChat(msg: ChatMessage): void {
+		if (!msg?.id) return;
+		const chat = this.state.chat || [];
+		if (chat.some((item) => item.id === msg.id)) return;
+		this.state = { ...this.state, chat: [...chat, msg].slice(-100) };
+	}
+
+	sendChat(text: string): void {
+		const trimmed = text.trim().slice(0, 280);
+		if (!trimmed || this.joinState !== 'approved') return;
+		const msg: ChatMessage = { id: randomId(), who: this.name, whoId: this.clientId, text: trimmed, ts: Date.now() };
+		this.pub(this.t('chat'), JSON.stringify(msg));
+		this.onChat(msg);
 	}
 
 	/* ------------------------------------------------------------- publish */
@@ -446,7 +518,8 @@ class Room {
 
 	private publishState(): void {
 		if (!this.room) return;
-		this.pub(this.t('state'), JSON.stringify({ ...this.state, clock: Date.now() }), true);
+		const { chat: _chat, ...shared } = this.state;
+		this.pub(this.t('state'), JSON.stringify({ ...shared, clock: Date.now() }), true);
 	}
 
 	private writeLog(text: string): void {
@@ -477,6 +550,7 @@ class Room {
 			this.t('state'),
 			this.t('p/#'),
 			this.t('log'),
+			this.t('chat'),
 			this.t('join/#'),
 			this.decTopic(this.room, this.clientId)
 		]);
@@ -664,13 +738,14 @@ class Room {
 			id: this.clientId,
 			name: this.name,
 			status: this.statusText || undefined,
+			intention: this.intention || undefined,
 			ts: Date.now(),
 			self: true
 		});
 		this.flushPeers();
 		this.pub(
 			this.presenceTopic(this.room, this.clientId),
-			JSON.stringify({ name: this.name, status: this.statusText || undefined, ts: Date.now() }),
+			JSON.stringify({ name: this.name, status: this.statusText || undefined, intention: this.intention || undefined, ts: Date.now() }),
 			true
 		);
 		this.updateAd();
@@ -696,9 +771,89 @@ class Room {
 		}
 	}
 
-	add(videoId: string, title: string, channel: string | undefined, addedBy: string): void {
-		const track: Track = { uid: randomId(), videoId, title, channel, addedBy };
-		this.mutate((s) => ({ ...s, queue: [...s.queue, track] }), `added “${title}”`);
+	setIntention(value: string): void {
+		this.intention = value.slice(0, 80);
+		this.announce();
+	}
+
+	setMode(next: 'focus' | 'break'): void {
+		if (this.mode === next) return;
+		this.mode = next;
+		const label = next === 'focus' ? '🎯 focus mode' : '🔓 break mode';
+		this.writeLog(`switched the room to ${label}`);
+	}
+
+	add(
+		videoIdOrUrl: string | null,
+		title: string,
+		channel: string | undefined,
+		addedBy: string,
+		source?: TrackSource,
+		url?: string,
+		dedication?: string,
+		tag?: 'focus' | 'hangout'
+	): void {
+		const raw = videoIdOrUrl ?? '';
+		const parsed = source ? null : parseTrackUrl(raw);
+		const trackSource = source ?? parsed?.source ?? (raw.includes('youtube.com') || raw.includes('youtu.be') ? 'youtube' : 'unknown');
+		const videoId = trackSource === 'youtube' ? (parsed?.id ?? raw ?? null) : null;
+		const trackUrl = url ?? raw;
+		const track: Track = {
+			uid: randomId(),
+			videoId,
+			source: trackSource,
+			url: trackUrl,
+			title,
+			channel,
+			addedBy,
+			addedById: this.clientId,
+			votes: 0,
+			voters: [],
+			reactions: {},
+			dedication: dedication?.trim() ? dedication.trim().slice(0, 80) : undefined,
+			tag
+		};
+		this.mutate((s) => {
+			const queue = [...s.queue, track];
+			// simple sort by votes desc then by added order (keep original index for ties)
+			queue.sort((a, b) => (b.votes || 0) - (a.votes || 0));
+			return { ...s, queue };
+		}, `added “${title}”` + (track.dedication ? ` (dedicated: “${track.dedication}”)` : ''));
+	}
+
+	vote(uid: string): void {
+		this.mutate((s) => {
+			const queue = s.queue.map((t) => {
+				if (t.uid !== uid) return t;
+				const voters = t.voters || [];
+				if (voters.includes(this.clientId)) {
+					return { ...t, votes: Math.max(0, (t.votes || 0) - 1), voters: voters.filter((v) => v !== this.clientId) };
+				}
+				return { ...t, votes: (t.votes || 0) + 1, voters: [...voters, this.clientId] };
+			});
+			queue.sort((a, b) => (b.votes || 0) - (a.votes || 0));
+			return { ...s, queue };
+		});
+	}
+
+	react(uid: string, emoji: string): void {
+		const toggle = (track: Track): Track => {
+			if (track.uid !== uid) return track;
+			const reactions = { ...(track.reactions || {}) };
+			const list = reactions[emoji] || [];
+			if (list.includes(this.clientId)) {
+				reactions[emoji] = list.filter((v) => v !== this.clientId);
+				if (reactions[emoji].length === 0) delete reactions[emoji];
+			} else {
+				reactions[emoji] = [...list, this.clientId];
+			}
+			return { ...track, reactions };
+		};
+		this.mutate((s) => ({
+			...s,
+			current: s.current ? toggle(s.current) : null,
+			queue: s.queue.map(toggle)
+		}));
 	}
 
 	remove(uid: string): void {
@@ -722,14 +877,19 @@ class Room {
 
 	playNow(track: Track): void {
 		this.mutate(
-			(s) => ({
-				...s,
-				current: track,
-				videoId: track.videoId,
-				playing: true,
-				position: 0,
-				queue: s.queue.filter((item) => item.uid !== track.uid)
-			}),
+			(s) => {
+				const queue = s.queue.filter((item) => item.uid !== track.uid);
+				queue.sort((a, b) => (b.votes || 0) - (a.votes || 0));
+				return {
+					...s,
+					current: track,
+					videoId: track.videoId,
+					source: track.source,
+					playing: true,
+					position: 0,
+					queue
+				};
+			},
 			`put “${track.title}” on`
 		);
 	}
@@ -743,6 +903,7 @@ class Room {
 	}
 
 	skip(): void {
+		this.skipVoters = [];
 		const finished = this.state.current?.title;
 		this.mutate(
 			(s) => {
@@ -758,6 +919,23 @@ class Room {
 			},
 			finished ? `skipped “${finished}”` : 'skipped ahead'
 		);
+	}
+
+	skipVote(): void {
+		if (this.isHost) {
+			this.skip();
+			return;
+		}
+		if (this.skipVoters.includes(this.clientId)) {
+			this.skipVoters = this.skipVoters.filter((id) => id !== this.clientId);
+		} else {
+			this.skipVoters = [...this.skipVoters, this.clientId];
+		}
+		const needed = Math.max(1, Math.ceil(this.awake.length / 2));
+		if (this.skipVoters.length >= needed) {
+			this.writeLog(`voted to skip (${this.skipVoters.length}/${needed}) — advancing`);
+			this.skip();
+		}
 	}
 
 	/** The video ended on its own: advance, or settle into the empty state.

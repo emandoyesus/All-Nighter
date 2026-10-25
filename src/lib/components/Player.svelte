@@ -9,6 +9,7 @@
 	import IconVolume from '@tabler/icons-svelte/icons/volume';
 	import IconVolumeOff from '@tabler/icons-svelte/icons/volume-off';
 	import IconMusic from '@tabler/icons-svelte/icons/music';
+	import IconExternal from '@tabler/icons-svelte/icons/external-link';
 
 	const ENDED = 0;
 	const PLAYING = 1;
@@ -41,6 +42,15 @@
 	const hasVideo = $derived(!!room.state.videoId);
 	const playing = $derived(room.state.playing);
 	const queued = $derived(room.state.queue.length);
+	const externalOnly = $derived(
+		!!room.state.current && !room.state.videoId && room.state.source !== 'youtube'
+	);
+
+	function sourceLabel(source: string | undefined): string {
+		if (source === 'spotify') return 'Spotify';
+		if (source === 'soundcloud') return 'SoundCloud';
+		return 'the source';
+	}
 
 	/** Where the shared timeline says we should be right now. */
 	function targetTime(): number {
@@ -290,6 +300,32 @@
 				<p class="max-w-[36ch] text-sm text-taupe">
 					The player could not load. Check your network, the queue is still here.
 				</p>
+			</div>
+		{:else if externalOnly && room.state.current}
+			<div class="absolute inset-0 grid place-items-center bg-night-3 px-8 text-center">
+				<div>
+					<span
+						class="mx-auto grid h-12 w-12 place-items-center rounded-full bg-lamp/12 text-lamp ring-1 ring-lamp/25"
+					>
+						<IconMusic size={22} stroke={1.5} />
+					</span>
+					<h3 class="mt-4 text-lg font-medium">{room.state.current.title}</h3>
+					<p class="mx-auto mt-1.5 max-w-[40ch] text-sm leading-relaxed text-taupe">
+						This track lives on {sourceLabel(room.state.source)}. Open it there to listen along — the
+						queue and chat stay in sync here.
+					</p>
+					{#if room.state.current.url}
+						<a
+							href={room.state.current.url}
+							target="_blank"
+							rel="noreferrer"
+							class="btn btn-primary mt-4"
+						>
+							<IconExternal size={16} stroke={1.5} />
+							Open on {sourceLabel(room.state.source)}
+						</a>
+					{/if}
+				</div>
 			</div>
 		{:else if !hasVideo}
 			<div class="absolute inset-0 grid place-items-center bg-night-3 px-8 text-center">

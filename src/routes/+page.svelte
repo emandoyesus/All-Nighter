@@ -1,21 +1,22 @@
 <script lang="ts">
 	import Nav from '#lib/components/Nav.svelte';
 	import Hero from '#lib/components/Hero.svelte';
-		import Rituals from '#lib/components/Rituals.svelte';
+	import Rituals from '#lib/components/Rituals.svelte';
+	import NightZones from '#lib/components/NightZones.svelte';
 	import ArchiveSection from '#lib/components/ArchiveSection.svelte';
 	import JoinBand from '#lib/components/JoinBand.svelte';
 </script>
 
 <svelte:head>
-	<title>All Nighter · lock in till sunrise</title>
+	<title>All Nighter · tonight</title>
 </svelte:head>
 
 <Nav />
 
 <main>
 	<Hero />
-	
 	<Rituals />
+	<NightZones />
 	<ArchiveSection />
 	<JoinBand />
 </main>

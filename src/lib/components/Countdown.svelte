@@ -26,6 +26,7 @@
 	let editM = $state(0);
 	let left = $state('--:--:--');
 	let isSunrise = $state(false);
+	let progress = $state(15);
 
 	function saveDawn(): void {
 		const h = Math.max(0, Math.min(23, Number(editH) || 0));
@@ -64,7 +65,16 @@
 		if (now.getTime() >= todayDawn.getTime()) {
 			next.setDate(next.getDate() + 1);
 		}
-		left = format(next.getTime() - now.getTime());
+		const remainingMs = next.getTime() - now.getTime();
+		left = format(remainingMs);
+
+		// Calculate night progress assuming night window starts at 22:00 (10 PM)
+		const nightStart = new Date(next);
+		nightStart.setDate(nightStart.getDate() - 1);
+		nightStart.setHours(22, 0, 0, 0);
+		const totalNightMs = next.getTime() - nightStart.getTime();
+		const elapsedMs = Math.max(0, now.getTime() - nightStart.getTime());
+		progress = Math.min(100, Math.max(5, (elapsedMs / totalNightMs) * 100));
 	}
 
 	onMount(() => {
@@ -75,7 +85,7 @@
 </script>
 
 {#if isSunrise}
-	<div class="panel border-lamp/40 bg-gradient-to-b from-night-3 to-night-2 p-5 shadow-[0_0_25px_rgba(234,165,74,0.12)]">
+	<div class="panel border-lamp/40 bg-gradient-to-b from-night-3 to-night-2 p-5 shadow-[0_0_25px_color-mix(in_srgb,var(--color-lamp)_14%,transparent)]">
 		<div class="flex items-center justify-between">
 			<span class="inline-flex items-center gap-1.5 rounded-full bg-lamp/15 px-2.5 py-0.5 text-xs font-medium text-lamp">
 				<IconSun size={15} stroke={2} />
@@ -147,5 +157,15 @@
 				dawn at {String(dawn.h).padStart(2, '0')}:{String(dawn.m).padStart(2, '0')} local
 			</p>
 		{/if}
+
+		<div class="mt-4 border-t border-cream/8 pt-3">
+			<div class="mb-1.5 flex items-center justify-between text-[11px] text-faint">
+				<span>night progress</span>
+				<span class="num text-taupe">{Math.round(progress)}% to dawn</span>
+			</div>
+			<div class="progress-bar">
+				<div class="progress-fill" style="width: {progress}%"></div>
+			</div>
+		</div>
 	</div>
 {/if}

@@ -1,9 +1,27 @@
+export type TrackSource = 'youtube' | 'spotify' | 'soundcloud' | 'unknown';
+
 export type Track = {
 	uid: string;
-	videoId: string;
+	videoId: string | null;
+	source: TrackSource;
+	url?: string;
 	title: string;
 	channel?: string;
 	addedBy: string;
+	addedById?: string;
+	votes?: number;
+	voters?: string[];
+	reactions?: Record<string, string[]>; // emoji -> list of user ids/names
+	dedication?: string;
+	tag?: 'focus' | 'hangout';
+};
+
+export type ChatMessage = {
+	id: string;
+	who: string;
+	whoId?: string;
+	text: string;
+	ts: number;
 };
 
 /** Shared playback truth. LWW by `seq` (wall clock), tie-broken by `by`.
@@ -12,14 +30,16 @@ export type RoomState = {
 	seq: number;
 	by: string;
 	videoId: string | null;
+	source?: TrackSource;
 	current: Track | null;
 	playing: boolean;
 	position: number;
 	clock: number;
 	queue: Track[];
+	chat?: ChatMessage[];
 };
 
-export type Peer = { id: string; name: string; ts: number; self?: boolean; status?: string };
+export type Peer = { id: string; name: string; ts: number; self?: boolean; status?: string; intention?: string };
 
 export type LogEntry = { id: string; who: string; text: string; ts: number };
 

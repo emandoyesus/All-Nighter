@@ -9,6 +9,7 @@
 
 	let creating = $state(false);
 	let draft = $state('');
+	let nightPlan = $state('');
 	let copiedSlug = $state<string | null>(null);
 
 	async function copyInvite(slug: string): Promise<void> {
@@ -32,11 +33,16 @@
 	function create(event: SubmitEvent): void {
 		event.preventDefault();
 		if (!draft.trim()) return;
+		if (nightPlan.trim()) {
+			// Store the intention before creating the room so announce() picks it up
+			room.setIntention(nightPlan.trim());
+		}
 		room.createRoom(draft);
 	}
 </script>
 
 <div class="grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
+	<!-- Rooms tonight panel -->
 	<div class="panel flex flex-col p-5 md:p-7">
 		<div class="flex items-center justify-between gap-3">
 			<div class="flex items-center gap-2.5">
@@ -46,7 +52,7 @@
 				<div>
 					<h2 class="text-base font-medium">Rooms tonight</h2>
 					<p class="num text-xs text-faint">
-						{listings.length === 0 ? 'nobody has opened one yet' : `${listings.length} open`}
+						{listings.length === 0 ? "nobody's lit up yet" : `${listings.length} open`}
 					</p>
 				</div>
 			</div>
@@ -72,10 +78,10 @@
 						<div class="min-w-0">
 							<p class="truncate text-sm text-cream">{ad.title || ad.room}</p>
 							<p class="num mt-0.5 truncate text-xs text-faint">
-								room / {ad.room} · host {ad.host || 'unknown'} · {ad.members} awake
+								{ad.members} awake · host {ad.host || 'unknown'}
 							</p>
 						</div>
-						<div class="flex items-center gap-1.5 shrink-0">
+						<div class="flex shrink-0 items-center gap-1.5">
 							<button
 								class="icon-btn text-faint hover:text-cream"
 								onclick={() => copyInvite(ad.room)}
@@ -93,7 +99,7 @@
 								onclick={() => room.requestJoin(ad.room)}
 							>
 								<IconDoorEnter size={14} stroke={1.5} />
-								Ask to join
+								Knock
 							</button>
 						</div>
 					</li>
@@ -104,14 +110,15 @@
 				<span class="grid h-11 w-11 place-items-center rounded-full bg-night/70 text-faint">
 					<IconMoon size={20} stroke={1.5} />
 				</span>
-				<p class="mt-4 text-sm text-cream">No rooms today</p>
+				<p class="mt-4 text-sm text-cream">Nobody's lit up yet.</p>
 				<p class="mt-1.5 max-w-[34ch] text-xs leading-relaxed text-faint">
-					Nobody has the light on yet. Open one and the night starts with you.
+					Open a room and the night starts with you.
 				</p>
 			</div>
 		{/if}
 	</div>
 
+	<!-- Open a room panel -->
 	<div class="panel flex flex-col gap-4 p-5 md:p-7">
 		<div>
 			<div class="flex items-center gap-2.5">
@@ -119,12 +126,12 @@
 					<IconPlus size={18} stroke={1.5} />
 				</span>
 				<div>
-					<h2 class="text-base font-medium">Open a room</h2>
+					<h2 class="text-base font-medium">Open the door</h2>
 					<p class="num text-xs text-faint">you become the host</p>
 				</div>
 			</div>
 			<p class="mt-4 text-xs leading-relaxed text-faint">
-				Pick a name. Share the link and let people ask to come in — you decide who gets the door.
+				Pick a name. Share the link and let people knock — you decide who steps in.
 			</p>
 		</div>
 
@@ -142,9 +149,21 @@
 			{#if draft.trim()}
 				<p class="num text-[11px] text-faint">link → ?room={slug}</p>
 			{/if}
-			<button type="submit" class="btn btn-lamp w-full" disabled={!draft.trim()}>
+
+			<label for="night-plan" class="text-xs text-faint">What's the plan tonight?</label>
+			<input
+				id="night-plan"
+				type="text"
+				maxlength="80"
+				autocomplete="off"
+				placeholder="one line is enough"
+				class="w-full rounded-field border border-cream/10 bg-night/60 px-3 py-2 text-sm text-cream outline-none transition-colors placeholder:text-faint/60 focus:border-lamp/60"
+				bind:value={nightPlan}
+			/>
+
+			<button type="submit" class="btn btn-primary w-full" disabled={!draft.trim()}>
 				<IconDoorEnter size={16} stroke={1.5} />
-				Open the room
+				Open the door
 			</button>
 		</form>
 

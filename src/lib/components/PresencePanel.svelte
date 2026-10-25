@@ -12,27 +12,32 @@
 		<span class="num text-xs text-faint">{room.awake.length}</span>
 	</div>
 
-	<ul class="mt-3.5 flex flex-wrap gap-2">
+	<!-- Roster with intentions -->
+	<ul class="mt-3.5 space-y-2">
 		{#each room.awake as peer (peer.id)}
-			<li
-				class="flex items-center gap-2 rounded-full bg-night/60 py-1 pl-1 pr-3 text-sm ring-1 {peer.self
-					? 'ring-lamp/50'
-					: 'ring-cream/10'}"
-			>
+			<li class="flex items-start gap-2">
 				<span
-					class="grid h-6 w-6 place-items-center rounded-full bg-lamp/15 text-[11px] font-semibold text-lamp"
+					class="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-lamp/15 text-[11px] font-semibold text-lamp"
 				>
 					{initial(peer.name)}
 				</span>
-				<span class={peer.self ? 'text-cream' : 'text-taupe'}>{peer.name}</span>
-				{#if peer.status}
-					<span class="rounded-full bg-cream/8 px-1.5 py-0.2 text-[11px] text-lamp">{peer.status}</span>
-				{/if}
+				<div class="min-w-0">
+					<div class="flex flex-wrap items-center gap-1.5">
+						<span class="text-sm {peer.self ? 'text-cream' : 'text-taupe'}">{peer.name}</span>
+						{#if peer.status}
+							<span class="rounded-full bg-cream/8 px-1.5 py-0.5 text-[11px] text-lamp">{peer.status}</span>
+						{/if}
+					</div>
+					{#if peer.intention}
+						<p class="mt-0.5 truncate text-[11px] italic text-faint/80">{peer.intention}</p>
+					{/if}
+				</div>
 			</li>
 		{/each}
 	</ul>
 
-	<div class="mt-4">
+	<!-- Your callsign -->
+	<div class="mt-4 border-t border-cream/10 pt-4">
 		<label for="callsign" class="mb-1.5 block text-xs text-faint">Your callsign</label>
 		<input
 			id="callsign"
@@ -45,8 +50,24 @@
 		/>
 	</div>
 
+	<!-- Tonight's intention -->
+	<div class="mt-3">
+		<label for="intention" class="mb-1.5 block text-xs text-faint">What are you working on tonight?</label>
+		<input
+			id="intention"
+			type="text"
+			maxlength="80"
+			autocomplete="off"
+			placeholder="one line is enough"
+			class="w-full rounded-field border border-cream/10 bg-night/60 px-3 py-2 text-sm text-cream outline-none transition-colors placeholder:text-faint/60 focus:border-lamp/60"
+			value={room.intention}
+			oninput={(e) => room.setIntention(e.currentTarget.value)}
+		/>
+	</div>
+
+	<!-- Mood / status chips -->
 	<div class="mt-3.5">
-		<span class="mb-1.5 block text-xs text-faint">Your mood / status</span>
+		<span class="mb-1.5 block text-xs text-faint">Your mood</span>
 		<div class="flex flex-wrap gap-1.5">
 			{#each ['🎧 Locked in', '☕ Coffee run', '🐛 Bug hunting', '🥱 4am wall'] as mood}
 				<button
