@@ -27,7 +27,7 @@
 		>
 			<img
 				src={asset('nights/ritual.jpg')}
-				alt="A dim room lit by a laptop screen during a late-night session"
+				alt="Late-night radio audio mixing console with glowing amber VU meters, headphones, and a rainy window"
 				width="1200"
 				height="800"
 				loading="lazy"

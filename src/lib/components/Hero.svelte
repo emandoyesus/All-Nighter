@@ -103,7 +103,7 @@
 				<div data-media-clip>
 					<img
 						src={asset('nights/hero.jpg')}
-						alt="Someone working late at a laptop in a dim room"
+						alt="A quiet late-night desk illuminated by an amber lamp with a laptop, headphones, coffee, and a rainy window"
 						width="1000"
 						height="1250"
 						class="photo-warm aspect-[4/5] w-full object-cover md:max-h-[58vh] lg:max-h-[66vh]"
