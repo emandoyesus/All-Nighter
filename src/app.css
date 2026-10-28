@@ -241,13 +241,7 @@
 /* --- hero entry (GSAP timeline in Hero.svelte) ------------------------ */
 
 [data-hero] {
-	opacity: 0;
-}
-
-@media (prefers-reduced-motion: reduce) {
-	[data-hero] {
-		opacity: 1;
-	}
+	will-change: transform, opacity;
 }
 
 /* --- range inputs (progress / seek) ----------------------------------- */
@@ -462,7 +456,7 @@ input[type='range'].seek {
 /* --- split headline (GSAP SplitText) ---------------------------------- */
 
 [data-split] {
-	opacity: 0;
+	will-change: transform, opacity;
 }
 
 .split-line {
@@ -471,12 +465,6 @@ input[type='range'].seek {
 
 .scrub-word {
 	will-change: opacity;
-}
-
-@media (prefers-reduced-motion: reduce) {
-	[data-split] {
-		opacity: 1;
-	}
 }
 
 /* --- lamp cursor (desk light follows the pointer) --------------------- */
