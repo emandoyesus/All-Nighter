@@ -137,7 +137,7 @@
 
 		<!-- Centerpiece: Dawn countdown & now playing -->
 		<main class="relative z-10 my-auto flex flex-col items-center justify-center text-center">
-			<p class="num text-xs uppercase tracking-[0.2em] {phase === 'pre_midnight' ? 'text-amber' : 'text-faint'}">
+			<p class="num text-xs uppercase tracking-[0.2em] text-faint">
 				{targetLabel}
 			</p>
 			<h1 class="num mt-2 font-mono text-6xl font-semibold tracking-tighter text-cream md:text-8xl lg:text-9xl">

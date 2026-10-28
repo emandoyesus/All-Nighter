@@ -240,33 +240,23 @@
 			<div class="flex flex-wrap items-center justify-between gap-3 pb-3.5 border-b border-cream/10">
 				<!-- Phase Status & Identity -->
 				<div class="flex items-center gap-2.5">
-					{#if currentPhase === 'pre_midnight'}
-						<!-- Phase 1: Warm Amber Beacon -->
-						<span class="relative flex h-2.5 w-2.5">
-							<span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber opacity-60"></span>
-							<span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-amber"></span>
-						</span>
-						<div>
-							<div class="flex items-center gap-1.5">
-								<p class="num text-[10px] font-mono uppercase tracking-[0.22em] text-amber font-semibold">1 · Pre-session</p>
+					<span class="relative flex h-2.5 w-2.5">
+						<span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-lamp opacity-60"></span>
+						<span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-lamp"></span>
+					</span>
+					<div>
+						<div class="flex items-center gap-1.5">
+							{#if currentPhase === 'pre_midnight'}
+								<p class="num text-[10px] font-mono uppercase tracking-[0.22em] text-lamp font-semibold">1 · Pre-session</p>
 								<span class="text-faint/60">·</span>
 								<p class="text-xs font-medium text-cream">Doors open at midnight</p>
-							</div>
-						</div>
-					{:else}
-						<!-- Phase 2: Electric Sage Beacon -->
-						<span class="relative flex h-2.5 w-2.5">
-							<span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-lamp opacity-60"></span>
-							<span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-lamp"></span>
-						</span>
-						<div>
-							<div class="flex items-center gap-1.5">
+							{:else}
 								<p class="num text-[10px] font-mono uppercase tracking-[0.22em] text-lamp font-semibold">2 · Session live</p>
 								<span class="text-faint/60">·</span>
 								<p class="text-xs font-medium text-cream">Lock-in till sunrise</p>
-							</div>
+							{/if}
 						</div>
-					{/if}
+					</div>
 				</div>
 
 				<div class="flex flex-wrap items-center gap-2">
@@ -274,7 +264,7 @@
 					<div class="inline-flex rounded-full border border-cream/12 bg-night/80 p-0.5" role="group" aria-label="Countdown phase selector">
 						{#if currentPhase === 'pre_midnight'}
 							<button
-								class="inline-flex items-center gap-1 rounded-full border border-amber/30 bg-amber/20 px-2.5 py-0.5 font-mono text-[11px] font-semibold text-amber transition-colors"
+								class="inline-flex items-center gap-1 rounded-full border border-lamp/30 bg-lamp/20 px-2.5 py-0.5 font-mono text-[11px] font-semibold text-lamp transition-colors"
 								onclick={() => setPhaseMode('pre_midnight')}
 								title="Countdown 1: Waiting for midnight (00:00)"
 							>
@@ -350,9 +340,9 @@
 					<!-- Target Pill -->
 					{#if !editing}
 						{#if currentPhase === 'pre_midnight'}
-							<span class="inline-flex items-center gap-1 rounded-full border border-amber/25 bg-amber/10 px-2.5 py-1 text-xs text-amber font-mono">
+							<span class="inline-flex items-center gap-1 rounded-full border border-lamp/25 bg-lamp/10 px-2.5 py-1 text-xs text-lamp font-mono">
 								<span>00:00</span>
-								<span class="text-[10px] uppercase tracking-wider text-amber/80">start</span>
+								<span class="text-[10px] uppercase tracking-wider text-lamp/80">midnight</span>
 							</span>
 						{:else}
 							<button
@@ -377,17 +367,14 @@
 			<!-- Dynamic Phase Alert Banner (Transforms when session starts) -->
 			<div class="flex items-center">
 				{#if currentPhase === 'pre_midnight'}
-					<div class="inline-flex items-center gap-2 rounded-full border border-amber/30 bg-amber/8 px-3 py-1 text-xs text-amber">
-						<IconFlame size={13} stroke={2} class="animate-pulse text-amber" />
-						<span>Pre-session warmup: doors unlock & queue starts at <strong>00:00 midnight</strong></span>
+					<div class="inline-flex items-center gap-2 rounded-full border border-lamp/25 bg-lamp/10 px-3 py-1 text-xs text-cream">
+						<IconFlame size={13} stroke={2} class="text-lamp" />
+						<span>Pre-session warmup: doors unlock & queue starts at <strong class="text-lamp font-mono font-medium">00:00 midnight</strong></span>
 					</div>
 				{:else}
-					<div class="inline-flex items-center gap-2 rounded-full border border-lamp/30 bg-lamp/10 px-3 py-1 text-xs text-lamp">
-						<span class="relative flex h-2 w-2">
-							<span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-lamp opacity-75"></span>
-							<span class="relative inline-flex h-2 w-2 rounded-full bg-lamp"></span>
-						</span>
-						<span>All-nighter in progress: locked in until <strong>{String(dawn.h).padStart(2, '0')}:{String(dawn.m).padStart(2, '0')} dawn</strong></span>
+					<div class="inline-flex items-center gap-2 rounded-full border border-lamp/25 bg-lamp/10 px-3 py-1 text-xs text-cream">
+						<IconBolt size={13} stroke={2} class="text-lamp" />
+						<span>All-nighter in progress: locked in until <strong class="text-lamp font-mono font-medium">{String(dawn.h).padStart(2, '0')}:{String(dawn.m).padStart(2, '0')} dawn</strong></span>
 					</div>
 				{/if}
 			</div>
@@ -430,71 +417,71 @@
 						</div>
 					</form>
 				{:else if activeStyle === 'flip'}
-					<!-- STYLE 1: MECHANICAL SPLIT-FLAP CARDS (THEMED) -->
+					<!-- STYLE 1: MECHANICAL SPLIT-FLAP CARDS -->
 					<div class="flex flex-col items-center">
 						<div class="grid w-full grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-1.5 sm:gap-3 max-w-[460px]">
 							<!-- Hours Tile -->
 							<div class="flex flex-col items-center">
-								<div class="group relative flex aspect-[4/5] sm:aspect-square w-full items-center justify-center overflow-hidden rounded-xl border shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_10px_24px_rgba(0,0,0,0.6)] {currentPhase === 'pre_midnight' ? 'border-amber/25 bg-gradient-to-b from-[#24190c] via-[#191108] to-[#0e0904]' : 'border-lamp/25 bg-gradient-to-b from-[#141f17] via-[#0f1712] to-[#080d0a]'}">
+								<div class="group relative flex aspect-[4/5] sm:aspect-square w-full items-center justify-center overflow-hidden rounded-xl border border-lamp/20 bg-gradient-to-b from-[#141f17] via-[#0f1712] to-[#080d0a] shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_10px_24px_rgba(0,0,0,0.6)]">
 									<!-- Upper plate highlight -->
 									<div class="absolute inset-x-0 top-0 h-1/2 border-b border-black/80 bg-white/[0.02]"></div>
 									<!-- Lower plate subtle shadow -->
-									<div class="absolute inset-x-0 bottom-0 h-1/2 border-t {currentPhase === 'pre_midnight' ? 'border-amber/[0.08]' : 'border-lamp/[0.08]'} bg-black/20"></div>
+									<div class="absolute inset-x-0 bottom-0 h-1/2 border-t border-lamp/[0.08] bg-black/20"></div>
 
 									<!-- Split-flap hinge notches -->
-									<span class="absolute -left-1 top-1/2 h-2 w-1.5 -translate-y-1/2 rounded-r-sm border-r {currentPhase === 'pre_midnight' ? 'border-amber/30' : 'border-lamp/30'} bg-night-2"></span>
-									<span class="absolute -right-1 top-1/2 h-2 w-1.5 -translate-y-1/2 rounded-l-sm border-l {currentPhase === 'pre_midnight' ? 'border-amber/30' : 'border-lamp/30'} bg-night-2"></span>
+									<span class="absolute -left-1 top-1/2 h-2 w-1.5 -translate-y-1/2 rounded-r-sm border-r border-lamp/30 bg-night-2"></span>
+									<span class="absolute -right-1 top-1/2 h-2 w-1.5 -translate-y-1/2 rounded-l-sm border-l border-lamp/30 bg-night-2"></span>
 
 									<!-- Numerals -->
 									<span class="relative z-10 select-none font-mono text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-cream">
 										{hStr}
 									</span>
 								</div>
-								<span class="mt-2.5 font-mono text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.25em] {currentPhase === 'pre_midnight' ? 'text-amber/80' : 'text-lamp/80'}">hours</span>
+								<span class="mt-2.5 font-mono text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.25em] text-faint">hours</span>
 							</div>
 
-							<!-- Colon dots (Themed color) -->
+							<!-- Colon dots -->
 							<div class="flex flex-col items-center justify-center gap-2 pb-5 sm:pb-6" aria-hidden="true">
-								<span class="h-2 w-2 rounded-full {currentPhase === 'pre_midnight' ? 'bg-amber/90 shadow-[0_0_8px_rgba(255,184,77,0.7)]' : 'bg-lamp/90 shadow-[0_0_8px_rgba(142,199,101,0.7)]'}"></span>
-								<span class="h-2 w-2 rounded-full {currentPhase === 'pre_midnight' ? 'bg-amber/90 shadow-[0_0_8px_rgba(255,184,77,0.7)]' : 'bg-lamp/90 shadow-[0_0_8px_rgba(142,199,101,0.7)]'}"></span>
+								<span class="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-lamp/80"></span>
+								<span class="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-lamp/80"></span>
 							</div>
 
 							<!-- Minutes Tile -->
 							<div class="flex flex-col items-center">
-								<div class="group relative flex aspect-[4/5] sm:aspect-square w-full items-center justify-center overflow-hidden rounded-xl border shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_10px_24px_rgba(0,0,0,0.6)] {currentPhase === 'pre_midnight' ? 'border-amber/25 bg-gradient-to-b from-[#24190c] via-[#191108] to-[#0e0904]' : 'border-lamp/25 bg-gradient-to-b from-[#141f17] via-[#0f1712] to-[#080d0a]'}">
+								<div class="group relative flex aspect-[4/5] sm:aspect-square w-full items-center justify-center overflow-hidden rounded-xl border border-lamp/20 bg-gradient-to-b from-[#141f17] via-[#0f1712] to-[#080d0a] shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_10px_24px_rgba(0,0,0,0.6)]">
 									<div class="absolute inset-x-0 top-0 h-1/2 border-b border-black/80 bg-white/[0.02]"></div>
-									<div class="absolute inset-x-0 bottom-0 h-1/2 border-t {currentPhase === 'pre_midnight' ? 'border-amber/[0.08]' : 'border-lamp/[0.08]'} bg-black/20"></div>
+									<div class="absolute inset-x-0 bottom-0 h-1/2 border-t border-lamp/[0.08] bg-black/20"></div>
 
-									<span class="absolute -left-1 top-1/2 h-2 w-1.5 -translate-y-1/2 rounded-r-sm border-r {currentPhase === 'pre_midnight' ? 'border-amber/30' : 'border-lamp/30'} bg-night-2"></span>
-									<span class="absolute -right-1 top-1/2 h-2 w-1.5 -translate-y-1/2 rounded-l-sm border-l {currentPhase === 'pre_midnight' ? 'border-amber/30' : 'border-lamp/30'} bg-night-2"></span>
+									<span class="absolute -left-1 top-1/2 h-2 w-1.5 -translate-y-1/2 rounded-r-sm border-r border-lamp/30 bg-night-2"></span>
+									<span class="absolute -right-1 top-1/2 h-2 w-1.5 -translate-y-1/2 rounded-l-sm border-l border-lamp/30 bg-night-2"></span>
 
 									<span class="relative z-10 select-none font-mono text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-cream">
 										{mStr}
 									</span>
 								</div>
-								<span class="mt-2.5 font-mono text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.25em] {currentPhase === 'pre_midnight' ? 'text-amber/80' : 'text-lamp/80'}">minutes</span>
+								<span class="mt-2.5 font-mono text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.25em] text-faint">minutes</span>
 							</div>
 
 							<!-- Colon dots -->
 							<div class="flex flex-col items-center justify-center gap-2 pb-5 sm:pb-6" aria-hidden="true">
-								<span class="h-2 w-2 rounded-full {currentPhase === 'pre_midnight' ? 'bg-amber/90 shadow-[0_0_8px_rgba(255,184,77,0.7)]' : 'bg-lamp/90 shadow-[0_0_8px_rgba(142,199,101,0.7)]'}"></span>
-								<span class="h-2 w-2 rounded-full {currentPhase === 'pre_midnight' ? 'bg-amber/90 shadow-[0_0_8px_rgba(255,184,77,0.7)]' : 'bg-lamp/90 shadow-[0_0_8px_rgba(142,199,101,0.7)]'}"></span>
+								<span class="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-lamp/80"></span>
+								<span class="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-lamp/80"></span>
 							</div>
 
 							<!-- Seconds Tile -->
 							<div class="flex flex-col items-center">
-								<div class="group relative flex aspect-[4/5] sm:aspect-square w-full items-center justify-center overflow-hidden rounded-xl border shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_10px_24px_rgba(0,0,0,0.6)] {currentPhase === 'pre_midnight' ? 'border-amber/25 bg-gradient-to-b from-[#24190c] via-[#191108] to-[#0e0904]' : 'border-lamp/25 bg-gradient-to-b from-[#141f17] via-[#0f1712] to-[#080d0a]'}">
+								<div class="group relative flex aspect-[4/5] sm:aspect-square w-full items-center justify-center overflow-hidden rounded-xl border border-lamp/20 bg-gradient-to-b from-[#141f17] via-[#0f1712] to-[#080d0a] shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_10px_24px_rgba(0,0,0,0.6)]">
 									<div class="absolute inset-x-0 top-0 h-1/2 border-b border-black/80 bg-white/[0.02]"></div>
-									<div class="absolute inset-x-0 bottom-0 h-1/2 border-t {currentPhase === 'pre_midnight' ? 'border-amber/[0.08]' : 'border-lamp/[0.08]'} bg-black/20"></div>
+									<div class="absolute inset-x-0 bottom-0 h-1/2 border-t border-lamp/[0.08] bg-black/20"></div>
 
-									<span class="absolute -left-1 top-1/2 h-2 w-1.5 -translate-y-1/2 rounded-r-sm border-r {currentPhase === 'pre_midnight' ? 'border-amber/30' : 'border-lamp/30'} bg-night-2"></span>
-									<span class="absolute -right-1 top-1/2 h-2 w-1.5 -translate-y-1/2 rounded-l-sm border-l {currentPhase === 'pre_midnight' ? 'border-amber/30' : 'border-lamp/30'} bg-night-2"></span>
+									<span class="absolute -left-1 top-1/2 h-2 w-1.5 -translate-y-1/2 rounded-r-sm border-r border-lamp/30 bg-night-2"></span>
+									<span class="absolute -right-1 top-1/2 h-2 w-1.5 -translate-y-1/2 rounded-l-sm border-l border-lamp/30 bg-night-2"></span>
 
 									<span class="relative z-10 select-none font-mono text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-cream/90">
 										{sStr}
 									</span>
 								</div>
-								<span class="mt-2.5 font-mono text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.25em] {currentPhase === 'pre_midnight' ? 'text-amber/80' : 'text-lamp/80'}">seconds</span>
+								<span class="mt-2.5 font-mono text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.25em] text-faint">seconds</span>
 							</div>
 						</div>
 					</div>
@@ -505,15 +492,8 @@
 							<svg viewBox="0 0 360 150" class="w-full h-auto overflow-visible" aria-label="Night celestial arc">
 								<defs>
 									<linearGradient id="phaseGradient" x1="0%" y1="100%" x2="100%" y2="100%">
-										{#if currentPhase === 'pre_midnight'}
-											<stop offset="0%" stop-color="#FFB84D" stop-opacity="0.15" />
-											<stop offset="50%" stop-color="#FFB84D" stop-opacity="0.3" />
-											<stop offset="100%" stop-color="#FFB84D" stop-opacity="0.6" />
-										{:else}
-											<stop offset="0%" stop-color="#8ec765" stop-opacity="0.2" />
-											<stop offset="50%" stop-color="#FFB84D" stop-opacity="0.08" />
-											<stop offset="100%" stop-color="#8ec765" stop-opacity="0.5" />
-										{/if}
+										<stop offset="0%" stop-color="#8ec765" stop-opacity="0.15" />
+										<stop offset="100%" stop-color="#8ec765" stop-opacity="0.5" />
 									</linearGradient>
 								</defs>
 
@@ -537,9 +517,9 @@
 
 								<!-- Milestone Labels -->
 								{#if currentPhase === 'pre_midnight'}
-									<text x="36" y="145" text-anchor="middle" font-family="monospace" font-size="9" fill="#FFB84D" letter-spacing="0.1em">18:00 DUSK</text>
+									<text x="36" y="145" text-anchor="middle" font-family="monospace" font-size="9" fill="#5f7662" letter-spacing="0.1em">18:00 DUSK</text>
 									<text x="180" y="14" text-anchor="middle" font-family="monospace" font-size="9" fill="#5f7662" letter-spacing="0.1em">WAITING</text>
-									<text x="324" y="145" text-anchor="middle" font-family="monospace" font-size="9" fill="#FFB84D" letter-spacing="0.1em">00:00 MID</text>
+									<text x="324" y="145" text-anchor="middle" font-family="monospace" font-size="9" fill="#8ec765" letter-spacing="0.1em">00:00 MID</text>
 								{:else}
 									<text x="36" y="145" text-anchor="middle" font-family="monospace" font-size="9" fill="#5f7662" letter-spacing="0.1em">00:00 MID</text>
 									<text x="180" y="14" text-anchor="middle" font-family="monospace" font-size="9" fill="#5f7662" letter-spacing="0.1em">ZENITH</text>
@@ -548,8 +528,8 @@
 
 								<!-- Orbiting Celestial Glyph -->
 								<g transform="translate({moonPos.x}, {moonPos.y})">
-									<circle cx="0" cy="0" r="11" fill="#0c140f" stroke={currentPhase === 'pre_midnight' ? '#FFB84D' : '#8ec765'} stroke-width="1.5" />
-									<circle cx="0" cy="0" r="4.5" fill={currentPhase === 'pre_midnight' ? '#FFB84D' : '#8ec765'} />
+									<circle cx="0" cy="0" r="11" fill="#0c140f" stroke="#8ec765" stroke-width="1.5" />
+									<circle cx="0" cy="0" r="4.5" fill="#8ec765" />
 								</g>
 							</svg>
 
@@ -558,45 +538,43 @@
 								<p class="num font-mono text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-cream">
 									{left}
 								</p>
-								<p class="mt-1 text-[11px] font-mono tracking-widest uppercase {currentPhase === 'pre_midnight' ? 'text-amber' : 'text-lamp'}">
+								<p class="mt-1 text-[11px] font-mono tracking-widest uppercase text-lamp">
 									{currentPhase === 'pre_midnight' ? 'countdown to midnight lock-in' : 'countdown to solar horizon'}
 								</p>
 							</div>
 						</div>
 					</div>
 				{:else}
-					<!-- STYLE 3: STUDIO TELEMETRY GRID (THEMED) -->
+					<!-- STYLE 3: STUDIO TELEMETRY GRID -->
 					<div class="flex flex-col">
-						<div class="grid grid-cols-3 divide-x divide-cream/10 rounded-xl border bg-night/70 p-4 sm:p-5 {currentPhase === 'pre_midnight' ? 'border-amber/25' : 'border-lamp/25'}">
+						<div class="grid grid-cols-3 divide-x divide-cream/10 rounded-xl border border-lamp/20 bg-night/70 p-4 sm:p-5">
 							<div class="flex flex-col items-center px-2">
 								<span class="num font-mono text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-cream">{hStr}</span>
-								<span class="mt-2 text-[10px] font-mono tracking-[0.2em] uppercase {currentPhase === 'pre_midnight' ? 'text-amber/80' : 'text-lamp/80'}">hours</span>
+								<span class="mt-2 text-[10px] font-mono tracking-[0.2em] uppercase text-faint">hours</span>
 							</div>
 							<div class="flex flex-col items-center px-2">
 								<span class="num font-mono text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-cream">{mStr}</span>
-								<span class="mt-2 text-[10px] font-mono tracking-[0.2em] uppercase {currentPhase === 'pre_midnight' ? 'text-amber/80' : 'text-lamp/80'}">minutes</span>
+								<span class="mt-2 text-[10px] font-mono tracking-[0.2em] uppercase text-faint">minutes</span>
 							</div>
 							<div class="flex flex-col items-center px-2">
 								<span class="num font-mono text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-cream/90">{sStr}</span>
-								<span class="mt-2 text-[10px] font-mono tracking-[0.2em] uppercase {currentPhase === 'pre_midnight' ? 'text-amber/80' : 'text-lamp/80'}">seconds</span>
+								<span class="mt-2 text-[10px] font-mono tracking-[0.2em] uppercase text-faint">seconds</span>
 							</div>
 						</div>
 
 						<!-- 10-step Segmented LED Meter -->
 						<div class="mt-5">
 							<div class="flex items-center justify-between text-[11px] font-mono text-faint mb-2">
-								<span class="uppercase tracking-wider {currentPhase === 'pre_midnight' ? 'text-amber' : 'text-lamp'}">
+								<span class="uppercase tracking-wider text-lamp">
 									{currentPhase === 'pre_midnight' ? 'warmup meter' : 'session telemetry'}
 								</span>
-								<span class="{currentPhase === 'pre_midnight' ? 'text-amber' : 'text-lamp'} font-medium">{Math.round(progress)}% elapsed</span>
+								<span class="text-lamp font-medium">{Math.round(progress)}% elapsed</span>
 							</div>
 							<div class="flex gap-1.5 sm:gap-2">
 								{#each Array(10) as _, i}
 									<div
 										class="h-2.5 flex-1 rounded-xs transition-colors duration-500 {i < Math.floor(progress / 10)
-											? currentPhase === 'pre_midnight'
-												? 'bg-amber/90 shadow-[0_0_6px_rgba(255,184,77,0.4)]'
-												: 'bg-lamp/90 shadow-[0_0_6px_rgba(142,199,101,0.4)]'
+											? 'bg-lamp/90'
 											: 'bg-cream/10'}"
 									></div>
 								{/each}
@@ -606,13 +584,13 @@
 				{/if}
 			</div>
 
-			<!-- Night Milestone Timeline Footer (Themed) -->
+			<!-- Night Milestone Timeline Footer -->
 			<div class="border-t border-cream/10 pt-4 mt-2">
 				<div class="relative mb-3">
 					<!-- Track -->
 					<div class="h-1.5 w-full rounded-full bg-cream/10 overflow-hidden">
 						<div
-							class="h-full transition-all duration-1000 ease-linear rounded-full {currentPhase === 'pre_midnight' ? 'bg-amber' : 'bg-lamp'}"
+							class="h-full bg-lamp transition-all duration-1000 ease-linear rounded-full"
 							style="width: {progress}%"
 						></div>
 					</div>
@@ -623,7 +601,7 @@
 							<span class="{progress >= 0 ? 'text-cream font-medium' : ''}">18:00 Sunset</span>
 							<span class="{progress >= 33 ? 'text-cream font-medium' : ''}">20:00 Setup</span>
 							<span class="{progress >= 66 ? 'text-cream font-medium' : ''}">22:00 Waiting</span>
-							<span class="{progress >= 95 ? 'text-amber font-semibold' : ''}">00:00 Midnight</span>
+							<span class="{progress >= 95 ? 'text-lamp font-semibold' : ''}">00:00 Midnight</span>
 						{:else}
 							<span class="{progress >= 0 ? 'text-cream font-medium' : ''}">00:00 Mid</span>
 							<span class="{progress >= 33 ? 'text-cream font-medium' : ''}">02:00 Deep</span>
@@ -636,7 +614,7 @@
 				<div class="flex flex-wrap items-center justify-between gap-2 text-xs text-taupe pt-1">
 					<span class="inline-flex items-center gap-1.5">
 						{#if currentPhase === 'pre_midnight'}
-							<IconFlame size={13} stroke={2} class="text-amber" />
+							<IconFlame size={13} stroke={2} class="text-lamp" />
 							<span class="font-mono text-cream">{Math.round(progress)}% of pre-session completed</span>
 						{:else}
 							<IconSparkles size={13} stroke={1.5} class="text-lamp" />
@@ -679,7 +657,7 @@
 	{:else}
 		<div class="panel p-5">
 			<div class="flex items-center justify-between">
-				<p class="text-sm {currentPhase === 'pre_midnight' ? 'text-amber' : 'text-taupe'}">
+				<p class="text-sm text-taupe">
 					{currentPhase === 'pre_midnight' ? 'till doors open (00:00)' : 'till sunrise (06:00)'}
 				</p>
 				{#if currentPhase === 'session_active'}
@@ -725,7 +703,7 @@
 					</button>
 				</form>
 			{:else}
-				<p class="num mt-2.5 text-xs {currentPhase === 'pre_midnight' ? 'text-amber/80' : 'text-faint'}">
+				<p class="num mt-2.5 text-xs text-faint">
 					{currentPhase === 'pre_midnight' ? 'lock-in starts at 00:00 local' : `dawn at ${String(dawn.h).padStart(2, '0')}:${String(dawn.m).padStart(2, '0')} local`}
 				</p>
 			{/if}
@@ -733,13 +711,13 @@
 			<div class="mt-4 border-t border-cream/8 pt-3">
 				<div class="mb-1.5 flex items-center justify-between text-[11px] text-faint">
 					<span>{currentPhase === 'pre_midnight' ? 'pre-session warmup' : 'night progress'}</span>
-					<span class="num {currentPhase === 'pre_midnight' ? 'text-amber' : 'text-taupe'}">
+					<span class="num text-taupe">
 						{Math.round(progress)}% {currentPhase === 'pre_midnight' ? 'to midnight' : 'to dawn'}
 					</span>
 				</div>
 				<div class="progress-bar">
 					<div
-						class="progress-fill {currentPhase === 'pre_midnight' ? '!bg-amber' : ''}"
+						class="progress-fill"
 						style="width: {progress}%"
 					></div>
 				</div>
