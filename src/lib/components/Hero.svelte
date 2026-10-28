@@ -40,9 +40,13 @@
 	});
 </script>
 
-<section id="top" class="relative overflow-hidden" bind:this={section}>
+<section
+	id="top"
+	class="relative flex min-h-[calc(100vh-68px)] min-h-[calc(100dvh-68px)] flex-col justify-between overflow-hidden"
+	bind:this={section}
+>
 	<div
-		class="relative mx-auto grid max-w-[1400px] items-center gap-10 px-5 pb-16 pt-12 md:grid-cols-2 md:gap-10 md:pt-16 lg:gap-16 lg:pb-24"
+		class="relative mx-auto my-auto grid w-full max-w-[1400px] items-center gap-10 px-5 py-8 md:grid-cols-2 md:gap-10 md:py-12 lg:gap-16 lg:pb-16"
 	>
 		<div>
 			<p class="eyebrow" data-hero>Something's on tonight.</p>
@@ -71,10 +75,10 @@
 	</div>
 
 	<div
-		class="hero-scroll pointer-events-none absolute bottom-5 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 md:flex"
+		class="hero-scroll pointer-events-none absolute bottom-3 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-1.5 md:flex z-10"
 		aria-hidden="true"
 	>
 		<span class="num text-[10px] uppercase tracking-[0.2em] text-faint">scroll</span>
-		<span class="h-10 w-px overflow-hidden bg-cream/10"><i></i></span>
+		<span class="h-8 w-px overflow-hidden bg-cream/10"><i></i></span>
 	</div>
 </section>
