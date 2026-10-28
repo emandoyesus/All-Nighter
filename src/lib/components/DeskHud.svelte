@@ -19,6 +19,8 @@
 
 	let dawnLeft = $state('--:--:--');
 	let localClock = $state('');
+	let phase = $state<'pre_midnight' | 'session_active'>('pre_midnight');
+	let targetLabel = $state('countdown to midnight doors open');
 
 	function getDawn(): { h: number; m: number } {
 		try {
@@ -39,17 +41,33 @@
 		localClock = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
 		const dawn = getDawn();
-		const todayDawn = new Date(now);
-		todayDawn.setHours(dawn.h, dawn.m, 0, 0);
-		if (now.getTime() >= todayDawn.getTime()) {
-			todayDawn.setDate(todayDawn.getDate() + 1);
+		const isSessionHours =
+			now.getHours() >= 0 &&
+			(now.getHours() < dawn.h || (now.getHours() === dawn.h && now.getMinutes() < dawn.m));
+
+		if (!isSessionHours) {
+			phase = 'pre_midnight';
+			targetLabel = 'countdown to midnight doors open (00:00)';
+			const midnight = new Date(now);
+			midnight.setHours(24, 0, 0, 0);
+			const diff = Math.max(0, midnight.getTime() - now.getTime());
+			const total = Math.floor(diff / 1000);
+			const h = Math.floor(total / 3600);
+			const m = Math.floor((total % 3600) / 60);
+			const s = total % 60;
+			dawnLeft = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+		} else {
+			phase = 'session_active';
+			targetLabel = `countdown to sunrise (${String(dawn.h).padStart(2, '0')}:${String(dawn.m).padStart(2, '0')})`;
+			const todayDawn = new Date(now);
+			todayDawn.setHours(dawn.h, dawn.m, 0, 0);
+			const diff = Math.max(0, todayDawn.getTime() - now.getTime());
+			const total = Math.floor(diff / 1000);
+			const h = Math.floor(total / 3600);
+			const m = Math.floor((total % 3600) / 60);
+			const s = total % 60;
+			dawnLeft = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 		}
-		const diff = Math.max(0, todayDawn.getTime() - now.getTime());
-		const total = Math.floor(diff / 1000);
-		const h = Math.floor(total / 3600);
-		const m = Math.floor((total % 3600) / 60);
-		const s = total % 60;
-		dawnLeft = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 	}
 
 	function handleKeydown(e: KeyboardEvent): void {
@@ -119,8 +137,8 @@
 
 		<!-- Centerpiece: Dawn countdown & now playing -->
 		<main class="relative z-10 my-auto flex flex-col items-center justify-center text-center">
-			<p class="num text-xs uppercase tracking-[0.2em] text-faint">
-				countdown to sunrise
+			<p class="num text-xs uppercase tracking-[0.2em] {phase === 'pre_midnight' ? 'text-amber' : 'text-faint'}">
+				{targetLabel}
 			</p>
 			<h1 class="num mt-2 font-mono text-6xl font-semibold tracking-tighter text-cream md:text-8xl lg:text-9xl">
 				{dawnLeft}
