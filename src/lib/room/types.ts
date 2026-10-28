@@ -37,9 +37,21 @@ export type RoomState = {
 	clock: number;
 	queue: Track[];
 	chat?: ChatMessage[];
+	mode?: 'focus' | 'break';
+	modeExpiresAt?: number;
+	cycleAuto?: boolean;
+	doorLocked?: boolean;
 };
 
-export type Peer = { id: string; name: string; ts: number; self?: boolean; status?: string; intention?: string };
+export type Peer = {
+	id: string;
+	name: string;
+	ts: number;
+	self?: boolean;
+	status?: string;
+	intention?: string;
+	tz?: string;
+};
 
 export type LogEntry = { id: string; who: string; text: string; ts: number };
 

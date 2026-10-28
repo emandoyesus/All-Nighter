@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { room } from '#lib/room/room.svelte';
+	import { saveToMyNights, buildNightFromRoom } from '#lib/data/local-logbook';
 	import IconSun from '@tabler/icons-svelte/icons/sun';
 	import IconX from '@tabler/icons-svelte/icons/x';
 	import IconCopy from '@tabler/icons-svelte/icons/copy';
@@ -7,10 +8,14 @@
 	import IconTarget from '@tabler/icons-svelte/icons/target';
 	import IconMusic from '@tabler/icons-svelte/icons/music';
 	import IconUsers from '@tabler/icons-svelte/icons/users';
+	import IconBookmark from '@tabler/icons-svelte/icons/bookmark';
+	import IconCode from '@tabler/icons-svelte/icons/code';
 
 	let { open = $bindable(false) }: { open: boolean } = $props();
 
 	let copied = $state(false);
+	let copiedJson = $state(false);
+	let saved = $state(false);
 
 	const intentions = $derived(
 		room.awake.map((p) => ({ who: p.name, text: p.intention })).filter((i) => !!i.text)
@@ -35,12 +40,38 @@
 		return lines.join('\n');
 	}
 
+	function getNightObject() {
+		return buildNightFromRoom(
+			room.room || 'all-nighter',
+			room.title || 'The Night Session',
+			room.awake,
+			room.state.current,
+			room.state.queue
+		);
+	}
+
 	async function copyZine(): Promise<void> {
 		try {
 			await navigator.clipboard.writeText(generateZineMarkdown());
 			copied = true;
 			setTimeout(() => (copied = false), 2000);
 		} catch {}
+	}
+
+	async function copyJsonSnippet(): Promise<void> {
+		try {
+			const night = getNightObject();
+			await navigator.clipboard.writeText(JSON.stringify(night, null, 2));
+			copiedJson = true;
+			setTimeout(() => (copiedJson = false), 2000);
+		} catch {}
+	}
+
+	function handleSave(): void {
+		const night = getNightObject();
+		saveToMyNights(night);
+		saved = true;
+		setTimeout(() => (saved = false), 2500);
 	}
 </script>
 
@@ -112,19 +143,38 @@
 				</div>
 			{/if}
 
-			<div class="mt-6 flex flex-wrap items-center justify-end gap-2 border-t border-cream/10 pt-4">
-				<button class="btn btn-ghost btn-sm" onclick={copyZine}>
-					{#if copied}
-						<IconCheck size={14} stroke={2} class="text-lamp" />
-						Copied Markdown
+			<div class="mt-6 flex flex-wrap items-center justify-between gap-2 border-t border-cream/10 pt-4">
+				<button class="btn btn-primary btn-sm" onclick={handleSave}>
+					{#if saved}
+						<IconCheck size={14} stroke={2} class="text-night" />
+						Saved to My Logbook!
 					{:else}
-						<IconCopy size={14} stroke={1.5} />
-						Copy Zine Entry
+						<IconBookmark size={14} stroke={1.5} />
+						Save to My Logbook
 					{/if}
 				</button>
-				<button class="btn btn-primary btn-sm" onclick={() => (open = false)}>
-					Keep the light on
-				</button>
+
+				<div class="flex items-center gap-2">
+					<button class="btn btn-ghost btn-sm text-xs" onclick={copyJsonSnippet} title="Copy JSON for src/lib/data/archive.ts">
+						{#if copiedJson}
+							<IconCheck size={14} stroke={2} class="text-lamp" />
+							Copied JSON
+						{:else}
+							<IconCode size={14} stroke={1.5} />
+							Export JSON
+						{/if}
+					</button>
+
+					<button class="btn btn-ghost btn-sm text-xs" onclick={copyZine}>
+						{#if copied}
+							<IconCheck size={14} stroke={2} class="text-lamp" />
+							Copied Markdown
+						{:else}
+							<IconCopy size={14} stroke={1.5} />
+							Markdown
+						{/if}
+					</button>
+				</div>
 			</div>
 		</div>
 	</div>

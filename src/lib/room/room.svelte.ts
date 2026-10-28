@@ -20,6 +20,7 @@ import type {
 	Track,
 	TrackSource
 } from './types';
+import { playFocusChime, playBreakChime, playDawnChime } from '#lib/audio/chime';
 
 const LS_NAME = 'an.callsign';
 const LS_ID = 'an.client';
@@ -106,7 +107,11 @@ function emptyState(): RoomState {
 		position: 0,
 		clock: 0,
 		queue: [],
-		chat: []
+		chat: [],
+		mode: 'focus',
+		modeExpiresAt: undefined,
+		cycleAuto: false,
+		doorLocked: false
 	};
 }
 
@@ -136,6 +141,8 @@ class Room {
 	state = $state<RoomState>(emptyState());
 	awake = $state<Peer[]>([]);
 	log = $state<LogEntry[]>([]);
+	/** Current clock for timer derivations. */
+	now = $state(Date.now());
 	/** Estimated remote-minus-local clock skew, milliseconds. */
 	offset = $state(0);
 	lastRemoteAt = $state(0);
@@ -146,14 +153,18 @@ class Room {
 	isHost = $state(false);
 	/** Current room mode: 'focus' (chat quiet, calm queue) or 'break' (aux open). */
 	mode = $state<'focus' | 'break'>('focus');
+	/** Seconds remaining in current mode cycle. */
+	modeRemaining = $derived(
+		this.state.modeExpiresAt ? Math.max(0, Math.floor((this.state.modeExpiresAt - this.now) / 1000)) : 0
+	);
+	/** Whether host or solo listener can skip directly. */
+	canSkip = $derived(this.isHost || this.awake.length <= 1);
 	/** This user's one-line intention for the night. */
 	intention = $state('');
 	/** Rooms advertised on the broker right now. */
 	directory = $state<RoomAd[]>([]);
 	/** People asking to be let in (only populated for members). */
 	pending = $state<JoinRequest[]>([]);
-	/** Client IDs that voted to skip current track. */
-	skipVoters = $state<string[]>([]);
 
 	private client: MqttLike | null = null;
 	private peers = new Map<string, Peer>();
@@ -213,11 +224,7 @@ class Room {
 			} catch {
 				/* ignore */
 			}
-			if (wasHost) {
-				this.enterApproved(slug, slug, true);
-			} else {
-				this.requestJoin(slug);
-			}
+			this.enterApproved(slug, slug, wasHost);
 		}
 	}
 
@@ -382,13 +389,14 @@ class Room {
 			return;
 		}
 		try {
-			const data = JSON.parse(text) as { name?: string; ts?: number; status?: string; intention?: string };
+			const data = JSON.parse(text) as { name?: string; ts?: number; status?: string; intention?: string; tz?: string };
 			if (!data?.name) return;
 			this.peers.set(id, {
 				id,
 				name: String(data.name).slice(0, 24),
 				status: data.status ? String(data.status).slice(0, 24) : undefined,
 				intention: data.intention ? String(data.intention).slice(0, 80) : undefined,
+				tz: data.tz ? String(data.tz).slice(0, 40) : undefined,
 				ts: Number(data.ts) || 0
 			});
 			this.flushPeers();
@@ -471,6 +479,21 @@ class Room {
 
 		this.offset = Number(msg.clock) - now;
 		this.lastRemoteAt = now;
+
+		// Play chimes and sync mode if changed
+		if (msg.mode && msg.mode !== this.mode) {
+			this.mode = msg.mode;
+			if (this.mode === 'focus') playFocusChime();
+			else if (this.mode === 'break') playBreakChime();
+		}
+
+		// Gate visitor if room is locked and user is not host
+		if (msg.doorLocked && !this.isHost && this.joinState === 'approved' && !this.everConnected) {
+			this.joinState = 'waiting';
+			this.publishRequest();
+			this.startRequesting();
+		}
+
 		this.state = {
 			seq: incomingSeq,
 			by: incomingBy,
@@ -481,7 +504,11 @@ class Room {
 			position: Number(msg.position) || 0,
 			clock: Number(msg.clock) || now,
 			queue: Array.isArray(msg.queue) ? msg.queue : [],
-			chat: this.state.chat ?? []
+			chat: this.state.chat ?? [],
+			mode: msg.mode ?? this.mode,
+			modeExpiresAt: msg.modeExpiresAt,
+			cycleAuto: !!msg.cycleAuto,
+			doorLocked: !!msg.doorLocked
 		};
 	}
 
@@ -519,7 +546,18 @@ class Room {
 	private publishState(): void {
 		if (!this.room) return;
 		const { chat: _chat, ...shared } = this.state;
-		this.pub(this.t('state'), JSON.stringify({ ...shared, clock: Date.now() }), true);
+		this.pub(
+			this.t('state'),
+			JSON.stringify({
+				...shared,
+				mode: this.mode,
+				modeExpiresAt: this.state.modeExpiresAt,
+				cycleAuto: this.state.cycleAuto,
+				doorLocked: this.state.doorLocked,
+				clock: Date.now()
+			}),
+			true
+		);
 	}
 
 	private writeLog(text: string): void {
@@ -568,7 +606,19 @@ class Room {
 		this.enterApproved(clean, title?.trim() || clean, true);
 	}
 
-	/** Ask the members of `slug` to let us in. */
+	/** Step into a room (open by default). */
+	joinRoom(slug: string, title?: string): void {
+		const clean = sanitizeRoom(slug);
+		let wasHost = false;
+		try {
+			wasHost = localStorage.getItem('an.host.' + clean) === '1';
+		} catch {
+			/* ignore */
+		}
+		this.enterApproved(clean, title?.trim() || clean, wasHost);
+	}
+
+	/** Ask the members of `slug` to let us in (if door is locked). */
 	requestJoin(slug: string, title?: string): void {
 		const clean = sanitizeRoom(slug);
 		this.resetRoom();
@@ -734,18 +784,26 @@ class Room {
 
 	announce(): void {
 		if (!this.clientId || this.joinState !== 'approved' || !this.room) return;
+		const userTz = typeof Intl !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : undefined;
 		this.peers.set(this.clientId, {
 			id: this.clientId,
 			name: this.name,
 			status: this.statusText || undefined,
 			intention: this.intention || undefined,
+			tz: userTz,
 			ts: Date.now(),
 			self: true
 		});
 		this.flushPeers();
 		this.pub(
 			this.presenceTopic(this.room, this.clientId),
-			JSON.stringify({ name: this.name, status: this.statusText || undefined, intention: this.intention || undefined, ts: Date.now() }),
+			JSON.stringify({
+				name: this.name,
+				status: this.statusText || undefined,
+				intention: this.intention || undefined,
+				tz: userTz,
+				ts: Date.now()
+			}),
 			true
 		);
 		this.updateAd();
@@ -776,11 +834,47 @@ class Room {
 		this.announce();
 	}
 
-	setMode(next: 'focus' | 'break'): void {
-		if (this.mode === next) return;
+	setMode(next: 'focus' | 'break', durationMinutes = next === 'focus' ? 50 : 10): void {
 		this.mode = next;
+		const expiresAt = Date.now() + durationMinutes * 60 * 1000;
 		const label = next === 'focus' ? '🎯 focus mode' : '🔓 break mode';
-		this.writeLog(`switched the room to ${label}`);
+		this.mutate(
+			(s) => ({
+				...s,
+				mode: next,
+				modeExpiresAt: expiresAt
+			}),
+			`switched the room to ${label}`
+		);
+		if (next === 'focus') playFocusChime();
+		else playBreakChime();
+	}
+
+	toggleAutoCycle(): void {
+		if (!this.isHost) return;
+		const nextAuto = !this.state.cycleAuto;
+		const duration = this.mode === 'focus' ? 50 : 10;
+		const expiresAt = Date.now() + duration * 60 * 1000;
+		this.mutate(
+			(s) => ({
+				...s,
+				cycleAuto: nextAuto,
+				modeExpiresAt: nextAuto ? expiresAt : undefined
+			}),
+			nextAuto ? 'enabled 50/10 auto cycle' : 'disabled auto cycle'
+		);
+	}
+
+	toggleDoorLock(): void {
+		if (!this.isHost) return;
+		const nextLock = !this.state.doorLocked;
+		this.mutate(
+			(s) => ({
+				...s,
+				doorLocked: nextLock
+			}),
+			nextLock ? 'locked the room door' : 'unlocked the room door'
+		);
 	}
 
 	add(
@@ -903,7 +997,7 @@ class Room {
 	}
 
 	skip(): void {
-		this.skipVoters = [];
+		if (!this.canSkip) return;
 		const finished = this.state.current?.title;
 		this.mutate(
 			(s) => {
@@ -919,23 +1013,6 @@ class Room {
 			},
 			finished ? `skipped “${finished}”` : 'skipped ahead'
 		);
-	}
-
-	skipVote(): void {
-		if (this.isHost) {
-			this.skip();
-			return;
-		}
-		if (this.skipVoters.includes(this.clientId)) {
-			this.skipVoters = this.skipVoters.filter((id) => id !== this.clientId);
-		} else {
-			this.skipVoters = [...this.skipVoters, this.clientId];
-		}
-		const needed = Math.max(1, Math.ceil(this.awake.length / 2));
-		if (this.skipVoters.length >= needed) {
-			this.writeLog(`voted to skip (${this.skipVoters.length}/${needed}) — advancing`);
-			this.skip();
-		}
 	}
 
 	/** The video ended on its own: advance, or settle into the empty state.
@@ -987,6 +1064,15 @@ class Room {
 
 	private tick(): void {
 		const now = Date.now();
+		this.now = now;
+
+		// 50/10 Pomodoro automatic cycle transition by host
+		if (this.isHost && this.state.cycleAuto && this.state.modeExpiresAt && now >= this.state.modeExpiresAt) {
+			const nextMode = this.mode === 'focus' ? 'break' : 'focus';
+			const duration = nextMode === 'focus' ? 50 : 10;
+			this.setMode(nextMode, duration);
+		}
+
 		for (const [id, peer] of this.peers) {
 			if (id !== this.clientId && now - peer.ts > PRESENCE_TTL) this.peers.delete(id);
 		}

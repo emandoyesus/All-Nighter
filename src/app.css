@@ -510,31 +510,15 @@ input[type='range'].seek {
 	opacity: 0;
 }
 
-.lamp-cursor__glow {
-	position: absolute;
-	width: 560px;
-	height: 560px;
-	margin: -280px 0 0 -280px;
-	border-radius: 50%;
-	background: radial-gradient(
-		circle,
-		color-mix(in srgb, var(--color-lamp) 9%, transparent) 0%,
-		color-mix(in srgb, var(--color-lamp) 3%, transparent) 38%,
-		transparent 70%
-	);
-	filter: blur(18px);
-	mix-blend-mode: screen;
-}
-
 .lamp-cursor__dot {
 	position: absolute;
-	width: 4px;
-	height: 4px;
-	margin: -2px 0 0 -2px;
+	width: 8px;
+	height: 8px;
+	margin: -4px 0 0 -4px;
 	border-radius: 50%;
-	background: var(--color-lamp);
-	box-shadow: 0 0 10px color-mix(in srgb, var(--color-lamp) 75%, transparent);
-	opacity: 0.8;
+	border: 1.5px solid var(--color-lamp);
+	background: color-mix(in srgb, var(--color-lamp) 25%, transparent);
+	opacity: 0.85;
 }
 
 @media (pointer: coarse), (prefers-reduced-motion: reduce) {

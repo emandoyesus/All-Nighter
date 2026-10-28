@@ -94,3 +94,61 @@ export function formatTime(seconds: number): string {
 	const s = Math.floor(seconds % 60);
 	return `${m}:${String(s).padStart(2, '0')}`;
 }
+
+export type SpotifyMeta = {
+	title: string;
+	thumbnail?: string;
+};
+
+/** Fetch track title & details via Spotify oEmbed. */
+export async function fetchSpotifyMeta(url: string): Promise<SpotifyMeta | null> {
+	try {
+		const res = await fetch(`https://open.spotify.com/oembed?url=${encodeURIComponent(url)}`);
+		if (!res.ok) return null;
+		const data = (await res.json()) as { title?: string; thumbnail_url?: string };
+		if (!data.title) return null;
+		return {
+			title: data.title,
+			thumbnail: data.thumbnail_url
+		};
+	} catch {
+		return null;
+	}
+}
+
+const PUBLIC_SEARCH_INSTANCES = [
+	'https://yt.chocolatemoo53.com',
+	'https://invidious.jing.rocks',
+	'https://inv.vern.cc'
+];
+
+/** Search for a video on YouTube by title/artist to resolve external tracks. */
+export async function searchYouTubeVideo(query: string): Promise<VideoMeta & { videoId: string } | null> {
+	const clean = query.trim();
+	if (!clean) return null;
+
+	for (const instance of PUBLIC_SEARCH_INSTANCES) {
+		try {
+			const controller = new AbortController();
+			const timeout = setTimeout(() => controller.abort(), 4500);
+			const res = await fetch(
+				`${instance}/api/v1/search?q=${encodeURIComponent(clean)}&type=video`,
+				{ signal: controller.signal }
+			);
+			clearTimeout(timeout);
+			if (!res.ok) continue;
+			const list = (await res.json()) as Array<{ videoId?: string; title?: string; author?: string }>;
+			if (Array.isArray(list) && list.length > 0 && list[0].videoId) {
+				return {
+					videoId: list[0].videoId,
+					title: list[0].title ?? clean,
+					channel: list[0].author ?? 'YouTube'
+				};
+			}
+		} catch {
+			continue;
+		}
+	}
+	return null;
+}
+

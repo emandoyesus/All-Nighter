@@ -110,21 +110,22 @@
 							{room.state.queue.length} up next · {room.awake.length} awake
 						</div>
 						<div class="flex items-center gap-1.5">
-							{#if room.isHost}
-								<button class="btn btn-ghost btn-sm" onclick={() => room.skip()} disabled={room.state.queue.length === 0 && !room.state.current}>
+							{#if room.canSkip}
+								<button
+									class="btn btn-ghost btn-sm"
+									onclick={() => room.skip()}
+									disabled={room.state.queue.length === 0 && !room.state.current}
+									title={room.isHost ? 'Host skip' : 'Solo skip'}
+								>
 									Skip
 								</button>
 							{:else}
-								{@const needed = Math.max(1, Math.ceil(room.awake.length / 2))}
-								{@const voted = room.skipVoters.includes(room.clientId)}
-								<button
-									class="btn btn-ghost btn-sm {voted ? 'border-lamp/50 text-lamp' : ''}"
-									onclick={() => room.skipVote()}
-									disabled={room.state.queue.length === 0 && !room.state.current}
-									title="Democratic skip vote: need majority of awake listeners"
+								<span
+									class="text-[11px] text-faint px-2"
+									title="Only the host can skip when multiple people are in the room"
 								>
-									{voted ? `Skip vote (${room.skipVoters.length}/${needed})` : 'Vote to skip'}
-								</button>
+									Host controls skip
+								</span>
 							{/if}
 							<button class="btn btn-ghost btn-sm" onclick={async () => { try { await navigator.clipboard.writeText(room.roomUrl()); } catch {} }}>Share room</button>
 						</div>

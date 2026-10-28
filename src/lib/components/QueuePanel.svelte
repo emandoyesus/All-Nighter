@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { room, parseTrackUrl } from '#lib/room/room.svelte';
 	import { crate } from '#lib/data/crate';
-	import { parseYouTubeId, fetchVideoMeta, thumbnailFor } from '#lib/room/youtube';
+	import { parseYouTubeId, fetchVideoMeta, thumbnailFor, fetchSpotifyMeta, searchYouTubeVideo } from '#lib/room/youtube';
 	import IconPlus from '@tabler/icons-svelte/icons/plus';
 	import IconX from '@tabler/icons-svelte/icons/x';
 	import IconPlay from '@tabler/icons-svelte/icons/player-play';
@@ -37,12 +37,28 @@
 			dedicationDraft = '';
 			return;
 		}
-		if (parsed.source === 'spotify') {
-			const title = `Spotify track (${parsed.id})`;
-			const channel = 'Spotify';
-			room.add(parsed.id, title, channel, room.name, 'spotify', draft.trim(), ded, tag);
-			draft = '';
-			dedicationDraft = '';
+		if (parsed.source === 'spotify' || draft.includes('spotify.com')) {
+			busy = true;
+			try {
+				const spotMeta = await fetchSpotifyMeta(draft.trim());
+				if (spotMeta?.title) {
+					const match = await searchYouTubeVideo(spotMeta.title);
+					busy = false;
+					if (match?.videoId) {
+						room.add(match.videoId, spotMeta.title, match.channel, room.name, 'youtube', draft.trim(), ded, tag);
+						draft = '';
+						dedicationDraft = '';
+						return;
+					}
+					// Fallback if search failed
+					room.add(parsed.id ?? null, spotMeta.title, 'Spotify', room.name, 'spotify', draft.trim(), ded, tag);
+					draft = '';
+					dedicationDraft = '';
+					return;
+				}
+			} catch {}
+			busy = false;
+			error = 'Could not resolve that Spotify track. Check link or paste YouTube URL.';
 			return;
 		}
 		if (parsed.source === 'soundcloud') {

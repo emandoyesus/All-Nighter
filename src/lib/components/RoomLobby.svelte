@@ -95,11 +95,11 @@
 								{/if}
 							</button>
 							<button
-								class="btn btn-ghost btn-sm"
-								onclick={() => room.requestJoin(ad.room)}
+								class="btn btn-primary btn-sm"
+								onclick={() => room.joinRoom(ad.room, ad.title)}
 							>
 								<IconDoorEnter size={14} stroke={1.5} />
-								Knock
+								Step in
 							</button>
 						</div>
 					</li>

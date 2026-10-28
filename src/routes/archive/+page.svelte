@@ -1,9 +1,12 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { asset } from '$app/paths';
 	import Nav from '#lib/components/Nav.svelte';
 	import ArchiveStats from '#lib/components/ArchiveStats.svelte';
 	import UpcomingSessions from '#lib/components/UpcomingSessions.svelte';
 	import { nights, genres, contributors } from '#lib/data/archive';
+	import type { Night } from '#lib/data/archive';
+	import { loadMyNights } from '#lib/data/local-logbook';
 	import { reveal } from '#lib/reveal';
 	import { splitReveal } from '#lib/split-reveal';
 	import IconArrowLeft from '@tabler/icons-svelte/icons/arrow-left';
@@ -15,9 +18,19 @@
 	let contributor = $state('');
 	let genre = $state('');
 	let month = $state('');
+	let sourceTab = $state<'all' | 'curated' | 'my'>('all');
+	let myNights = $state<Night[]>([]);
+
+	onMount(() => {
+		myNights = loadMyNights();
+	});
+
+	const baseNights = $derived(
+		sourceTab === 'my' ? myNights : sourceTab === 'curated' ? nights : [...myNights, ...nights]
+	);
 
 	const months = $derived(
-		[...new Set(nights.map((night) => night.iso.slice(0, 7)))].sort().reverse()
+		[...new Set(baseNights.map((night) => night.iso.slice(0, 7)))].sort().reverse()
 	);
 
 	function monthLabel(value: string): string {
@@ -28,7 +41,7 @@
 
 	const filtered = $derived.by(() => {
 		const q = query.trim().toLowerCase();
-		return [...nights]
+		return [...baseNights]
 			.filter((night) => {
 				if (contributor && !night.joined.includes(contributor) && !night.tracklist.some((track) => track.addedBy === contributor)) return false;
 				if (genre && !night.tracklist.some((track) => track.genre === genre)) return false;
@@ -97,12 +110,39 @@
 					The logbook
 				</h2>
 				<p class="num mt-1.5 text-xs text-faint">
-					{filtered.length} of {nights.length} nights
+					{filtered.length} of {baseNights.length} nights
 				</p>
 			</div>
-			{#if hasFilters}
-				<button class="btn btn-ghost btn-sm" onclick={reset}>Clear filters</button>
-			{/if}
+
+			<div class="flex flex-wrap items-center gap-2">
+				<div class="flex items-center gap-1 rounded-full border border-cream/10 bg-night/60 p-1 text-xs">
+					<button
+						type="button"
+						class="rounded-full px-3 py-1 transition-colors {sourceTab === 'all' ? 'bg-lamp/20 font-medium text-lamp' : 'text-taupe hover:text-cream'}"
+						onclick={() => (sourceTab = 'all')}
+					>
+						All ({myNights.length + nights.length})
+					</button>
+					<button
+						type="button"
+						class="rounded-full px-3 py-1 transition-colors {sourceTab === 'curated' ? 'bg-lamp/20 font-medium text-lamp' : 'text-taupe hover:text-cream'}"
+						onclick={() => (sourceTab = 'curated')}
+					>
+						Curated ({nights.length})
+					</button>
+					<button
+						type="button"
+						class="rounded-full px-3 py-1 transition-colors {sourceTab === 'my' ? 'bg-lamp/20 font-medium text-lamp' : 'text-taupe hover:text-cream'}"
+						onclick={() => (sourceTab = 'my')}
+					>
+						My Logbook ({myNights.length})
+					</button>
+				</div>
+
+				{#if hasFilters}
+					<button class="btn btn-ghost btn-sm" onclick={reset}>Clear filters</button>
+				{/if}
+			</div>
 		</div>
 
 		<div
@@ -209,8 +249,18 @@
 				</a>
 			{:else}
 				<div class="panel col-span-full p-10 text-center">
-					<p class="text-sm text-taupe">No nights match those filters.</p>
-					<button class="btn btn-ghost btn-sm mt-4" onclick={reset}>Show everything</button>
+					{#if sourceTab === 'my' && myNights.length === 0}
+						<p class="text-sm font-medium text-cream">Your personal logbook is empty.</p>
+						<p class="mx-auto mt-1.5 max-w-[44ch] text-xs leading-relaxed text-taupe">
+							When an all-nighter finishes at sunrise, tap "Save to My Logbook" in the Sunrise Ritual to preserve your session right here!
+						</p>
+						<button class="btn btn-ghost btn-sm mt-4" onclick={() => (sourceTab = 'curated')}>
+							View curated nights
+						</button>
+					{:else}
+						<p class="text-sm text-taupe">No nights match those filters.</p>
+						<button class="btn btn-ghost btn-sm mt-4" onclick={reset}>Show everything</button>
+					{/if}
 				</div>
 			{/each}
 		</div>

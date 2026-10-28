@@ -3,6 +3,8 @@
 	import { room } from '#lib/room/room.svelte';
 	import { DRIFT_TOLERANCE, HEARTBEAT_TICK } from '#lib/config';
 	import { loadYouTubeApi, formatTime } from '#lib/room/youtube';
+	import { ambient } from '#lib/audio/ambient.svelte';
+	import DeskHud from './DeskHud.svelte';
 	import IconPlay from '@tabler/icons-svelte/icons/player-play';
 	import IconPause from '@tabler/icons-svelte/icons/player-pause';
 	import IconSkip from '@tabler/icons-svelte/icons/player-skip-forward';
@@ -10,6 +12,10 @@
 	import IconVolumeOff from '@tabler/icons-svelte/icons/volume-off';
 	import IconMusic from '@tabler/icons-svelte/icons/music';
 	import IconExternal from '@tabler/icons-svelte/icons/external-link';
+	import IconCloudRain from '@tabler/icons-svelte/icons/cloud-rain';
+	import IconDisc from '@tabler/icons-svelte/icons/disc';
+	import IconWaveSine from '@tabler/icons-svelte/icons/wave-sine';
+	import IconMaximize from '@tabler/icons-svelte/icons/maximize';
 
 	const ENDED = 0;
 	const PLAYING = 1;
@@ -38,6 +44,7 @@
 	let drift = $state(0);
 	let muted = $state(true);
 	let apiError = $state(false);
+	let showDeskHud = $state(false);
 
 	const hasVideo = $derived(!!room.state.videoId);
 	const playing = $derived(room.state.playing);
@@ -371,8 +378,9 @@
 		<button
 			class="icon-btn"
 			onclick={skip}
-			disabled={queued === 0}
+			disabled={queued === 0 || !room.canSkip}
 			aria-label="Skip to the next track"
+			title={room.canSkip ? (room.isHost ? 'Host skip' : 'Solo skip') : 'Only host can skip'}
 		>
 			<IconSkip size={18} stroke={1.5} />
 		</button>
@@ -424,4 +432,62 @@
 			/>
 		</div>
 	</div>
+
+	<!-- Ambient sound layer & Desk HUD trigger -->
+	<div class="flex flex-wrap items-center justify-between gap-2 border-t border-cream/5 bg-night/50 px-4 py-2">
+		<div class="flex items-center gap-1.5">
+			<span class="num text-[11px] text-faint mr-1">Ambience:</span>
+			<button
+				type="button"
+				class="rounded px-2 py-0.5 text-[11px] transition-colors {ambient.type === 'rain' && ambient.isPlaying ? 'bg-lamp/20 text-lamp font-medium' : 'text-faint hover:text-cream'}"
+				onclick={() => ambient.setType('rain')}
+				title="Rain against window"
+			>
+				<IconCloudRain size={12} stroke={1.5} class="inline mr-1" />
+				Rain
+			</button>
+			<button
+				type="button"
+				class="rounded px-2 py-0.5 text-[11px] transition-colors {ambient.type === 'vinyl' && ambient.isPlaying ? 'bg-lamp/20 text-lamp font-medium' : 'text-faint hover:text-cream'}"
+				onclick={() => ambient.setType('vinyl')}
+				title="Vinyl needle crackle"
+			>
+				<IconDisc size={12} stroke={1.5} class="inline mr-1" />
+				Vinyl
+			</button>
+			<button
+				type="button"
+				class="rounded px-2 py-0.5 text-[11px] transition-colors {ambient.type === 'tape' && ambient.isPlaying ? 'bg-lamp/20 text-lamp font-medium' : 'text-faint hover:text-cream'}"
+				onclick={() => ambient.setType('tape')}
+				title="Warm lo-fi tape hiss"
+			>
+				<IconWaveSine size={12} stroke={1.5} class="inline mr-1" />
+				Tape
+			</button>
+
+			{#if ambient.isPlaying && ambient.type !== 'none'}
+				<input
+					type="range"
+					min="0"
+					max="100"
+					value={ambient.volume}
+					oninput={(e) => ambient.setVolume(Number(e.currentTarget.value))}
+					class="seek w-14 ml-1 cursor-pointer"
+					title="Ambience volume: {ambient.volume}%"
+				/>
+			{/if}
+		</div>
+
+		<button
+			type="button"
+			class="inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] text-taupe transition-colors hover:text-lamp hover:bg-lamp/10"
+			onclick={() => (showDeskHud = true)}
+			title="Fullscreen Desk HUD for second monitors"
+		>
+			<IconMaximize size={12} stroke={1.5} />
+			<span>Desk HUD</span>
+		</button>
+	</div>
 </div>
+
+<DeskHud bind:open={showDeskHud} />
