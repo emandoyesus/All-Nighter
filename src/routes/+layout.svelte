@@ -77,9 +77,9 @@
 	<i class="star star--warm" style="--x: 9%; --y: 41%; --s: 3px; --d: 8s; --dl: 3.4s"></i>
 	<i class="star" style="--x: 61%; --y: 58%; --s: 2.5px; --d: 6s; --dl: 1.2s"></i>
 
-	<span class="meteor" style="--x: 24%; --y: 8%; --a: 21deg; --dur: 9s; --delay: 3s"></span>
-	<span class="meteor" style="--x: 58%; --y: 20%; --a: 26deg; --dur: 11s; --delay: 14s"></span>
-	<span class="meteor" style="--x: 78%; --y: 34%; --a: 18deg; --dur: 13s; --delay: 27s"></span>
+	<span class="meteor" style="--x: 24%; --y: 8%; --a: 21deg; --dur: 18s; --delay: 5s"></span>
+	<span class="meteor" style="--x: 58%; --y: 20%; --a: 26deg; --dur: 23s; --delay: 13s"></span>
+	<span class="meteor" style="--x: 78%; --y: 34%; --a: 18deg; --dur: 28s; --delay: 22s"></span>
 </div>
 
 <div class="grain-layer" aria-hidden="true"></div>
