@@ -10,15 +10,15 @@
 	--font-display: 'Space Grotesk Variable', 'Space Grotesk', system-ui, sans-serif;
 	--font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
 
-	/* Darker theme: near-black base with mint accent */
+	/* Darker theme: near-black base with calm mint/sage accent */
 	--color-night: #050807;
 	--color-night-2: #0a0f0b;
 	--color-night-3: #101713;
 	--color-cream: #f3fff1;
 	--color-taupe: #9bb39c;
 	--color-faint: #5f7662;
-	--color-lamp: #B7FF72;
-	--color-lamp-2: #c6ff88;
+	--color-lamp: #8ec765;
+	--color-lamp-2: #9fd776;
 	--color-amber: #FFB84D;
 	--color-amber-2: #ffc970;
 
@@ -39,11 +39,7 @@
 	}
 
 	body {
-		background:
-			radial-gradient(120% 90% at 78% -12%, color-mix(in srgb, var(--color-lamp) 6.5%, transparent) 0%, transparent 48%),
-			radial-gradient(80% 65% at 12% 112%, color-mix(in srgb, var(--color-night-3) 35%, transparent) 0%, transparent 52%),
-			var(--color-night);
-		background-attachment: fixed;
+		background: var(--color-night);
 		color: var(--color-cream);
 		font-family: var(--font-display);
 		-webkit-font-smoothing: antialiased;
@@ -152,11 +148,7 @@
 /* --- atmosphere ------------------------------------------------------- */
 
 .lamp-glow {
-	background: radial-gradient(
-		640px 420px at 72% 18%,
-		color-mix(in srgb, var(--color-lamp) 8.5%, transparent),
-		transparent 70%
-	);
+	display: none;
 }
 
 .grain-layer {
@@ -299,7 +291,7 @@ input[type='range'].seek {
 }
 
 .cosmos--dusk {
-	background: radial-gradient(120% 80% at 50% 100%, rgba(55, 30, 85, 0.25) 0%, transparent 65%);
+	background: transparent;
 }
 
 .cosmos--night {
@@ -307,7 +299,7 @@ input[type='range'].seek {
 }
 
 .cosmos--dawn {
-	background: radial-gradient(130% 90% at 50% 100%, rgba(255, 140, 50, 0.22) 0%, rgba(200, 80, 110, 0.12) 40%, transparent 75%);
+	background: transparent;
 }
 
 .sky {
@@ -371,19 +363,10 @@ input[type='range'].seek {
 
 /* the galactic band */
 .sky--milky {
-	background: linear-gradient(
-		118deg,
-		transparent 34%,
-		rgba(150, 175, 240, 0.035) 46%,
-		rgba(206, 198, 255, 0.05) 50%,
-		rgba(150, 175, 255, 0.035) 54%,
-		transparent 68%
-	);
-	filter: blur(18px);
-	opacity: 0.4;
+	display: none;
 }
 
-/* bright stars — slow, subtle self-shine */
+/* bright stars — crisp, subtle pinpoints without blurry halo */
 .star {
 	position: absolute;
 	left: var(--x);
@@ -392,25 +375,25 @@ input[type='range'].seek {
 	height: var(--s, 3px);
 	margin: calc(var(--s, 3px) / -2);
 	border-radius: 50%;
-	background: radial-gradient(circle, #ffffff 0%, rgba(255, 255, 255, 0.85) 22%, rgba(190, 214, 255, 0.35) 48%, transparent 72%);
-	filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.7)) drop-shadow(0 0 9px rgba(160, 196, 255, 0.4));
+	background: #ffffff;
+	opacity: 0.6;
 	animation: star-shine var(--d, 7s) ease-in-out infinite alternate;
 	animation-delay: var(--dl, 0s);
 }
 
 .star--warm {
-	background: radial-gradient(circle, #fff6ea 0%, rgba(255, 236, 210, 0.85) 22%, rgba(255, 200, 150, 0.35) 48%, transparent 72%);
-	filter: drop-shadow(0 0 3px rgba(255, 245, 230, 0.7)) drop-shadow(0 0 9px rgba(255, 200, 140, 0.4));
+	background: #ffe6c4;
+	opacity: 0.6;
 }
 
 @keyframes star-shine {
 	from {
-		opacity: 0.62;
-		transform: scale(0.94);
+		opacity: 0.5;
+		transform: scale(0.95);
 	}
 	to {
-		opacity: 1;
-		transform: scale(1.06);
+		opacity: 0.85;
+		transform: scale(1.05);
 	}
 }
 
@@ -423,7 +406,6 @@ input[type='range'].seek {
 	height: 1.5px;
 	border-radius: 999px;
 	background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.08) 34%, rgba(214, 228, 255, 0.55) 78%, #ffffff 100%);
-	filter: drop-shadow(0 0 4px rgba(190, 214, 255, 0.65));
 	transform: rotate(var(--a, 22deg));
 	transform-origin: right center;
 	opacity: 0;
@@ -436,14 +418,11 @@ input[type='range'].seek {
 	position: absolute;
 	right: -2px;
 	top: 50%;
-	width: 5px;
-	height: 5px;
-	margin-top: -2.5px;
+	width: 4px;
+	height: 4px;
+	margin-top: -2px;
 	border-radius: 50%;
 	background: #ffffff;
-	box-shadow:
-		0 0 6px rgba(255, 255, 255, 0.9),
-		0 0 14px rgba(180, 210, 255, 0.6);
 }
 
 @keyframes meteor {
@@ -503,28 +482,7 @@ input[type='range'].seek {
 /* --- lamp cursor (desk light follows the pointer) --------------------- */
 
 .lamp-cursor {
-	position: fixed;
-	inset: 0;
-	z-index: 30;
-	pointer-events: none;
-	opacity: 0;
-}
-
-.lamp-cursor__dot {
-	position: absolute;
-	width: 8px;
-	height: 8px;
-	margin: -4px 0 0 -4px;
-	border-radius: 50%;
-	border: 1.5px solid var(--color-lamp);
-	background: color-mix(in srgb, var(--color-lamp) 25%, transparent);
-	opacity: 0.85;
-}
-
-@media (pointer: coarse), (prefers-reduced-motion: reduce) {
-	.lamp-cursor {
-		display: none;
-	}
+	display: none;
 }
 
 /* --- kinetic marquee -------------------------------------------------- */

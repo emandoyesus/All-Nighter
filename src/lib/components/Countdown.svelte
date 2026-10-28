@@ -85,7 +85,7 @@
 </script>
 
 {#if isSunrise}
-	<div class="panel border-lamp/40 bg-gradient-to-b from-night-3 to-night-2 p-5 shadow-[0_0_25px_color-mix(in_srgb,var(--color-lamp)_14%,transparent)]">
+	<div class="panel border-lamp/40 bg-gradient-to-b from-night-3 to-night-2 p-5 shadow-lg">
 		<div class="flex items-center justify-between">
 			<span class="inline-flex items-center gap-1.5 rounded-full bg-lamp/15 px-2.5 py-0.5 text-xs font-medium text-lamp">
 				<IconSun size={15} stroke={2} />

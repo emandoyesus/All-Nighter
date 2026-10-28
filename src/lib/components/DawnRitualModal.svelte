@@ -82,7 +82,7 @@
 		aria-modal="true"
 	>
 		<div
-			class="relative w-full max-w-lg overflow-hidden rounded-card border border-lamp/30 bg-night-2 p-6 shadow-[0_0_50px_rgba(183,255,114,0.12)]"
+			class="relative w-full max-w-lg overflow-hidden rounded-card border border-cream/15 bg-night-2 p-6 shadow-2xl"
 		>
 			<div class="flex items-start justify-between gap-3">
 				<div class="flex items-center gap-2">

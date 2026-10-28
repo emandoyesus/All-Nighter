@@ -20,7 +20,6 @@
 
 			gsap
 				.timeline({ defaults: { ease: 'power3.out' } })
-				.from('.lamp-glow', { opacity: 0, duration: 1.6 }, 0)
 				.to('[data-hero]', { opacity: 1, y: 0, duration: 0.95, stagger: 0.085 }, 0.08)
 				.fromTo(
 					'[data-media-clip]',
@@ -69,8 +68,6 @@
 </script>
 
 <section id="top" class="relative overflow-hidden" bind:this={section}>
-	<div class="lamp-glow pointer-events-none absolute inset-0 opacity-80" aria-hidden="true"></div>
-
 	<div
 		class="relative mx-auto grid max-w-[1400px] items-center gap-10 px-5 pb-16 pt-12 md:grid-cols-[1.15fr_0.85fr] md:gap-8 md:pt-16 lg:grid-cols-[1.2fr_0.8fr] lg:gap-14 lg:pb-24"
 	>

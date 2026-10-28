@@ -19,8 +19,6 @@
 </script>
 
 <section class="relative overflow-hidden border-t border-cream/10">
-	<div class="lamp-glow pointer-events-none absolute inset-0" aria-hidden="true"></div>
-
 	<div class="relative mx-auto max-w-[1400px] px-5 pb-16 pt-20 md:pb-20 md:pt-24">
 		<h2
 			class="max-w-[22ch] text-3xl font-semibold tracking-tight md:text-5xl"

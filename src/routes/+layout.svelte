@@ -5,7 +5,6 @@
 	import { onMount } from 'svelte';
 	import { afterNavigate } from '$app/navigation';
 	import favicon from '#lib/assets/favicon.svg';
-	import LampCursor from '#lib/components/LampCursor.svelte';
 	import { gsap, prefersReducedMotion, ScrollTrigger, setupGsap } from '#lib/motion';
 	import type { LayoutProps } from './$types';
 
@@ -84,7 +83,5 @@
 </div>
 
 <div class="grain-layer" aria-hidden="true"></div>
-
-<LampCursor />
 
 {@render children()}

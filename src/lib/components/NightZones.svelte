@@ -92,7 +92,7 @@
 			{#each cityStatuses as city (city.city)}
 				<div
 					class="flex flex-col justify-between rounded-field border p-3 transition-colors {city.isDeepNight
-						? 'border-lamp/40 bg-lamp/5 shadow-[0_0_15px_rgba(183,255,114,0.06)]'
+						? 'border-lamp/40 bg-lamp/5'
 						: city.isDawn
 							? 'border-amber-400/30 bg-amber-400/5'
 							: 'border-cream/8 bg-night/40 opacity-50'}"

@@ -64,13 +64,6 @@
 		role="dialog"
 		aria-modal="true"
 	>
-		<!-- Background ambient subtle radial glow -->
-		<div
-			class="pointer-events-none absolute inset-0 opacity-40 bg-[radial-gradient(ellipse_at_top,_var(--color-lamp)_0%,_transparent_65%)]"
-			style="filter: blur(80px);"
-			aria-hidden="true"
-		></div>
-
 		<!-- Top status bar -->
 		<header class="relative z-10 flex flex-wrap items-center justify-between gap-4">
 			<div class="flex items-center gap-3">
@@ -114,7 +107,7 @@
 			<p class="num text-xs uppercase tracking-[0.2em] text-faint">
 				countdown to sunrise
 			</p>
-			<h1 class="num mt-2 font-mono text-6xl font-semibold tracking-tighter text-cream md:text-8xl lg:text-9xl [text-shadow:0_0_50px_rgba(183,255,114,0.18)]">
+			<h1 class="num mt-2 font-mono text-6xl font-semibold tracking-tighter text-cream md:text-8xl lg:text-9xl">
 				{dawnLeft}
 			</h1>
 
