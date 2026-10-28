@@ -65,7 +65,7 @@
 			</div>
 		</div>
 
-		<div class="relative w-full" data-hero>
+		<div class="relative w-full">
 			<Countdown size="big" />
 		</div>
 	</div>
