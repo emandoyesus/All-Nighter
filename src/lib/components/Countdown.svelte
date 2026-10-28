@@ -23,6 +23,9 @@
 			if (saved) {
 				const parsed = JSON.parse(saved);
 				if (typeof parsed?.h === 'number' && typeof parsed?.m === 'number') {
+					if (parsed.h === 6 && parsed.m === 30) {
+						return { ...DAWN };
+					}
 					return { h: parsed.h, m: parsed.m };
 				}
 			}
@@ -47,7 +50,7 @@
 	let editM = $state(0);
 	let left = $state('--:--:--');
 	let isSunrise = $state(false);
-	let progress = $state(15);
+	let progress = $state(0);
 
 	function setStyle(style: CountdownStyle): void {
 		activeStyle = style;
@@ -96,13 +99,12 @@
 		const remainingMs = next.getTime() - now.getTime();
 		left = format(remainingMs);
 
-		// Calculate night progress assuming night window starts at 22:00 (10 PM)
+		// Calculate night progress assuming night window starts at 00:00 (Midnight)
 		const nightStart = new Date(next);
-		nightStart.setDate(nightStart.getDate() - 1);
-		nightStart.setHours(22, 0, 0, 0);
-		const totalNightMs = next.getTime() - nightStart.getTime();
+		nightStart.setHours(0, 0, 0, 0);
+		const totalNightMs = Math.max(1000, next.getTime() - nightStart.getTime());
 		const elapsedMs = Math.max(0, now.getTime() - nightStart.getTime());
-		progress = Math.min(100, Math.max(5, (elapsedMs / totalNightMs) * 100));
+		progress = Math.min(100, Math.max(0, (elapsedMs / totalNightMs) * 100));
 	}
 
 	let hStr = $derived(left !== '--:--:--' ? left.split(':')[0] : '00');
@@ -367,9 +369,9 @@
 								/>
 
 								<!-- Milestone Labels -->
-								<text x="36" y="145" text-anchor="middle" font-family="monospace" font-size="9" fill="#5f7662" letter-spacing="0.1em">DUSK</text>
+								<text x="36" y="145" text-anchor="middle" font-family="monospace" font-size="9" fill="#5f7662" letter-spacing="0.1em">00:00 MID</text>
 								<text x="180" y="14" text-anchor="middle" font-family="monospace" font-size="9" fill="#5f7662" letter-spacing="0.1em">ZENITH</text>
-								<text x="324" y="145" text-anchor="middle" font-family="monospace" font-size="9" fill="#8ec765" letter-spacing="0.1em">DAWN</text>
+								<text x="324" y="145" text-anchor="middle" font-family="monospace" font-size="9" fill="#8ec765" letter-spacing="0.1em">{String(dawn.h).padStart(2, '0')}:{String(dawn.m).padStart(2, '0')} DAWN</text>
 
 								<!-- Orbiting Moon Glyph -->
 								<g transform="translate({moonPos.x}, {moonPos.y})">
@@ -437,10 +439,10 @@
 
 					<!-- Milestones -->
 					<div class="mt-2 flex justify-between text-[10px] font-mono uppercase tracking-wider text-faint">
-						<span class="{progress >= 0 ? 'text-cream font-medium' : ''}">22:00 Dusk</span>
-						<span class="{progress >= 25 ? 'text-cream font-medium' : ''}">00:00 Mid</span>
-						<span class="{progress >= 65 ? 'text-cream font-medium' : ''}">03:30 Deep</span>
-						<span class="{progress >= 95 ? 'text-lamp font-medium' : ''}">06:30 Dawn</span>
+						<span class="{progress >= 0 ? 'text-cream font-medium' : ''}">00:00 Mid</span>
+						<span class="{progress >= 33 ? 'text-cream font-medium' : ''}">02:00 Deep</span>
+						<span class="{progress >= 66 ? 'text-cream font-medium' : ''}">04:00 Witching</span>
+						<span class="{progress >= 95 ? 'text-lamp font-medium' : ''}">{String(dawn.h).padStart(2, '0')}:{String(dawn.m).padStart(2, '0')} Dawn</span>
 					</div>
 				</div>
 

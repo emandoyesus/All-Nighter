@@ -20,12 +20,27 @@
 	let dawnLeft = $state('--:--:--');
 	let localClock = $state('');
 
+	function getDawn(): { h: number; m: number } {
+		try {
+			const saved = localStorage.getItem('an.dawn_time');
+			if (saved) {
+				const parsed = JSON.parse(saved);
+				if (typeof parsed?.h === 'number' && typeof parsed?.m === 'number') {
+					if (parsed.h === 6 && parsed.m === 30) return { ...DAWN };
+					return { h: parsed.h, m: parsed.m };
+				}
+			}
+		} catch {}
+		return { ...DAWN };
+	}
+
 	function updateCountdown(): void {
 		const now = new Date();
 		localClock = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
+		const dawn = getDawn();
 		const todayDawn = new Date(now);
-		todayDawn.setHours(DAWN.h, DAWN.m, 0, 0);
+		todayDawn.setHours(dawn.h, dawn.m, 0, 0);
 		if (now.getTime() >= todayDawn.getTime()) {
 			todayDawn.setDate(todayDawn.getDate() + 1);
 		}

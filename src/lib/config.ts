@@ -10,8 +10,11 @@ export const TELEGRAM_URL = 'https://t.me/';
  *  Override per link with ?room=some-code (lowercase letters, numbers, dashes). */
 export const DEFAULT_ROOM = 'cafe-404';
 
-/** The countdown ticks toward this local wall-clock time each morning. */
-export const DAWN = { h: 6, m: 30 };
+/** The all-nighter session window starts at midnight. */
+export const NIGHT_START = { h: 0, m: 0 };
+
+/** The countdown ticks toward this local wall-clock time each morning (6:00 AM). */
+export const DAWN = { h: 6, m: 0 };
 
 /** Public MQTT brokers (WebSockets, no account). Tried in order at startup.
  *  Verified reachable; swap freely for your own broker. */

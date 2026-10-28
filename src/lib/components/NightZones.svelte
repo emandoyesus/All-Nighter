@@ -45,10 +45,10 @@
 		const hour = parseInt(parts.find((p) => p.type === 'hour')?.value ?? '0', 10);
 		const minute = parts.find((p) => p.type === 'minute')?.value ?? '00';
 
-		// Night is between 22:00 and 06:00
-		const isDeepNight = hour >= 23 || hour < 5;
+		// Night window is between 00:00 and 06:00
+		const isDeepNight = hour >= 1 && hour < 5;
 		const isDawn = hour >= 5 && hour < 7;
-		const isNight = hour >= 21 || hour < 7;
+		const isNight = hour >= 0 && hour < 6;
 
 		return {
 			timeString: `${String(hour).padStart(2, '0')}:${minute}`,
