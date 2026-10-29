@@ -6,7 +6,6 @@
 	import { afterNavigate } from '$app/navigation';
 	import favicon from '#lib/assets/favicon.svg';
 	import { gsap, prefersReducedMotion, ScrollTrigger, setupGsap } from '#lib/motion';
-	import AmbientMusicBar from '#lib/components/AmbientMusicBar.svelte';
 	import type { LayoutProps } from './$types';
 
 	let { children }: LayoutProps = $props();
@@ -86,5 +85,3 @@
 <div class="grain-layer" aria-hidden="true"></div>
 
 {@render children()}
-
-<AmbientMusicBar />

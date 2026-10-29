@@ -1,51 +1,15 @@
 /**
  * Web Audio Procedural Ambient Music Engine.
- * Generates endless, evolving, soft nocturnal ambient music locally with zero external audio assets.
- * 
- * Includes 3 soundscapes:
- * 1. 'nocturne' - Warm tape chords (Dm9 -> Bbmaj7 -> Fmaj9 -> Am7) & gentle Rhodes chimes
- * 2. 'cosmic'   - Ethereal floating space drone, sub-bass warmth, and shimmering harmonics
- * 3. 'rain'     - Soft nocturnal rain backdrop with sparse, deep ambient piano keys
+ * Generates soft, endless, evolving "Midnight Chords" ambient music locally with zero external audio assets.
+ * Progression: Dm9 -> Bbmaj7 -> Fmaj9 -> Am7 with slow analog tape flutter, sub-bass warmth, and generative Rhodes chime droplets.
  */
-
-export type MusicPreset = 'nocturne' | 'cosmic' | 'rain';
-
-export interface PresetInfo {
-	id: MusicPreset;
-	name: string;
-	tagline: string;
-	chordProgression: string;
-}
-
-export const PRESETS: Record<MusicPreset, PresetInfo> = {
-	nocturne: {
-		id: 'nocturne',
-		name: 'Midnight Chords',
-		tagline: 'Warm analog pads & slow tape flutter',
-		chordProgression: 'Dm9 · Bbmaj7 · Fmaj9 · Am7'
-	},
-	cosmic: {
-		id: 'cosmic',
-		name: 'Deep Space Drone',
-		tagline: 'Weightless cosmic drift & sub-bass warmth',
-		chordProgression: 'Csus2 · Gsus4 · Em9 · Dadd9'
-	},
-	rain: {
-		id: 'rain',
-		name: 'Rain & Ambient Keys',
-		tagline: 'Gentle night rain with sparse quiet piano notes',
-		chordProgression: 'Fm7 · Dbmaj7 · Bbm9 · Abmaj7'
-	}
-};
 
 const LS_MUSIC_PLAYING = 'an.ambient_music_play';
 const LS_MUSIC_VOL = 'an.ambient_music_vol';
-const LS_MUSIC_PRESET = 'an.ambient_music_preset';
 
 class AmbientMusicEngine {
 	isPlaying = $state<boolean>(false);
 	volume = $state<number>(45);
-	preset = $state<MusicPreset>('nocturne');
 	currentChord = $state<string>('Dm9');
 
 	private ctx: AudioContext | null = null;
@@ -58,12 +22,18 @@ class AmbientMusicEngine {
 	// Loop management
 	private chordTimer: number | null = null;
 	private chimeTimer: number | null = null;
-	private rainSource: AudioBufferSourceNode | null = null;
-	private rainGain: GainNode | null = null;
 	private tapeHissSource: AudioBufferSourceNode | null = null;
 	private tapeHissGain: GainNode | null = null;
 	private activeChordNodes: { stop: () => void }[] = [];
 	private chordIndex = 0;
+
+	// The Midnight Chords progression:
+	private readonly chords = [
+		{ name: 'Dm9', notes: [146.83, 220.00, 261.63, 329.63, 440.00] }, // D3, A3, C4, E4, A4
+		{ name: 'Bbmaj7', notes: [116.54, 174.61, 220.00, 293.66, 349.23] }, // Bb2, F3, A3, D4, F4
+		{ name: 'Fmaj9', notes: [87.31, 174.61, 261.63, 329.63, 392.00] }, // F2, F3, C4, E4, G4
+		{ name: 'Am7', notes: [110.00, 164.81, 220.00, 261.63, 392.00] }   // A2, E3, A3, C4, G4
+	];
 
 	constructor() {
 		if (typeof window !== 'undefined') {
@@ -72,10 +42,6 @@ class AmbientMusicEngine {
 				if (savedVol !== null) {
 					const v = Number(savedVol);
 					if (Number.isFinite(v) && v >= 0 && v <= 100) this.volume = v;
-				}
-				const savedPreset = localStorage.getItem(LS_MUSIC_PRESET) as MusicPreset | null;
-				if (savedPreset && savedPreset in PRESETS) {
-					this.preset = savedPreset;
 				}
 			} catch {}
 		}
@@ -148,19 +114,6 @@ class AmbientMusicEngine {
 		}
 	}
 
-	setPreset(p: MusicPreset): void {
-		if (this.preset === p) return;
-		this.preset = p;
-		try {
-			localStorage.setItem(LS_MUSIC_PRESET, p);
-		} catch {}
-
-		if (this.isPlaying) {
-			this.stopLoops();
-			this.startLoops();
-		}
-	}
-
 	toggle(): void {
 		if (this.isPlaying) {
 			this.pause();
@@ -215,12 +168,11 @@ class AmbientMusicEngine {
 		const ac = this.getContext();
 		if (!ac) return;
 
-		this.startBackgroundTexture(ac);
+		this.buildTapeHissTexture(ac);
 		this.playNextChord();
-		const chordDuration = this.preset === 'cosmic' ? 12000 : 9000;
 		this.chordTimer = window.setInterval(() => {
 			this.playNextChord();
-		}, chordDuration);
+		}, 9000);
 
 		this.scheduleNextChime();
 	}
@@ -240,13 +192,6 @@ class AmbientMusicEngine {
 		}
 		this.activeChordNodes = [];
 
-		if (this.rainSource) {
-			try {
-				this.rainSource.stop();
-				this.rainSource.disconnect();
-			} catch {}
-			this.rainSource = null;
-		}
 		if (this.tapeHissSource) {
 			try {
 				this.tapeHissSource.stop();
@@ -256,43 +201,17 @@ class AmbientMusicEngine {
 		}
 	}
 
-	private getChordProgressions(): { name: string; notes: number[] }[] {
-		if (this.preset === 'nocturne') {
-			return [
-				{ name: 'Dm9', notes: [146.83, 220.00, 261.63, 329.63, 440.00] },
-				{ name: 'Bbmaj7', notes: [116.54, 174.61, 220.00, 293.66, 349.23] },
-				{ name: 'Fmaj9', notes: [87.31, 174.61, 261.63, 329.63, 392.00] },
-				{ name: 'Am7', notes: [110.00, 164.81, 220.00, 261.63, 392.00] }
-			];
-		} else if (this.preset === 'cosmic') {
-			return [
-				{ name: 'Csus2', notes: [65.41, 130.81, 196.00, 293.66, 392.00] },
-				{ name: 'Gsus4', notes: [98.00, 146.83, 196.00, 261.63, 392.00] },
-				{ name: 'Em9', notes: [82.41, 164.81, 246.94, 293.66, 370.00] },
-				{ name: 'Dadd9', notes: [73.42, 146.83, 220.00, 293.66, 440.00] }
-			];
-		} else {
-			return [
-				{ name: 'Fm7', notes: [87.31, 174.61, 261.63, 311.13, 349.23] },
-				{ name: 'Dbmaj7', notes: [69.30, 138.59, 207.65, 261.63, 311.13] },
-				{ name: 'Bbm9', notes: [116.54, 174.61, 233.08, 277.18, 349.23] },
-				{ name: 'Abmaj7', notes: [103.83, 155.56, 207.65, 261.63, 311.13] }
-			];
-		}
-	}
-
 	private playNextChord(): void {
 		const ac = this.getContext();
 		if (!ac || !this.filterNode) return;
 
-		const chords = this.getChordProgressions();
-		const chord = chords[this.chordIndex % chords.length];
+		const chord = this.chords[this.chordIndex % this.chords.length];
 		this.currentChord = chord.name;
 		this.chordIndex++;
 
-		const chordDuration = this.preset === 'cosmic' ? 12.0 : 9.0;
-		const attack = this.preset === 'cosmic' ? 4.0 : 3.0;
-		const release = this.preset === 'cosmic' ? 5.0 : 4.0;
+		const chordDuration = 9.0;
+		const attack = 3.0;
+		const release = 4.0;
 
 		const chordGain = ac.createGain();
 		chordGain.gain.setValueAtTime(0.0001, ac.currentTime);
@@ -302,6 +221,7 @@ class AmbientMusicEngine {
 
 		chordGain.connect(this.filterNode);
 
+		// Sub-bass root oscillator
 		const subOsc = ac.createOscillator();
 		const subGain = ac.createGain();
 		subOsc.type = 'sine';
@@ -314,13 +234,14 @@ class AmbientMusicEngine {
 
 		const voices: OscillatorNode[] = [subOsc];
 
+		// Harmonic pad voices (dual slightly-detuned triangle waves for rich warmth)
 		for (let i = 1; i < chord.notes.length; i++) {
 			const freq = chord.notes[i];
 
 			const oscA = ac.createOscillator();
 			const oscB = ac.createOscillator();
 
-			oscA.type = this.preset === 'cosmic' ? 'sine' : 'triangle';
+			oscA.type = 'triangle';
 			oscB.type = 'sine';
 
 			oscA.frequency.setValueAtTime(freq, ac.currentTime);
@@ -385,13 +306,17 @@ class AmbientMusicEngine {
 		const ac = this.getContext();
 		if (!ac || !this.filterNode || !this.delayNode) return;
 
+		// Pentatonic / modal scale frequencies for gentle bells:
+		// D4, F4, G4, A4, C5, D5, E5, F5
 		const scale = [293.66, 349.23, 392.00, 440.00, 523.25, 587.33, 659.25, 698.46];
 		const note = scale[Math.floor(Math.random() * scale.length)];
 
+		// Primary bell oscillator
 		const osc = ac.createOscillator();
 		osc.type = 'sine';
 		osc.frequency.setValueAtTime(note, ac.currentTime);
 
+		// Harmonic tine overtone (~2.76x)
 		const tine = ac.createOscillator();
 		tine.type = 'sine';
 		tine.frequency.setValueAtTime(note * 2.76, ac.currentTime);
@@ -418,16 +343,8 @@ class AmbientMusicEngine {
 		tine.stop(ac.currentTime + 0.8);
 	}
 
-	private startBackgroundTexture(ac: AudioContext): void {
-		if (this.preset === 'rain') {
-			this.buildRainTexture(ac);
-		} else {
-			this.buildTapeHissTexture(ac);
-		}
-	}
-
-	private buildNoiseBuffer(ac: AudioContext, seconds = 4): AudioBuffer {
-		const bufferSize = ac.sampleRate * seconds;
+	private buildTapeHissTexture(ac: AudioContext): void {
+		const bufferSize = ac.sampleRate * 3;
 		const buffer = ac.createBuffer(1, bufferSize, ac.sampleRate);
 		const data = buffer.getChannelData(0);
 		let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0;
@@ -441,32 +358,9 @@ class AmbientMusicEngine {
 			b4 = 0.55000 * b4 + white * 0.5329;
 			data[i] = (b0 + b1 + b2 + b3 + b4) * 0.04;
 		}
-		return buffer;
-	}
 
-	private buildRainTexture(ac: AudioContext): void {
 		const noise = ac.createBufferSource();
-		noise.buffer = this.buildNoiseBuffer(ac, 5);
-		noise.loop = true;
-
-		const filter = ac.createBiquadFilter();
-		filter.type = 'lowpass';
-		filter.frequency.setValueAtTime(650, ac.currentTime);
-
-		this.rainGain = ac.createGain();
-		this.rainGain.gain.setValueAtTime(0.04, ac.currentTime);
-
-		noise.connect(filter);
-		filter.connect(this.rainGain);
-		this.rainGain.connect(this.masterGain!);
-
-		noise.start();
-		this.rainSource = noise;
-	}
-
-	private buildTapeHissTexture(ac: AudioContext): void {
-		const noise = ac.createBufferSource();
-		noise.buffer = this.buildNoiseBuffer(ac, 3);
+		noise.buffer = buffer;
 		noise.loop = true;
 
 		const lowpass = ac.createBiquadFilter();
