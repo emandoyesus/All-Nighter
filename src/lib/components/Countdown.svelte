@@ -20,7 +20,6 @@
 
 	const LS_DAWN = 'an.dawn_time';
 	const LS_STYLE = 'an.countdown_style';
-	const LS_PHASE_MODE = 'an.countdown_phase_mode';
 
 	function loadDawn(): { h: number; m: number } {
 		try {
@@ -57,10 +56,6 @@
 					return p;
 				}
 			}
-			const saved = localStorage.getItem(LS_PHASE_MODE);
-			if (saved === 'auto' || saved === 'pre_midnight' || saved === 'session_active') {
-				return saved;
-			}
 		} catch {}
 		return 'auto';
 	}
@@ -82,14 +77,6 @@
 		try {
 			localStorage.setItem(LS_STYLE, style);
 		} catch {}
-	}
-
-	function setPhaseMode(mode: PhaseMode): void {
-		phaseMode = mode;
-		try {
-			localStorage.setItem(LS_PHASE_MODE, mode);
-		} catch {}
-		updateTime();
 	}
 
 	function saveDawn(): void {
@@ -174,11 +161,11 @@
 		const h = parseInt(hStr, 10) || 0;
 		const m = parseInt(mStr, 10) || 0;
 		if (currentPhase === 'pre_midnight') {
-			if (h === 0) return `${m}m until midnight lock-in`;
-			return `${h}h ${m}m until midnight lock-in`;
+			if (h === 0) return `${m}m to midnight`;
+			return `${h}h ${m}m to midnight`;
 		} else {
-			if (h === 0) return `${m}m remaining till dawn`;
-			return `${h}h ${m}m remaining till dawn`;
+			if (h === 0) return `${m}m till dawn`;
+			return `${h}h ${m}m till dawn`;
 		}
 	});
 
@@ -236,7 +223,7 @@
 		</div>
 	{:else}
 		<div class="relative flex flex-col justify-center gap-5 sm:gap-6">
-			<!-- Header with Phase Switcher & Style Controls -->
+			<!-- Header with Phase Indicator & Style Controls -->
 			<div class="flex flex-wrap items-center justify-between gap-3 pb-3.5 border-b border-cream/10">
 				<!-- Phase Status & Identity -->
 				<div class="flex items-center gap-2.5">
@@ -247,11 +234,11 @@
 					<div>
 						<div class="flex items-center gap-1.5">
 							{#if currentPhase === 'pre_midnight'}
-								<p class="num text-[10px] font-mono uppercase tracking-[0.22em] text-lamp font-semibold">1 · Pre-session</p>
+								<p class="num text-[10px] font-mono uppercase tracking-[0.22em] text-lamp font-semibold">Doors open at midnight</p>
 								<span class="text-faint/60">·</span>
-								<p class="text-xs font-medium text-cream">Doors open at midnight</p>
+								<p class="text-xs font-medium text-cream">Countdown to session</p>
 							{:else}
-								<p class="num text-[10px] font-mono uppercase tracking-[0.22em] text-lamp font-semibold">2 · Session live</p>
+								<p class="num text-[10px] font-mono uppercase tracking-[0.22em] text-lamp font-semibold">Session live</p>
 								<span class="text-faint/60">·</span>
 								<p class="text-xs font-medium text-cream">Lock-in till sunrise</p>
 							{/if}
@@ -260,58 +247,6 @@
 				</div>
 
 				<div class="flex flex-wrap items-center gap-2">
-					<!-- Phase Selector (Switch between Countdown 1 and Countdown 2) -->
-					<div class="inline-flex rounded-full border border-cream/12 bg-night/80 p-0.5" role="group" aria-label="Countdown phase selector">
-						{#if currentPhase === 'pre_midnight'}
-							<button
-								class="inline-flex items-center gap-1 rounded-full border border-lamp/30 bg-lamp/20 px-2.5 py-0.5 font-mono text-[11px] font-semibold text-lamp transition-colors"
-								onclick={() => setPhaseMode('pre_midnight')}
-								title="Countdown 1: Waiting for midnight (00:00)"
-							>
-								<IconFlame size={12} stroke={2} />
-								1. To Midnight
-							</button>
-						{:else}
-							<button
-								class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-mono text-[11px] text-faint transition-colors hover:text-taupe"
-								onclick={() => setPhaseMode('pre_midnight')}
-								title="Countdown 1: Waiting for midnight (00:00)"
-							>
-								<IconFlame size={12} stroke={2} />
-								1. To Midnight
-							</button>
-						{/if}
-
-						{#if currentPhase === 'session_active'}
-							<button
-								class="inline-flex items-center gap-1 rounded-full border border-lamp/30 bg-lamp/20 px-2.5 py-0.5 font-mono text-[11px] font-semibold text-lamp transition-colors"
-								onclick={() => setPhaseMode('session_active')}
-								title="Countdown 2: Active session till dawn (06:00)"
-							>
-								<IconBolt size={12} stroke={2} />
-								2. Till Dawn
-							</button>
-						{:else}
-							<button
-								class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-mono text-[11px] text-faint transition-colors hover:text-taupe"
-								onclick={() => setPhaseMode('session_active')}
-								title="Countdown 2: Active session till dawn (06:00)"
-							>
-								<IconBolt size={12} stroke={2} />
-								2. Till Dawn
-							</button>
-						{/if}
-						{#if phaseMode !== 'auto'}
-							<button
-								class="rounded-full px-2 py-0.5 text-[10px] font-mono text-faint hover:text-cream transition-colors"
-								onclick={() => setPhaseMode('auto')}
-								title="Reset to automatic local time detection"
-							>
-								auto
-							</button>
-						{/if}
-					</div>
-
 					<!-- Style Selector (Flip / Arc / Grid) -->
 					<div class="inline-flex rounded-full border border-cream/12 bg-night/80 p-0.5" role="group" aria-label="Countdown display style">
 						<button
