@@ -129,12 +129,10 @@
 			const remainingMs = Math.max(0, midnight.getTime() - now.getTime());
 			left = format(remainingMs);
 
-			// 6-hour evening prep window from 18:00 to 24:00
-			const eveningStart = new Date(now);
-			eveningStart.setHours(18, 0, 0, 0);
-			const totalPrepMs = midnight.getTime() - eveningStart.getTime();
-			const elapsedMs = Math.max(0, now.getTime() - eveningStart.getTime());
-			progress = Math.min(100, Math.max(5, (elapsedMs / totalPrepMs) * 100));
+			// Full daytime inter-session window from Dawn (06:00) to Midnight (24:00)
+			const totalPrepMs = Math.max(1000, midnight.getTime() - todayDawn.getTime());
+			const elapsedMs = Math.max(0, now.getTime() - todayDawn.getTime());
+			progress = Math.min(100, Math.max(0, (elapsedMs / totalPrepMs) * 100));
 		} else {
 			// COUNTDOWN 2: ACTIVE SESSION TILL DAWN (Session Finish)
 			const nextDawn = new Date(todayDawn);
@@ -304,7 +302,7 @@
 				{#if currentPhase === 'pre_midnight'}
 					<div class="inline-flex items-center gap-2 rounded-full border border-lamp/25 bg-lamp/10 px-3 py-1 text-xs text-cream">
 						<IconFlame size={13} stroke={2} class="text-lamp" />
-						<span>Pre-session warmup: doors unlock & queue starts at <strong class="text-lamp font-mono font-medium">00:00 midnight</strong></span>
+						<span>Pre-session countdown: doors unlock tonight at <strong class="text-lamp font-mono font-medium">00:00 midnight</strong></span>
 					</div>
 				{:else}
 					<div class="inline-flex items-center gap-2 rounded-full border border-lamp/25 bg-lamp/10 px-3 py-1 text-xs text-cream">
@@ -452,8 +450,8 @@
 
 								<!-- Milestone Labels -->
 								{#if currentPhase === 'pre_midnight'}
-									<text x="36" y="145" text-anchor="middle" font-family="monospace" font-size="9" fill="#5f7662" letter-spacing="0.1em">18:00 DUSK</text>
-									<text x="180" y="14" text-anchor="middle" font-family="monospace" font-size="9" fill="#5f7662" letter-spacing="0.1em">WAITING</text>
+									<text x="36" y="145" text-anchor="middle" font-family="monospace" font-size="9" fill="#5f7662" letter-spacing="0.1em">{String(dawn.h).padStart(2, '0')}:{String(dawn.m).padStart(2, '0')} DAWN</text>
+									<text x="180" y="14" text-anchor="middle" font-family="monospace" font-size="9" fill="#5f7662" letter-spacing="0.1em">MIDDAY</text>
 									<text x="324" y="145" text-anchor="middle" font-family="monospace" font-size="9" fill="#8ec765" letter-spacing="0.1em">00:00 MID</text>
 								{:else}
 									<text x="36" y="145" text-anchor="middle" font-family="monospace" font-size="9" fill="#5f7662" letter-spacing="0.1em">00:00 MID</text>
@@ -501,7 +499,7 @@
 						<div class="mt-5">
 							<div class="flex items-center justify-between text-[11px] font-mono text-faint mb-2">
 								<span class="uppercase tracking-wider text-lamp">
-									{currentPhase === 'pre_midnight' ? 'warmup meter' : 'session telemetry'}
+									{currentPhase === 'pre_midnight' ? 'daytime meter' : 'session telemetry'}
 								</span>
 								<span class="text-lamp font-medium">{Math.round(progress)}% elapsed</span>
 							</div>
@@ -533,9 +531,9 @@
 					<!-- Milestones -->
 					<div class="mt-2 flex justify-between text-[10px] font-mono uppercase tracking-wider text-faint">
 						{#if currentPhase === 'pre_midnight'}
-							<span class="{progress >= 0 ? 'text-cream font-medium' : ''}">18:00 Sunset</span>
-							<span class="{progress >= 33 ? 'text-cream font-medium' : ''}">20:00 Setup</span>
-							<span class="{progress >= 66 ? 'text-cream font-medium' : ''}">22:00 Waiting</span>
+							<span class="{progress >= 0 ? 'text-cream font-medium' : ''}">{String(dawn.h).padStart(2, '0')}:{String(dawn.m).padStart(2, '0')} Dawn</span>
+							<span class="{progress >= 33 ? 'text-cream font-medium' : ''}">12:00 Midday</span>
+							<span class="{progress >= 66 ? 'text-cream font-medium' : ''}">18:00 Sunset</span>
 							<span class="{progress >= 95 ? 'text-lamp font-semibold' : ''}">00:00 Midnight</span>
 						{:else}
 							<span class="{progress >= 0 ? 'text-cream font-medium' : ''}">00:00 Mid</span>
@@ -645,7 +643,7 @@
 
 			<div class="mt-4 border-t border-cream/8 pt-3">
 				<div class="mb-1.5 flex items-center justify-between text-[11px] text-faint">
-					<span>{currentPhase === 'pre_midnight' ? 'pre-session warmup' : 'night progress'}</span>
+					<span>{currentPhase === 'pre_midnight' ? 'daytime progress' : 'night progress'}</span>
 					<span class="num text-taupe">
 						{Math.round(progress)}% {currentPhase === 'pre_midnight' ? 'to midnight' : 'to dawn'}
 					</span>
