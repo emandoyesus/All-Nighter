@@ -3,10 +3,13 @@
 	import { room } from '#lib/room/room.svelte';
 	import { gsap, prefersReducedMotion, setupGsap } from '#lib/motion';
 	import { magnetic } from '#lib/magnetic';
+	import { ambientMusic } from '#lib/audio/ambient-music.svelte';
 	import IconMoon from '@tabler/icons-svelte/icons/moon';
 	import IconMenu2 from '@tabler/icons-svelte/icons/menu-2';
 	import IconX from '@tabler/icons-svelte/icons/x';
 	import IconRadio from '@tabler/icons-svelte/icons/radio';
+	import IconVolume from '@tabler/icons-svelte/icons/volume';
+	import IconVolumeOff from '@tabler/icons-svelte/icons/volume-off';
 
 	const live = $derived(room.state.playing);
 	let open = $state(false);
@@ -110,12 +113,31 @@
 			<span>All Nighter</span>
 		</a>
 
-		<div class="ml-auto flex items-center gap-3 sm:gap-5">
+		<div class="ml-auto flex items-center gap-3 sm:gap-4">
 			<nav class="hidden items-center gap-6 text-sm text-taupe md:flex lg:gap-7">
 				<a class="transition-colors hover:text-cream" href="/">Tonight</a>
 				<a class="transition-colors hover:text-cream" href="/room">The Room</a>
 				<a class="transition-colors hover:text-cream" href="/archive">The Archive</a>
 			</nav>
+
+			<!-- Ambient Soundscape Quick Toggle -->
+			<button
+				class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-mono transition-colors {ambientMusic.isPlaying
+					? 'border-lamp/40 bg-lamp/15 text-lamp'
+					: 'border-cream/12 bg-night/80 text-faint hover:border-cream/25 hover:text-cream'}"
+				onclick={() => ambientMusic.toggle()}
+				title={ambientMusic.isPlaying ? 'Mute ambient soundscape' : 'Play soft ambient soundscape'}
+				aria-label={ambientMusic.isPlaying ? 'Mute ambient soundscape' : 'Play soft ambient soundscape'}
+			>
+				{#if ambientMusic.isPlaying}
+					<span class="soft-blink h-1.5 w-1.5 rounded-full bg-lamp"></span>
+					<IconVolume size={13} stroke={2} />
+					<span class="hidden sm:inline text-[11px]">Ambient on</span>
+				{:else}
+					<IconVolumeOff size={13} stroke={1.5} />
+					<span class="hidden sm:inline text-[11px]">Ambient</span>
+				{/if}
+			</button>
 
 			{#if live}
 				<a
@@ -180,6 +202,25 @@
 				>
 					The Archive
 				</a>
+				<button
+					class="flex items-center justify-between rounded-field px-3 py-2 text-left text-sm transition-colors {ambientMusic.isPlaying
+						? 'bg-lamp/10 text-lamp'
+						: 'text-taupe hover:bg-cream/5 hover:text-cream'}"
+					onclick={() => ambientMusic.toggle()}
+				>
+					<span class="flex items-center gap-2">
+						{#if ambientMusic.isPlaying}
+							<IconVolume size={16} stroke={2} class="text-lamp" />
+							<span class="font-medium text-cream">Soft ambient music (Playing)</span>
+						{:else}
+							<IconVolumeOff size={16} stroke={1.5} />
+							<span>Soft ambient music (Off)</span>
+						{/if}
+					</span>
+					{#if ambientMusic.isPlaying}
+						<span class="soft-blink h-1.5 w-1.5 rounded-full bg-lamp"></span>
+					{/if}
+				</button>
 				<div class="pt-1">
 					<a
 						href="/room"
