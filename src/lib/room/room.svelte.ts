@@ -97,16 +97,32 @@ export function sanitizeRoom(raw: string | null | undefined): string {
 	return value || DEFAULT_ROOM;
 }
 
+function defaultAloneTrack(): Track {
+	return {
+		uid: 'default-alone-track',
+		videoId: '1-xGerv5FOk',
+		source: 'youtube',
+		url: 'https://www.youtube.com/watch?v=1-xGerv5FOk',
+		title: 'Alone',
+		channel: 'Alan Walker',
+		addedBy: 'All Nighter',
+		votes: 0,
+		voters: [],
+		reactions: {}
+	};
+}
+
 function emptyState(): RoomState {
+	const initialTrack = defaultAloneTrack();
 	return {
 		seq: 0,
 		by: '',
-		videoId: null,
+		videoId: initialTrack.videoId,
 		source: 'youtube',
-		current: null,
-		playing: false,
+		current: initialTrack,
+		playing: true,
 		position: 0,
-		clock: 0,
+		clock: Date.now(),
 		queue: [],
 		chat: [],
 		mode: 'focus',

@@ -62,6 +62,7 @@
 	}
 
 	const stationIcons: Record<string, string> = {
+		'Alone': '⚡',
 		'beats to relax / study to': '☕',
 		'beats to sleep / chill to': '🌙',
 		'Chillhop Radio': '🎧',

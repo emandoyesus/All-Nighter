@@ -9,6 +9,12 @@ export type CratePick = {
 
 export const crate: CratePick[] = [
 	{
+		videoId: '1-xGerv5FOk',
+		title: 'Alone',
+		channel: 'Alan Walker',
+		note: 'default late night anthem'
+	},
+	{
 		videoId: 'rFZHOHl-L8A',
 		title: 'beats to relax / study to',
 		channel: 'Lofi Girl',
