@@ -21,6 +21,7 @@ import type {
 	TrackSource
 } from './types';
 import { playFocusChime, playBreakChime, playDawnChime } from '#lib/audio/chime';
+import { goto } from '$app/navigation';
 
 const LS_NAME = 'an.callsign';
 const LS_ID = 'an.client';
@@ -236,10 +237,16 @@ class Room {
 	};
 
 	private async connect(): Promise<void> {
-		let mqtt: typeof import('mqtt');
+		let mqttModule: any;
 		try {
-			mqtt = await import('mqtt');
+			mqttModule = await import('mqtt');
 		} catch {
+			this.status = 'solo';
+			return;
+		}
+
+		const connectFn = mqttModule.connect || mqttModule.default?.connect;
+		if (typeof connectFn !== 'function') {
 			this.status = 'solo';
 			return;
 		}
@@ -249,7 +256,7 @@ class Room {
 			const url = BROKERS[index % BROKERS.length];
 			let settled = false;
 
-			const client = mqtt.connect(url, {
+			const client = connectFn(url, {
 				reconnectPeriod: 4000,
 				connectTimeout: 5000,
 				clean: true,
@@ -725,7 +732,7 @@ class Room {
 	}
 
 	private syncUrl(slug: string): void {
-		if (typeof window === 'undefined' || typeof history === 'undefined') return;
+		if (typeof window === 'undefined') return;
 		try {
 			const url = new URL(window.location.href);
 			if (slug) {
@@ -733,7 +740,7 @@ class Room {
 			} else {
 				url.searchParams.delete('room');
 			}
-			window.history.replaceState({}, '', url.toString());
+			goto(url.toString(), { replace: true, reset: false });
 		} catch {
 			/* ignore */
 		}

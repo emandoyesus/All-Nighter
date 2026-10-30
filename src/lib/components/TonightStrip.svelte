@@ -3,7 +3,12 @@
 
 	const listings = $derived([...room.directory]);
 	const hasRoom = $derived(listings.length > 0);
-	const topRoom = $derived(listings.sort((a, b) => b.members - a.members)[0]);
+	const topRoom = $derived(
+		listings.reduce<import('#lib/room/types').RoomAd | null>(
+			(top, cur) => (!top || cur.members > top.members ? cur : top),
+			null
+		)
+	);
 </script>
 
 <!--

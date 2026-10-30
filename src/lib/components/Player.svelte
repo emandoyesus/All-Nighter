@@ -111,8 +111,9 @@
 
 		const target = targetTime();
 		const actual = player.getCurrentTime() ?? 0;
-		drift = target - actual;
-		if (Math.abs(drift) > DRIFT_TOLERANCE) player.seekTo(target, true);
+		const curDrift = target - actual;
+		drift = curDrift;
+		if (Math.abs(curDrift) > DRIFT_TOLERANCE) player.seekTo(target, true);
 
 		if (s.playing && playerState !== PLAYING) player.playVideo();
 		else if (!s.playing && playerState === PLAYING) player.pauseVideo();
