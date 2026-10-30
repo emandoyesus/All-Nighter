@@ -13,6 +13,7 @@
 	import JoinRequests from '#lib/components/JoinRequests.svelte';
 	import ModeToggle from '#lib/components/ModeToggle.svelte';
 	import DawnRitualModal from '#lib/components/DawnRitualModal.svelte';
+	import RoomMusicDock from '#lib/components/RoomMusicDock.svelte';
 	import { TELEGRAM_URL } from '#lib/config';
 	import IconCopy from '@tabler/icons-svelte/icons/copy';
 	import IconCheck from '@tabler/icons-svelte/icons/check';
@@ -89,7 +90,7 @@
 	</section>
 
 	{#if inRoom}
-		<section class="mx-auto max-w-[1400px] px-5 py-6 md:py-8">
+		<section class="mx-auto max-w-[1400px] px-5 py-6 md:py-8 pb-28 md:pb-32">
 			{#if room.status !== 'online'}
 				<div class="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-card border border-lamp/30 bg-lamp/8 px-4 py-2.5">
 					<p class="text-sm text-cream">
@@ -199,6 +200,7 @@
 				</aside>
 			</div>
 			<DawnRitualModal bind:open={showDawnModal} />
+			<RoomMusicDock />
 		</section>
 	{:else if gated}
 		<section class="mx-auto max-w-[1400px] px-5 py-10 md:py-16">
@@ -211,7 +213,7 @@
 	{/if}
 </main>
 
-<footer class="border-t border-cream/10">
+<footer class="border-t border-cream/10 {inRoom ? 'mb-16 sm:mb-20' : ''}">
 	<div class="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-3 px-5 py-7">
 		<p class="num text-xs text-faint">All Nighter · built between 1 and 6 am</p>
 		<p class="num text-xs text-faint">keep the tab open</p>

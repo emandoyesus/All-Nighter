@@ -4,7 +4,9 @@
 	import { DRIFT_TOLERANCE, HEARTBEAT_TICK } from '#lib/config';
 	import { loadYouTubeApi, formatTime } from '#lib/room/youtube';
 	import { ambient } from '#lib/audio/ambient.svelte';
+	import { crate, type CratePick } from '#lib/data/crate';
 	import DeskHud from './DeskHud.svelte';
+	import AudioVisualizer from './AudioVisualizer.svelte';
 	import IconPlay from '@tabler/icons-svelte/icons/player-play';
 	import IconPause from '@tabler/icons-svelte/icons/player-pause';
 	import IconSkip from '@tabler/icons-svelte/icons/player-skip-forward';
@@ -57,6 +59,31 @@
 		if (source === 'spotify') return 'Spotify';
 		if (source === 'soundcloud') return 'SoundCloud';
 		return 'the source';
+	}
+
+	const stationIcons: Record<string, string> = {
+		'beats to relax / study to': '☕',
+		'beats to sleep / chill to': '🌙',
+		'Chillhop Radio': '🎧',
+		'shinjuku fm, soft lofi / smooth jazz': '🎷',
+		'Nightride FM, synthwave radio': '🌆'
+	};
+
+	function startStation(pick: CratePick): void {
+		const newTrack = {
+			uid: crypto.randomUUID(),
+			videoId: pick.videoId,
+			source: 'youtube' as const,
+			url: `https://www.youtube.com/watch?v=${pick.videoId}`,
+			title: pick.title,
+			channel: pick.channel,
+			addedBy: room.name,
+			addedById: room.clientId,
+			votes: 0,
+			voters: [] as string[],
+			reactions: {}
+		};
+		room.playNow(newTrack);
 	}
 
 	/** Where the shared timeline says we should be right now. */
@@ -240,7 +267,33 @@
 			applyToPlayer();
 			localTime = player.getCurrentTime() ?? 0;
 			duration = player.getDuration?.() ?? 0;
+
+			window.dispatchEvent(
+				new CustomEvent('an:player:status', {
+					detail: {
+						localTime,
+						duration,
+						volume,
+						muted
+					}
+				})
+			);
 		}, 500);
+
+		const onVolumeEvent = (e: Event) => {
+			const custom = e as CustomEvent<number>;
+			if (typeof custom.detail === 'number') setVolume(custom.detail);
+		};
+		const onMuteToggleEvent = () => toggleMute();
+		const onSkipEvent = () => skip();
+		const onToggleEvent = () => toggle();
+		const onOpenDeskHud = () => (showDeskHud = true);
+
+		window.addEventListener('an:player:set-volume', onVolumeEvent);
+		window.addEventListener('an:player:toggle-mute', onMuteToggleEvent);
+		window.addEventListener('an:player:skip', onSkipEvent);
+		window.addEventListener('an:player:toggle', onToggleEvent);
+		window.addEventListener('an:open-desk-hud', onOpenDeskHud);
 
 		const beat = window.setInterval(() => {
 			if (ready && room.isDirector() && room.state.playing && player?.getCurrentTime) {
@@ -252,6 +305,11 @@
 			alive = false;
 			window.clearInterval(tick);
 			window.clearInterval(beat);
+			window.removeEventListener('an:player:set-volume', onVolumeEvent);
+			window.removeEventListener('an:player:toggle-mute', onMuteToggleEvent);
+			window.removeEventListener('an:player:skip', onSkipEvent);
+			window.removeEventListener('an:player:toggle', onToggleEvent);
+			window.removeEventListener('an:open-desk-hud', onOpenDeskHud);
 			try {
 				player?.destroy();
 			} catch {
@@ -286,14 +344,7 @@
 			{/if}
 		</div>
 		{#if playing && hasVideo}
-			<div class="flex h-4 shrink-0 items-end gap-[3px]" aria-hidden="true">
-				{#each [0, 1, 2] as i}
-					<span
-						class="eq-bar h-full w-[3px] rounded-full bg-lamp"
-						style="animation-delay: {i * 0.18}s"
-					></span>
-				{/each}
-			</div>
+			<AudioVisualizer active={playing} bars={5} size="sm" class="shrink-0" />
 		{/if}
 	</div>
 
@@ -335,17 +386,36 @@
 				</div>
 			</div>
 		{:else if !hasVideo}
-			<div class="absolute inset-0 grid place-items-center bg-night-3 px-8 text-center">
-				<div>
+			<div class="absolute inset-0 flex flex-col items-center justify-center bg-night-3 px-6 text-center">
+				<div class="w-full max-w-[420px]">
 					<span
-						class="mx-auto grid h-12 w-12 place-items-center rounded-full bg-lamp/12 text-lamp ring-1 ring-lamp/25"
+						class="mx-auto grid h-10 w-10 sm:h-12 sm:w-12 place-items-center rounded-full bg-lamp/12 text-lamp ring-1 ring-lamp/25"
 					>
-						<IconMusic size={22} stroke={1.5} />
+						<IconMusic size={20} stroke={1.5} />
 					</span>
-					<h3 class="mt-4 text-lg font-medium">The room is quiet</h3>
-					<p class="mx-auto mt-1.5 max-w-[38ch] text-sm leading-relaxed text-taupe">
-						Paste a YouTube link into the queue, or start one of the crate's radios below.
+					<h3 class="mt-3 text-base sm:text-lg font-medium">The room is quiet</h3>
+					<p class="mx-auto mt-1 max-w-[36ch] text-xs leading-relaxed text-taupe">
+						Paste a link into the queue, or tune into a 24/7 curated station:
 					</p>
+
+					<!-- One-Click Curated Stations -->
+					<div class="mt-4 grid grid-cols-2 gap-2 text-left">
+						{#each crate.slice(0, 4) as station}
+							<button
+								type="button"
+								class="flex items-center gap-2 rounded-xl border border-cream/10 bg-night-2/90 p-2 text-left transition-all hover:border-lamp/50 hover:bg-lamp/10 active:scale-95"
+								onclick={() => startStation(station)}
+							>
+								<span class="text-base shrink-0">
+									{stationIcons[station.title] || '📻'}
+								</span>
+								<div class="min-w-0 flex-1">
+									<p class="truncate text-xs font-medium text-cream">{station.title}</p>
+									<p class="truncate text-[10px] text-faint">{station.channel}</p>
+								</div>
+							</button>
+						{/each}
+					</div>
 				</div>
 			</div>
 		{:else if ready && !unlocked}
