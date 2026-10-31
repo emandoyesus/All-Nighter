@@ -9,10 +9,16 @@ export type CratePick = {
 
 export const crate: CratePick[] = [
 	{
+		videoId: 'UDVtMYqUAyw',
+		title: 'Interstellar Main Theme - Extra Extended',
+		channel: 'Hans Zimmer',
+		note: 'deep cosmic atmosphere'
+	},
+	{
 		videoId: '1-xGerv5FOk',
 		title: 'Alone',
 		channel: 'Alan Walker',
-		note: 'default late night anthem'
+		note: 'late night anthem'
 	},
 	{
 		videoId: 'rFZHOHl-L8A',

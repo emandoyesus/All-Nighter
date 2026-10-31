@@ -99,14 +99,14 @@ export function sanitizeRoom(raw: string | null | undefined): string {
 	return value || DEFAULT_ROOM;
 }
 
-function defaultAloneTrack(): Track {
+function defaultInterstellarTrack(): Track {
 	return {
-		uid: 'default-alone-track',
-		videoId: '1-xGerv5FOk',
+		uid: 'default-interstellar-track',
+		videoId: 'UDVtMYqUAyw',
 		source: 'youtube',
-		url: 'https://www.youtube.com/watch?v=1-xGerv5FOk',
-		title: 'Alone',
-		channel: 'Alan Walker',
+		url: 'https://www.youtube.com/watch?v=UDVtMYqUAyw',
+		title: 'Interstellar Main Theme - Extra Extended',
+		channel: 'Hans Zimmer',
 		addedBy: 'All Nighter',
 		votes: 0,
 		voters: [],
@@ -115,7 +115,7 @@ function defaultAloneTrack(): Track {
 }
 
 function emptyState(): RoomState {
-	const initialTrack = defaultAloneTrack();
+	const initialTrack = defaultInterstellarTrack();
 	return {
 		seq: 0,
 		by: '',
