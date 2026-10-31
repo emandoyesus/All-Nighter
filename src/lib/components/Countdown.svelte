@@ -425,8 +425,8 @@
 							<svg viewBox="0 0 360 150" class="w-full h-auto overflow-visible" aria-label="Night celestial arc">
 								<defs>
 									<linearGradient id="phaseGradient" x1="0%" y1="100%" x2="100%" y2="100%">
-										<stop offset="0%" stop-color="#8ec765" stop-opacity="0.15" />
-										<stop offset="100%" stop-color="#8ec765" stop-opacity="0.5" />
+										<stop offset="0%" stop-color="#8ec765" stop-opacity="0.25" />
+										<stop offset="100%" stop-color="#ffb84d" stop-opacity="0.65" />
 									</linearGradient>
 								</defs>
 
@@ -523,7 +523,7 @@
 					<!-- Track -->
 					<div class="h-1.5 w-full rounded-full bg-cream/10 overflow-hidden">
 						<div
-							class="h-full bg-lamp transition-all duration-1000 ease-linear rounded-full"
+							class="h-full bg-gradient-to-r from-lamp via-lamp to-amber transition-all duration-1000 ease-linear rounded-full"
 							style="width: {progress}%"
 						></div>
 					</div>
@@ -534,12 +534,12 @@
 							<span class="{progress >= 0 ? 'text-cream font-medium' : ''}">{String(dawn.h).padStart(2, '0')}:{String(dawn.m).padStart(2, '0')} Dawn</span>
 							<span class="{progress >= 33 ? 'text-cream font-medium' : ''}">12:00 Midday</span>
 							<span class="{progress >= 66 ? 'text-cream font-medium' : ''}">18:00 Sunset</span>
-							<span class="{progress >= 95 ? 'text-lamp font-semibold' : ''}">00:00 Midnight</span>
+							<span class="{progress >= 95 ? 'text-amber font-semibold' : ''}">00:00 Midnight</span>
 						{:else}
 							<span class="{progress >= 0 ? 'text-cream font-medium' : ''}">00:00 Mid</span>
 							<span class="{progress >= 33 ? 'text-cream font-medium' : ''}">02:00 Deep</span>
 							<span class="{progress >= 66 ? 'text-cream font-medium' : ''}">04:00 Witching</span>
-							<span class="{progress >= 95 ? 'text-lamp font-semibold' : ''}">{String(dawn.h).padStart(2, '0')}:{String(dawn.m).padStart(2, '0')} Dawn</span>
+							<span class="{progress >= 95 ? 'text-amber font-semibold' : ''}">{String(dawn.h).padStart(2, '0')}:{String(dawn.m).padStart(2, '0')} Dawn</span>
 						{/if}
 					</div>
 				</div>
@@ -547,10 +547,10 @@
 				<div class="flex flex-wrap items-center justify-between gap-2 text-xs text-taupe pt-1">
 					<span class="inline-flex items-center gap-1.5">
 						{#if currentPhase === 'pre_midnight'}
-							<IconFlame size={13} stroke={2} class="text-lamp" />
+							<IconFlame size={13} stroke={2} class="text-amber" />
 							<span class="font-mono text-cream">{Math.round(progress)}% of pre-session completed</span>
 						{:else}
-							<IconSparkles size={13} stroke={1.5} class="text-lamp" />
+							<IconSparkles size={13} stroke={1.5} class="text-amber" />
 							<span class="font-mono text-cream">{Math.round(progress)}% of night completed</span>
 						{/if}
 					</span>

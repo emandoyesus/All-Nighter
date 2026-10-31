@@ -13,7 +13,6 @@
 	import JoinRequests from '#lib/components/JoinRequests.svelte';
 	import ModeToggle from '#lib/components/ModeToggle.svelte';
 	import DawnRitualModal from '#lib/components/DawnRitualModal.svelte';
-	import RoomMusicDock from '#lib/components/RoomMusicDock.svelte';
 	import { TELEGRAM_URL } from '#lib/config';
 	import IconCopy from '@tabler/icons-svelte/icons/copy';
 	import IconCheck from '@tabler/icons-svelte/icons/check';
@@ -200,7 +199,6 @@
 				</aside>
 			</div>
 			<DawnRitualModal bind:open={showDawnModal} />
-			<RoomMusicDock />
 		</section>
 	{:else if gated}
 		<section class="mx-auto max-w-[1400px] px-5 py-10 md:py-16">

@@ -3,6 +3,7 @@
 	import { gsap, prefersReducedMotion, setupGsap } from '#lib/motion';
 	import { magnetic } from '#lib/magnetic';
 	import { splitReveal } from '#lib/split-reveal';
+	import { room } from '#lib/room/room.svelte';
 	import Countdown from './Countdown.svelte';
 	import TonightStrip from './TonightStrip.svelte';
 
@@ -49,20 +50,26 @@
 		class="relative mx-auto my-auto grid w-full max-w-[1400px] items-center gap-10 px-5 py-8 md:grid-cols-2 md:gap-10 md:py-12 lg:gap-16 lg:pb-16"
 	>
 		<div>
-			<p class="eyebrow" data-hero>Something's on tonight.</p>
+			<div class="flex items-center gap-2.5" data-hero>
+				<span class="inline-flex items-center gap-1.5 rounded-full border border-amber/40 bg-amber/10 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.16em] text-amber">
+					<span class="h-1.5 w-1.5 rounded-full bg-amber soft-blink"></span>
+					Open Night
+				</span>
+				<p class="eyebrow">Something's on tonight.</p>
+			</div>
 			<h1
 				class="mt-5 text-5xl font-semibold leading-[1.03] tracking-tight md:text-6xl"
 				data-split
 				use:splitReveal={{ scroll: false, delay: 0.12, stagger: 0.06, yPercent: 120 }}
 			>
-				Show up.<br />Lock in till sunrise.
+				Show up.<br />Lock in till <span class="text-amber">sunrise</span>.
 			</h1>
 			<p class="mt-5 max-w-[46ch] text-lg leading-relaxed text-taupe" data-hero>
 				Work alongside each other. The music holds it together. Dawn closes the book.
 			</p>
 			<div class="mt-8 flex flex-wrap gap-3" data-hero>
-				<a href="/room" class="btn btn-primary" use:magnetic={0.18}>Step in</a>
-				<a href="/archive" class="btn btn-ghost" use:magnetic={0.18}>Browse past nights</a>
+				<a href={room.room ? `/room?room=${room.room}` : '/room'} class="btn btn-primary" use:magnetic={0.18}>Step in</a>
+				<a href="/archive" class="btn btn-ghost hover:border-amber/40 hover:text-amber transition-colors" use:magnetic={0.18}>Browse past nights</a>
 			</div>
 			<div class="mt-6" data-hero>
 				<TonightStrip />

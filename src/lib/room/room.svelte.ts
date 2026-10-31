@@ -25,6 +25,8 @@ import { goto } from '$app/navigation';
 
 const LS_NAME = 'an.callsign';
 const LS_ID = 'an.client';
+const LS_ACTIVE_ROOM = 'an.active_room';
+const LS_ACTIVE_TITLE = 'an.active_title';
 
 const ADJ = ['ember', 'night', 'quiet', 'slow', 'warm', 'late', 'dim', 'soft', 'first', 'last'];
 const NOUN = ['owl', 'fox', 'kettle', 'radio', 'lamp', 'cloud', 'moth', 'engine', 'monitor', 'match'];
@@ -231,8 +233,21 @@ class Room {
 		window.setInterval(() => this.tick(), 1000);
 		window.addEventListener('beforeunload', this.bye);
 
-		const param =
+		let param =
 			typeof location !== 'undefined' ? new URLSearchParams(location.search).get('room') : null;
+		let title = '';
+		if (!param && typeof localStorage !== 'undefined') {
+			try {
+				const saved = localStorage.getItem(LS_ACTIVE_ROOM);
+				if (saved) {
+					param = saved;
+					title = localStorage.getItem(LS_ACTIVE_TITLE) ?? saved;
+				}
+			} catch {
+				/* ignore */
+			}
+		}
+
 		if (param) {
 			const slug = sanitizeRoom(param);
 			let wasHost = false;
@@ -241,7 +256,7 @@ class Room {
 			} catch {
 				/* ignore */
 			}
-			this.enterApproved(slug, slug, wasHost);
+			this.enterApproved(slug, title || slug, wasHost);
 		}
 	}
 
@@ -686,6 +701,12 @@ class Room {
 		if (this.joinState === 'approved') return;
 		this.stopRequesting();
 		this.joinState = 'approved';
+		try {
+			localStorage.setItem(LS_ACTIVE_ROOM, this.room);
+			localStorage.setItem(LS_ACTIVE_TITLE, this.title || this.room);
+		} catch {
+			/* ignore */
+		}
 		this.syncUrl(this.room);
 		this.subscribeActive();
 		this.announce();
@@ -699,12 +720,14 @@ class Room {
 		this.title = title;
 		this.isHost = host;
 		this.joinState = 'approved';
-		if (host) {
-			try {
+		try {
+			localStorage.setItem(LS_ACTIVE_ROOM, slug);
+			localStorage.setItem(LS_ACTIVE_TITLE, title || slug);
+			if (host) {
 				localStorage.setItem('an.host.' + slug, '1');
-			} catch {
-				/* ignore */
 			}
+		} catch {
+			/* ignore */
 		}
 		this.syncUrl(slug);
 		this.subscribeActive();
@@ -738,6 +761,8 @@ class Room {
 		if (this.room) {
 			try {
 				localStorage.removeItem('an.host.' + this.room);
+				localStorage.removeItem(LS_ACTIVE_ROOM);
+				localStorage.removeItem(LS_ACTIVE_TITLE);
 			} catch {
 				/* ignore */
 			}
@@ -751,12 +776,15 @@ class Room {
 		if (typeof window === 'undefined') return;
 		try {
 			const url = new URL(window.location.href);
-			if (slug) {
-				url.searchParams.set('room', slug);
-			} else {
-				url.searchParams.delete('room');
+			// Only update URL query params when on the /room route
+			if (url.pathname === '/room') {
+				if (slug) {
+					url.searchParams.set('room', slug);
+				} else {
+					url.searchParams.delete('room');
+				}
+				goto(url.toString(), { replace: true, reset: false });
 			}
-			goto(url.toString(), { replace: true, reset: false });
 		} catch {
 			/* ignore */
 		}

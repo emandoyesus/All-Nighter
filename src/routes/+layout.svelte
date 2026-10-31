@@ -6,9 +6,14 @@
 	import { afterNavigate } from '$app/navigation';
 	import favicon from '#lib/assets/favicon.svg';
 	import { gsap, prefersReducedMotion, ScrollTrigger, setupGsap } from '#lib/motion';
+	import { room } from '#lib/room/room.svelte';
+	import GlobalPlayer from '#lib/components/GlobalPlayer.svelte';
+	import RoomMusicDock from '#lib/components/RoomMusicDock.svelte';
+	import DeskHud from '#lib/components/DeskHud.svelte';
 	import type { LayoutProps } from './$types';
 
 	let { children }: LayoutProps = $props();
+	let showDeskHud = $state(false);
 
 	function getNightPhase(): 'dusk' | 'night' | 'dawn' | 'day' {
 		const hour = new Date().getHours();
@@ -21,12 +26,21 @@
 	let nightPhase = $state<'dusk' | 'night' | 'dawn' | 'day'>(getNightPhase());
 
 	onMount(() => {
+		room.init();
 		nightPhase = getNightPhase();
 		const phaseTimer = window.setInterval(() => {
 			nightPhase = getNightPhase();
 		}, 60000);
 
-		if (prefersReducedMotion()) return () => window.clearInterval(phaseTimer);
+		const onOpenDeskHud = () => (showDeskHud = true);
+		window.addEventListener('an:open-desk-hud', onOpenDeskHud);
+
+		if (prefersReducedMotion()) {
+			return () => {
+				window.clearInterval(phaseTimer);
+				window.removeEventListener('an:open-desk-hud', onOpenDeskHud);
+			};
+		}
 
 		setupGsap();
 
@@ -51,6 +65,7 @@
 
 		return () => {
 			window.clearInterval(phaseTimer);
+			window.removeEventListener('an:open-desk-hud', onOpenDeskHud);
 			ctx.revert();
 		};
 	});
@@ -84,4 +99,14 @@
 
 <div class="grain-layer" aria-hidden="true"></div>
 
-{@render children()}
+<!-- Persistent YouTube Player & Audio Sync Engine -->
+<GlobalPlayer />
+
+<div class="relative min-h-screen flex flex-col {room.joinState === 'approved' ? 'pb-16 sm:pb-20' : ''}">
+	{@render children()}
+</div>
+
+<!-- Persistent Shared Music Dock across the site -->
+<RoomMusicDock />
+
+<DeskHud bind:open={showDeskHud} />

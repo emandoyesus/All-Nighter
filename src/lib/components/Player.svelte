@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { room } from '#lib/room/room.svelte';
-	import { DRIFT_TOLERANCE, HEARTBEAT_TICK } from '#lib/config';
-	import { loadYouTubeApi, formatTime } from '#lib/room/youtube';
+	import { formatTime } from '#lib/room/youtube';
 	import { ambient } from '#lib/audio/ambient.svelte';
 	import { crate, type CratePick } from '#lib/data/crate';
 	import DeskHud from './DeskHud.svelte';
@@ -19,32 +18,13 @@
 	import IconWaveSine from '@tabler/icons-svelte/icons/wave-sine';
 	import IconMaximize from '@tabler/icons-svelte/icons/maximize';
 
-	const ENDED = 0;
-	const PLAYING = 1;
-	const PAUSED = 2;
-
-	let frame: HTMLDivElement;
-	let player: any = null;
 	let ready = $state(false);
-	const LS_VOLUME = 'an.volume';
-	function loadSavedVolume(): number {
-		try {
-			const saved = localStorage.getItem(LS_VOLUME);
-			if (saved !== null) {
-				const n = Number(saved);
-				if (Number.isFinite(n) && n >= 0 && n <= 100) return n;
-			}
-		} catch {}
-		return 80;
-	}
-
-	let volume = $state(loadSavedVolume());
 	let unlocked = $state(false);
-	let playerState = $state(-1);
 	let localTime = $state(0);
 	let duration = $state(0);
 	let drift = $state(0);
-	let muted = $state(true);
+	let volume = $state(80);
+	let muted = $state(false);
 	let apiError = $state(false);
 	let showDeskHud = $state(false);
 
@@ -87,102 +67,33 @@
 		room.playNow(newTrack);
 	}
 
-	/** Where the shared timeline says we should be right now. */
-	function targetTime(): number {
-		const s = room.state;
-		if (!s.playing) return s.position;
-		return s.position + (Date.now() + room.offset - s.clock) / 1000;
-	}
-
-	function applyToPlayer(): void {
-		if (!ready || !player?.getVideoData) return;
-		const s = room.state;
-		const currentId = player.getVideoData()?.video_id ?? null;
-
-		if (!s.videoId) {
-			if (currentId) player.stopVideo();
-			return;
-		}
-
-		if (currentId !== s.videoId) {
-			player.loadVideoById({ videoId: s.videoId, startSeconds: Math.max(0, targetTime()) });
-			if (!unlocked) player.mute();
-			return;
-		}
-
-		const target = targetTime();
-		const actual = player.getCurrentTime() ?? 0;
-		const curDrift = target - actual;
-		drift = curDrift;
-		if (Math.abs(curDrift) > DRIFT_TOLERANCE) player.seekTo(target, true);
-
-		if (s.playing && playerState !== PLAYING) player.playVideo();
-		else if (!s.playing && playerState === PLAYING) player.pauseVideo();
-	}
-
 	function unlock(): void {
 		unlocked = true;
-		if (!ready || !player) return;
-		try {
-			player.unMute();
-			player.setVolume(volume);
-			muted = volume === 0;
-			if (room.state.playing || room.state.videoId) player.playVideo();
-		} catch {
-			/* player still settling */
-		}
-		applyToPlayer();
+		window.dispatchEvent(new CustomEvent('an:player:unlock'));
 	}
 
 	function setVolume(val: number): void {
 		volume = Math.max(0, Math.min(100, Math.round(val)));
-		try {
-			localStorage.setItem(LS_VOLUME, String(volume));
-		} catch {}
-		if (!ready || !player) return;
-		try {
-			player.setVolume(volume);
-			if (volume === 0) {
-				player.mute();
-				muted = true;
-			} else if (muted) {
-				player.unMute();
-				muted = false;
-				unlocked = true;
-			}
-		} catch {}
+		muted = volume === 0;
+		window.dispatchEvent(new CustomEvent('an:player:set-volume', { detail: volume }));
 	}
 
 	function toggle(): void {
-		if (!hasVideo || !ready) return;
-		room.toggle(player.getCurrentTime?.() ?? room.state.position);
-		applyToPlayer();
+		window.dispatchEvent(new CustomEvent('an:player:toggle'));
 	}
 
 	function skip(): void {
-		room.skip();
-		applyToPlayer();
+		window.dispatchEvent(new CustomEvent('an:player:skip'));
 	}
 
 	function scrub(e: Event): void {
 		const value = Number((e.currentTarget as HTMLInputElement).value);
 		localTime = value;
-		room.seekTo(value);
-		if (ready && player?.seekTo) player.seekTo(value, true);
+		window.dispatchEvent(new CustomEvent('an:player:seek', { detail: value }));
 	}
 
 	function toggleMute(): void {
-		if (!ready || !player) return;
-		if (muted || volume === 0) {
-			const restore = volume > 0 ? volume : 80;
-			setVolume(restore);
-			player.unMute();
-			muted = false;
-			unlocked = true;
-		} else {
-			player.mute();
-			muted = true;
-		}
+		window.dispatchEvent(new CustomEvent('an:player:toggle-mute'));
 	}
 
 	function handleKeydown(e: KeyboardEvent): void {
@@ -208,124 +119,38 @@
 	}
 
 	onMount(() => {
-		let alive = true;
-
-		loadYouTubeApi()
-			.then((YT) => {
-				if (!alive || !frame) return;
-				player = new YT.Player(frame, {
-					width: '100%',
-					height: '100%',
-					playerVars: {
-						controls: 0,
-						rel: 0,
-						playsinline: 1,
-						modestbranding: 1,
-						disablekb: 1,
-						iv_load_policy: 3,
-						origin: location.origin
-					},
-					events: {
-						onReady: () => {
-							ready = true;
-							duration = player.getDuration?.() ?? 0;
-							if (!unlocked) player.mute();
-							else player.setVolume(volume);
-							applyToPlayer();
-						},
-						onStateChange: (e: { data: number }) => {
-							playerState = e.data;
-							if (e.data === PLAYING) {
-								duration = player.getDuration?.() ?? 0;
-								muted = player.isMuted?.() ?? muted;
-							}
-							if (e.data === ENDED && room.state.playing) {
-								room.ended(room.state.videoId);
-							}
-						},
-						onError: () => {
-							/* blocked or removed video: let the crew skip past it */
-						}
-					}
-				});
-			})
-			.catch(() => {
-				if (alive) apiError = true;
-			});
-
-		const tick = window.setInterval(() => {
-			if (!ready || !player?.getCurrentTime) return;
-
-			// If the last director vanished mid-track, take the wheel so sync keeps working.
-			if (
-				room.state.playing &&
-				!room.isDirector() &&
-				room.lastRemoteAt &&
-				Date.now() - room.lastRemoteAt > 30_000
-			) {
-				room.claim(player.getCurrentTime());
+		const onStatus = (e: Event) => {
+			const custom = e as CustomEvent<{
+				localTime: number;
+				duration: number;
+				volume: number;
+				muted: boolean;
+				ready?: boolean;
+				unlocked?: boolean;
+				apiError?: boolean;
+				drift?: number;
+			}>;
+			if (custom.detail) {
+				localTime = custom.detail.localTime ?? 0;
+				duration = custom.detail.duration ?? 0;
+				volume = custom.detail.volume ?? volume;
+				muted = custom.detail.muted ?? false;
+				if (typeof custom.detail.ready === 'boolean') ready = custom.detail.ready;
+				if (typeof custom.detail.unlocked === 'boolean') unlocked = custom.detail.unlocked;
+				if (typeof custom.detail.apiError === 'boolean') apiError = custom.detail.apiError;
+				if (typeof custom.detail.drift === 'number') drift = custom.detail.drift;
 			}
-
-			applyToPlayer();
-			localTime = player.getCurrentTime() ?? 0;
-			duration = player.getDuration?.() ?? 0;
-
-			window.dispatchEvent(
-				new CustomEvent('an:player:status', {
-					detail: {
-						localTime,
-						duration,
-						volume,
-						muted
-					}
-				})
-			);
-		}, 500);
-
-		const onVolumeEvent = (e: Event) => {
-			const custom = e as CustomEvent<number>;
-			if (typeof custom.detail === 'number') setVolume(custom.detail);
 		};
-		const onMuteToggleEvent = () => toggleMute();
-		const onSkipEvent = () => skip();
-		const onToggleEvent = () => toggle();
+
 		const onOpenDeskHud = () => (showDeskHud = true);
 
-		window.addEventListener('an:player:set-volume', onVolumeEvent);
-		window.addEventListener('an:player:toggle-mute', onMuteToggleEvent);
-		window.addEventListener('an:player:skip', onSkipEvent);
-		window.addEventListener('an:player:toggle', onToggleEvent);
+		window.addEventListener('an:player:status', onStatus);
 		window.addEventListener('an:open-desk-hud', onOpenDeskHud);
 
-		const beat = window.setInterval(() => {
-			if (ready && room.isDirector() && room.state.playing && player?.getCurrentTime) {
-				room.heartbeat(player.getCurrentTime());
-			}
-		}, HEARTBEAT_TICK);
-
 		return () => {
-			alive = false;
-			window.clearInterval(tick);
-			window.clearInterval(beat);
-			window.removeEventListener('an:player:set-volume', onVolumeEvent);
-			window.removeEventListener('an:player:toggle-mute', onMuteToggleEvent);
-			window.removeEventListener('an:player:skip', onSkipEvent);
-			window.removeEventListener('an:player:toggle', onToggleEvent);
+			window.removeEventListener('an:player:status', onStatus);
 			window.removeEventListener('an:open-desk-hud', onOpenDeskHud);
-			try {
-				player?.destroy();
-			} catch {
-				/* already gone */
-			}
 		};
-	});
-
-	// React to any shared-state change immediately, not on the next tick.
-	$effect(() => {
-		room.state.seq;
-		room.state.videoId;
-		room.state.playing;
-		if (ready) applyToPlayer();
 	});
 </script>
 
@@ -350,19 +175,16 @@
 		{/if}
 	</div>
 
-	<div class="relative aspect-video bg-night">
-		<div class="absolute inset-0 [&>iframe]:absolute [&>iframe]:inset-0 [&>iframe]:h-full [&>iframe]:w-full">
-			<div bind:this={frame}></div>
-		</div>
-
+	<!-- Video mount target for persistent GlobalPlayer -->
+	<div id="room-video-viewport" class="relative aspect-video bg-night overflow-hidden">
 		{#if apiError}
-			<div class="absolute inset-0 grid place-items-center bg-night-3 px-8 text-center">
+			<div class="absolute inset-0 grid place-items-center bg-night-3 px-8 text-center z-10">
 				<p class="max-w-[36ch] text-sm text-taupe">
 					The player could not load. Check your network, the queue is still here.
 				</p>
 			</div>
 		{:else if externalOnly && room.state.current}
-			<div class="absolute inset-0 grid place-items-center bg-night-3 px-8 text-center">
+			<div class="absolute inset-0 grid place-items-center bg-night-3 px-8 text-center z-10">
 				<div>
 					<span
 						class="mx-auto grid h-12 w-12 place-items-center rounded-full bg-lamp/12 text-lamp ring-1 ring-lamp/25"
@@ -388,7 +210,7 @@
 				</div>
 			</div>
 		{:else if !hasVideo}
-			<div class="absolute inset-0 flex flex-col items-center justify-center bg-night-3 px-6 text-center">
+			<div class="absolute inset-0 flex flex-col items-center justify-center bg-night-3 px-6 text-center z-10">
 				<div class="w-full max-w-[420px]">
 					<span
 						class="mx-auto grid h-10 w-10 sm:h-12 sm:w-12 place-items-center rounded-full bg-lamp/12 text-lamp ring-1 ring-lamp/25"
@@ -421,7 +243,7 @@
 				</div>
 			</div>
 		{:else if ready && !unlocked}
-			<div class="absolute inset-0 grid place-items-center bg-night/80 backdrop-blur-[2px] px-8 text-center">
+			<div class="absolute inset-0 z-30 grid place-items-center bg-night/80 backdrop-blur-[2px] px-8 text-center">
 				<div>
 					<p class="text-sm text-taupe">Playback stays synced for everyone.</p>
 					<button class="btn btn-primary mt-4" onclick={unlock}>
@@ -437,7 +259,7 @@
 		<button
 			class="icon-btn"
 			onclick={toggle}
-			disabled={!hasVideo || !ready}
+			disabled={!hasVideo}
 			aria-label={playing ? 'Pause for everyone' : 'Resume for everyone'}
 		>
 			{#if playing}
@@ -467,7 +289,7 @@
 			step="1"
 			value={duration > 0 ? Math.min(localTime, duration) : 0}
 			oninput={scrub}
-			disabled={!hasVideo || !ready || duration <= 0}
+			disabled={!hasVideo || duration <= 0}
 			aria-label="Seek within the track"
 		/>
 
@@ -475,14 +297,14 @@
 			{duration > 0 ? formatTime(duration) : 'live'}
 		</span>
 
-		{#if hasVideo && playing && ready && Math.abs(drift) > 0.1}
+		{#if hasVideo && playing && Math.abs(drift) > 0.1}
 			<span class="num hidden shrink-0 text-[11px] text-faint sm:inline">
 				sync {Math.abs(drift).toFixed(1)}s
 			</span>
 		{/if}
 
 		<div class="flex items-center gap-1.5">
-			<button class="icon-btn" onclick={toggleMute} disabled={!ready} aria-label={muted ? 'Unmute' : 'Mute'}>
+			<button class="icon-btn" onclick={toggleMute} aria-label={muted ? 'Unmute' : 'Mute'}>
 				{#if muted || volume === 0}
 					<IconVolumeOff size={17} stroke={1.5} />
 				{:else}
@@ -498,7 +320,6 @@
 				step="1"
 				value={muted ? 0 : volume}
 				oninput={(e) => setVolume(Number(e.currentTarget.value))}
-				disabled={!ready}
 				aria-label="Volume"
 				title="Volume: {muted ? 0 : volume}%"
 			/>

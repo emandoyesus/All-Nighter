@@ -12,6 +12,8 @@
 	import IconVolumeOff from '@tabler/icons-svelte/icons/volume-off';
 
 	const live = $derived(room.state.playing);
+	const inRoom = $derived(room.joinState === 'approved');
+	const roomLink = $derived(room.room ? `/room?room=${room.room}` : '/room');
 	let open = $state(false);
 
 	let header: HTMLElement;
@@ -116,7 +118,16 @@
 		<div class="ml-auto flex items-center gap-3 sm:gap-4">
 			<nav class="hidden items-center gap-6 text-sm text-taupe md:flex lg:gap-7">
 				<a class="transition-colors hover:text-cream" href="/">Tonight</a>
-				<a class="transition-colors hover:text-cream" href="/room">The Room</a>
+				<a class="transition-colors hover:text-cream {inRoom ? 'text-cream font-medium' : ''}" href={roomLink}>
+					{#if inRoom}
+						<span class="inline-flex items-center gap-1.5">
+							<span class="h-1.5 w-1.5 rounded-full bg-amber soft-blink"></span>
+							{room.title || 'The Room'}
+						</span>
+					{:else}
+						The Room
+					{/if}
+				</a>
 				<a class="transition-colors hover:text-cream" href="/archive">The Archive</a>
 			</nav>
 
@@ -139,9 +150,19 @@
 				{/if}
 			</button>
 
-			{#if live}
+			{#if inRoom}
 				<a
-					href="/room"
+					href={roomLink}
+					class="hidden items-center gap-2 rounded-full border border-amber/40 bg-amber/10 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-amber transition-colors hover:bg-amber/20 sm:inline-flex"
+					use:magnetic={0.1}
+				>
+					<span class="soft-blink h-1.5 w-1.5 rounded-full bg-amber"></span>
+					In Room
+					<IconRadio size={12} stroke={1.5} />
+				</a>
+			{:else if live}
+				<a
+					href={roomLink}
 					class="hidden items-center gap-2 rounded-full border border-lamp/40 bg-lamp/8 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-lamp transition-colors hover:bg-lamp/15 sm:inline-flex"
 					use:magnetic={0.1}
 				>
@@ -151,7 +172,7 @@
 				</a>
 			{:else}
 				<a
-					href="/room"
+					href={roomLink}
 					class="btn btn-primary hidden text-[13px] sm:inline-flex sm:text-sm"
 					use:magnetic={0.12}
 				>
@@ -189,11 +210,18 @@
 					Tonight
 				</a>
 				<a
-					class="rounded-field px-3 py-2 text-taupe transition-colors hover:bg-cream/5 hover:text-cream"
-					href="/room"
+					class="rounded-field px-3 py-2 {inRoom ? 'text-amber bg-amber/10' : 'text-taupe hover:text-cream'} transition-colors hover:bg-cream/5"
+					href={roomLink}
 					onclick={closeMenu}
 				>
-					The Room
+					{#if inRoom}
+						<span class="inline-flex items-center gap-2">
+							<span class="soft-blink h-1.5 w-1.5 rounded-full bg-amber"></span>
+							{room.title || 'The Room'} (Active)
+						</span>
+					{:else}
+						The Room
+					{/if}
 				</a>
 				<a
 					class="rounded-field px-3 py-2 text-taupe transition-colors hover:bg-cream/5 hover:text-cream"
@@ -223,11 +251,11 @@
 				</button>
 				<div class="pt-1">
 					<a
-						href="/room"
+						href={roomLink}
 						class="btn btn-primary w-full text-xs"
 						onclick={closeMenu}
 					>
-						Open the door
+						{inRoom ? 'Return to Room' : 'Open the door'}
 					</a>
 				</div>
 			</nav>

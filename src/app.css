@@ -115,6 +115,43 @@
 	background: var(--color-lamp-2);
 }
 
+.btn-amber {
+	background: var(--color-amber);
+	color: var(--color-night);
+}
+
+.btn-amber:hover {
+	background: var(--color-amber-2);
+}
+
+.badge-amber {
+	border: 1px solid color-mix(in srgb, var(--color-amber) 35%, transparent);
+	background: color-mix(in srgb, var(--color-amber) 12%, transparent);
+	color: var(--color-amber);
+}
+
+.badge-lamp {
+	border: 1px solid color-mix(in srgb, var(--color-lamp) 35%, transparent);
+	background: color-mix(in srgb, var(--color-lamp) 12%, transparent);
+	color: var(--color-lamp);
+}
+
+.text-amber {
+	color: var(--color-amber);
+}
+
+.text-amber-2 {
+	color: var(--color-amber-2);
+}
+
+.bg-amber {
+	background-color: var(--color-amber);
+}
+
+.border-amber {
+	border-color: color-mix(in srgb, var(--color-amber) 30%, transparent);
+}
+
 .btn-ghost {
 	border: 1px solid color-mix(in srgb, var(--color-cream) 14%, transparent);
 	color: var(--color-cream);
@@ -376,8 +413,9 @@ input[type='range'].seek {
 }
 
 .star--warm {
-	background: #ffe6c4;
-	opacity: 0.6;
+	background: #ffc970;
+	box-shadow: 0 0 5px rgba(255, 184, 77, 0.45);
+	opacity: 0.8;
 }
 
 @keyframes star-shine {

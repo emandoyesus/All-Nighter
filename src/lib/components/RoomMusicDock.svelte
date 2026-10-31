@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 	import { room } from '#lib/room/room.svelte';
 	import { crate, type CratePick } from '#lib/data/crate';
 	import { thumbnailFor, formatTime } from '#lib/room/youtube';
@@ -87,7 +88,7 @@
 			uid: crypto.randomUUID(),
 			videoId: station.videoId,
 			source: 'youtube' as const,
-			url: `https://www.youtube.com/watch?v=${station.videoId}`,
+			url: `https://www.youtube.com/watch?${station.videoId}`,
 			title: station.title,
 			channel: station.channel,
 			addedBy: room.name,
@@ -100,7 +101,14 @@
 	}
 
 	function scrollToPlayer(): void {
-		const playerEl = document.querySelector('iframe') || document.querySelector('.panel');
+		if (typeof window !== 'undefined' && window.location.pathname !== '/room') {
+			goto(room.room ? `/room?room=${room.room}` : '/room');
+			return;
+		}
+		const playerEl =
+			document.getElementById('room-video-viewport') ||
+			document.querySelector('iframe') ||
+			document.querySelector('.panel');
 		playerEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 	}
 
@@ -118,6 +126,7 @@
 	};
 </script>
 
+{#if room.joinState === 'approved'}
 <aside
 	class="fixed bottom-0 inset-x-0 z-40 border-t border-lamp/20 bg-night-2/95 shadow-[0_-10px_35px_rgba(0,0,0,0.7)] backdrop-blur-xl transition-all select-none"
 	aria-label="Room music dock"
@@ -251,7 +260,7 @@
 					<span class="w-9 text-right">{formatTime(localTime)}</span>
 					<div class="relative h-1 w-full rounded-full bg-cream/15 overflow-hidden">
 						<div
-							class="h-full bg-lamp transition-all duration-300"
+							class="h-full bg-gradient-to-r from-lamp via-lamp to-amber transition-all duration-300"
 							style="width: {duration > 0 ? (localTime / duration) * 100 : 0}%"
 						></div>
 					</div>
@@ -264,11 +273,11 @@
 				<!-- Quick Reactions -->
 				<div class="hidden lg:flex items-center gap-1 border-r border-cream/10 pr-2">
 					<button
-						class="rounded-full border border-cream/10 bg-night/60 px-2 py-0.5 text-xs transition-colors hover:border-lamp/40 hover:bg-lamp/10"
+						class="rounded-full border border-amber/30 bg-amber/10 px-2 py-0.5 text-xs text-amber transition-colors hover:border-amber/60 hover:bg-amber/20"
 						onclick={() => room.react(track.uid, '🔥')}
 						title="React Fire"
 					>
-						🔥 {#if (reactions['🔥']?.length ?? 0) > 0}<span class="text-[10px] text-taupe">{reactions['🔥'].length}</span>{/if}
+						🔥 {#if (reactions['🔥']?.length ?? 0) > 0}<span class="text-[10px] text-amber-2">{reactions['🔥'].length}</span>{/if}
 					</button>
 					<button
 						class="rounded-full border border-cream/10 bg-night/60 px-2 py-0.5 text-xs transition-colors hover:border-lamp/40 hover:bg-lamp/10"
@@ -339,7 +348,7 @@
 				<div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
 					{#each crate.slice(0, 4) as station}
 						<button
-							class="inline-flex items-center gap-1.5 rounded-full border border-cream/15 bg-night-3/80 px-2.5 py-1 text-xs text-cream transition-all hover:border-lamp/50 hover:bg-lamp/15 active:scale-95"
+							class="inline-flex items-center gap-1.5 rounded-full border border-cream/15 bg-night-3/80 px-2.5 py-1 text-xs text-cream transition-all hover:border-amber/50 hover:bg-amber/15 active:scale-95"
 							onclick={() => startStation(station)}
 						>
 							<span>{stationIcons[station.title] || '📻'}</span>
@@ -362,3 +371,4 @@
 		{/if}
 	</div>
 </aside>
+{/if}
