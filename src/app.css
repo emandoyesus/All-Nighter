@@ -340,76 +340,62 @@ input[type='range'].seek {
 	mix-blend-mode: screen;
 }
 
-/* distant field — cool, faint, dense */
+/* distant field — cool, faint, delicate speckles */
 .sky--far {
-	opacity: 0.55;
+	opacity: 0.22;
 	background-image:
-		radial-gradient(1.2px 1.2px at 12px 41px, #cbd9ff, transparent),
-		radial-gradient(1px 1px at 88px 17px, #ffffff, transparent),
-		radial-gradient(1.2px 1.2px at 141px 96px, #cbd9ff, transparent),
-		radial-gradient(1px 1px at 203px 58px, #ffffff, transparent),
-		radial-gradient(1.2px 1.2px at 267px 133px, #ffd9a8, transparent),
-		radial-gradient(1px 1px at 44px 172px, #ffffff, transparent),
-		radial-gradient(1.2px 1.2px at 318px 22px, #cbd9ff, transparent),
-		radial-gradient(1px 1px at 175px 210px, #ffffff, transparent),
-		radial-gradient(1.2px 1.2px at 96px 258px, #cbd9ff, transparent),
-		radial-gradient(1.1px 1.1px at 240px 300px, #ffffff, transparent),
-		radial-gradient(1.2px 1.2px at 30px 320px, #c2f0c2, transparent),
-		radial-gradient(1px 1px at 300px 244px, #ffffff, transparent),
-		radial-gradient(1.2px 1.2px at 128px 348px, #cbd9ff, transparent),
-		radial-gradient(1.1px 1.1px at 216px 372px, #ffe4bc, transparent),
-		radial-gradient(1.2px 1.2px at 350px 318px, #cbd9ff, transparent),
-		radial-gradient(1px 1px at 68px 96px, #ffffff, transparent),
-		radial-gradient(1.1px 1.1px at 180px 140px, #ffd48f, transparent),
-		radial-gradient(1px 1px at 290px 80px, #ffffff, transparent),
-		radial-gradient(1.2px 1.2px at 50px 270px, #cbd9ff, transparent),
-		radial-gradient(1px 1px at 330px 380px, #ffffff, transparent);
+		radial-gradient(0.8px 0.8px at 12px 41px, #cbd9ff, transparent),
+		radial-gradient(0.7px 0.7px at 88px 17px, #ffffff, transparent),
+		radial-gradient(0.8px 0.8px at 141px 96px, #cbd9ff, transparent),
+		radial-gradient(0.7px 0.7px at 203px 58px, #ffffff, transparent),
+		radial-gradient(0.8px 0.8px at 267px 133px, #ffd9a8, transparent),
+		radial-gradient(0.7px 0.7px at 44px 172px, #ffffff, transparent),
+		radial-gradient(0.8px 0.8px at 318px 22px, #cbd9ff, transparent),
+		radial-gradient(0.7px 0.7px at 175px 210px, #ffffff, transparent),
+		radial-gradient(0.8px 0.8px at 96px 258px, #cbd9ff, transparent),
+		radial-gradient(0.7px 0.7px at 240px 300px, #ffffff, transparent),
+		radial-gradient(0.8px 0.8px at 30px 320px, #c2f0c2, transparent),
+		radial-gradient(0.7px 0.7px at 300px 244px, #ffffff, transparent),
+		radial-gradient(0.8px 0.8px at 128px 348px, #cbd9ff, transparent),
+		radial-gradient(0.7px 0.7px at 216px 372px, #ffe4bc, transparent),
+		radial-gradient(0.8px 0.8px at 350px 318px, #cbd9ff, transparent),
+		radial-gradient(0.7px 0.7px at 68px 96px, #ffffff, transparent);
 	background-size: 380px 400px;
 }
 
-/* mid field — mixed temperatures, dense & clearly visible */
+/* mid field — mixed temperatures, subtle pinpoints */
 .sky--mid {
-	opacity: 0.75;
+	opacity: 0.32;
 	background-image:
-		radial-gradient(1.8px 1.8px at 40px 70px, #ffffff, transparent),
-		radial-gradient(1.5px 1.5px at 150px 30px, #d6e2ff, transparent),
-		radial-gradient(1.8px 1.8px at 260px 120px, #ffc970, transparent),
-		radial-gradient(1.5px 1.5px at 70px 200px, #ffffff, transparent),
-		radial-gradient(1.8px 1.8px at 330px 180px, #cbd9ff, transparent),
-		radial-gradient(1.5px 1.5px at 200px 260px, #c2f0c2, transparent),
-		radial-gradient(1.8px 1.8px at 110px 330px, #ffb84d, transparent),
-		radial-gradient(1.5px 1.5px at 380px 300px, #ffffff, transparent),
-		radial-gradient(1.8px 1.8px at 290px 400px, #d6e2ff, transparent),
-		radial-gradient(1.5px 1.5px at 20px 430px, #ffffff, transparent),
-		radial-gradient(1.7px 1.7px at 170px 460px, #ffe9c8, transparent),
-		radial-gradient(1.5px 1.5px at 360px 80px, #ffffff, transparent),
-		radial-gradient(1.8px 1.8px at 230px 170px, #cbd9ff, transparent),
-		radial-gradient(1.6px 1.6px at 90px 130px, #ffc970, transparent);
-	background-size: 440px 480px;
+		radial-gradient(1px 1px at 40px 70px, #ffffff, transparent),
+		radial-gradient(0.9px 0.9px at 150px 30px, #d6e2ff, transparent),
+		radial-gradient(1px 1px at 260px 120px, #ffc970, transparent),
+		radial-gradient(0.9px 0.9px at 70px 200px, #ffffff, transparent),
+		radial-gradient(1px 1px at 330px 180px, #cbd9ff, transparent),
+		radial-gradient(0.9px 0.9px at 200px 260px, #c2f0c2, transparent),
+		radial-gradient(1px 1px at 110px 330px, #ffb84d, transparent),
+		radial-gradient(0.9px 0.9px at 380px 300px, #ffffff, transparent),
+		radial-gradient(1px 1px at 290px 400px, #d6e2ff, transparent),
+		radial-gradient(0.9px 0.9px at 20px 430px, #ffffff, transparent);
+	background-size: 460px 480px;
 }
 
-/* near field — crisp, bright stars with delicate glow */
+/* near field — crisp, gentle night stars */
 .sky--near {
-	opacity: 0.9;
+	opacity: 0.42;
 	background-image:
-		radial-gradient(2.2px 2.2px at 220px 90px, #ffffff, transparent 65%),
-		radial-gradient(2px 2px at 60px 300px, #dfe8ff, transparent 65%),
-		radial-gradient(2.2px 2.2px at 400px 240px, #ffffff, transparent 65%),
-		radial-gradient(2px 2px at 330px 480px, #ffc970, transparent 65%),
-		radial-gradient(2.2px 2.2px at 140px 520px, #ffffff, transparent 65%),
-		radial-gradient(2px 2px at 480px 160px, #c2f0c2, transparent 65%),
-		radial-gradient(2.2px 2.2px at 280px 380px, #ffb84d, transparent 65%),
-		radial-gradient(2px 2px at 180px 200px, #ffffff, transparent 65%);
-	background-size: 540px 560px;
+		radial-gradient(1.3px 1.3px at 220px 90px, #ffffff, transparent 70%),
+		radial-gradient(1.2px 1.2px at 60px 300px, #dfe8ff, transparent 70%),
+		radial-gradient(1.3px 1.3px at 400px 240px, #ffffff, transparent 70%),
+		radial-gradient(1.2px 1.2px at 330px 480px, #ffc970, transparent 70%),
+		radial-gradient(1.3px 1.3px at 140px 520px, #ffffff, transparent 70%),
+		radial-gradient(1.2px 1.2px at 480px 160px, #c2f0c2, transparent 70%);
+	background-size: 560px 580px;
 }
 
 /* the galactic band */
 .sky--milky {
-	display: block;
-	opacity: 0.18;
-	background:
-		radial-gradient(ellipse 65% 45% at 35% 20%, rgba(142, 199, 101, 0.08), transparent),
-		radial-gradient(ellipse 60% 40% at 75% 60%, rgba(255, 184, 77, 0.08), transparent);
+	display: none;
 }
 
 /* bright stars — crisp, subtle pinpoints without blurry halo */
@@ -422,32 +408,32 @@ input[type='range'].seek {
 	margin: calc(var(--s, 3px) / -2);
 	border-radius: 50%;
 	background: #ffffff;
-	box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
-	opacity: 0.75;
+	box-shadow: 0 0 2px rgba(255, 255, 255, 0.4);
+	opacity: 0.65;
 	animation: star-shine var(--d, 7s) ease-in-out infinite alternate;
 	animation-delay: var(--dl, 0s);
 }
 
 .star--warm {
 	background: #ffc970;
-	box-shadow: 0 0 6px rgba(255, 184, 77, 0.6);
-	opacity: 0.85;
+	box-shadow: 0 0 3px rgba(255, 184, 77, 0.45);
+	opacity: 0.75;
 }
 
 .star--lamp {
 	background: #9fd776;
-	box-shadow: 0 0 6px rgba(142, 199, 101, 0.6);
-	opacity: 0.85;
+	box-shadow: 0 0 3px rgba(142, 199, 101, 0.45);
+	opacity: 0.75;
 }
 
 @keyframes star-shine {
 	from {
 		opacity: 0.45;
-		transform: scale(0.9);
+		transform: scale(0.95);
 	}
 	to {
-		opacity: 0.95;
-		transform: scale(1.15);
+		opacity: 0.85;
+		transform: scale(1.05);
 	}
 }
 
