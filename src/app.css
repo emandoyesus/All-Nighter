@@ -22,6 +22,14 @@
 	--color-amber: #FFB84D;
 	--color-amber-2: #ffc970;
 
+	/* Studio & Cosmic Semantic Colors */
+	--color-ruby: #ff334b;
+	--color-ruby-2: #ff576c;
+	--color-cyan: #38d9dc;
+	--color-cyan-2: #67e8f9;
+	--color-violet: #a78bfa;
+	--color-violet-2: #c4b5fd;
+
 	--radius-card: 14px;
 	--radius-field: 10px;
 }
@@ -124,10 +132,68 @@
 	background: var(--color-amber-2);
 }
 
+.btn-danger {
+	background: color-mix(in srgb, var(--color-ruby) 15%, transparent);
+	border: 1px solid color-mix(in srgb, var(--color-ruby) 45%, transparent);
+	color: #ff9da7;
+}
+
+.btn-danger:hover {
+	background: color-mix(in srgb, var(--color-ruby) 25%, transparent);
+	border-color: var(--color-ruby);
+	color: #ffffff;
+	box-shadow: 0 0 16px rgba(255, 51, 75, 0.35);
+}
+
+.btn-danger-outline {
+	background: transparent;
+	border: 1px dashed color-mix(in srgb, var(--color-ruby) 35%, transparent);
+	color: #ff9da7;
+}
+
+.btn-danger-outline:hover {
+	background: color-mix(in srgb, var(--color-ruby) 15%, transparent);
+	border-color: var(--color-ruby);
+	color: #ffffff;
+	border-style: solid;
+	box-shadow: 0 0 12px rgba(255, 51, 75, 0.25);
+}
+
+.btn-cyan {
+	background: color-mix(in srgb, var(--color-cyan) 14%, transparent);
+	border: 1px solid color-mix(in srgb, var(--color-cyan) 45%, transparent);
+	color: var(--color-cyan);
+}
+
+.btn-cyan:hover {
+	background: color-mix(in srgb, var(--color-cyan) 25%, transparent);
+	border-color: var(--color-cyan);
+	color: #ffffff;
+	box-shadow: 0 0 16px rgba(56, 217, 220, 0.35);
+}
+
 .badge-amber {
 	border: 1px solid color-mix(in srgb, var(--color-amber) 35%, transparent);
 	background: color-mix(in srgb, var(--color-amber) 12%, transparent);
 	color: var(--color-amber);
+}
+
+.badge-ruby {
+	border: 1px solid color-mix(in srgb, var(--color-ruby) 45%, transparent);
+	background: color-mix(in srgb, var(--color-ruby) 12%, transparent);
+	color: #ff8b99;
+}
+
+.badge-cyan {
+	border: 1px solid color-mix(in srgb, var(--color-cyan) 45%, transparent);
+	background: color-mix(in srgb, var(--color-cyan) 12%, transparent);
+	color: var(--color-cyan);
+}
+
+.badge-violet {
+	border: 1px solid color-mix(in srgb, var(--color-violet) 40%, transparent);
+	background: color-mix(in srgb, var(--color-violet) 12%, transparent);
+	color: var(--color-violet);
 }
 
 .badge-lamp {
@@ -144,12 +210,48 @@
 	color: var(--color-amber-2);
 }
 
+.text-ruby {
+	color: var(--color-ruby);
+}
+
+.text-cyan {
+	color: var(--color-cyan);
+}
+
+.text-violet {
+	color: var(--color-violet);
+}
+
 .bg-amber {
 	background-color: var(--color-amber);
 }
 
+.bg-ruby {
+	background-color: var(--color-ruby);
+}
+
+.bg-cyan {
+	background-color: var(--color-cyan);
+}
+
+.bg-violet {
+	background-color: var(--color-violet);
+}
+
 .border-amber {
 	border-color: color-mix(in srgb, var(--color-amber) 30%, transparent);
+}
+
+.border-ruby {
+	border-color: color-mix(in srgb, var(--color-ruby) 35%, transparent);
+}
+
+.border-cyan {
+	border-color: color-mix(in srgb, var(--color-cyan) 35%, transparent);
+}
+
+.border-violet {
+	border-color: color-mix(in srgb, var(--color-violet) 35%, transparent);
 }
 
 .btn-ghost {

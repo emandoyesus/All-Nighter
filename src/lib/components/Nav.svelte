@@ -168,19 +168,19 @@
 				<a class="transition-colors hover:text-cream" href="/archive">The Archive</a>
 			</nav>
 
-			<!-- Ambient Soundscape Quick Toggle (Volume slider removed) -->
+			<!-- Sound Quick Toggle (Cosmic Cyan) -->
 			<button
-				class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-mono transition-colors {soundPlaying
-					? 'border-lamp/40 bg-lamp/15 text-lamp'
+				class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-mono transition-all {soundPlaying
+					? 'border-cyan/50 bg-cyan/15 text-cyan hover:bg-cyan/25 shadow-[0_0_12px_rgba(56,217,220,0.25)]'
 					: 'border-cream/12 bg-night/80 text-faint hover:border-cream/25 hover:text-cream'}"
 				onclick={toggleSound}
 				title={soundPlaying ? 'Mute Interstellar soundtrack' : 'Play Interstellar soundtrack'}
 				aria-label={soundPlaying ? 'Mute soundtrack' : 'Play soundtrack'}
 			>
 				{#if soundPlaying}
-					<span class="soft-blink h-1.5 w-1.5 rounded-full bg-lamp"></span>
-					<IconVolume size={13} stroke={2} />
-					<span class="hidden sm:inline text-[11px]">Sound on</span>
+					<span class="soft-blink h-1.5 w-1.5 rounded-full bg-cyan shadow-[0_0_8px_#38d9dc]"></span>
+					<IconVolume size={13} stroke={2} class="text-cyan" />
+					<span class="hidden sm:inline text-[11px] font-medium text-cyan">Sound on</span>
 				{:else}
 					<IconVolumeOff size={13} stroke={1.5} />
 					<span class="hidden sm:inline text-[11px]">Sound</span>
@@ -198,14 +198,15 @@
 					<IconRadio size={12} stroke={1.5} />
 				</a>
 			{:else if live}
+				<!-- Live Studio Red Light -->
 				<a
 					href={roomLink}
-					class="hidden items-center gap-2 rounded-full border border-lamp/40 bg-lamp/8 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-lamp transition-colors hover:bg-lamp/15 sm:inline-flex"
+					class="hidden items-center gap-2 rounded-full border border-ruby/50 bg-ruby/15 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-rose-300 transition-all hover:bg-ruby/25 hover:border-ruby shadow-[0_0_12px_rgba(255,51,75,0.3)] sm:inline-flex"
 					use:magnetic={0.1}
 				>
-					<span class="soft-blink h-1.5 w-1.5 rounded-full bg-lamp"></span>
-					On air
-					<IconRadio size={12} stroke={1.5} />
+					<span class="soft-blink h-2 w-2 rounded-full bg-ruby shadow-[0_0_8px_#ff334b]"></span>
+					ON AIR
+					<IconRadio size={12} stroke={1.5} class="text-rose-400" />
 				</a>
 			{:else}
 				<a
@@ -269,21 +270,21 @@
 				</a>
 				<button
 					class="flex items-center justify-between rounded-field px-3 py-2 text-left text-sm transition-colors {soundPlaying
-						? 'bg-lamp/10 text-lamp'
+						? 'bg-cyan/15 text-cyan border border-cyan/30'
 						: 'text-taupe hover:bg-cream/5 hover:text-cream'}"
 					onclick={toggleSound}
 				>
 					<span class="flex items-center gap-2">
 						{#if soundPlaying}
-							<IconVolume size={16} stroke={2} class="text-lamp" />
-							<span class="font-medium text-cream">Sound: Interstellar (Playing)</span>
+							<IconVolume size={16} stroke={2} class="text-cyan" />
+							<span class="font-medium text-cyan">Sound: Interstellar (Playing)</span>
 						{:else}
 							<IconVolumeOff size={16} stroke={1.5} />
 							<span>Sound: Interstellar (Off)</span>
 						{/if}
 					</span>
 					{#if soundPlaying}
-						<span class="soft-blink h-1.5 w-1.5 rounded-full bg-lamp"></span>
+						<span class="soft-blink h-1.5 w-1.5 rounded-full bg-cyan shadow-[0_0_6px_#38d9dc]"></span>
 					{/if}
 				</button>
 				<div class="pt-1">

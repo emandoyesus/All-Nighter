@@ -102,12 +102,16 @@
 			<NowPlayingBar />
 			<div class="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]">
 				<div class="min-w-0">
-					<div class="panel mb-3 flex flex-wrap items-center justify-between gap-2 px-4 py-2">
+					<div class="panel mb-3 flex flex-wrap items-center justify-between gap-2 px-4 py-2 border-cream/10">
 						<div class="flex items-center gap-2 text-xs text-taupe">
-							<span class="h-1.5 w-1.5 rounded-full {room.state.playing ? 'bg-lamp soft-blink' : 'bg-faint'}"></span>
-							{room.state.playing ? 'Playing' : 'Paused'}
+							<span class="inline-flex items-center gap-1.5 rounded-full border border-ruby/40 bg-ruby/12 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-rose-300">
+								<span class="h-1.5 w-1.5 rounded-full bg-ruby {room.state.playing ? 'soft-blink shadow-[0_0_6px_#ff334b]' : 'opacity-40'}"></span>
+								{room.state.playing ? 'LIVE' : 'PAUSED'}
+							</span>
 							<span class="text-faint/70">·</span>
-							{room.state.queue.length} up next · {room.awake.length} awake
+							<span class="num text-cyan font-mono">{room.state.queue.length} in queue</span>
+							<span class="text-faint/70">·</span>
+							<span class="num text-lamp font-mono">{room.awake.length} awake</span>
 						</div>
 						<div class="flex items-center gap-1.5">
 							{#if room.canSkip}
@@ -193,9 +197,32 @@
 						Dawn ritual · Log tonight
 					</button>
 
-					<button class="btn btn-ghost w-full" onclick={() => room.leave()}>
-						Step out
-					</button>
+					<!-- Red Light Room Actions -->
+					<div class="flex flex-col gap-2 pt-1">
+						<button
+							class="btn btn-danger w-full text-xs font-mono tracking-wider transition-all"
+							onclick={() => room.leave()}
+							title="Leave the current room session"
+						>
+							<span class="h-2 w-2 rounded-full bg-ruby shadow-[0_0_8px_#ff334b]"></span>
+							Step out of room
+						</button>
+
+						{#if room.isHost}
+							<button
+								class="btn btn-danger-outline w-full text-[11px] font-mono tracking-wider transition-all"
+								onclick={() => {
+									if (confirm('Delete this room session and close the door for everyone?')) {
+										room.leave();
+									}
+								}}
+								title="Close and delete the room session"
+							>
+								<span class="soft-blink h-1.5 w-1.5 rounded-full bg-ruby shadow-[0_0_6px_#ff334b]"></span>
+								Delete room session
+							</button>
+						{/if}
+					</div>
 				</aside>
 			</div>
 			<DawnRitualModal bind:open={showDawnModal} />
