@@ -16,7 +16,7 @@ interface AmbientChord {
 
 class AmbientMusicEngine {
 	isPlaying = $state<boolean>(false);
-	volume = $state<number>(45);
+	volume = $state<number>(70);
 	currentChord = $state<string>('Cmaj9');
 
 	private ctx: AudioContext | null = null;
@@ -68,7 +68,12 @@ class AmbientMusicEngine {
 				const savedVol = localStorage.getItem(LS_MUSIC_VOL);
 				if (savedVol !== null) {
 					const v = Number(savedVol);
-					if (Number.isFinite(v) && v >= 0 && v <= 100) this.volume = v;
+					// Upgrade previous low 45 default to 70 for richer presence
+					if (Number.isFinite(v) && v >= 0 && v <= 100) {
+						this.volume = v === 45 ? 70 : v;
+					}
+				} else {
+					this.volume = 70;
 				}
 			} catch {}
 		}
@@ -95,9 +100,9 @@ class AmbientMusicEngine {
 	}
 
 	private setupAudioGraph(ac: AudioContext): void {
-		// Master Output
+		// Master Output with increased richness
 		this.masterGain = ac.createGain();
-		this.masterGain.gain.setValueAtTime((this.volume / 100) * 0.35, ac.currentTime);
+		this.masterGain.gain.setValueAtTime((this.volume / 100) * 0.58, ac.currentTime);
 		this.masterGain.connect(ac.destination);
 
 		// Master Warm Lowpass Filter (silky curve, rolls off harsh highs)
@@ -148,7 +153,7 @@ class AmbientMusicEngine {
 			localStorage.setItem(LS_MUSIC_VOL, String(this.volume));
 		} catch {}
 		if (this.masterGain && this.ctx) {
-			const target = (this.volume / 100) * 0.35;
+			const target = (this.volume / 100) * 0.58;
 			this.masterGain.gain.setTargetAtTime(target, this.ctx.currentTime, 0.08);
 		}
 	}
@@ -170,7 +175,7 @@ class AmbientMusicEngine {
 		}
 
 		// Fade in master gain smoothly
-		const target = (this.volume / 100) * 0.35;
+		const target = (this.volume / 100) * 0.58;
 		this.masterGain.gain.cancelScheduledValues(ac.currentTime);
 		this.masterGain.gain.setValueAtTime(0.0001, ac.currentTime);
 		this.masterGain.gain.exponentialRampToValueAtTime(Math.max(0.0001, target), ac.currentTime + 1.8);
@@ -258,10 +263,10 @@ class AmbientMusicEngine {
 
 		const chordGain = ac.createGain();
 		chordGain.gain.setValueAtTime(0.0001, ac.currentTime);
-		// Gentle swell in
-		chordGain.gain.linearRampToValueAtTime(0.12, ac.currentTime + attackTime);
+		// Gentle swell in with richer volume
+		chordGain.gain.linearRampToValueAtTime(0.18, ac.currentTime + attackTime);
 		// Sustained warmth
-		chordGain.gain.setValueAtTime(0.12, ac.currentTime + chordDuration - releaseTime);
+		chordGain.gain.setValueAtTime(0.18, ac.currentTime + chordDuration - releaseTime);
 		// Gentle dissolve out
 		chordGain.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + chordDuration);
 
@@ -272,7 +277,7 @@ class AmbientMusicEngine {
 		const subGain = ac.createGain();
 		subOsc.type = 'sine';
 		subOsc.frequency.setValueAtTime(chord.root, ac.currentTime);
-		subGain.gain.setValueAtTime(0.22, ac.currentTime);
+		subGain.gain.setValueAtTime(0.28, ac.currentTime);
 		subOsc.connect(subGain);
 		subGain.connect(chordGain);
 		subOsc.start(ac.currentTime);
@@ -298,7 +303,7 @@ class AmbientMusicEngine {
 			oscB.detune.setValueAtTime(+3, ac.currentTime);
 
 			const voiceGain = ac.createGain();
-			const voiceVol = i === 0 ? 0.12 : 0.085;
+			const voiceVol = i === 0 ? 0.16 : 0.115;
 			voiceGain.gain.setValueAtTime(voiceVol, ac.currentTime);
 
 			oscA.connect(voiceGain);
@@ -372,11 +377,11 @@ class AmbientMusicEngine {
 		// Envelope: soft 0.05s attack (never clicks) followed by smooth 3.5s decay
 		const noteGain = ac.createGain();
 		noteGain.gain.setValueAtTime(0.0001, ac.currentTime);
-		noteGain.gain.linearRampToValueAtTime(0.045 + Math.random() * 0.025, ac.currentTime + 0.05);
+		noteGain.gain.linearRampToValueAtTime(0.075 + Math.random() * 0.035, ac.currentTime + 0.05);
 		noteGain.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 3.5);
 
 		const overtoneGain = ac.createGain();
-		overtoneGain.gain.setValueAtTime(0.008, ac.currentTime);
+		overtoneGain.gain.setValueAtTime(0.012, ac.currentTime);
 		overtoneGain.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 1.2);
 
 		osc.connect(noteGain);

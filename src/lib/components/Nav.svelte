@@ -131,24 +131,43 @@
 				<a class="transition-colors hover:text-cream" href="/archive">The Archive</a>
 			</nav>
 
-			<!-- Ambient Soundscape Quick Toggle -->
-			<button
+			<!-- Ambient Soundscape Quick Toggle & Volume Slider -->
+			<div
 				class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-mono transition-colors {ambientMusic.isPlaying
 					? 'border-lamp/40 bg-lamp/15 text-lamp'
 					: 'border-cream/12 bg-night/80 text-faint hover:border-cream/25 hover:text-cream'}"
-				onclick={() => ambientMusic.toggle()}
-				title={ambientMusic.isPlaying ? 'Mute ambient soundscape' : 'Play soft ambient soundscape'}
-				aria-label={ambientMusic.isPlaying ? 'Mute ambient soundscape' : 'Play soft ambient soundscape'}
 			>
+				<button
+					class="inline-flex items-center gap-1.5 focus:outline-none"
+					onclick={() => ambientMusic.toggle()}
+					title={ambientMusic.isPlaying ? 'Mute ambient soundscape' : 'Play soft ambient soundscape'}
+					aria-label={ambientMusic.isPlaying ? 'Mute ambient soundscape' : 'Play soft ambient soundscape'}
+				>
+					{#if ambientMusic.isPlaying}
+						<span class="soft-blink h-1.5 w-1.5 rounded-full bg-lamp"></span>
+						<IconVolume size={13} stroke={2} />
+						<span class="hidden sm:inline text-[11px]">Ambient</span>
+					{:else}
+						<IconVolumeOff size={13} stroke={1.5} />
+						<span class="hidden sm:inline text-[11px]">Ambient</span>
+					{/if}
+				</button>
 				{#if ambientMusic.isPlaying}
-					<span class="soft-blink h-1.5 w-1.5 rounded-full bg-lamp"></span>
-					<IconVolume size={13} stroke={2} />
-					<span class="hidden sm:inline text-[11px]">Ambient on</span>
-				{:else}
-					<IconVolumeOff size={13} stroke={1.5} />
-					<span class="hidden sm:inline text-[11px]">Ambient</span>
+					<div class="hidden sm:inline-flex items-center gap-1.5 border-l border-lamp/30 pl-1.5">
+						<input
+							type="range"
+							min="0"
+							max="100"
+							value={ambientMusic.volume}
+							oninput={(e) => ambientMusic.setVolume(Number((e.currentTarget as HTMLInputElement).value))}
+							class="h-1 w-14 cursor-pointer rounded bg-night/80 accent-lamp"
+							title={`Ambient Volume: ${ambientMusic.volume}%`}
+							aria-label="Ambient volume"
+						/>
+						<span class="w-6 text-right text-[10px] tabular-nums text-lamp/90">{ambientMusic.volume}%</span>
+					</div>
 				{/if}
-			</button>
+			</div>
 
 			{#if inRoom}
 				<a
@@ -230,25 +249,42 @@
 				>
 					The Archive
 				</a>
-				<button
-					class="flex items-center justify-between rounded-field px-3 py-2 text-left text-sm transition-colors {ambientMusic.isPlaying
-						? 'bg-lamp/10 text-lamp'
-						: 'text-taupe hover:bg-cream/5 hover:text-cream'}"
-					onclick={() => ambientMusic.toggle()}
-				>
-					<span class="flex items-center gap-2">
+				<div class="flex flex-col gap-2 rounded-field px-3 py-2 {ambientMusic.isPlaying ? 'bg-lamp/10' : 'hover:bg-cream/5'}">
+					<button
+						class="flex items-center justify-between text-left text-sm transition-colors {ambientMusic.isPlaying
+							? 'text-lamp'
+							: 'text-taupe hover:text-cream'}"
+						onclick={() => ambientMusic.toggle()}
+					>
+						<span class="flex items-center gap-2">
+							{#if ambientMusic.isPlaying}
+								<IconVolume size={16} stroke={2} class="text-lamp" />
+								<span class="font-medium text-cream">Soft ambient music (Playing)</span>
+							{:else}
+								<IconVolumeOff size={16} stroke={1.5} />
+								<span>Soft ambient music (Off)</span>
+							{/if}
+						</span>
 						{#if ambientMusic.isPlaying}
-							<IconVolume size={16} stroke={2} class="text-lamp" />
-							<span class="font-medium text-cream">Soft ambient music (Playing)</span>
-						{:else}
-							<IconVolumeOff size={16} stroke={1.5} />
-							<span>Soft ambient music (Off)</span>
+							<span class="soft-blink h-1.5 w-1.5 rounded-full bg-lamp"></span>
 						{/if}
-					</span>
+					</button>
 					{#if ambientMusic.isPlaying}
-						<span class="soft-blink h-1.5 w-1.5 rounded-full bg-lamp"></span>
+						<div class="flex items-center justify-between gap-3 pt-1 border-t border-lamp/20 text-xs">
+							<span class="text-faint text-[11px] font-mono">Volume</span>
+							<input
+								type="range"
+								min="0"
+								max="100"
+								value={ambientMusic.volume}
+								oninput={(e) => ambientMusic.setVolume(Number((e.currentTarget as HTMLInputElement).value))}
+								class="h-1 flex-1 cursor-pointer rounded bg-night accent-lamp"
+								aria-label="Mobile ambient music volume"
+							/>
+							<span class="w-7 text-right font-mono text-[11px] text-lamp tabular-nums">{ambientMusic.volume}%</span>
+						</div>
 					{/if}
-				</button>
+				</div>
 				<div class="pt-1">
 					<a
 						href={roomLink}

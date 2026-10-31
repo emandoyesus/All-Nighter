@@ -10,7 +10,7 @@ const LS_VOL = 'an.ambient_vol';
 
 class AmbientSoundEngine {
 	type = $state<AmbientType>('none');
-	volume = $state<number>(35);
+	volume = $state<number>(50);
 	isPlaying = $state<boolean>(false);
 
 	private ctx: AudioContext | null = null;
@@ -27,7 +27,11 @@ class AmbientSoundEngine {
 				const savedVol = localStorage.getItem(LS_VOL);
 				if (savedVol !== null) {
 					const v = Number(savedVol);
-					if (Number.isFinite(v) && v >= 0 && v <= 100) this.volume = v;
+					if (Number.isFinite(v) && v >= 0 && v <= 100) {
+						this.volume = v === 35 ? 50 : v;
+					}
+				} else {
+					this.volume = 50;
 				}
 			} catch {}
 		}
@@ -46,7 +50,7 @@ class AmbientSoundEngine {
 			}
 			if (!this.masterGain && this.ctx) {
 				this.masterGain = this.ctx.createGain();
-				this.masterGain.gain.setValueAtTime((this.volume / 100) * 0.45, this.ctx.currentTime);
+				this.masterGain.gain.setValueAtTime((this.volume / 100) * 0.55, this.ctx.currentTime);
 				this.masterGain.connect(this.ctx.destination);
 			}
 			return this.ctx;
@@ -61,7 +65,7 @@ class AmbientSoundEngine {
 			localStorage.setItem(LS_VOL, String(this.volume));
 		} catch {}
 		if (this.masterGain && this.ctx) {
-			this.masterGain.gain.setTargetAtTime((this.volume / 100) * 0.45, this.ctx.currentTime, 0.05);
+			this.masterGain.gain.setTargetAtTime((this.volume / 100) * 0.55, this.ctx.currentTime, 0.05);
 		}
 	}
 
