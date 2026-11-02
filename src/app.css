@@ -10,13 +10,13 @@
 	--font-display: 'Space Grotesk Variable', 'Space Grotesk', system-ui, sans-serif;
 	--font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
 
-	/* Darker theme: near-black base with calm mint/sage accent */
-	--color-night: #050807;
-	--color-night-2: #0a0f0b;
-	--color-night-3: #101713;
-	--color-cream: #f3fff1;
-	--color-taupe: #9bb39c;
-	--color-faint: #5f7662;
+	/* Ultra-dark night theme: pure atmospheric deep blacks */
+	--color-night: #020302;
+	--color-night-2: #050806;
+	--color-night-3: #0a0e0b;
+	--color-cream: #edf7eb;
+	--color-taupe: #859e87;
+	--color-faint: #475b4a;
 	--color-lamp: #8ec765;
 	--color-lamp-2: #9fd776;
 	--color-amber: #FFB84D;
@@ -298,6 +298,24 @@
 	opacity: 0.04;
 	mix-blend-mode: overlay;
 	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Global viewport bottom atmospheric mask */
+.bottom-viewport-mask {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 32vh;
+	z-index: 5;
+	pointer-events: none;
+	background: linear-gradient(
+		to bottom,
+		transparent 0%,
+		color-mix(in srgb, var(--color-night) 35%, transparent) 40%,
+		color-mix(in srgb, var(--color-night) 85%, transparent) 75%,
+		var(--color-night) 100%
+	);
 }
 
 /* --- reveal on scroll (GSAP drives the motion) ------------------------ */
