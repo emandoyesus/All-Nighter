@@ -10,6 +10,7 @@
 	import GlobalPlayer from '#lib/components/GlobalPlayer.svelte';
 	import RoomMusicDock from '#lib/components/RoomMusicDock.svelte';
 	import DeskHud from '#lib/components/DeskHud.svelte';
+	import Skyline from '#lib/components/Skyline.svelte';
 	import type { LayoutProps } from './$types';
 
 	let { children }: LayoutProps = $props();
@@ -117,12 +118,17 @@
 	<span class="meteor" style="--x: 78%; --y: 34%; --a: 18deg; --dur: 28s; --delay: 22s"></span>
 </div>
 
+<Skyline />
+
 <div class="grain-layer" aria-hidden="true"></div>
+
+<!-- Global Viewport Bottom Mask: smooth atmospheric transition into dark ground everywhere -->
+<div class="bottom-viewport-mask" aria-hidden="true"></div>
 
 <!-- Persistent YouTube Player & Audio Sync Engine -->
 <GlobalPlayer />
 
-<div class="relative min-h-screen flex flex-col {room.joinState === 'approved' ? 'pb-16 sm:pb-20' : ''}">
+<div class="relative z-10 min-h-screen flex flex-col {room.joinState === 'approved' ? 'pb-16 sm:pb-20' : ''}">
 	{@render children()}
 </div>
 
