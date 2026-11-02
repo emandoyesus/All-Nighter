@@ -18,6 +18,9 @@
 		Two modes. One night. Music holds it together.
 	</h2>
 
+	<!-- Atmospheric gradient feather mask -->
+	<div class="h-16 -mb-8 pointer-events-none bg-gradient-to-b from-transparent to-night/80" aria-hidden="true"></div>
+
 	<div class="mt-10 grid gap-4 md:grid-cols-5">
 		<!-- Focus mode card -->
 		<article
