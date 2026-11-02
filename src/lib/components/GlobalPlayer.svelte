@@ -70,12 +70,13 @@
 
 	function unlock(): void {
 		unlocked = true;
+		muted = false;
+		if (volume === 0) setVolume(80);
 		if (!ready || !player) return;
 		try {
 			player.unMute();
-			player.setVolume(volume);
-			muted = volume === 0;
-			if (room.state.playing || room.state.videoId) player.playVideo();
+			player.setVolume(volume > 0 ? volume : 80);
+			if (player.playVideo) player.playVideo();
 		} catch {
 			/* settling */
 		}
@@ -272,7 +273,13 @@
 			const custom = e as CustomEvent<number>;
 			if (typeof custom.detail === 'number') setVolume(custom.detail);
 		};
-		const onMuteToggleEvent = () => toggleMute();
+		const onMuteToggleEvent = () => {
+			if (!unlocked) {
+				unlock();
+			} else {
+				toggleMute();
+			}
+		};
 		const onSkipEvent = () => skip();
 		const onToggleEvent = () => togglePlay();
 		const onSeekEvent = (e: Event) => {
