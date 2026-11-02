@@ -4,7 +4,7 @@
  * Replace with your group invite (https://t.me/+<code> or https://t.me/<name>).
  * The site links here from the nav, hero, and closing band.
  */
-export const TELEGRAM_URL = 'https://t.me/';
+export const TELEGRAM_URL = 'https://t.me/MrDevEm';
 
 /** Default room code. Anyone opening the site joins this MQTT topic space.
  *  Override per link with ?room=some-code (lowercase letters, numbers, dashes). */
