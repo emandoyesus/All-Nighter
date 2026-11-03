@@ -23,6 +23,8 @@ import type {
 import { playFocusChime, playBreakChime, playDawnChime } from '#lib/audio/chime';
 import { goto } from '$app/navigation';
 import { SupabaseRoomSync } from './supabase-sync';
+import { auth } from '#lib/auth.svelte';
+import { isSupabaseConfigured } from '#lib/supabase';
 
 const LS_NAME = 'an.callsign';
 const LS_ID = 'an.client';
@@ -263,6 +265,10 @@ class Room {
 		}
 
 		if (param) {
+			// If Supabase is configured and the user has not signed in yet, hold in lobby
+			if (isSupabaseConfigured && !auth.isAuthenticated && !auth.loading) {
+				return;
+			}
 			const slug = sanitizeRoom(param);
 			let wasHost = false;
 			try {
