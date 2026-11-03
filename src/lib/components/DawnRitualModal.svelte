@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { room } from '#lib/room/room.svelte';
 	import { saveToMyNights, buildNightFromRoom } from '#lib/data/local-logbook';
+	import { supabase, isSupabaseConfigured } from '#lib/supabase';
 	import IconSun from '@tabler/icons-svelte/icons/sun';
 	import IconX from '@tabler/icons-svelte/icons/x';
 	import IconCopy from '@tabler/icons-svelte/icons/copy';
@@ -67,9 +68,27 @@
 		} catch {}
 	}
 
-	function handleSave(): void {
+	async function handleSave(): Promise<void> {
 		const night = getNightObject();
 		saveToMyNights(night);
+
+		// Automatically save to Supabase session_archives if configured
+		if (isSupabaseConfigured && supabase) {
+			try {
+				await supabase.from('session_archives').upsert({
+					slug: night.slug,
+					title: night.title,
+					started_at: new Date(Date.now() - 6 * 3600 * 1000).toISOString(),
+					ended_at: new Date().toISOString(),
+					attendees: room.awake.map((p) => ({ name: p.name, role: p.self ? 'Host' : 'Listener' })),
+					playlist: night.tracklist,
+					summary: night.note
+				});
+			} catch (err) {
+				console.warn('Failed to archive to Supabase:', err);
+			}
+		}
+
 		saved = true;
 		setTimeout(() => (saved = false), 2500);
 	}
