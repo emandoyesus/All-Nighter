@@ -61,6 +61,8 @@
 						{room.title || 'The Room'}
 					{:else if gated}
 						Knocking
+					{:else if !auth.isAuthenticated}
+						Sign In
 					{:else}
 						The Room
 					{/if}
@@ -84,6 +86,8 @@
 					One queue, one player, everyone awake. Share the room link with your crew.
 				{:else if gated}
 					Wait for a member to open the door.
+				{:else if !auth.isAuthenticated}
+					Sign in or create your night-owl account to enter the room.
 				{:else}
 					Open a room and the night starts with you, or knock on one already running.
 				{/if}
@@ -234,9 +238,15 @@
 		<section class="mx-auto max-w-[1400px] px-5 py-10 md:py-16">
 			<JoinGate />
 		</section>
-	{:else if isSupabaseConfigured && !auth.isAuthenticated && !auth.loading}
+	{:else if !auth.isAuthenticated}
 		<section class="mx-auto max-w-[1400px] px-5 py-10 md:py-16">
-			<RoomAuthGate />
+			{#if auth.loading}
+				<div class="mx-auto max-w-md py-16 text-center">
+					<p class="font-mono text-xs text-faint animate-pulse">Checking night session...</p>
+				</div>
+			{:else}
+				<RoomAuthGate />
+			{/if}
 		</section>
 	{:else}
 		<section class="mx-auto max-w-[1400px] px-5 py-6 md:py-8">

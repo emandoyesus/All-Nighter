@@ -265,8 +265,8 @@ class Room {
 		}
 
 		if (param) {
-			// If Supabase is configured and the user has not signed in yet, hold in lobby
-			if (isSupabaseConfigured && !auth.isAuthenticated && !auth.loading) {
+			// If user has not signed in yet, hold until authentication
+			if (!auth.isAuthenticated) {
 				return;
 			}
 			const slug = sanitizeRoom(param);
