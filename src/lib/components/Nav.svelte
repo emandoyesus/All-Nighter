@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { room } from '#lib/room/room.svelte';
+	import { siteAudio } from '#lib/audio/site-audio.svelte';
 	import { gsap, prefersReducedMotion, setupGsap } from '#lib/motion';
 	import { magnetic } from '#lib/magnetic';
 	import { ambientMusic } from '#lib/audio/ambient-music.svelte';
@@ -14,10 +15,6 @@
 	const inRoom = $derived(room.joinState === 'approved');
 	const roomLink = $derived(room.room ? `/room?room=${room.room}` : '/room');
 
-	let playerMuted = $state(true);
-	let playerUnlocked = $state(false);
-	const soundPlaying = $derived(room.state.playing && !playerMuted && playerUnlocked);
-
 	let header: HTMLElement;
 	let lastY = 0;
 	let hidden = false;
@@ -26,23 +23,7 @@
 		// Stop any legacy procedural audio
 		ambientMusic.pause();
 
-		const onPlayerStatus = (e: Event) => {
-			const custom = e as CustomEvent<{
-				muted: boolean;
-				unlocked: boolean;
-			}>;
-			if (custom.detail) {
-				if (typeof custom.detail.muted === 'boolean') playerMuted = custom.detail.muted;
-				if (typeof custom.detail.unlocked === 'boolean') playerUnlocked = custom.detail.unlocked;
-			}
-		};
-		window.addEventListener('an:player:status', onPlayerStatus);
-
-		if (prefersReducedMotion()) {
-			return () => {
-				window.removeEventListener('an:player:status', onPlayerStatus);
-			};
-		}
+		if (prefersReducedMotion()) return;
 
 		setupGsap();
 		lastY = window.scrollY;
@@ -68,19 +49,11 @@
 		window.addEventListener('scroll', onScroll, { passive: true });
 		return () => {
 			window.removeEventListener('scroll', onScroll);
-			window.removeEventListener('an:player:status', onPlayerStatus);
 		};
 	});
 
 	function toggleSound(): void {
-		if (soundPlaying) {
-			window.dispatchEvent(new CustomEvent('an:player:toggle-mute'));
-		} else {
-			window.dispatchEvent(new CustomEvent('an:player:unlock'));
-			if (!room.state.playing) {
-				window.dispatchEvent(new CustomEvent('an:player:toggle'));
-			}
-		}
+		siteAudio.toggle();
 	}
 </script>
 
@@ -110,16 +83,16 @@
 				<a class="transition-colors hover:text-cream" href="/archive">The Archive</a>
 			</nav>
 
-			<!-- Sound Quick Toggle (Cosmic Cyan) -->
+			<!-- Website Sound Quick Toggle (Interstellar soundtrack in background) -->
 			<button
-				class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-mono transition-all {soundPlaying
+				class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-mono transition-all {siteAudio.isPlaying
 					? 'border-cyan/50 bg-cyan/15 text-cyan hover:bg-cyan/25'
 					: 'border-cream/12 bg-night/80 text-faint hover:border-cream/25 hover:text-cream'}"
 				onclick={toggleSound}
-				title={soundPlaying ? 'Mute audio' : 'Play audio'}
-				aria-label={soundPlaying ? 'Mute audio' : 'Play audio'}
+				title={siteAudio.isPlaying ? 'Mute Interstellar soundtrack' : 'Play Interstellar soundtrack'}
+				aria-label={siteAudio.isPlaying ? 'Mute soundtrack' : 'Play soundtrack'}
 			>
-				{#if soundPlaying}
+				{#if siteAudio.isPlaying}
 					<span class="soft-blink h-1.5 w-1.5 rounded-full bg-cyan"></span>
 					<IconVolume size={13} stroke={2} class="text-cyan" />
 					<span class="hidden sm:inline text-[11px] font-medium text-cyan">Sound on</span>
