@@ -8,6 +8,7 @@
 	import { ScrollTrigger } from '#lib/motion';
 	import { room } from '#lib/room/room.svelte';
 	import GlobalPlayer from '#lib/components/GlobalPlayer.svelte';
+	import SiteAudioPlayer from '#lib/components/SiteAudioPlayer.svelte';
 	import RoomMusicDock from '#lib/components/RoomMusicDock.svelte';
 	import DeskHud from '#lib/components/DeskHud.svelte';
 	import type { LayoutProps } from './$types';
@@ -39,6 +40,7 @@
 
 <!-- Persistent YouTube Player & Audio Sync Engine -->
 <GlobalPlayer />
+<SiteAudioPlayer />
 
 <div class="relative z-10 min-h-screen flex flex-col {room.joinState === 'approved' ? 'pb-16 sm:pb-20' : ''}">
 	{@render children()}
