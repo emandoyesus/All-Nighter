@@ -204,7 +204,7 @@
 							onclick={() => room.leave()}
 							title="Leave the current room session"
 						>
-							<span class="h-2 w-2 rounded-full bg-ruby shadow-[0_0_8px_#ff334b]"></span>
+							<span class="h-2 w-2 rounded-full bg-ruby"></span>
 							Step out of room
 						</button>
 
@@ -218,7 +218,7 @@
 								}}
 								title="Close and delete the room session"
 							>
-								<span class="soft-blink h-1.5 w-1.5 rounded-full bg-ruby shadow-[0_0_6px_#ff334b]"></span>
+								<span class="soft-blink h-1.5 w-1.5 rounded-full bg-ruby"></span>
 								Delete room session
 							</button>
 						{/if}
