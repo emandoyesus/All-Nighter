@@ -13,6 +13,9 @@
 	import JoinRequests from '#lib/components/JoinRequests.svelte';
 	import ModeToggle from '#lib/components/ModeToggle.svelte';
 	import DawnRitualModal from '#lib/components/DawnRitualModal.svelte';
+	import RoomAuthGate from '#lib/components/RoomAuthGate.svelte';
+	import { auth } from '#lib/auth.svelte';
+	import { isSupabaseConfigured } from '#lib/supabase';
 	import { TELEGRAM_URL } from '#lib/config';
 	import IconCopy from '@tabler/icons-svelte/icons/copy';
 	import IconCheck from '@tabler/icons-svelte/icons/check';
@@ -230,6 +233,10 @@
 	{:else if gated}
 		<section class="mx-auto max-w-[1400px] px-5 py-10 md:py-16">
 			<JoinGate />
+		</section>
+	{:else if isSupabaseConfigured && !auth.isAuthenticated && !auth.loading}
+		<section class="mx-auto max-w-[1400px] px-5 py-10 md:py-16">
+			<RoomAuthGate />
 		</section>
 	{:else}
 		<section class="mx-auto max-w-[1400px] px-5 py-6 md:py-8">
