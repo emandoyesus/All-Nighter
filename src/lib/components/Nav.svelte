@@ -10,6 +10,7 @@
 	import IconRadio from '@tabler/icons-svelte/icons/radio';
 	import IconVolume from '@tabler/icons-svelte/icons/volume';
 	import IconVolumeOff from '@tabler/icons-svelte/icons/volume-off';
+	import AuthModal from './AuthModal.svelte';
 
 	const live = $derived(room.state.playing);
 	const inRoom = $derived(room.joinState === 'approved');
@@ -186,6 +187,8 @@
 					<span class="hidden sm:inline text-[11px]">Sound</span>
 				{/if}
 			</button>
+
+			<AuthModal />
 
 			{#if inRoom}
 				<a

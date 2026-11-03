@@ -22,6 +22,7 @@ import type {
 } from './types';
 import { playFocusChime, playBreakChime, playDawnChime } from '#lib/audio/chime';
 import { goto } from '$app/navigation';
+import { SupabaseRoomSync } from './supabase-sync';
 
 const LS_NAME = 'an.callsign';
 const LS_ID = 'an.client';
@@ -193,6 +194,19 @@ class Room {
 	private offlineSince = 0;
 	private requestTimer = 0;
 	private dirTimer = 0;
+	private dbSync: SupabaseRoomSync = new SupabaseRoomSync(
+		(msg) => this.onChat(msg),
+		(queue) => {
+			if (queue && Array.isArray(queue)) {
+				this.state = { ...this.state, queue };
+			}
+		},
+		(remoteState) => {
+			if (remoteState) {
+				this.state = { ...this.state, ...remoteState };
+			}
+		}
+	);
 
 	/* ------------------------------------------------------------- topics */
 
@@ -568,6 +582,7 @@ class Room {
 		const msg: ChatMessage = { id: randomId(), who: this.name, whoId: this.clientId, text: trimmed, ts: Date.now() };
 		this.pub(this.t('chat'), JSON.stringify(msg));
 		this.onChat(msg);
+		void this.dbSync.saveMessage(msg);
 	}
 
 	/* ------------------------------------------------------------- publish */
@@ -611,11 +626,29 @@ class Room {
 		options?: { keepSeq?: boolean }
 	): void {
 		const clock = Date.now();
+		const prevQueue = this.state.queue;
 		const base = next(this.state);
 		const seq = options?.keepSeq ? this.state.seq || clock : clock;
 		this.state = { ...base, seq, by: this.clientId, clock };
 		this.publishState();
 		if (logText) this.writeLog(logText);
+
+		// Synchronize queue to Supabase database if queue changed
+		if (prevQueue !== this.state.queue) {
+			void this.dbSync.syncQueue(this.state.queue);
+		}
+
+		// Save playback state to Supabase if director / host
+		if (this.isHost || this.state.by === this.clientId) {
+			void this.dbSync.savePlayback({
+				playing: this.state.playing,
+				position: this.state.position,
+				current: this.state.current,
+				videoId: this.state.videoId,
+				mode: this.mode,
+				doorLocked: this.state.doorLocked
+			});
+		}
 	}
 
 	/* --------------------------------------------------------- room lifecycle */
@@ -712,6 +745,7 @@ class Room {
 		this.announce();
 		this.publishState();
 		this.startDirectory();
+		void this.dbSync.attachRoom(this.room, this.title, this.clientId, this.name);
 	}
 
 	private enterApproved(slug: string, title: string, host: boolean): void {
@@ -734,6 +768,7 @@ class Room {
 		this.announce();
 		this.publishState();
 		this.startDirectory();
+		void this.dbSync.attachRoom(slug, title, this.clientId, this.name);
 	}
 
 	approve(id: string): void {
@@ -754,6 +789,7 @@ class Room {
 
 	/** Leave the room and return to the lobby. */
 	leave(): void {
+		this.dbSync.unsubscribe();
 		if (this.room && this.joinState === 'approved') {
 			this.pub(this.presenceTopic(this.room, this.clientId), '', true);
 			if (this.isHost) this.pub(this.dirTopic(this.room), '', true);
