@@ -59,9 +59,9 @@
 		const token = (name: string, fallback: string) => css.getPropertyValue(name).trim() || fallback;
 		const amber = token('--color-amber-2', '#ffc970');
 		const warmAmber = token('--color-amber', '#ffb84d');
-		const lamp = token('--color-lamp-2', '#9fd776');
+		const lamp = token('--color-lamp-2', '#60a5fa');
 		const coolCyan = token('--color-cyan-2', '#67e8f9');
-		const rimColor = token('--color-lamp', '#8ec765');
+		const rimColor = token('--color-lamp', '#38bdf8');
 		const rubyBeacon = '#ff334b';
 
 		const layers: LayerModel[] = [
@@ -70,7 +70,7 @@
 				seed: 104,
 				minH: 0.45,
 				maxH: 0.9,
-				body: '#090e0b',
+				body: '#0b0b0b',
 				rim: false,
 				antennaChance: 0.4,
 				stepChance: 0.35,
@@ -87,7 +87,7 @@
 				seed: 42,
 				minH: 0.3,
 				maxH: 0.72,
-				body: '#060a08',
+				body: '#070707',
 				rim: true,
 				antennaChance: 0.35,
 				stepChance: 0.5,
@@ -104,7 +104,7 @@
 				seed: 17,
 				minH: 0.18,
 				maxH: 0.52,
-				body: '#040705',
+				body: '#030303',
 				rim: true,
 				antennaChance: 0.25,
 				stepChance: 0.6,
@@ -333,9 +333,8 @@
 	.skyline {
 		--p: 0;
 		--y: 0;
-		position: fixed;
+		position: absolute;
 		inset: 0;
-		z-index: -1;
 		pointer-events: none;
 		overflow: hidden;
 	}
