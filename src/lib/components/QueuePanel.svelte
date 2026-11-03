@@ -323,7 +323,7 @@
 					{#each crate as pick, i (pick.videoId)}
 						<button
 							class="group flex items-center gap-3 rounded-field border border-cream/10 bg-night/50 p-2 text-left transition-colors hover:border-lamp/50 hover:bg-night {i ===
-							crate.length - 1
+							crate.length - 1 && crate.length % 2 === 1
 								? 'sm:col-span-2'
 								: ''}"
 							onclick={() => startPick(pick)}
@@ -367,7 +367,7 @@
 				{#each crate as pick, i (pick.videoId)}
 					<button
 						class="group flex items-center gap-3 rounded-field border border-cream/10 bg-night/50 p-2 text-left transition-colors hover:border-lamp/50 hover:bg-night {i ===
-						crate.length - 1
+						crate.length - 1 && crate.length % 2 === 1
 							? 'sm:col-span-2'
 							: ''}"
 						onclick={() => startPick(pick)}

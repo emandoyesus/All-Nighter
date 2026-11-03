@@ -118,12 +118,7 @@
 
 	const stationIcons: Record<string, string> = {
 		'Interstellar Main Theme - Extra Extended': '🌌',
-		'Alone': '⚡',
-		'beats to relax / study to': '☕',
-		'beats to sleep / chill to': '🌙',
-		'Chillhop Radio': '🎧',
-		'shinjuku fm, soft lofi / smooth jazz': '🎷',
-		'Nightride FM, synthwave radio': '🌆'
+		'Alone': '⚡'
 	};
 </script>
 
@@ -314,7 +309,7 @@
 						type="range"
 						min="0"
 						max="100"
-						class="h-1 w-14 sm:w-20 cursor-pointer appearance-none rounded-full bg-cream/15 accent-[#8ec765]"
+						class="h-1 w-14 sm:w-20 cursor-pointer appearance-none rounded-full bg-cream/15 accent-lamp"
 						value={muted ? 0 : volume}
 						oninput={handleVolumeInput}
 						aria-label="Room playback volume"
