@@ -130,7 +130,7 @@ function emptyState(): RoomState {
 		clock: Date.now(),
 		queue: [],
 		chat: [],
-		mode: 'focus',
+		mode: 'normal',
 		modeExpiresAt: undefined,
 		cycleAuto: false,
 		doorLocked: false
@@ -173,8 +173,8 @@ class Room {
 	joinState = $state<JoinState>('lobby');
 	title = $state('');
 	isHost = $state(false);
-	/** Current room mode: 'focus' (chat quiet, calm queue) or 'break' (aux open). */
-	mode = $state<'focus' | 'break'>('focus');
+	/** Current room mode: 'normal' (chat open, shared floor) or 'focus' (quiet sprint). */
+	mode = $state<'normal' | 'focus' | 'break'>('normal');
 	/** Seconds remaining in current mode cycle. */
 	modeRemaining = $derived(
 		this.state.modeExpiresAt ? Math.max(0, Math.floor((this.state.modeExpiresAt - this.now) / 1000)) : 0
@@ -540,9 +540,10 @@ class Room {
 
 		// Play chimes and sync mode if changed
 		if (msg.mode && msg.mode !== this.mode) {
-			this.mode = msg.mode;
-			if (this.mode === 'focus') playFocusChime();
-			else if (this.mode === 'break') playBreakChime();
+			const incomingMode = msg.mode === 'break' ? 'normal' : msg.mode;
+			this.mode = incomingMode;
+			if (incomingMode === 'focus') playFocusChime();
+			else playBreakChime();
 		}
 
 		// Gate visitor if room is locked and user is not host
@@ -927,26 +928,29 @@ class Room {
 		this.announce();
 	}
 
-	setMode(next: 'focus' | 'break', durationMinutes = next === 'focus' ? 50 : 10): void {
-		this.mode = next;
-		const expiresAt = Date.now() + durationMinutes * 60 * 1000;
-		const label = next === 'focus' ? '🎯 focus mode' : '🔓 break mode';
+	setMode(next: 'normal' | 'focus' | 'break', durationMinutes?: number): void {
+		const targetMode = next === 'break' ? 'normal' : next;
+		this.mode = targetMode;
+		const defaultDuration = targetMode === 'focus' ? 50 : 0;
+		const duration = durationMinutes !== undefined ? durationMinutes : defaultDuration;
+		const expiresAt = duration > 0 ? Date.now() + duration * 60 * 1000 : undefined;
+		const label = targetMode === 'focus' ? '🎯 focus mode' : '✨ normal mode';
 		this.mutate(
 			(s) => ({
 				...s,
-				mode: next,
+				mode: targetMode,
 				modeExpiresAt: expiresAt
 			}),
 			`switched the room to ${label}`
 		);
-		if (next === 'focus') playFocusChime();
+		if (targetMode === 'focus') playFocusChime();
 		else playBreakChime();
 	}
 
 	toggleAutoCycle(): void {
 		if (!this.isHost) return;
 		const nextAuto = !this.state.cycleAuto;
-		const duration = this.mode === 'focus' ? 50 : 10;
+		const duration = this.mode === 'focus' ? 50 : 15;
 		const expiresAt = Date.now() + duration * 60 * 1000;
 		this.mutate(
 			(s) => ({
@@ -954,7 +958,7 @@ class Room {
 				cycleAuto: nextAuto,
 				modeExpiresAt: nextAuto ? expiresAt : undefined
 			}),
-			nextAuto ? 'enabled 50/10 auto cycle' : 'disabled auto cycle'
+			nextAuto ? 'enabled auto cycle' : 'disabled auto cycle'
 		);
 	}
 
@@ -1159,10 +1163,10 @@ class Room {
 		const now = Date.now();
 		this.now = now;
 
-		// 50/10 Pomodoro automatic cycle transition by host
+		// Pomodoro automatic cycle transition by host
 		if (this.isHost && this.state.cycleAuto && this.state.modeExpiresAt && now >= this.state.modeExpiresAt) {
-			const nextMode = this.mode === 'focus' ? 'break' : 'focus';
-			const duration = nextMode === 'focus' ? 50 : 10;
+			const nextMode = this.mode === 'focus' ? 'normal' : 'focus';
+			const duration = nextMode === 'focus' ? 50 : 15;
 			this.setMode(nextMode, duration);
 		}
 
