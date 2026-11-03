@@ -6,6 +6,7 @@
 	import { room } from '#lib/room/room.svelte';
 	import Countdown from './Countdown.svelte';
 	import TonightStrip from './TonightStrip.svelte';
+	import HeroBackground from './HeroBackground.svelte';
 
 	let section: HTMLElement;
 
@@ -46,8 +47,10 @@
 	class="relative flex min-h-[calc(100vh-68px)] min-h-[calc(100dvh-68px)] flex-col justify-between overflow-hidden"
 	bind:this={section}
 >
+	<HeroBackground />
+
 	<div
-		class="relative mx-auto my-auto grid w-full max-w-[1400px] items-center gap-10 px-5 py-8 md:grid-cols-2 md:gap-10 md:py-12 lg:gap-16 lg:pb-16"
+		class="relative z-10 mx-auto my-auto grid w-full max-w-[1400px] items-center gap-10 px-5 py-8 md:grid-cols-2 md:gap-10 md:py-12 lg:gap-16 lg:pb-16"
 	>
 		<div>
 			<div class="flex items-center gap-2.5" data-hero>

@@ -16,18 +16,13 @@
 <main>
 	<Hero />
 	<Rituals />
-	<!-- Soft gradient mask feathering into the grounding layer -->
-	<div class="h-28 -mt-28 pointer-events-none relative z-10 bg-gradient-to-b from-transparent to-night" aria-hidden="true"></div>
-	<!-- Opaque grounding: stops the skyline & cosmos background from here downward -->
-	<div class="relative z-10 bg-night">
-		<NightZones />
-		<ArchiveSection />
-		<JoinBand />
-		<footer class="border-t border-cream/10">
-			<div class="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-3 px-5 py-7">
-				<p class="num text-xs text-faint">All Nighter · built between 1 and 6 am</p>
-				<p class="num text-xs text-faint">keep the tab open</p>
-			</div>
-		</footer>
-	</div>
+	<NightZones />
+	<ArchiveSection />
+	<JoinBand />
+	<footer class="border-t border-cream/10">
+		<div class="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-3 px-5 py-7">
+			<p class="num text-xs text-faint">All Nighter · built between 1 and 6 am</p>
+			<p class="num text-xs text-faint">keep the tab open</p>
+		</div>
+	</footer>
 </main>
