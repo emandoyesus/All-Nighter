@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { room, parseTrackUrl } from '#lib/room/room.svelte';
-	import { crate } from '#lib/data/crate';
 	import { parseYouTubeId, fetchVideoMeta, thumbnailFor, fetchSpotifyMeta, searchYouTubeVideo } from '#lib/room/youtube';
 	import IconPlus from '@tabler/icons-svelte/icons/plus';
 	import IconX from '@tabler/icons-svelte/icons/x';
@@ -17,7 +16,6 @@
 	let filterTag = $state<'all' | 'focus' | 'hangout'>('all');
 	let busy = $state(false);
 	let error = $state('');
-	let showCrate = $state(false);
 
 	async function submit(e: Event): Promise<void> {
 		e.preventDefault();
@@ -84,26 +82,6 @@
 		error = 'Paste a Spotify, YouTube, or SoundCloud link.';
 	}
 
-	function startPick(pick: (typeof crate)[number]): void {
-		const track = {
-			uid: crypto.randomUUID(),
-			videoId: pick.videoId,
-			source: 'youtube' as const,
-			url: `https://www.youtube.com/watch?v=${pick.videoId}`,
-			title: pick.title,
-			channel: pick.channel,
-			addedBy: room.name,
-			addedById: room.clientId,
-			votes: 0,
-			voters: [] as string[],
-			reactions: {}
-		};
-		if (!room.state.videoId) {
-			room.playNow(track);
-		} else {
-			room.add(pick.videoId, pick.title, pick.channel, room.name, 'youtube', track.url);
-		}
-	}
 	const filteredQueue = $derived(
 		room.state.queue.filter((t) => {
 			if (filterTag === 'all') return true;
@@ -302,100 +280,12 @@
 				</li>
 			{/each}
 		</ul>
-
-		<div class="border-t border-cream/10 px-4 py-3">
-			<button
-				class="flex w-full items-center justify-between py-1 text-xs text-taupe transition-colors hover:text-cream"
-				onclick={() => (showCrate = !showCrate)}
-				aria-expanded={showCrate}
-			>
-				<span class="flex items-center gap-2 font-medium">
-					<IconDisc size={15} stroke={1.5} class="text-lamp" />
-					24/7 Radios ({crate.length} picks)
-				</span>
-				<span class="num text-[11px] text-faint">
-					{showCrate ? 'Hide crate' : 'Browse crate'}
-				</span>
-			</button>
-
-			{#if showCrate}
-				<div class="mt-3 grid gap-2.5 sm:grid-cols-2">
-					{#each crate as pick, i (pick.videoId)}
-						<button
-							class="group flex items-center gap-3 rounded-field border border-cream/10 bg-night/50 p-2 text-left transition-colors hover:border-lamp/50 hover:bg-night {i ===
-							crate.length - 1 && crate.length % 2 === 1
-								? 'sm:col-span-2'
-								: ''}"
-							onclick={() => startPick(pick)}
-						>
-							<img
-								src={thumbnailFor(pick.videoId)}
-								alt=""
-								width="72"
-								height="40"
-								loading="lazy"
-								class="h-10 w-[72px] shrink-0 rounded object-cover"
-							/>
-							<span class="min-w-0 flex-1">
-								<span class="block truncate text-sm">{pick.title}</span>
-								<span class="block truncate text-xs text-faint">
-									{pick.channel}
-									<span class="text-faint/70">·</span>
-									{pick.note}
-								</span>
-							</span>
-							<IconPlay
-								size={16}
-								stroke={1.5}
-								class="shrink-0 text-faint transition-colors group-hover:text-lamp"
-							/>
-						</button>
-					{/each}
-				</div>
-			{/if}
-		</div>
 	{:else}
-		<div class="mt-4 border-t border-cream/10 px-4 py-4">
-			<div class="flex items-baseline justify-between gap-3">
-				<h3 class="text-sm font-medium">Nothing queued</h3>
-				<span class="num shrink-0 text-xs text-faint">from the crate</span>
-			</div>
-			<p class="mt-1 text-xs leading-relaxed text-faint">
-				Hand-picked 24/7 radios for nights like this. One click puts one on for everyone.
+		<div class="mt-4 border-t border-cream/10 px-4 py-8 text-center">
+			<h3 class="text-sm font-medium text-cream">Queue is empty</h3>
+			<p class="mt-1 text-xs text-taupe">
+				Paste any YouTube, Spotify, or SoundCloud link above to queue tracks. Tracks play in order.
 			</p>
-			<div class="mt-3 grid gap-2.5 sm:grid-cols-2">
-				{#each crate as pick, i (pick.videoId)}
-					<button
-						class="group flex items-center gap-3 rounded-field border border-cream/10 bg-night/50 p-2 text-left transition-colors hover:border-lamp/50 hover:bg-night {i ===
-						crate.length - 1 && crate.length % 2 === 1
-							? 'sm:col-span-2'
-							: ''}"
-						onclick={() => startPick(pick)}
-					>
-						<img
-							src={thumbnailFor(pick.videoId)}
-							alt=""
-							width="72"
-							height="40"
-							loading="lazy"
-							class="h-10 w-[72px] shrink-0 rounded object-cover"
-						/>
-						<span class="min-w-0 flex-1">
-							<span class="block truncate text-sm">{pick.title}</span>
-							<span class="block truncate text-xs text-faint">
-								{pick.channel}
-								<span class="text-faint/70">·</span>
-								{pick.note}
-							</span>
-						</span>
-						<IconPlay
-							size={16}
-							stroke={1.5}
-							class="shrink-0 text-faint transition-colors group-hover:text-lamp"
-						/>
-					</button>
-				{/each}
-			</div>
 		</div>
 	{/if}
 </div>
