@@ -69,7 +69,7 @@
 	const nightCities = $derived(cityStatuses.filter((c) => c.isNight));
 </script>
 
-<section class="border-t border-cream/10 bg-night/80 py-12 md:py-16">
+<section class="border-t border-cream/10 bg-night py-12 md:py-16">
 	<div class="mx-auto max-w-[1400px] px-5">
 		<div class="flex flex-wrap items-baseline justify-between gap-3">
 			<div>
