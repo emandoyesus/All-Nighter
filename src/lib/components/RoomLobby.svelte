@@ -8,7 +8,7 @@
 	import IconCheck from '@tabler/icons-svelte/icons/check';
 
 	let creating = $state(false);
-	let draft = $state('');
+	let draft = $state('late-night-shift');
 	let nightPlan = $state('');
 	let copiedSlug = $state<string | null>(null);
 
@@ -28,16 +28,16 @@
 		[...room.directory].sort((a, b) => b.members - a.members || b.ts - a.ts)
 	);
 
-	const slug = $derived(sanitizeRoom(draft));
+	const slug = $derived(sanitizeRoom(draft) || 'late-night-shift');
 
 	function create(event: SubmitEvent): void {
 		event.preventDefault();
-		if (!draft.trim()) return;
+		const name = draft.trim() || 'late-night-shift';
 		if (nightPlan.trim()) {
 			// Store the intention before creating the room so announce() picks it up
 			room.setIntention(nightPlan.trim());
 		}
-		room.createRoom(draft);
+		room.createRoom(name);
 	}
 </script>
 
@@ -146,9 +146,7 @@
 				class="w-full rounded-field border border-cream/10 bg-night/60 px-3 py-2 text-sm text-cream outline-none transition-colors focus:border-lamp/60"
 				bind:value={draft}
 			/>
-			{#if draft.trim()}
-				<p class="num text-[11px] text-faint">link → ?room={slug}</p>
-			{/if}
+			<p class="num text-[11px] text-faint">link → ?room={slug}</p>
 
 			<label for="night-plan" class="text-xs text-faint">What's the plan tonight?</label>
 			<input
@@ -161,7 +159,7 @@
 				bind:value={nightPlan}
 			/>
 
-			<button type="submit" class="btn btn-primary w-full" disabled={!draft.trim()}>
+			<button type="submit" class="btn btn-primary w-full">
 				<IconDoorEnter size={16} stroke={1.5} />
 				Open the door
 			</button>
