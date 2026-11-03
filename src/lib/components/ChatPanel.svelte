@@ -50,16 +50,14 @@
 				</span>
 			{/if}
 		</div>
-	{:else}
-		<div class="mt-2.5 flex items-center justify-between rounded-field px-3 py-1.5 text-[11px] leading-relaxed" style="border: 1px solid color-mix(in srgb, var(--color-amber) 35%, transparent); background: color-mix(in srgb, var(--color-amber) 8%, transparent); color: var(--color-cream)">
+	{:else if room.modeRemaining > 0}
+		<div class="mt-2.5 flex items-center justify-between rounded-field px-3 py-1.5 text-[11px] leading-relaxed border border-lamp/30 bg-lamp/5 text-taupe">
 			<div>
-				<span class="font-medium" style="color: var(--color-amber)">Break mode:</span> floor is open! Chat & unwind.
+				<span class="font-medium text-lamp">Normal mode:</span> floor is open! Chat & listen together.
 			</div>
-			{#if room.modeRemaining > 0}
-				<span class="num ml-2 whitespace-nowrap text-xs font-semibold" style="color: var(--color-amber)">
-					{formatCountdown(room.modeRemaining)}
-				</span>
-			{/if}
+			<span class="num ml-2 whitespace-nowrap text-xs font-semibold text-lamp">
+				{formatCountdown(room.modeRemaining)}
+			</span>
 		</div>
 	{/if}
 
@@ -82,7 +80,7 @@
 			type="text"
 			maxlength="280"
 			autocomplete="off"
-			placeholder={room.mode === 'focus' ? (room.modeRemaining > 0 ? `Chat locked · opens in ${formatCountdown(room.modeRemaining)}` : 'Focus mode · chat is quiet') : 'Break mode · say something to the room...'}
+			placeholder={room.mode === 'focus' ? (room.modeRemaining > 0 ? `Chat locked · focus ends in ${formatCountdown(room.modeRemaining)}` : 'Focus mode · chat is quiet') : 'Say something to the room...'}
 			disabled={room.mode === 'focus'}
 			class="min-w-0 flex-1 rounded-field border border-cream/10 bg-night/60 px-3 py-2 text-sm text-cream outline-none transition-colors placeholder:text-faint/80 focus:border-lamp/60 disabled:cursor-not-allowed disabled:opacity-50"
 			bind:value={draft}

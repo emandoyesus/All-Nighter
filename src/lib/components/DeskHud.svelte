@@ -110,17 +110,14 @@
 
 			<div class="flex items-center gap-3">
 				{#if room.mode === 'focus'}
-					<span class="inline-flex items-center gap-1.5 rounded-full border border-lamp/40 bg-lamp/10 px-3 py-1 font-mono text-xs uppercase tracking-wider text-lamp">
+					<span class="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-400/10 px-3 py-1 font-mono text-xs uppercase tracking-wider text-amber-300">
 						<IconTarget size={13} stroke={2} />
-						Focus mode {#if room.modeRemaining > 0}· {formatModeTime(room.modeRemaining)}{/if}
+						Focus {#if room.modeRemaining > 0}· {formatModeTime(room.modeRemaining)}{/if}
 					</span>
 				{:else}
-					<span
-						class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-mono text-xs uppercase tracking-wider text-amber-300"
-						style="border: 1px solid color-mix(in srgb, var(--color-amber) 40%, transparent); background: color-mix(in srgb, var(--color-amber) 10%, transparent); color: var(--color-amber)"
-					>
+					<span class="inline-flex items-center gap-1.5 rounded-full border border-lamp/40 bg-lamp/10 px-3 py-1 font-mono text-xs uppercase tracking-wider text-lamp">
 						<IconWaveSine size={13} stroke={2} />
-						Break mode {#if room.modeRemaining > 0}· {formatModeTime(room.modeRemaining)}{/if}
+						Normal {#if room.modeRemaining > 0}· {formatModeTime(room.modeRemaining)}{/if}
 					</span>
 				{/if}
 
