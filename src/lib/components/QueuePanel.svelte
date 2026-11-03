@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { room, parseTrackUrl } from '#lib/room/room.svelte';
-	import { parseYouTubeId, fetchVideoMeta, thumbnailFor, fetchSpotifyMeta, searchYouTubeVideo } from '#lib/room/youtube';
+	import { parseYouTubeId, fetchVideoMeta, fetchPlaylistMeta, thumbnailFor, fetchSpotifyMeta, searchYouTubeVideo } from '#lib/room/youtube';
 	import IconPlus from '@tabler/icons-svelte/icons/plus';
 	import IconX from '@tabler/icons-svelte/icons/x';
 	import IconPlay from '@tabler/icons-svelte/icons/player-play';
@@ -24,6 +24,22 @@
 		const ded = dedicationDraft.trim() || undefined;
 		const tag = tagDraft;
 
+		// YouTube Playlist
+		if (parsed.source === 'youtube' && (parsed.isPlaylist || parsed.playlistId)) {
+			busy = true;
+			const plistId = parsed.playlistId ?? '';
+			const meta = plistId ? await fetchPlaylistMeta(plistId) : null;
+			busy = false;
+			const title = meta?.title ?? `YouTube Playlist (${plistId || parsed.id})`;
+			const channel = meta?.channel ?? 'YouTube';
+			const videoId = meta?.firstVideoId || parsed.id || null;
+			room.add(videoId, title, channel, room.name, 'youtube', draft.trim(), ded, tag, true, plistId);
+			draft = '';
+			dedicationDraft = '';
+			return;
+		}
+
+		// YouTube Single Video
 		if (parsed.source === 'youtube' && parsed.id) {
 			busy = true;
 			const meta = await fetchVideoMeta(parsed.id);
@@ -35,38 +51,48 @@
 			dedicationDraft = '';
 			return;
 		}
+
+		// Spotify Track or Playlist
 		if (parsed.source === 'spotify' || draft.includes('spotify.com')) {
 			busy = true;
 			try {
+				const isList = parsed.isPlaylist || draft.includes('/playlist/') || draft.includes('/album/');
 				const spotMeta = await fetchSpotifyMeta(draft.trim());
 				if (spotMeta?.title) {
-					const match = await searchYouTubeVideo(spotMeta.title);
 					busy = false;
-					if (match?.videoId) {
-						room.add(match.videoId, spotMeta.title, match.channel, room.name, 'youtube', draft.trim(), ded, tag);
-						draft = '';
-						dedicationDraft = '';
-						return;
-					}
-					// Fallback if search failed
-					room.add(parsed.id ?? null, spotMeta.title, 'Spotify', room.name, 'spotify', draft.trim(), ded, tag);
+					room.add(
+						null,
+						spotMeta.title,
+						isList ? 'Spotify Playlist' : 'Spotify',
+						room.name,
+						'spotify',
+						draft.trim(),
+						ded,
+						tag,
+						isList,
+						parsed.playlistId || parsed.id || undefined
+					);
 					draft = '';
 					dedicationDraft = '';
 					return;
 				}
 			} catch {}
 			busy = false;
-			error = 'Could not resolve that Spotify track. Check link or paste YouTube URL.';
+			error = 'Could not resolve that Spotify link. Check the URL and try again.';
 			return;
 		}
+
+		// SoundCloud Track or Playlist
 		if (parsed.source === 'soundcloud') {
-			const title = `SoundCloud (${parsed.id})`;
+			const isList = parsed.isPlaylist || draft.includes('/sets/');
+			const title = isList ? `SoundCloud Playlist (${parsed.id})` : `SoundCloud (${parsed.id})`;
 			const channel = 'SoundCloud';
-			room.add(null, title, channel, room.name, 'soundcloud', draft.trim(), ded, tag);
+			room.add(null, title, channel, room.name, 'soundcloud', draft.trim(), ded, tag, isList, parsed.playlistId || undefined);
 			draft = '';
 			dedicationDraft = '';
 			return;
 		}
+
 		const id = parseYouTubeId(draft);
 		if (id) {
 			busy = true;
@@ -79,7 +105,8 @@
 			dedicationDraft = '';
 			return;
 		}
-		error = 'Paste a Spotify, YouTube, or SoundCloud link.';
+
+		error = 'Paste a YouTube, Spotify, or SoundCloud track or playlist link.';
 	}
 
 	const filteredQueue = $derived(
@@ -93,7 +120,7 @@
 
 <div class="panel mt-4">
 	<form class="px-4 pt-4" onsubmit={submit}>
-		<label for="yt-link" class="mb-1.5 block text-xs text-faint">Add a track link (Spotify, YouTube, SoundCloud)</label>
+		<label for="yt-link" class="mb-1.5 block text-xs text-faint">Add a track or playlist link (YouTube, Spotify, SoundCloud)</label>
 		<div class="flex gap-2">
 			<input
 				id="yt-link"
@@ -101,7 +128,7 @@
 				inputmode="url"
 				autocomplete="off"
 				enterkeyhint="go"
-				placeholder="Paste a link..."
+				placeholder="Paste a track or playlist link..."
 				class="min-w-0 flex-1 rounded-field border border-cream/10 bg-night/60 px-3 py-2 text-sm text-cream outline-none transition-colors placeholder:text-faint/80 focus:border-lamp/60"
 				bind:value={draft}
 				aria-invalid={error ? true : undefined}
@@ -207,12 +234,17 @@
 					<div class="min-w-0 flex-1">
 						<div class="flex items-center gap-2">
 							<p class="truncate text-sm">{track.title}</p>
+							{#if track.isPlaylist}
+								<span class="shrink-0 rounded bg-cyan/15 px-1.5 py-0.2 text-[9px] font-mono uppercase text-cyan font-semibold tracking-wider">
+									Playlist
+								</span>
+							{/if}
 							{#if track.tag === 'hangout'}
-								<span class="shrink-0 rounded-full px-1.5 py-0.2 text-[10px] font-mono uppercase" style="color: var(--color-amber); background: color-mix(in srgb, var(--color-amber) 15%, transparent)">
-									Break
+								<span class="shrink-0 rounded-full px-1.5 py-0.2 text-[10px] font-mono uppercase text-lamp bg-lamp/15">
+									Normal
 								</span>
 							{:else}
-								<span class="shrink-0 rounded-full bg-lamp/15 px-1.5 py-0.2 text-[10px] font-mono uppercase text-lamp">
+								<span class="shrink-0 rounded-full bg-amber-400/15 px-1.5 py-0.2 text-[10px] font-mono uppercase text-amber-300">
 									Focus
 								</span>
 							{/if}

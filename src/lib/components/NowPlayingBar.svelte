@@ -42,7 +42,14 @@
 				<span class="h-1.5 w-1.5 rounded-full bg-lamp {room.state.playing ? 'soft-blink' : ''}"></span>
 				now playing
 			</p>
-			<p class="mt-0.5 truncate text-sm font-medium">{track.title}</p>
+			<div class="mt-0.5 flex items-center gap-2">
+				<p class="truncate text-sm font-medium">{track.title}</p>
+				{#if track.isPlaylist}
+					<span class="shrink-0 rounded bg-cyan/15 px-1.5 py-0.2 text-[9px] font-mono uppercase text-cyan font-semibold tracking-wider">
+						Playlist
+					</span>
+				{/if}
+			</div>
 			<p class="truncate text-xs text-faint">
 				{sourceLabel(track.source)}
 				<span class="text-faint/70">·</span>

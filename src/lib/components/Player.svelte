@@ -27,7 +27,10 @@
 	let apiError = $state(false);
 	let showDeskHud = $state(false);
 
-	const hasVideo = $derived(!!room.state.videoId);
+	const hasVideo = $derived(
+		!!room.state.videoId ||
+		(room.state.source === 'youtube' && (!!room.state.playlistId || !!room.state.current?.playlistId))
+	);
 	const playing = $derived(room.state.playing);
 	const queued = $derived(room.state.queue.length);
 	const externalOnly = $derived(
@@ -164,9 +167,14 @@
 					>
 						<IconMusic size={22} stroke={1.5} />
 					</span>
-					<h3 class="mt-4 text-lg font-medium">{room.state.current.title}</h3>
+					<h3 class="mt-4 text-lg font-medium flex items-center justify-center gap-2">
+						<span>{room.state.current.title}</span>
+						{#if room.state.current.isPlaylist}
+							<span class="rounded bg-lamp/15 px-2 py-0.5 text-[10px] font-mono uppercase text-lamp tracking-wider">Playlist</span>
+						{/if}
+					</h3>
 					<p class="mx-auto mt-1.5 max-w-[40ch] text-sm leading-relaxed text-taupe">
-						This track lives on {sourceLabel(room.state.source)}. Open it there to listen along — the
+						This {room.state.current.isPlaylist ? 'playlist' : 'track'} lives on {sourceLabel(room.state.source)}. Open it there to listen along — the
 						queue and chat stay in sync here.
 					</p>
 					{#if room.state.current.url}

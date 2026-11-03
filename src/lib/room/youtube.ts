@@ -152,3 +152,34 @@ export async function searchYouTubeVideo(query: string): Promise<VideoMeta & { v
 	return null;
 }
 
+export type PlaylistMeta = {
+	title: string;
+	channel: string;
+	firstVideoId?: string;
+	thumbnail?: string;
+};
+
+/** Fetch YouTube playlist title & metadata via oEmbed. */
+export async function fetchPlaylistMeta(playlistId: string): Promise<PlaylistMeta | null> {
+	try {
+		const res = await fetch(
+			`https://www.youtube.com/oembed?url=${encodeURIComponent(`https://www.youtube.com/playlist?list=${playlistId}`)}&format=json`
+		);
+		if (!res.ok) return null;
+		const data = (await res.json()) as { title?: string; author_name?: string; thumbnail_url?: string };
+		let firstVideoId: string | undefined;
+		if (data.thumbnail_url) {
+			const m = data.thumbnail_url.match(/\/vi\/([A-Za-z0-9_-]{11})\//);
+			if (m) firstVideoId = m[1];
+		}
+		return {
+			title: data.title ?? `YouTube Playlist`,
+			channel: data.author_name ?? 'YouTube',
+			firstVideoId,
+			thumbnail: data.thumbnail_url
+		};
+	} catch {
+		return null;
+	}
+}
+

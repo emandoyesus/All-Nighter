@@ -14,6 +14,8 @@ export type Track = {
 	reactions?: Record<string, string[]>; // emoji -> list of user ids/names
 	dedication?: string;
 	tag?: 'focus' | 'hangout';
+	isPlaylist?: boolean;
+	playlistId?: string;
 };
 
 export type ChatMessage = {
@@ -30,6 +32,7 @@ export type RoomState = {
 	seq: number;
 	by: string;
 	videoId: string | null;
+	playlistId?: string | null;
 	source?: TrackSource;
 	current: Track | null;
 	playing: boolean;
