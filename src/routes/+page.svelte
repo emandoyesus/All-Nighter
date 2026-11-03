@@ -16,11 +16,11 @@
 <main>
 	<Hero />
 	<Rituals />
-	<NightZones />
 	<!-- Soft gradient mask feathering into the grounding layer -->
-	<div class="h-28 -mb-28 pointer-events-none relative z-10 bg-gradient-to-b from-transparent to-night"></div>
+	<div class="h-28 -mt-28 pointer-events-none relative z-10 bg-gradient-to-b from-transparent to-night" aria-hidden="true"></div>
 	<!-- Opaque grounding: stops the skyline & cosmos background from here downward -->
-	<div class="relative z-10 bg-night border-t border-cream/10">
+	<div class="relative z-10 bg-night">
+		<NightZones />
 		<ArchiveSection />
 		<JoinBand />
 		<footer class="border-t border-cream/10">
