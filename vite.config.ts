@@ -7,6 +7,7 @@ const base = (process.env.BASE_PATH ?? '').trim();
 const safeBase = base === '' ? '' : (base.startsWith('/') ? base : `/${base}`);
 
 export default defineConfig({
+	envPrefix: ['VITE_', 'PUBLIC_'],
 	plugins: [
 		tailwindcss(),
 		sveltekit({

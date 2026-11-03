@@ -1,23 +1,28 @@
 import { supabase, isSupabaseConfigured } from '#lib/supabase';
 import type { User, Session } from '@supabase/supabase-js';
 
-export interface UserProfile {
-	id: string;
-	email?: string;
-	callsign: string;
-	avatarUrl?: string;
-}
-
 class AuthService {
-	user: User | null = $state(null);
-	session: Session | null = $state(null);
-	loading: boolean = $state(true);
+	user = $state<User | null>(null);
+	session = $state<Session | null>(null);
+	loading = $state<boolean>(true);
+	isAuthenticated = $derived(Boolean(this.user));
+	displayName = $derived.by(() => {
+		if (!this.user) return null;
+		return (
+			this.user.user_metadata?.callsign ||
+			this.user.user_metadata?.full_name ||
+			this.user.email?.split('@')[0] ||
+			null
+		);
+	});
 
 	constructor() {
 		if (typeof window !== 'undefined' && isSupabaseConfigured && supabase) {
 			supabase.auth.getSession().then(({ data: { session } }) => {
 				this.session = session;
 				this.user = session?.user ?? null;
+				this.loading = false;
+			}).catch(() => {
 				this.loading = false;
 			});
 
@@ -29,20 +34,6 @@ class AuthService {
 		} else {
 			this.loading = false;
 		}
-	}
-
-	get isAuthenticated(): boolean {
-		return Boolean(this.user);
-	}
-
-	get displayName(): string | null {
-		if (!this.user) return null;
-		return (
-			this.user.user_metadata?.callsign ||
-			this.user.user_metadata?.full_name ||
-			this.user.email?.split('@')[0] ||
-			null
-		);
 	}
 
 	async signUpWithEmail(email: string, password: string, callsign: string) {
