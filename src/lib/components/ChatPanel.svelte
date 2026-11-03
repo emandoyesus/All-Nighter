@@ -34,8 +34,14 @@
 
 <div class="panel flex min-h-[280px] flex-1 flex-col p-5">
 	<div class="flex items-center justify-between gap-3">
-		<h3 class="text-sm font-medium">Late-night chat</h3>
-		<span class="num text-xs text-faint">{messages.length}</span>
+		<div class="flex items-center gap-2">
+			<h3 class="text-sm font-medium">Late-night chat</h3>
+			<span class="inline-flex items-center gap-1.5 rounded-full border border-cream/10 bg-cream/5 px-2 py-0.5 font-mono text-[10px] text-faint">
+				<span class="h-1.5 w-1.5 rounded-full bg-lamp"></span>
+				{room.awake.length} awake
+			</span>
+		</div>
+		<span class="num text-xs text-faint">{messages.length} msgs</span>
 	</div>
 
 	<!-- Mode status indicator -->
