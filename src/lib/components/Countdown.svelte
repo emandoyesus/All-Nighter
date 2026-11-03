@@ -8,7 +8,6 @@
 	import IconFlame from '@tabler/icons-svelte/icons/flame';
 	import IconBolt from '@tabler/icons-svelte/icons/bolt';
 
-	type CountdownStyle = 'flip' | 'arc' | 'grid';
 	type CountdownPhase = 'pre_midnight' | 'session_active' | 'sunrise';
 	type PhaseMode = 'auto' | 'pre_midnight' | 'session_active';
 
@@ -19,7 +18,6 @@
 	let { size = 'compact' }: Props = $props();
 
 	const LS_DAWN = 'an.dawn_time';
-	const LS_STYLE = 'an.countdown_style';
 
 	function loadDawn(): { h: number; m: number } {
 		try {
@@ -37,16 +35,6 @@
 		return { ...DAWN };
 	}
 
-	function loadStyle(): CountdownStyle {
-		try {
-			const saved = localStorage.getItem(LS_STYLE);
-			if (saved === 'flip' || saved === 'arc' || saved === 'grid') {
-				return saved;
-			}
-		} catch {}
-		return 'flip';
-	}
-
 	function loadPhaseMode(): PhaseMode {
 		try {
 			if (typeof window !== 'undefined') {
@@ -61,7 +49,6 @@
 	}
 
 	let dawn = $state(loadDawn());
-	let activeStyle = $state<CountdownStyle>(loadStyle());
 	let phaseMode = $state<PhaseMode>(loadPhaseMode());
 	let currentPhase = $state<CountdownPhase>('pre_midnight');
 
@@ -71,13 +58,6 @@
 	let left = $state('--:--:--');
 	let isSunrise = $state(false);
 	let progress = $state(0);
-
-	function setStyle(style: CountdownStyle): void {
-		activeStyle = style;
-		try {
-			localStorage.setItem(LS_STYLE, style);
-		} catch {}
-	}
 
 	function saveDawn(): void {
 		const h = Math.max(0, Math.min(23, Number(editH) || 0));
@@ -167,19 +147,8 @@
 		}
 	});
 
-	// Celestial arc math for the moon position along a quadratic bezier curve:
-	// Start (36, 128), Control (180, 16), End (324, 128)
-	let moonPos = $derived.by(() => {
-		const t = Math.max(0, Math.min(1, progress / 100));
-		const inv = 1 - t;
-		const x = inv * inv * 36 + 2 * inv * t * 180 + t * t * 324;
-		const y = inv * inv * 128 + 2 * inv * t * 16 + t * t * 128;
-		return { x: Math.round(x * 10) / 10, y: Math.round(y * 10) / 10 };
-	});
-
 	onMount(() => {
 		dawn = loadDawn();
-		activeStyle = loadStyle();
 		phaseMode = loadPhaseMode();
 		updateTime();
 		const id = window.setInterval(updateTime, 1000);
@@ -245,31 +214,6 @@
 				</div>
 
 				<div class="flex flex-wrap items-center gap-2">
-					<!-- Style Selector (Flip / Arc / Grid) -->
-					<div class="inline-flex rounded-full border border-cream/12 bg-night/80 p-0.5" role="group" aria-label="Countdown display style">
-						<button
-							class="rounded-full px-2 py-0.5 text-[11px] font-mono transition-colors {activeStyle === 'flip' ? 'bg-cream/15 text-cream font-medium' : 'text-faint hover:text-taupe'}"
-							onclick={() => setStyle('flip')}
-							title="Split-flap mechanical cards"
-						>
-							Flip
-						</button>
-						<button
-							class="rounded-full px-2 py-0.5 text-[11px] font-mono transition-colors {activeStyle === 'arc' ? 'bg-cream/15 text-cream font-medium' : 'text-faint hover:text-taupe'}"
-							onclick={() => setStyle('arc')}
-							title="Celestial orbital arc"
-						>
-							Arc
-						</button>
-						<button
-							class="rounded-full px-2 py-0.5 text-[11px] font-mono transition-colors {activeStyle === 'grid' ? 'bg-cream/15 text-cream font-medium' : 'text-faint hover:text-taupe'}"
-							onclick={() => setStyle('grid')}
-							title="Minimal studio grid"
-						>
-							Grid
-						</button>
-					</div>
-
 					<!-- Target Pill -->
 					{#if !editing}
 						{#if currentPhase === 'pre_midnight'}
@@ -349,13 +293,13 @@
 							</button>
 						</div>
 					</form>
-				{:else if activeStyle === 'flip'}
-					<!-- STYLE 1: MECHANICAL SPLIT-FLAP CARDS -->
+				{:else}
+					<!-- MECHANICAL SPLIT-FLAP CARDS -->
 					<div class="flex flex-col items-center">
 						<div class="grid w-full grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-1.5 sm:gap-3 max-w-[460px]">
 							<!-- Hours Tile -->
 							<div class="flex flex-col items-center">
-								<div class="group relative flex aspect-[4/5] sm:aspect-square w-full items-center justify-center overflow-hidden rounded-xl border border-lamp/20 bg-gradient-to-b from-[#141f17] via-[#0f1712] to-[#080d0a] shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_10px_24px_rgba(0,0,0,0.6)]">
+								<div class="group relative flex aspect-[4/5] sm:aspect-square w-full items-center justify-center overflow-hidden rounded-xl border border-lamp/20 bg-gradient-to-b from-[#141414] via-[#0e0e0e] to-[#080808] shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_10px_24px_rgba(0,0,0,0.6)]">
 									<!-- Upper plate highlight -->
 									<div class="absolute inset-x-0 top-0 h-1/2 border-b border-black/80 bg-white/[0.02]"></div>
 									<!-- Lower plate subtle shadow -->
@@ -381,7 +325,7 @@
 
 							<!-- Minutes Tile -->
 							<div class="flex flex-col items-center">
-								<div class="group relative flex aspect-[4/5] sm:aspect-square w-full items-center justify-center overflow-hidden rounded-xl border border-lamp/20 bg-gradient-to-b from-[#141f17] via-[#0f1712] to-[#080d0a] shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_10px_24px_rgba(0,0,0,0.6)]">
+								<div class="group relative flex aspect-[4/5] sm:aspect-square w-full items-center justify-center overflow-hidden rounded-xl border border-lamp/20 bg-gradient-to-b from-[#141414] via-[#0e0e0e] to-[#080808] shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_10px_24px_rgba(0,0,0,0.6)]">
 									<div class="absolute inset-x-0 top-0 h-1/2 border-b border-black/80 bg-white/[0.02]"></div>
 									<div class="absolute inset-x-0 bottom-0 h-1/2 border-t border-lamp/[0.08] bg-black/20"></div>
 
@@ -403,7 +347,7 @@
 
 							<!-- Seconds Tile -->
 							<div class="flex flex-col items-center">
-								<div class="group relative flex aspect-[4/5] sm:aspect-square w-full items-center justify-center overflow-hidden rounded-xl border border-lamp/20 bg-gradient-to-b from-[#141f17] via-[#0f1712] to-[#080d0a] shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_10px_24px_rgba(0,0,0,0.6)]">
+								<div class="group relative flex aspect-[4/5] sm:aspect-square w-full items-center justify-center overflow-hidden rounded-xl border border-lamp/20 bg-gradient-to-b from-[#141414] via-[#0e0e0e] to-[#080808] shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_10px_24px_rgba(0,0,0,0.6)]">
 									<div class="absolute inset-x-0 top-0 h-1/2 border-b border-black/80 bg-white/[0.02]"></div>
 									<div class="absolute inset-x-0 bottom-0 h-1/2 border-t border-lamp/[0.08] bg-black/20"></div>
 
@@ -415,102 +359,6 @@
 									</span>
 								</div>
 								<span class="mt-2.5 font-mono text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.25em] text-faint">seconds</span>
-							</div>
-						</div>
-					</div>
-				{:else if activeStyle === 'arc'}
-					<!-- STYLE 2: CELESTIAL ORBITAL ARC (THEMED) -->
-					<div class="flex flex-col items-center text-center">
-						<div class="relative w-full max-w-[420px]">
-							<svg viewBox="0 0 360 150" class="w-full h-auto overflow-visible" aria-label="Night celestial arc">
-								<defs>
-									<linearGradient id="phaseGradient" x1="0%" y1="100%" x2="100%" y2="100%">
-										<stop offset="0%" stop-color="#8ec765" stop-opacity="0.25" />
-										<stop offset="100%" stop-color="#ffb84d" stop-opacity="0.65" />
-									</linearGradient>
-								</defs>
-
-								<!-- Faint background stars -->
-								<circle cx="75" cy="40" r="1" fill="#f3fff1" opacity="0.4" />
-								<circle cx="130" cy="22" r="1.5" fill="#f3fff1" opacity="0.5" />
-								<circle cx="230" cy="28" r="1" fill="#f3fff1" opacity="0.35" />
-								<circle cx="285" cy="48" r="1.5" fill="#f3fff1" opacity="0.45" />
-
-								<!-- Horizon base line -->
-								<line x1="20" y1="130" x2="340" y2="130" stroke="url(#phaseGradient)" stroke-width="1.5" />
-
-								<!-- Trajectory Guide Track -->
-								<path
-									d="M 36,128 Q 180,16 324,128"
-									fill="none"
-									stroke="rgba(243,255,241,0.12)"
-									stroke-width="2"
-									stroke-dasharray="4 6"
-								/>
-
-								<!-- Milestone Labels -->
-								{#if currentPhase === 'pre_midnight'}
-									<text x="36" y="145" text-anchor="middle" font-family="monospace" font-size="9" fill="#5f7662" letter-spacing="0.1em">{String(dawn.h).padStart(2, '0')}:{String(dawn.m).padStart(2, '0')} DAWN</text>
-									<text x="180" y="14" text-anchor="middle" font-family="monospace" font-size="9" fill="#5f7662" letter-spacing="0.1em">MIDDAY</text>
-									<text x="324" y="145" text-anchor="middle" font-family="monospace" font-size="9" fill="#8ec765" letter-spacing="0.1em">00:00 MID</text>
-								{:else}
-									<text x="36" y="145" text-anchor="middle" font-family="monospace" font-size="9" fill="#5f7662" letter-spacing="0.1em">00:00 MID</text>
-									<text x="180" y="14" text-anchor="middle" font-family="monospace" font-size="9" fill="#5f7662" letter-spacing="0.1em">ZENITH</text>
-									<text x="324" y="145" text-anchor="middle" font-family="monospace" font-size="9" fill="#8ec765" letter-spacing="0.1em">{String(dawn.h).padStart(2, '0')}:{String(dawn.m).padStart(2, '0')} DAWN</text>
-								{/if}
-
-								<!-- Orbiting Celestial Glyph -->
-								<g transform="translate({moonPos.x}, {moonPos.y})">
-									<circle cx="0" cy="0" r="11" fill="#0c140f" stroke="#8ec765" stroke-width="1.5" />
-									<circle cx="0" cy="0" r="4.5" fill="#8ec765" />
-								</g>
-							</svg>
-
-							<!-- Centered Digital Readout inside Arc -->
-							<div class="mt-2 text-center">
-								<p class="num font-mono text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-cream">
-									{left}
-								</p>
-								<p class="mt-1 text-[11px] font-mono tracking-widest uppercase text-lamp">
-									{currentPhase === 'pre_midnight' ? 'countdown to midnight lock-in' : 'countdown to solar horizon'}
-								</p>
-							</div>
-						</div>
-					</div>
-				{:else}
-					<!-- STYLE 3: STUDIO TELEMETRY GRID -->
-					<div class="flex flex-col">
-						<div class="grid grid-cols-3 divide-x divide-cream/10 rounded-xl border border-lamp/20 bg-night/70 p-4 sm:p-5">
-							<div class="flex flex-col items-center px-2">
-								<span class="num font-mono text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-cream">{hStr}</span>
-								<span class="mt-2 text-[10px] font-mono tracking-[0.2em] uppercase text-faint">hours</span>
-							</div>
-							<div class="flex flex-col items-center px-2">
-								<span class="num font-mono text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-cream">{mStr}</span>
-								<span class="mt-2 text-[10px] font-mono tracking-[0.2em] uppercase text-faint">minutes</span>
-							</div>
-							<div class="flex flex-col items-center px-2">
-								<span class="num font-mono text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-cream/90">{sStr}</span>
-								<span class="mt-2 text-[10px] font-mono tracking-[0.2em] uppercase text-faint">seconds</span>
-							</div>
-						</div>
-
-						<!-- 10-step Segmented LED Meter -->
-						<div class="mt-5">
-							<div class="flex items-center justify-between text-[11px] font-mono text-faint mb-2">
-								<span class="uppercase tracking-wider text-lamp">
-									{currentPhase === 'pre_midnight' ? 'daytime meter' : 'session telemetry'}
-								</span>
-								<span class="text-lamp font-medium">{Math.round(progress)}% elapsed</span>
-							</div>
-							<div class="flex gap-1.5 sm:gap-2">
-								{#each Array(10) as _, i}
-									<div
-										class="h-2.5 flex-1 rounded-xs transition-colors duration-500 {i < Math.floor(progress / 10)
-											? 'bg-lamp/90'
-											: 'bg-cream/10'}"
-									></div>
-								{/each}
 							</div>
 						</div>
 					</div>
