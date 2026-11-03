@@ -5,8 +5,6 @@
 	import { magnetic } from '#lib/magnetic';
 	import { ambientMusic } from '#lib/audio/ambient-music.svelte';
 	import IconMoon from '@tabler/icons-svelte/icons/moon';
-	import IconMenu2 from '@tabler/icons-svelte/icons/menu-2';
-	import IconX from '@tabler/icons-svelte/icons/x';
 	import IconRadio from '@tabler/icons-svelte/icons/radio';
 	import IconVolume from '@tabler/icons-svelte/icons/volume';
 	import IconVolumeOff from '@tabler/icons-svelte/icons/volume-off';
@@ -15,14 +13,12 @@
 	const live = $derived(room.state.playing);
 	const inRoom = $derived(room.joinState === 'approved');
 	const roomLink = $derived(room.room ? `/room?room=${room.room}` : '/room');
-	let open = $state(false);
 
 	let playerMuted = $state(true);
 	let playerUnlocked = $state(false);
 	const soundPlaying = $derived(room.state.playing && !playerMuted && playerUnlocked);
 
 	let header: HTMLElement;
-	let menuEl: HTMLElement | undefined = $state();
 	let lastY = 0;
 	let hidden = false;
 
@@ -53,11 +49,6 @@
 
 		const onScroll = () => {
 			const y = window.scrollY;
-
-			if (open) {
-				lastY = y;
-				return;
-			}
 
 			const goingDown = y > lastY && y > 140;
 
@@ -91,56 +82,6 @@
 			}
 		}
 	}
-
-	function menuIntro(node: HTMLElement) {
-		if (prefersReducedMotion()) return {};
-
-		setupGsap();
-
-		const links = node.querySelectorAll('a');
-		gsap.fromTo(node, { opacity: 0, y: -8 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power3.out' });
-		const tween = gsap.fromTo(
-			links,
-			{ opacity: 0, y: 8 },
-			{ opacity: 1, y: 0, duration: 0.35, stagger: 0.045, delay: 0.04, ease: 'power3.out' }
-		);
-
-		return {
-			destroy() {
-				tween.kill();
-			}
-		};
-	}
-
-	function closeMenu(): void {
-		if (prefersReducedMotion() || !menuEl) {
-			open = false;
-			return;
-		}
-
-		gsap.to(menuEl, {
-			opacity: 0,
-			y: -6,
-			duration: 0.18,
-			ease: 'power2.in',
-			overwrite: true,
-			onComplete: () => (open = false)
-		});
-	}
-
-	function toggleMenu(): void {
-		if (open) {
-			closeMenu();
-			return;
-		}
-
-		open = true;
-
-		if (!prefersReducedMotion()) {
-			hidden = false;
-			gsap.to(header, { yPercent: 0, duration: 0.3, ease: 'power3.out', overwrite: true });
-		}
-	}
 </script>
 
 <header
@@ -154,7 +95,7 @@
 		</a>
 
 		<div class="ml-auto flex items-center gap-3 sm:gap-4">
-			<nav class="hidden items-center gap-6 text-sm text-taupe md:flex lg:gap-7">
+			<nav class="flex items-center gap-3 sm:gap-6 text-xs sm:text-sm text-taupe lg:gap-7">
 				<a class="transition-colors hover:text-cream" href="/">Tonight</a>
 				<a class="transition-colors hover:text-cream {inRoom ? 'text-cream font-medium' : ''}" href={roomLink}>
 					{#if inRoom}
@@ -175,8 +116,8 @@
 					? 'border-cyan/50 bg-cyan/15 text-cyan hover:bg-cyan/25'
 					: 'border-cream/12 bg-night/80 text-faint hover:border-cream/25 hover:text-cream'}"
 				onclick={toggleSound}
-				title={soundPlaying ? 'Mute Interstellar soundtrack' : 'Play Interstellar soundtrack'}
-				aria-label={soundPlaying ? 'Mute soundtrack' : 'Play soundtrack'}
+				title={soundPlaying ? 'Mute audio' : 'Play audio'}
+				aria-label={soundPlaying ? 'Mute audio' : 'Play audio'}
 			>
 				{#if soundPlaying}
 					<span class="soft-blink h-1.5 w-1.5 rounded-full bg-cyan"></span>
@@ -220,86 +161,6 @@
 					Open the door
 				</a>
 			{/if}
-
-			<button
-				class="icon-btn text-cream md:hidden"
-				onclick={toggleMenu}
-				aria-label={open ? 'Close menu' : 'Open menu'}
-				aria-expanded={open}
-			>
-				{#if open}
-					<IconX size={20} stroke={1.5} />
-				{:else}
-					<IconMenu2 size={20} stroke={1.5} />
-				{/if}
-			</button>
 		</div>
 	</div>
-
-	{#if open}
-		<div
-			class="border-t border-cream/10 bg-night/95 px-5 py-4 backdrop-blur-lg md:hidden"
-			bind:this={menuEl}
-			use:menuIntro
-		>
-			<nav class="flex flex-col gap-2.5 text-sm">
-				<a
-					class="rounded-field px-3 py-2 text-cream transition-colors hover:bg-cream/5"
-					href="/"
-					onclick={closeMenu}
-				>
-					Tonight
-				</a>
-				<a
-					class="rounded-field px-3 py-2 {inRoom ? 'text-amber bg-amber/10' : 'text-taupe hover:text-cream'} transition-colors hover:bg-cream/5"
-					href={roomLink}
-					onclick={closeMenu}
-				>
-					{#if inRoom}
-						<span class="inline-flex items-center gap-2">
-							<span class="soft-blink h-1.5 w-1.5 rounded-full bg-amber"></span>
-							{room.title || 'The Room'} (Active)
-						</span>
-					{:else}
-						The Room
-					{/if}
-				</a>
-				<a
-					class="rounded-field px-3 py-2 text-taupe transition-colors hover:bg-cream/5 hover:text-cream"
-					href="/archive"
-					onclick={closeMenu}
-				>
-					The Archive
-				</a>
-				<button
-					class="flex items-center justify-between rounded-field px-3 py-2 text-left text-sm transition-colors {soundPlaying
-						? 'bg-cyan/15 text-cyan border border-cyan/30'
-						: 'text-taupe hover:bg-cream/5 hover:text-cream'}"
-					onclick={toggleSound}
-				>
-					<span class="flex items-center gap-2">
-						{#if soundPlaying}
-							<IconVolume size={16} stroke={2} class="text-cyan" />
-							<span class="font-medium text-cyan">Sound: Interstellar (Playing)</span>
-						{:else}
-							<IconVolumeOff size={16} stroke={1.5} />
-							<span>Sound: Interstellar (Off)</span>
-						{/if}
-					</span>
-					{#if soundPlaying}
-						<span class="soft-blink h-1.5 w-1.5 rounded-full bg-cyan"></span>
-					{/if}
-				</button>
-				<div class="pt-1">
-					<a
-						href={roomLink}
-						class="btn btn-primary w-full text-xs"
-						onclick={closeMenu}
-					>
-						{inRoom ? 'Return to Room' : 'Open the door'}
-					</a>
-				</div>
-			</nav>
-		</div>
-	{/if}
 </header>
