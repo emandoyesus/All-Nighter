@@ -43,12 +43,7 @@
 
 	const stationIcons: Record<string, string> = {
 		'Interstellar Main Theme - Extra Extended': '🌌',
-		'Alone': '⚡',
-		'beats to relax / study to': '☕',
-		'beats to sleep / chill to': '🌙',
-		'Chillhop Radio': '🎧',
-		'shinjuku fm, soft lofi / smooth jazz': '🎷',
-		'Nightride FM, synthwave radio': '🌆'
+		'Alone': '⚡'
 	};
 
 	function startStation(pick: CratePick): void {
