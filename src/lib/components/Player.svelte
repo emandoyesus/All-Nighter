@@ -3,7 +3,6 @@
 	import { room } from '#lib/room/room.svelte';
 	import { formatTime } from '#lib/room/youtube';
 	import { ambient } from '#lib/audio/ambient.svelte';
-	import { crate, type CratePick } from '#lib/data/crate';
 	import DeskHud from './DeskHud.svelte';
 	import AudioVisualizer from './AudioVisualizer.svelte';
 	import IconPlay from '@tabler/icons-svelte/icons/player-play';
@@ -39,28 +38,6 @@
 		if (source === 'spotify') return 'Spotify';
 		if (source === 'soundcloud') return 'SoundCloud';
 		return 'the source';
-	}
-
-	const stationIcons: Record<string, string> = {
-		'Alone': '⚡',
-		'lofi hip hop radio - beats to relax/study to': '🎧'
-	};
-
-	function startStation(pick: CratePick): void {
-		const newTrack = {
-			uid: crypto.randomUUID(),
-			videoId: pick.videoId,
-			source: 'youtube' as const,
-			url: `https://www.youtube.com/watch?v=${pick.videoId}`,
-			title: pick.title,
-			channel: pick.channel,
-			addedBy: room.name,
-			addedById: room.clientId,
-			votes: 0,
-			voters: [] as string[],
-			reactions: {}
-		};
-		room.playNow(newTrack);
 	}
 
 	function unlock(): void {
@@ -215,27 +192,8 @@
 					</span>
 					<h3 class="mt-3 text-base sm:text-lg font-medium">The room is quiet</h3>
 					<p class="mx-auto mt-1 max-w-[36ch] text-xs leading-relaxed text-taupe">
-						Paste a link into the queue, or tune into a 24/7 curated station:
+						Paste any link into the queue below to play for everyone.
 					</p>
-
-					<!-- One-Click Curated Stations -->
-					<div class="mt-4 grid grid-cols-2 gap-2 text-left">
-						{#each crate.slice(0, 4) as station}
-							<button
-								type="button"
-								class="flex items-center gap-2 rounded-xl border border-cream/10 bg-night-2/90 p-2 text-left transition-all hover:border-lamp/50 hover:bg-lamp/10 active:scale-95"
-								onclick={() => startStation(station)}
-							>
-								<span class="text-base shrink-0">
-									{stationIcons[station.title] || '📻'}
-								</span>
-								<div class="min-w-0 flex-1">
-									<p class="truncate text-xs font-medium text-cream">{station.title}</p>
-									<p class="truncate text-[10px] text-faint">{station.channel}</p>
-								</div>
-							</button>
-						{/each}
-					</div>
 				</div>
 			</div>
 		{:else if ready && !unlocked}

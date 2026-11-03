@@ -989,9 +989,17 @@ class Room {
 			tag
 		};
 		this.mutate((s) => {
+			if (!s.current) {
+				return {
+					...s,
+					current: track,
+					videoId: track.videoId,
+					source: track.source,
+					playing: true,
+					position: 0
+				};
+			}
 			const queue = [...s.queue, track];
-			// simple sort by votes desc then by added order (keep original index for ties)
-			queue.sort((a, b) => (b.votes || 0) - (a.votes || 0));
 			return { ...s, queue };
 		}, `added “${title}”` + (track.dedication ? ` (dedicated: “${track.dedication}”)` : ''));
 	}
