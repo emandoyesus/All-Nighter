@@ -136,6 +136,11 @@
 						>
 							{track.title}
 						</button>
+						{#if track.isPlaylist}
+							<span class="shrink-0 rounded bg-cyan/15 px-1.5 py-0.2 text-[9px] font-mono uppercase text-cyan font-semibold tracking-wider">
+								Playlist
+							</span>
+						{/if}
 						<AudioVisualizer active={playing} size="sm" class="shrink-0 hidden xs:inline-flex" />
 					</div>
 					<div class="flex items-center gap-1.5 truncate text-[11px] text-faint">

@@ -46,13 +46,28 @@
 		const s = room.state;
 		const currentId = player.getVideoData()?.video_id ?? null;
 
-		if (!s.videoId) {
+		if (!s.videoId && !s.playlistId && !s.current?.playlistId) {
 			if (currentId) player.stopVideo();
 			return;
 		}
 
+		const targetPlaylist = s.playlistId || s.current?.playlistId;
+
 		if (currentId !== s.videoId) {
-			player.loadVideoById({ videoId: s.videoId, startSeconds: Math.max(0, targetTime()) });
+			if (targetPlaylist && !s.videoId) {
+				try {
+					player.loadPlaylist({
+						list: targetPlaylist,
+						listType: 'playlist',
+						index: 0,
+						startSeconds: Math.max(0, targetTime())
+					});
+				} catch {
+					/* fallback */
+				}
+			} else if (s.videoId) {
+				player.loadVideoById({ videoId: s.videoId, startSeconds: Math.max(0, targetTime()) });
+			}
 			if (!unlocked) player.mute();
 			else player.setVolume(volume);
 			return;

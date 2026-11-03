@@ -46,18 +46,45 @@ function randomId(): string {
 	}
 }
 
-export function parseTrackUrl(url: string): { source: 'youtube' | 'spotify' | 'soundcloud' | null; id: string | null } {
+export function parseTrackUrl(url: string): {
+	source: 'youtube' | 'spotify' | 'soundcloud' | null;
+	id: string | null;
+	playlistId?: string | null;
+	isPlaylist?: boolean;
+} {
 	const input = url.trim();
 	if (!input) return { source: null, id: null };
 	try {
 		const u = new URL(input);
 		const host = u.hostname.replace('www.', '');
+
 		if (host === 'youtu.be') {
-			return { source: 'youtube', id: u.pathname.replace('/', '') };
+			const id = u.pathname.replace('/', '');
+			const list = u.searchParams.get('list');
+			return {
+				source: 'youtube',
+				id: id || null,
+				playlistId: list,
+				isPlaylist: !!list
+			};
 		}
 		if (host === 'youtube.com' || host === 'm.youtube.com' || host === 'music.youtube.com') {
+			const list = u.searchParams.get('list');
+			if (u.pathname === '/playlist') {
+				return {
+					source: 'youtube',
+					id: null,
+					playlistId: list,
+					isPlaylist: true
+				};
+			}
 			if (u.pathname === '/watch') {
-				return { source: 'youtube', id: u.searchParams.get('v') };
+				return {
+					source: 'youtube',
+					id: u.searchParams.get('v'),
+					playlistId: list,
+					isPlaylist: !!list
+				};
 			}
 			if (u.pathname.startsWith('/shorts/')) {
 				return { source: 'youtube', id: u.pathname.split('/')[2] ?? null };
@@ -65,15 +92,41 @@ export function parseTrackUrl(url: string): { source: 'youtube' | 'spotify' | 's
 			if (u.pathname.startsWith('/live/')) {
 				return { source: 'youtube', id: u.pathname.split('/')[2] ?? null };
 			}
+			if (list) {
+				return {
+					source: 'youtube',
+					id: u.searchParams.get('v'),
+					playlistId: list,
+					isPlaylist: true
+				};
+			}
 		}
 		if (host === 'open.spotify.com') {
 			const parts = u.pathname.split('/').filter(Boolean);
-			if (parts.length >= 2 && (parts[0] === 'track' || parts[0] === 'album' || parts[0] === 'playlist')) {
-				return { source: 'spotify', id: parts[1] };
+			if (parts.length >= 2) {
+				const type = parts[0];
+				const id = parts[1];
+				if (type === 'playlist' || type === 'album') {
+					return {
+						source: 'spotify',
+						id,
+						playlistId: id,
+						isPlaylist: true
+					};
+				}
+				if (type === 'track') {
+					return { source: 'spotify', id, isPlaylist: false };
+				}
 			}
 		}
 		if (host === 'soundcloud.com') {
-			return { source: 'soundcloud', id: u.pathname.replace(/^\//, '') };
+			const isSet = u.pathname.includes('/sets/');
+			return {
+				source: 'soundcloud',
+				id: u.pathname.replace(/^\//, ''),
+				playlistId: isSet ? u.pathname.replace(/^\//, '') : null,
+				isPlaylist: isSet
+			};
 		}
 	} catch {
 		// maybe just an id
@@ -966,13 +1019,17 @@ class Room {
 		source?: TrackSource,
 		url?: string,
 		dedication?: string,
-		tag?: 'focus' | 'hangout'
+		tag?: 'focus' | 'hangout',
+		isPlaylist?: boolean,
+		playlistId?: string
 	): void {
 		const raw = videoIdOrUrl ?? '';
 		const parsed = source ? null : parseTrackUrl(raw);
 		const trackSource = source ?? parsed?.source ?? (raw.includes('youtube.com') || raw.includes('youtu.be') ? 'youtube' : 'unknown');
 		const videoId = trackSource === 'youtube' ? (parsed?.id ?? raw ?? null) : null;
 		const trackUrl = url ?? raw;
+		const playlist = isPlaylist ?? parsed?.isPlaylist;
+		const plistId = playlistId ?? parsed?.playlistId ?? undefined;
 		const track: Track = {
 			uid: randomId(),
 			videoId,
@@ -986,7 +1043,9 @@ class Room {
 			voters: [],
 			reactions: {},
 			dedication: dedication?.trim() ? dedication.trim().slice(0, 80) : undefined,
-			tag
+			tag,
+			isPlaylist: playlist,
+			playlistId: plistId
 		};
 		this.mutate((s) => {
 			if (!s.current) {
@@ -994,6 +1053,7 @@ class Room {
 					...s,
 					current: track,
 					videoId: track.videoId,
+					playlistId: plistId ?? null,
 					source: track.source,
 					playing: true,
 					position: 0
@@ -1001,7 +1061,7 @@ class Room {
 			}
 			const queue = [...s.queue, track];
 			return { ...s, queue };
-		}, `added “${title}”` + (track.dedication ? ` (dedicated: “${track.dedication}”)` : ''));
+		}, `added “${title}”` + (playlist ? ' (playlist)' : '') + (track.dedication ? ` (dedicated: “${track.dedication}”)` : ''));
 	}
 
 	vote(uid: string): void {
@@ -1096,6 +1156,8 @@ class Room {
 					queue: rest,
 					current: next ?? null,
 					videoId: next?.videoId ?? null,
+					playlistId: next?.playlistId ?? null,
+					source: next?.source,
 					playing: !!next,
 					position: 0
 				};
@@ -1118,6 +1180,8 @@ class Room {
 				queue: rest,
 				current: next ?? null,
 				videoId: next?.videoId ?? null,
+				playlistId: next?.playlistId ?? null,
+				source: next?.source,
 				playing: !!next,
 				position: 0
 			};
