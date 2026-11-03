@@ -55,28 +55,29 @@
 	}
 </script>
 
-<!-- Account status trigger button in Nav / Room -->
+<!-- Account status trigger icon in Top Right -->
 {#if isSupabaseConfigured}
 	{#if auth.isAuthenticated}
 		<button
-			class="inline-flex items-center gap-1.5 rounded-full border border-lamp/30 bg-lamp/10 px-2.5 py-1 text-xs font-mono text-lamp hover:border-lamp transition-colors"
+			class="relative flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full border border-lamp/40 bg-lamp/10 text-lamp transition-all hover:border-lamp hover:bg-lamp/20 active:scale-95"
 			onclick={() => (open = true)}
-			title="Account settings"
+			title="{auth.displayName} ({auth.user?.email || 'Profile'})"
+			aria-label="Account profile ({auth.displayName})"
 		>
-			<IconUser size={13} stroke={2} />
-			<span class="max-w-[100px] truncate">{auth.displayName}</span>
+			<IconUser size={16} stroke={1.8} />
+			<span class="absolute bottom-0.5 right-0.5 h-2 w-2 rounded-full bg-lamp border border-night shadow-[0_0_6px_#f59e0b]"></span>
 		</button>
 	{:else}
 		<button
-			class="inline-flex items-center gap-1.5 rounded-full border border-cream/15 bg-night/80 px-2.5 py-1 text-xs font-mono text-faint hover:text-cream hover:border-cream/30 transition-colors"
+			class="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full border border-cream/15 bg-night/80 text-faint transition-all hover:border-cream/30 hover:text-cream active:scale-95"
 			onclick={() => {
 				open = true;
 				callsign = room.name;
 			}}
-			title="Sign in or link account"
+			title="Sign in / Profile"
+			aria-label="Sign in"
 		>
-			<IconKey size={13} stroke={1.5} />
-			<span class="hidden sm:inline">Sign in</span>
+			<IconUser size={16} stroke={1.5} />
 		</button>
 	{/if}
 {/if}

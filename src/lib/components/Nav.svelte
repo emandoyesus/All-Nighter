@@ -102,8 +102,6 @@
 				{/if}
 			</button>
 
-			<AuthModal />
-
 			{#if inRoom}
 				<a
 					href={roomLink}
@@ -134,6 +132,9 @@
 					Open the door
 				</a>
 			{/if}
+
+			<!-- Profile Icon in top right -->
+			<AuthModal />
 		</div>
 	</div>
 </header>
