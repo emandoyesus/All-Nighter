@@ -14,6 +14,34 @@
 	let error = $state('');
 	let loading = $state(false);
 	let successMsg = $state('');
+	let avatarInput = $state('');
+	let savingAvatar = $state(false);
+	let avatarMsg = $state('');
+	let imgError = $state(false);
+
+	$effect(() => {
+		if (auth.user) {
+			avatarInput = auth.avatarUrl || '';
+			imgError = false;
+		}
+	});
+
+	async function handleSaveAvatar() {
+		savingAvatar = true;
+		avatarMsg = '';
+		try {
+			await auth.updateProfile({ avatarUrl: avatarInput.trim() });
+			avatarMsg = 'Saved!';
+			imgError = false;
+			setTimeout(() => {
+				avatarMsg = '';
+			}, 2500);
+		} catch (err: any) {
+			avatarMsg = 'Failed to save';
+		} finally {
+			savingAvatar = false;
+		}
+	}
 
 	function portal(node: HTMLElement) {
 		document.body.appendChild(node);
@@ -91,16 +119,19 @@
 		{#if auth.isAuthenticated}
 			<!-- Authenticated user icon -->
 			<button
-				class="relative flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full border border-lamp/40 bg-lamp/10 text-lamp transition-all hover:border-lamp hover:bg-lamp/20 active:scale-95"
+				class="relative flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full border border-lamp/40 bg-night-2 transition-all hover:border-lamp active:scale-95 p-0 overflow-hidden"
 				onclick={() => (open = !open)}
 				title="{auth.displayName} ({auth.user?.email || 'Profile'})"
 				aria-label="Account profile ({auth.displayName})"
 				aria-expanded={open}
 			>
-				<span class="text-xs font-semibold">
-					{(auth.displayName || 'U')[0].toUpperCase()}
-				</span>
-				<span class="absolute bottom-0.5 right-0.5 h-2 w-2 rounded-full bg-lamp border border-night shadow-[0_0_6px_#f59e0b]"></span>
+				<img
+					src={!imgError && auth.avatarUrl ? auth.avatarUrl : '/default-avatar.svg'}
+					alt={auth.displayName || 'Profile'}
+					class="h-full w-full rounded-full object-cover"
+					onerror={() => (imgError = true)}
+				/>
+				<span class="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-lamp border-2 border-night"></span>
 			</button>
 
 			<!-- Profile Dropdown (anchored to top-right icon, opens downwards into page) -->
@@ -112,9 +143,12 @@
 				>
 					<div class="flex items-center justify-between pb-3 border-b border-cream/10">
 						<div class="flex items-center gap-2.5 min-w-0">
-							<span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-lamp/15 text-sm font-semibold text-lamp border border-lamp/30">
-								{(auth.displayName || 'U')[0].toUpperCase()}
-							</span>
+							<img
+								src={!imgError && auth.avatarUrl ? auth.avatarUrl : '/default-avatar.svg'}
+								alt={auth.displayName || 'Profile'}
+								class="h-9 w-9 shrink-0 rounded-full object-cover border border-lamp/30 bg-night"
+								onerror={() => (imgError = true)}
+							/>
 							<div class="min-w-0">
 								<p class="truncate text-xs font-semibold text-cream">{auth.displayName || 'All-Nighter'}</p>
 								<p class="truncate text-[11px] text-faint">{auth.user?.email}</p>
@@ -138,6 +172,30 @@
 						<div class="rounded-lg bg-night/60 p-2.5 border border-cream/5">
 							<p class="text-[10px] uppercase font-mono tracking-wider text-faint">Logged In Email</p>
 							<p class="text-xs text-cream/90 truncate mt-0.5">{auth.user?.email}</p>
+						</div>
+						<div class="rounded-lg bg-night/60 p-2.5 border border-cream/5">
+							<div class="flex items-center justify-between mb-1">
+								<p class="text-[10px] uppercase font-mono tracking-wider text-faint">Profile Picture URL</p>
+								{#if avatarMsg}
+									<span class="text-[10px] text-lamp font-mono">{avatarMsg}</span>
+								{/if}
+							</div>
+							<div class="flex items-center gap-1.5">
+								<input
+									type="url"
+									class="w-full rounded border border-cream/15 bg-night px-2.5 py-1 text-xs text-cream outline-none focus:border-lamp font-mono placeholder:text-faint/60"
+									placeholder="Image URL (optional)"
+									bind:value={avatarInput}
+								/>
+								<button
+									type="button"
+									class="btn btn-primary btn-sm text-[11px] px-2.5 py-1 shrink-0"
+									disabled={savingAvatar}
+									onclick={handleSaveAvatar}
+								>
+									{savingAvatar ? 'Saving...' : 'Save'}
+								</button>
+							</div>
 						</div>
 
 						<div class="pt-2 flex justify-between items-center gap-2">
@@ -163,7 +221,7 @@
 		{:else}
 			<!-- Unauthenticated trigger icon -->
 			<button
-				class="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full border border-cream/15 bg-night/80 text-faint transition-all hover:border-cream/30 hover:text-cream active:scale-95"
+				class="relative flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full border border-cream/20 bg-night-2 transition-all hover:border-cream/40 active:scale-95 p-0 overflow-hidden"
 				onclick={() => {
 					open = true;
 					callsign = room.name;
@@ -171,7 +229,11 @@
 				title="Sign in / Profile"
 				aria-label="Sign in"
 			>
-				<IconUser size={16} stroke={1.5} />
+				<img
+					src="/default-avatar.svg"
+					alt="Profile"
+					class="h-full w-full rounded-full object-cover opacity-85 transition-opacity hover:opacity-100"
+				/>
 			</button>
 
 			<!-- Sign In / Sign Up Modal portaled to document.body so header CSS transform does not clip it -->

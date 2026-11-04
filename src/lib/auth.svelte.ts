@@ -15,6 +15,15 @@ class AuthService {
 			null
 		);
 	});
+	avatarUrl = $derived.by(() => {
+		if (!this.user) return null;
+		return (
+			this.user.user_metadata?.avatar_url ||
+			this.user.user_metadata?.picture ||
+			this.user.user_metadata?.avatar ||
+			null
+		);
+	});
 
 	constructor() {
 		if (typeof window !== 'undefined' && isSupabaseConfigured && supabase) {
@@ -58,6 +67,19 @@ class AuthService {
 	async signOut() {
 		if (!supabase) return;
 		return supabase.auth.signOut();
+	}
+
+	async updateProfile(updates: { callsign?: string; avatarUrl?: string }) {
+		if (!supabase) throw new Error('Supabase is not configured');
+		const data: Record<string, any> = {};
+		if (updates.callsign !== undefined) data.callsign = updates.callsign;
+		if (updates.avatarUrl !== undefined) data.avatar_url = updates.avatarUrl;
+		const { data: res, error } = await supabase.auth.updateUser({ data });
+		if (error) throw error;
+		if (res.user) {
+			this.user = res.user;
+		}
+		return res;
 	}
 }
 
