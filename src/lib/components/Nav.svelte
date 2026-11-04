@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { page } from '$app/state';
 	import { room } from '#lib/room/room.svelte';
 	import { siteAudio } from '#lib/audio/site-audio.svelte';
 	import { gsap, prefersReducedMotion, setupGsap } from '#lib/motion';
@@ -10,6 +11,11 @@
 	import IconVolume from '@tabler/icons-svelte/icons/volume';
 	import IconVolumeOff from '@tabler/icons-svelte/icons/volume-off';
 	import AuthModal from './AuthModal.svelte';
+
+	const pathname = $derived(page.url.pathname);
+	const isHome = $derived(pathname === '/');
+	const isRoom = $derived(pathname.startsWith('/room'));
+	const isArchive = $derived(pathname.startsWith('/archive'));
 
 	const live = $derived(room.state.playing);
 	const inRoom = $derived(room.joinState === 'approved');
@@ -67,20 +73,53 @@
 			<span>All Nighter</span>
 		</a>
 
-		<div class="ml-auto flex items-center gap-3 sm:gap-4">
-			<nav class="flex items-center gap-3 sm:gap-6 text-xs sm:text-sm text-taupe lg:gap-7">
-				<a class="transition-colors hover:text-cream" href="/">Tonight</a>
-				<a class="transition-colors hover:text-cream {inRoom ? 'text-cream font-medium' : ''}" href={roomLink}>
+		<div class="ml-auto flex items-center gap-2 sm:gap-4">
+			<nav class="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm" aria-label="Main navigation">
+				<a
+					href="/"
+					class="inline-flex items-center gap-1.5 rounded-full px-2.5 sm:px-3 py-1 transition-all {isHome
+						? 'border border-cream/20 bg-cream/10 font-medium text-cream'
+						: 'text-taupe hover:bg-cream/5 hover:text-cream'}"
+					aria-current={isHome ? 'page' : undefined}
+				>
+					{#if isHome}
+						<span class="h-1.5 w-1.5 rounded-full bg-lamp"></span>
+					{/if}
+					Tonight
+				</a>
+
+				<a
+					href={roomLink}
+					class="inline-flex items-center gap-1.5 rounded-full px-2.5 sm:px-3 py-1 transition-all {isRoom
+						? 'border border-cream/20 bg-cream/10 font-medium text-cream'
+						: 'text-taupe hover:bg-cream/5 hover:text-cream'}"
+					aria-current={isRoom ? 'page' : undefined}
+				>
 					{#if inRoom}
 						<span class="inline-flex items-center gap-1.5">
 							<span class="h-1.5 w-1.5 rounded-full bg-amber soft-blink"></span>
 							{room.title || 'The Room'}
 						</span>
 					{:else}
+						{#if isRoom}
+							<span class="h-1.5 w-1.5 rounded-full bg-lamp"></span>
+						{/if}
 						The Room
 					{/if}
 				</a>
-				<a class="transition-colors hover:text-cream" href="/archive">The Archive</a>
+
+				<a
+					href="/archive"
+					class="inline-flex items-center gap-1.5 rounded-full px-2.5 sm:px-3 py-1 transition-all {isArchive
+						? 'border border-cream/20 bg-cream/10 font-medium text-cream'
+						: 'text-taupe hover:bg-cream/5 hover:text-cream'}"
+					aria-current={isArchive ? 'page' : undefined}
+				>
+					{#if isArchive}
+						<span class="h-1.5 w-1.5 rounded-full bg-lamp"></span>
+					{/if}
+					The Archive
+				</a>
 			</nav>
 
 			<!-- Website Sound Quick Toggle (Interstellar soundtrack in background) -->
@@ -123,7 +162,7 @@
 					ON AIR
 					<IconRadio size={12} stroke={1.5} class="text-rose-400" />
 				</a>
-			{:else}
+			{:else if !isRoom}
 				<a
 					href={roomLink}
 					class="btn btn-primary hidden text-[13px] sm:inline-flex sm:text-sm"
