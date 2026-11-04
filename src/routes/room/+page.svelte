@@ -45,15 +45,17 @@
 	<title>The Room · All Nighter</title>
 </svelte:head>
 
+<Nav />
+
 {#if !auth.isAuthenticated}
 	{#if auth.loading}
-		<div class="fixed inset-0 z-50 flex items-center justify-center bg-night">
+		<div class="flex min-h-[calc(100dvh-64px)] md:min-h-[calc(100dvh-68px)] items-center justify-center bg-night">
 			<p class="font-mono text-xs text-faint animate-pulse">Checking night session...</p>
 		</div>
 	{:else}
 		<!-- Standalone Sign In Room view for users with no profile -->
-		<div class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-night p-4 sm:p-6 overflow-y-auto">
-			<div class="w-full max-w-md my-auto">
+		<div class="flex min-h-[calc(100dvh-64px)] md:min-h-[calc(100dvh-68px)] flex-col items-center justify-center bg-night p-4 sm:p-6">
+			<div class="w-full max-w-md my-auto py-8">
 				<a href="/" class="mb-4 inline-flex items-center gap-1.5 text-xs text-taupe transition-colors hover:text-cream font-mono">
 					<IconArrowLeft size={14} stroke={1.5} />
 					Tonight
@@ -63,8 +65,6 @@
 		</div>
 	{/if}
 {:else}
-	<Nav />
-
 	<main class="min-h-[calc(100dvh-64px)] md:min-h-[calc(100dvh-68px)]">
 		<section class="border-b border-cream/10 bg-night-2">
 			<div class="mx-auto max-w-[1400px] px-5 py-10 md:py-12">
