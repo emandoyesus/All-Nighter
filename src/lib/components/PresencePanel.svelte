@@ -25,8 +25,8 @@
 			if (hour >= 5 && hour < 7) {
 				return { time, badge: 'dawn', icon: '🌅' };
 			}
-			if (hour >= 21 || hour < 23) {
-				return { time, badge: 'night', icon: '🌆' };
+			if (hour >= 19 && hour < 23) {
+				return { time, badge: 'night', icon: '🌙' };
 			}
 			return { time, badge: 'daylight', icon: '☀️' };
 		} catch {

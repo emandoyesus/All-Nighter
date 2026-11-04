@@ -46,17 +46,29 @@
 		const hour = parseInt(parts.find((p) => p.type === 'hour')?.value ?? '0', 10);
 		const minute = parts.find((p) => p.type === 'minute')?.value ?? '00';
 
-		// Night window is between 00:00 and 06:00
-		const isDeepNight = hour >= 1 && hour < 5;
+		// Night starts at 19:00 (sunset) through sunrise (06:00/07:00)
+		const isDeepNight = hour >= 23 || hour < 5;
+		const isNightEvening = hour >= 19 && hour < 23;
 		const isDawn = hour >= 5 && hour < 7;
-		const isNight = hour >= 0 && hour < 6;
+		const isNight = hour >= 19 || hour < 6;
+
+		let phase: 'deep night' | 'night' | 'dawn' | 'daylight' = 'daylight';
+		if (isDeepNight) {
+			phase = 'deep night';
+		} else if (isNightEvening) {
+			phase = 'night';
+		} else if (isDawn) {
+			phase = 'dawn';
+		}
 
 		return {
 			timeString: `${String(hour).padStart(2, '0')}:${minute}`,
 			hour,
 			isDeepNight,
+			isNightEvening,
 			isDawn,
-			isNight
+			isNight,
+			phase
 		};
 	}
 
@@ -94,15 +106,17 @@
 				<div
 					class="flex flex-col justify-between rounded-field border p-3 transition-colors {city.isDeepNight
 						? 'border-lamp/40 bg-lamp/5'
-						: city.isDawn
-							? 'border-amber-400/30 bg-amber-400/5'
-							: 'border-cream/8 bg-night/40 opacity-50'}"
+						: city.isNightEvening
+							? 'border-lamp/25 bg-lamp/[0.03]'
+							: city.isDawn
+								? 'border-amber-400/30 bg-amber-400/5'
+								: 'border-cream/8 bg-night/40 opacity-50'}"
 				>
 					<div class="flex items-center justify-between gap-1">
-						<span class="truncate text-xs font-medium {city.isDeepNight ? 'text-cream' : 'text-taupe'}">
+						<span class="truncate text-xs font-medium {city.isNight ? 'text-cream' : 'text-taupe'}">
 							{city.city}
 						</span>
-						{#if city.isDeepNight}
+						{#if city.isDeepNight || city.isNightEvening}
 							<IconMoon size={13} stroke={1.5} class="text-lamp shrink-0" />
 						{:else if city.isDawn}
 							<IconSunrise size={13} stroke={1.5} class="text-amber-300 shrink-0" />
@@ -112,17 +126,11 @@
 					</div>
 
 					<div class="mt-3 flex items-baseline justify-between">
-						<span class="num text-sm font-semibold {city.isDeepNight ? 'text-lamp' : 'text-cream/90'}">
+						<span class="num text-sm font-semibold {city.isNight ? 'text-lamp' : 'text-cream/90'}">
 							{city.timeString}
 						</span>
 						<span class="num text-[10px] uppercase tracking-wider text-faint">
-							{#if city.isDeepNight}
-								deep night
-							{:else if city.isDawn}
-								dawn
-							{:else}
-								daylight
-							{/if}
+							{city.phase}
 						</span>
 					</div>
 				</div>
