@@ -60,7 +60,7 @@
 					.toLowerCase();
 				return haystack.includes(q);
 			})
-			.sort((a, b) => (a.iso < b.iso ? 1 : -1));
+			.sort((a, b) => new Date(b.iso).getTime() - new Date(a.iso).getTime());
 	});
 
 	function reset(): void {

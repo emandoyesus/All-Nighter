@@ -53,43 +53,115 @@ export type UpcomingSession = {
 
 export const nights: Night[] = [
 	{
-		slug: 'the-night-the-race-condition-died',
-		date: 'Mar 14',
-		iso: '2025-03-14T23:10:00',
-		tag: 'Midterms',
-		title: 'The night the race condition died',
-		note: 'Two laptops arguing about error handling until the sky went orange. The fix arrived at 5:41.',
-		hours: '7h 12m',
-		minutes: 432,
-		tracks: 41,
-		heads: 6,
-		seed: 'all-nighter-mar14',
-		img: 'nights/night-1.jpg',
-		joined: ['elena', 'sam', 'nate', 'yared', 'maya', 'dani'],
+		slug: 'entoto-sunrise-addis-lock-in',
+		date: 'Oct 18',
+		iso: '2025-10-18T22:30:00',
+		tag: 'Addis Ababa',
+		title: 'Entoto sunrise & late night code',
+		note: 'Overlooking Addis Ababa from Entoto as the city lights flickered below. Strong Ethiopian coffee, three bug fixes, and sunrise over the highlands.',
+		hours: '7h 35m',
+		minutes: 455,
+		tracks: 48,
+		heads: 9,
+		seed: 'all-nighter-oct18',
+		img: 'nights/ritual.jpg',
+		joined: ['elena', 'solomon', 'sam', 'nate', 'yared'],
 		intentions: [
-			'fix the race condition in the socket handler before 6am',
-			'finish the auth middleware and write the unit tests',
-			'just here to listen and not fall asleep tbh',
-			'clean up the API response types, finally',
-			'prep the slides for the 9am demo',
-			'get the CI pipeline to stop being dramatic'
+			'refactor the realtime socket layer before dawn',
+			'ship the v2 design system updates',
+			'enjoy the coffee and keep the playlist rolling',
+			'write clean database migrations without downtime',
+			'stay locked in till the Entoto sunrise'
 		],
 		tracklist: [
-			{ title: 'beats to relax / study to', artist: 'Lofi Girl', addedBy: 'elena', genre: 'lofi', source: 'youtube', videoId: 'rFZHOHl-L8A', reactions: 14, note: 'the one that started it' },
-			{ title: 'Nightcall', artist: 'Kavinsky', addedBy: 'sam', genre: 'synthwave', reactions: 9 },
-			{ title: 'Midnight City', artist: 'M83', addedBy: 'maya', genre: 'synthwave', reactions: 11 },
-			{ title: 'An Ending (Ascent)', artist: 'Brian Eno', addedBy: 'yared', genre: 'ambient', reactions: 7 },
-			{ title: 'Chillhop Radio', artist: 'Chillhop Music', addedBy: 'nate', genre: 'lofi', source: 'youtube', videoId: '5yx6BWlEVcY', reactions: 12 },
-			{ title: 'Weird Fishes / Arpeggi', artist: 'Radiohead', addedBy: 'dani', genre: 'alternative', reactions: 8 },
-			{ title: 'Breathe', artist: 'Télépopmusik', addedBy: 'sam', genre: 'electronic', reactions: 5 },
-			{ title: 'Sunset Lover', artist: 'Petit Biscuit', addedBy: 'elena', genre: 'electronic', reactions: 6 },
-			{ title: 'Weightless', artist: 'Marconi Union', addedBy: 'yared', genre: 'ambient', reactions: 4 },
-			{ title: 'Nocturne in E-flat', artist: 'Chopin', addedBy: 'maya', genre: 'classical', reactions: 3, note: 'played at 5:41' }
+			{ title: 'Yèkèrmo Sèw (A Man of Experience)', artist: 'Mulatu Astatke', addedBy: 'elena', genre: 'ethio-jazz', reactions: 18, note: 'classic late night Ethio-jazz' },
+			{ title: 'Tezeta (Nostalgia)', artist: 'Mulatu Astatke', addedBy: 'sam', genre: 'ethio-jazz', reactions: 15 },
+			{ title: 'shinjuku fm, soft lofi / smooth jazz', artist: 'TOKYO TONES', addedBy: 'solomon', genre: 'lofi', source: 'youtube', videoId: '2CDRu6-Vgfo', reactions: 12 },
+			{ title: 'Resonance', artist: 'HOME', addedBy: 'nate', genre: 'synthwave', reactions: 14 },
+			{ title: 'beats to relax / study to', artist: 'Lofi Girl', addedBy: 'yared', genre: 'lofi', source: 'youtube', videoId: 'rFZHOHl-L8A', reactions: 10 }
 		],
 		chatMoments: [
-			{ who: 'sam', text: 'the test finally passes. i am going to cry', at: '05:41' },
-			{ who: 'elena', text: 'do NOT merge yet, let me look', at: '05:44' },
-			{ who: 'yared', text: 'sunrise check. it is orange out there', at: '06:02' }
+			{ who: 'elena', text: 'the coffee here in addis hits completely different at 3am', at: '03:15' },
+			{ who: 'solomon', text: 'pull request approved and merged cleanly', at: '05:22' },
+			{ who: 'sam', text: 'sunrise over the mountains right now is unreal', at: '06:05' }
+		]
+	},
+	{
+		slug: 'new-group-chat-same-couch',
+		date: 'Sep 22',
+		iso: '2025-09-22T22:00:00',
+		tag: 'First lock-in',
+		title: 'New group chat, same couch',
+		note: 'Fresh semester, old rituals. Nobody remembered to eat dinner, everybody remembered the aux rules.',
+		hours: '6h 28m',
+		minutes: 388,
+		tracks: 46,
+		heads: 7,
+		seed: 'all-nighter-sep22',
+		img: 'nights/night-4.jpg',
+		joined: ['marcus', 'solomon', 'sam', 'yared', 'tariq', 'elena', 'kai'],
+		intentions: [
+			'set up the repo for the new semester project',
+			'read the brief and write a plan before doing anything',
+			'catch up on two weeks of missed readings',
+			'sketch out the database schema, nothing fancy',
+			'order dinner before everywhere closes, then study',
+			'figure out what the group project is actually about',
+			'set up my dev environment, it broke over the summer'
+		],
+		tracklist: [
+			{ title: 'shinjuku fm, soft lofi / smooth jazz', artist: 'TOKYO TONES', addedBy: 'marcus', genre: 'lofi', source: 'youtube', videoId: '2CDRu6-Vgfo', reactions: 15 },
+			{ title: 'Buddy Holly', artist: 'Weezer', addedBy: 'solomon', genre: 'alternative', reactions: 8 },
+			{ title: 'Electric Feel', artist: 'MGMT', addedBy: 'sam', genre: 'indie', reactions: 9 },
+			{ title: 'Nightfall', artist: 'Little Dragon', addedBy: 'yared', genre: 'electronic', reactions: 6 },
+			{ title: 'Lost in the World', artist: 'Kanye West', addedBy: 'tariq', genre: 'hip-hop', reactions: 7 },
+			{ title: 'Lovers Rock', artist: 'TV Girl', addedBy: 'elena', genre: 'indie pop', reactions: 13 },
+			{ title: '505', artist: 'Arctic Monkeys', addedBy: 'kai', genre: 'indie rock', reactions: 11 },
+			{ title: 'Sofia', artist: 'Clairo', addedBy: 'sam', genre: 'indie pop', reactions: 5 },
+			{ title: 'New Person, Same Old Mistakes', artist: 'Tame Impala', addedBy: 'solomon', genre: 'psych pop', reactions: 10 }
+		],
+		chatMoments: [
+			{ who: 'marcus', text: 'aux rules posted. read them. live them.', at: '22:14' },
+			{ who: 'elena', text: 'nobody ate dinner did they', at: '00:31' },
+			{ who: 'tariq', text: 'ordering bread at 2am, reply with a number', at: '02:02' }
+		]
+	},
+	{
+		slug: 'rain-one-amplifier-no-regrets',
+		date: 'Jun 03',
+		iso: '2025-06-03T23:30:00',
+		tag: 'Finals week',
+		title: 'Rain, one amplifier, no regrets',
+		note: 'Someone brought a second speaker. The library closed early. We did not.',
+		hours: '5h 47m',
+		minutes: 347,
+		tracks: 33,
+		heads: 5,
+		seed: 'all-nighter-jun03',
+		img: 'nights/night-3.jpg',
+		joined: ['nate', 'elena', 'kai', 'maya', 'dani'],
+		intentions: [
+			'finish the finals essay, at least the introduction',
+			'get through the problem sets before my brain gives up',
+			'study orgo until I actually understand it or the sun rises',
+			'annotate every lecture slide from week 8 onwards',
+			'write the conclusion I have been avoiding for two weeks'
+		],
+		tracklist: [
+			{ title: 'beats to sleep / chill to', artist: 'Lofi Girl', addedBy: 'nate', genre: 'lofi', source: 'youtube', videoId: 'JD-kMIpDfnY', reactions: 10 },
+			{ title: 'Holocene', artist: 'Bon Iver', addedBy: 'elena', genre: 'indie folk', reactions: 9 },
+			{ title: 'Rain Song', artist: 'Led Zeppelin', addedBy: 'kai', genre: 'classic rock', reactions: 6 },
+			{ title: 'Pink + White', artist: 'Frank Ocean', addedBy: 'maya', genre: 'r&b', reactions: 12 },
+			{ title: 'Motion Picture Soundtrack', artist: 'Radiohead', addedBy: 'dani', genre: 'alternative', reactions: 8 },
+			{ title: 'cliché', artist: 'mxmtoon', addedBy: 'elena', genre: 'indie', reactions: 4 },
+			{ title: 'The Night We Met', artist: 'Lord Huron', addedBy: 'kai', genre: 'indie folk', reactions: 7 },
+			{ title: 'Space Song', artist: 'Beach House', addedBy: 'nate', genre: 'dream pop', reactions: 11 },
+			{ title: 'Nights', artist: 'Frank Ocean', addedBy: 'maya', genre: 'r&b', reactions: 5 }
+		],
+		chatMoments: [
+			{ who: 'kai', text: 'the second speaker is clipping and i do not care', at: '03:05' },
+			{ who: 'nate', text: 'rain is louder than the music now', at: '03:48' },
+			{ who: 'dani', text: 'library closed 2 hours ago lol', at: '04:10' }
 		]
 	},
 	{
@@ -135,115 +207,43 @@ export const nights: Night[] = [
 		]
 	},
 	{
-		slug: 'rain-one-amplifier-no-regrets',
-		date: 'Jun 03',
-		iso: '2025-06-03T23:30:00',
-		tag: 'Finals week',
-		title: 'Rain, one amplifier, no regrets',
-		note: 'Someone brought a second speaker. The library closed early. We did not.',
-		hours: '5h 47m',
-		minutes: 347,
-		tracks: 33,
-		heads: 5,
-		seed: 'all-nighter-jun03',
-		img: 'nights/night-3.jpg',
-		joined: ['nate', 'elena', 'kai', 'maya', 'dani'],
+		slug: 'the-night-the-race-condition-died',
+		date: 'Mar 14',
+		iso: '2025-03-14T23:10:00',
+		tag: 'Midterms',
+		title: 'The night the race condition died',
+		note: 'Two laptops arguing about error handling until the sky went orange. The fix arrived at 5:41.',
+		hours: '7h 12m',
+		minutes: 432,
+		tracks: 41,
+		heads: 6,
+		seed: 'all-nighter-mar14',
+		img: 'nights/night-1.jpg',
+		joined: ['elena', 'sam', 'nate', 'yared', 'maya', 'dani'],
 		intentions: [
-			'finish the finals essay, at least the introduction',
-			'get through the problem sets before my brain gives up',
-			'study orgo until I actually understand it or the sun rises',
-			'annotate every lecture slide from week 8 onwards',
-			'write the conclusion I have been avoiding for two weeks'
+			'fix the race condition in the socket handler before 6am',
+			'finish the auth middleware and write the unit tests',
+			'just here to listen and not fall asleep tbh',
+			'clean up the API response types, finally',
+			'prep the slides for the 9am demo',
+			'get the CI pipeline to stop being dramatic'
 		],
 		tracklist: [
-			{ title: 'beats to sleep / chill to', artist: 'Lofi Girl', addedBy: 'nate', genre: 'lofi', source: 'youtube', videoId: 'JD-kMIpDfnY', reactions: 10 },
-			{ title: 'Holocene', artist: 'Bon Iver', addedBy: 'elena', genre: 'indie folk', reactions: 9 },
-			{ title: 'Rain Song', artist: 'Led Zeppelin', addedBy: 'kai', genre: 'classic rock', reactions: 6 },
-			{ title: 'Pink + White', artist: 'Frank Ocean', addedBy: 'maya', genre: 'r&b', reactions: 12 },
-			{ title: 'Motion Picture Soundtrack', artist: 'Radiohead', addedBy: 'dani', genre: 'alternative', reactions: 8 },
-			{ title: 'cliché', artist: 'mxmtoon', addedBy: 'elena', genre: 'indie', reactions: 4 },
-			{ title: 'The Night We Met', artist: 'Lord Huron', addedBy: 'kai', genre: 'indie folk', reactions: 7 },
-			{ title: 'Space Song', artist: 'Beach House', addedBy: 'nate', genre: 'dream pop', reactions: 11 },
-			{ title: 'Nights', artist: 'Frank Ocean', addedBy: 'maya', genre: 'r&b', reactions: 5 }
+			{ title: 'beats to relax / study to', artist: 'Lofi Girl', addedBy: 'elena', genre: 'lofi', source: 'youtube', videoId: 'rFZHOHl-L8A', reactions: 14, note: 'the one that started it' },
+			{ title: 'Nightcall', artist: 'Kavinsky', addedBy: 'sam', genre: 'synthwave', reactions: 9 },
+			{ title: 'Midnight City', artist: 'M83', addedBy: 'maya', genre: 'synthwave', reactions: 11 },
+			{ title: 'An Ending (Ascent)', artist: 'Brian Eno', addedBy: 'yared', genre: 'ambient', reactions: 7 },
+			{ title: 'Chillhop Radio', artist: 'Chillhop Music', addedBy: 'nate', genre: 'lofi', source: 'youtube', videoId: '5yx6BWlEVcY', reactions: 12 },
+			{ title: 'Weird Fishes / Arpeggi', artist: 'Radiohead', addedBy: 'dani', genre: 'alternative', reactions: 8 },
+			{ title: 'Breathe', artist: 'Télépopmusik', addedBy: 'sam', genre: 'electronic', reactions: 5 },
+			{ title: 'Sunset Lover', artist: 'Petit Biscuit', addedBy: 'elena', genre: 'electronic', reactions: 6 },
+			{ title: 'Weightless', artist: 'Marconi Union', addedBy: 'yared', genre: 'ambient', reactions: 4 },
+			{ title: 'Nocturne in E-flat', artist: 'Chopin', addedBy: 'maya', genre: 'classical', reactions: 3, note: 'played at 5:41' }
 		],
 		chatMoments: [
-			{ who: 'kai', text: 'the second speaker is clipping and i do not care', at: '03:05' },
-			{ who: 'nate', text: 'rain is louder than the music now', at: '03:48' },
-			{ who: 'dani', text: 'library closed 2 hours ago lol', at: '04:10' }
-		]
-	},
-	{
-		slug: 'new-group-chat-same-couch',
-		date: 'Sep 22',
-		iso: '2025-09-22T22:00:00',
-		tag: 'First lock-in',
-		title: 'New group chat, same couch',
-		note: 'Fresh semester, old rituals. Nobody remembered to eat dinner, everybody remembered the aux rules.',
-		hours: '6h 28m',
-		minutes: 388,
-		tracks: 46,
-		heads: 7,
-		seed: 'all-nighter-sep22',
-		img: 'nights/night-4.jpg',
-		joined: ['marcus', 'solomon', 'sam', 'yared', 'tariq', 'elena', 'kai'],
-		intentions: [
-			'set up the repo for the new semester project',
-			'read the brief and write a plan before doing anything',
-			'catch up on two weeks of missed readings',
-			'sketch out the database schema, nothing fancy',
-			'order dinner before everywhere closes, then study',
-			'figure out what the group project is actually about',
-			'set up my dev environment, it broke over the summer'
-		],
-		tracklist: [
-			{ title: 'shinjuku fm, soft lofi / smooth jazz', artist: 'TOKYO TONES', addedBy: 'marcus', genre: 'lofi', source: 'youtube', videoId: '2CDRu6-Vgfo', reactions: 15 },
-			{ title: 'Buddy Holly', artist: 'Weezer', addedBy: 'solomon', genre: 'alternative', reactions: 8 },
-			{ title: 'Electric Feel', artist: 'MGMT', addedBy: 'sam', genre: 'indie', reactions: 9 },
-			{ title: 'Nightfall', artist: 'Little Dragon', addedBy: 'yared', genre: 'electronic', reactions: 6 },
-			{ title: 'Lost in the World', artist: 'Kanye West', addedBy: 'tariq', genre: 'hip-hop', reactions: 7 },
-			{ title: 'Lovers Rock', artist: 'TV Girl', addedBy: 'elena', genre: 'indie pop', reactions: 13 },
-			{ title: '505', artist: 'Arctic Monkeys', addedBy: 'kai', genre: 'indie rock', reactions: 11 },
-			{ title: 'Sofia', artist: 'Clairo', addedBy: 'sam', genre: 'indie pop', reactions: 5 },
-			{ title: 'New Person, Same Old Mistakes', artist: 'Tame Impala', addedBy: 'solomon', genre: 'psych pop', reactions: 10 }
-		],
-		chatMoments: [
-			{ who: 'marcus', text: 'aux rules posted. read them. live them.', at: '22:14' },
-			{ who: 'elena', text: 'nobody ate dinner did they', at: '00:31' },
-			{ who: 'tariq', text: 'ordering bread at 2am, reply with a number', at: '02:02' }
-		]
-	},
-	{
-		slug: 'entoto-sunrise-addis-lock-in',
-		date: 'Oct 18',
-		iso: '2025-10-18T22:30:00',
-		tag: 'Addis Ababa',
-		title: 'Entoto sunrise & late night code',
-		note: 'Overlooking Addis Ababa from Entoto as the city lights flickered below. Strong Ethiopian coffee, three bug fixes, and sunrise over the highlands.',
-		hours: '7h 35m',
-		minutes: 455,
-		tracks: 48,
-		heads: 9,
-		seed: 'all-nighter-oct18',
-		img: 'nights/ritual.jpg',
-		joined: ['elena', 'solomon', 'sam', 'nate', 'yared'],
-		intentions: [
-			'refactor the realtime socket layer before dawn',
-			'ship the v2 design system updates',
-			'enjoy the coffee and keep the playlist rolling',
-			'write clean database migrations without downtime',
-			'stay locked in till the Entoto sunrise'
-		],
-		tracklist: [
-			{ title: 'Yèkèrmo Sèw (A Man of Experience)', artist: 'Mulatu Astatke', addedBy: 'elena', genre: 'ethio-jazz', reactions: 18, note: 'classic late night Ethio-jazz' },
-			{ title: 'Tezeta (Nostalgia)', artist: 'Mulatu Astatke', addedBy: 'sam', genre: 'ethio-jazz', reactions: 15 },
-			{ title: 'shinjuku fm, soft lofi / smooth jazz', artist: 'TOKYO TONES', addedBy: 'solomon', genre: 'lofi', source: 'youtube', videoId: '2CDRu6-Vgfo', reactions: 12 },
-			{ title: 'Resonance', artist: 'HOME', addedBy: 'nate', genre: 'synthwave', reactions: 14 },
-			{ title: 'beats to relax / study to', artist: 'Lofi Girl', addedBy: 'yared', genre: 'lofi', source: 'youtube', videoId: 'rFZHOHl-L8A', reactions: 10 }
-		],
-		chatMoments: [
-			{ who: 'elena', text: 'the coffee here in addis hits completely different at 3am', at: '03:15' },
-			{ who: 'solomon', text: 'pull request approved and merged cleanly', at: '05:22' },
-			{ who: 'sam', text: 'sunrise over the mountains right now is unreal', at: '06:05' }
+			{ who: 'sam', text: 'the test finally passes. i am going to cry', at: '05:41' },
+			{ who: 'elena', text: 'do NOT merge yet, let me look', at: '05:44' },
+			{ who: 'yared', text: 'sunrise check. it is orange out there', at: '06:02' }
 		]
 	}
 ];

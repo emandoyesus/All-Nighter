@@ -6,6 +6,10 @@
 	import IconClock from '@tabler/icons-svelte/icons/clock';
 	import IconMusic from '@tabler/icons-svelte/icons/music';
 	import IconUsers from '@tabler/icons-svelte/icons/users';
+
+	const sortedNights = $derived(
+		[...nights].sort((a, b) => new Date(b.iso).getTime() - new Date(a.iso).getTime())
+	);
 </script>
 
 <section id="archive" class="relative border-t border-cream/10 bg-[#060a0b] py-16 md:py-24 overflow-hidden">
@@ -25,7 +29,7 @@
 		</p>
 
 		<div class="rail mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-5">
-			{#each nights as night, i (night.seed)}
+			{#each sortedNights as night, i (night.seed)}
 				<a
 					href="/archive/{night.slug}"
 					class="group relative flex w-[85vw] max-w-[420px] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-xl border border-cream/10 bg-gradient-to-b from-night-2 via-night-2 to-night p-6 transition-all duration-300 hover:border-lamp/50 sm:w-[60vw] lg:w-[390px]"
