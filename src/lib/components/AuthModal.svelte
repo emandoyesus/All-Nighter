@@ -396,43 +396,11 @@
 				</div>
 			</div>
 
-			<!-- Notice text: "Edit your profile to be able to edit all this" -->
-			<div class="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-lamp/30 bg-lamp/10 p-3.5 sm:p-4">
-				<div class="flex items-start gap-3">
-					<span class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-lamp/20 text-lamp mt-0.5 sm:mt-0">
-						<IconPencil size={16} stroke={2} />
-					</span>
-					<div>
-						<p class="text-xs sm:text-sm font-semibold text-cream">
-							Edit your profile to be able to edit all this
-						</p>
-						<p class="text-[11px] text-taupe leading-relaxed">
-							Click edit below or upload your own photo to personalize your presence in the room.
-						</p>
-					</div>
-				</div>
-				<div class="flex items-center gap-2 self-end sm:self-center shrink-0">
-					{#if !isEditing}
-						<button
-							type="button"
-							class="btn btn-primary btn-sm text-xs px-3.5 py-1.5 inline-flex items-center gap-1.5"
-							onclick={() => (isEditing = true)}
-						>
-							<IconPencil size={13} stroke={2} />
-							<span>Edit Profile</span>
-						</button>
-					{/if}
-					<button
-						type="button"
-						class="btn btn-ghost btn-sm text-xs px-3 py-1.5 border border-cream/15 hover:border-lamp hover:text-lamp inline-flex items-center gap-1.5"
-						onclick={triggerUpload}
-						title="Upload your own photo from device"
-					>
-						<IconCamera size={13} stroke={1.7} />
-						<span>Upload Photo</span>
-					</button>
-				</div>
-			</div>
+			{#if !isEditing}
+				<p class="mt-3 text-xs text-faint">
+					Edit your profile to be able to edit all this
+				</p>
+			{/if}
 
 			<!-- Live Profile Preview Card -->
 			<div class="mt-4 rounded-xl border border-cream/10 bg-night/80 p-3.5 sm:p-4">
