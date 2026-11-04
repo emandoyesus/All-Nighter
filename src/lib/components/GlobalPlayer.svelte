@@ -237,7 +237,16 @@
 							}
 						},
 						onError: () => {
-							if (alive) apiError = true;
+							if (!alive) return;
+							apiError = true;
+							// If a video cannot be played (e.g. embedding restricted or deleted), auto-advance queue
+							if (room.state.playing) {
+								setTimeout(() => {
+									if (alive && room.state.playing) {
+										room.skip();
+									}
+								}, 1500);
+							}
 						}
 					}
 				});

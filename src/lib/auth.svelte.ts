@@ -47,11 +47,13 @@ class AuthService {
 
 	async signUpWithEmail(email: string, password: string, callsign: string) {
 		if (!supabase) throw new Error('Supabase is not configured');
+		const emailRedirectTo = typeof window !== 'undefined' ? `${window.location.origin}/room` : undefined;
 		return supabase.auth.signUp({
 			email,
 			password,
 			options: {
-				data: { callsign }
+				data: { callsign },
+				emailRedirectTo
 			}
 		});
 	}
