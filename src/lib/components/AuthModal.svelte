@@ -276,7 +276,7 @@
 										id="callsign"
 										type="text"
 										class="w-full rounded border border-cream/15 bg-night px-3 py-1.5 text-xs text-cream outline-none focus:border-lamp font-mono"
-										placeholder="e.g. ember-owl-42"
+										placeholder="e.g. solomon"
 										bind:value={callsign}
 									/>
 								</div>
@@ -289,7 +289,7 @@
 									type="email"
 									required
 									class="w-full rounded border border-cream/15 bg-night px-3 py-1.5 text-xs text-cream outline-none focus:border-lamp font-mono"
-									placeholder="you@nightowl.fm"
+									placeholder="you@example.com"
 									bind:value={email}
 								/>
 							</div>
