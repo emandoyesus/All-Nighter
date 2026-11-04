@@ -14,6 +14,7 @@
 		{ city: 'Tokyo', region: 'Asia', timeZone: 'Asia/Tokyo' },
 		{ city: 'Seoul', region: 'Asia', timeZone: 'Asia/Seoul' },
 		{ city: 'Singapore', region: 'Asia', timeZone: 'Asia/Singapore' },
+		{ city: 'Addis Ababa', region: 'Africa', timeZone: 'Africa/Addis_Ababa' },
 		{ city: 'Nairobi', region: 'Africa', timeZone: 'Africa/Nairobi' },
 		{ city: 'Cairo', region: 'Africa', timeZone: 'Africa/Cairo' },
 		{ city: 'Berlin', region: 'Europe', timeZone: 'Europe/Berlin' },

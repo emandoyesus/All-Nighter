@@ -56,7 +56,6 @@ export function buildNightFromRoom(
 		tracks: tracklist.length,
 		heads: awake.length,
 		seed: cleanSlug,
-		img: 'nights/night-1.jpg' as any,
 		joined: awake.map((p) => p.name),
 		intentions: awake.map((p) => p.intention).filter((i): i is string => !!i),
 		tracklist,
