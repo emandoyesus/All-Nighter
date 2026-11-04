@@ -3,7 +3,6 @@
 	import { room } from '#lib/room/room.svelte';
 	import { formatTime } from '#lib/room/youtube';
 	import { siteAudio } from '#lib/audio/site-audio.svelte';
-	import DeskHud from './DeskHud.svelte';
 	import AudioVisualizer from './AudioVisualizer.svelte';
 	import IconPlay from '@tabler/icons-svelte/icons/player-play';
 	import IconPause from '@tabler/icons-svelte/icons/player-pause';
@@ -23,7 +22,6 @@
 	let volume = $state(80);
 	let muted = $state(false);
 	let apiError = $state(false);
-	let showDeskHud = $state(false);
 
 	const hasVideo = $derived(
 		!!room.state.videoId ||
@@ -116,14 +114,10 @@
 			}
 		};
 
-		const onOpenDeskHud = () => (showDeskHud = true);
-
 		window.addEventListener('an:player:status', onStatus);
-		window.addEventListener('an:open-desk-hud', onOpenDeskHud);
 
 		return () => {
 			window.removeEventListener('an:player:status', onStatus);
-			window.removeEventListener('an:open-desk-hud', onOpenDeskHud);
 		};
 	});
 </script>
@@ -312,7 +306,7 @@
 		<button
 			type="button"
 			class="inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] text-taupe transition-colors hover:text-lamp hover:bg-lamp/10"
-			onclick={() => (showDeskHud = true)}
+			onclick={() => window.dispatchEvent(new CustomEvent('an:open-desk-hud'))}
 			title="Fullscreen Desk HUD for second monitors"
 		>
 			<IconMaximize size={12} stroke={1.5} />
@@ -320,5 +314,3 @@
 		</button>
 	</div>
 </div>
-
-<DeskHud bind:open={showDeskHud} />
