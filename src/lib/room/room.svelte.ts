@@ -167,6 +167,17 @@ function emptyState(): RoomState {
 	};
 }
 
+export const DEFAULT_STARTER_TRACK: Track = {
+	uid: 'starter-alan-walker-alone',
+	videoId: '1-xGerv5FOk',
+	source: 'youtube',
+	title: 'Alan Walker - Alone',
+	channel: 'Alan Walker',
+	addedBy: 'All Nighter',
+	dedication: 'Starting track · Lock in till sunrise',
+	votes: 1
+};
+
 type MqttLike = {
 	connected: boolean;
 	publish(
@@ -705,7 +716,7 @@ class Room {
 	/** Create a room and step inside as its host. */
 	createRoom(name: string): void {
 		const slug = sanitizeRoom(name);
-		this.enterApproved(slug, name.trim() || slug, true);
+		this.enterApproved(slug, name.trim() || slug, true, true);
 	}
 
 	/** Claim an unhosted or deserted room and step inside as host. */
@@ -785,12 +796,30 @@ class Room {
 		void this.dbSync.attachRoom(this.room, this.title, this.clientId, this.name);
 	}
 
-	private enterApproved(slug: string, title: string, host: boolean): void {
+	private enterApproved(slug: string, title: string, host: boolean, isNew = false): void {
 		this.resetRoom();
 		this.room = slug;
 		this.title = title;
 		this.isHost = host;
 		this.joinState = 'approved';
+
+		if (isNew) {
+			const starter: Track = {
+				...DEFAULT_STARTER_TRACK,
+				uid: `starter-${Date.now()}`
+			};
+			this.state = {
+				...this.state,
+				current: starter,
+				videoId: starter.videoId,
+				source: 'youtube',
+				playing: true,
+				position: 0,
+				clock: Date.now(),
+				by: this.name || 'host'
+			};
+		}
+
 		try {
 			localStorage.setItem(LS_ACTIVE_ROOM, slug);
 			localStorage.setItem(LS_ACTIVE_TITLE, title || slug);
@@ -806,6 +835,9 @@ class Room {
 		this.publishState();
 		this.startDirectory();
 		void this.dbSync.attachRoom(slug, title, this.clientId, this.name);
+		if (isNew && this.state.current) {
+			void this.dbSync.savePlayback(this.state);
+		}
 	}
 
 	approve(id: string): void {
