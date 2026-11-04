@@ -65,7 +65,7 @@ export const nights: Night[] = [
 		heads: 6,
 		seed: 'all-nighter-mar14',
 		img: 'nights/night-1.jpg',
-		joined: ['ember-owl-42', 'quiet-fox-17', 'slow-kettle-08', 'warm-lamp-63', 'late-radio-29', 'dim-moth-55'],
+		joined: ['elena', 'sam', 'nate', 'yared', 'maya', 'dani'],
 		intentions: [
 			'fix the race condition in the socket handler before 6am',
 			'finish the auth middleware and write the unit tests',
@@ -75,21 +75,21 @@ export const nights: Night[] = [
 			'get the CI pipeline to stop being dramatic'
 		],
 		tracklist: [
-			{ title: 'beats to relax / study to', artist: 'Lofi Girl', addedBy: 'ember-owl-42', genre: 'lofi', source: 'youtube', videoId: 'rFZHOHl-L8A', reactions: 14, note: 'the one that started it' },
-			{ title: 'Nightcall', artist: 'Kavinsky', addedBy: 'quiet-fox-17', genre: 'synthwave', reactions: 9 },
-			{ title: 'Midnight City', artist: 'M83', addedBy: 'late-radio-29', genre: 'synthwave', reactions: 11 },
-			{ title: 'An Ending (Ascent)', artist: 'Brian Eno', addedBy: 'warm-lamp-63', genre: 'ambient', reactions: 7 },
-			{ title: 'Chillhop Radio', artist: 'Chillhop Music', addedBy: 'slow-kettle-08', genre: 'lofi', source: 'youtube', videoId: '5yx6BWlEVcY', reactions: 12 },
-			{ title: 'Weird Fishes / Arpeggi', artist: 'Radiohead', addedBy: 'dim-moth-55', genre: 'alternative', reactions: 8 },
-			{ title: 'Breathe', artist: 'Télépopmusik', addedBy: 'quiet-fox-17', genre: 'electronic', reactions: 5 },
-			{ title: 'Sunset Lover', artist: 'Petit Biscuit', addedBy: 'ember-owl-42', genre: 'electronic', reactions: 6 },
-			{ title: 'Weightless', artist: 'Marconi Union', addedBy: 'warm-lamp-63', genre: 'ambient', reactions: 4 },
-			{ title: 'Nocturne in E-flat', artist: 'Chopin', addedBy: 'late-radio-29', genre: 'classical', reactions: 3, note: 'played at 5:41' }
+			{ title: 'beats to relax / study to', artist: 'Lofi Girl', addedBy: 'elena', genre: 'lofi', source: 'youtube', videoId: 'rFZHOHl-L8A', reactions: 14, note: 'the one that started it' },
+			{ title: 'Nightcall', artist: 'Kavinsky', addedBy: 'sam', genre: 'synthwave', reactions: 9 },
+			{ title: 'Midnight City', artist: 'M83', addedBy: 'maya', genre: 'synthwave', reactions: 11 },
+			{ title: 'An Ending (Ascent)', artist: 'Brian Eno', addedBy: 'yared', genre: 'ambient', reactions: 7 },
+			{ title: 'Chillhop Radio', artist: 'Chillhop Music', addedBy: 'nate', genre: 'lofi', source: 'youtube', videoId: '5yx6BWlEVcY', reactions: 12 },
+			{ title: 'Weird Fishes / Arpeggi', artist: 'Radiohead', addedBy: 'dani', genre: 'alternative', reactions: 8 },
+			{ title: 'Breathe', artist: 'Télépopmusik', addedBy: 'sam', genre: 'electronic', reactions: 5 },
+			{ title: 'Sunset Lover', artist: 'Petit Biscuit', addedBy: 'elena', genre: 'electronic', reactions: 6 },
+			{ title: 'Weightless', artist: 'Marconi Union', addedBy: 'yared', genre: 'ambient', reactions: 4 },
+			{ title: 'Nocturne in E-flat', artist: 'Chopin', addedBy: 'maya', genre: 'classical', reactions: 3, note: 'played at 5:41' }
 		],
 		chatMoments: [
-			{ who: 'quiet-fox-17', text: 'the test finally passes. i am going to cry', at: '05:41' },
-			{ who: 'ember-owl-42', text: 'do NOT merge yet, let me look', at: '05:44' },
-			{ who: 'warm-lamp-63', text: 'sunrise check. it is orange out there', at: '06:02' }
+			{ who: 'sam', text: 'the test finally passes. i am going to cry', at: '05:41' },
+			{ who: 'elena', text: 'do NOT merge yet, let me look', at: '05:44' },
+			{ who: 'yared', text: 'sunrise check. it is orange out there', at: '06:02' }
 		]
 	},
 	{
@@ -105,7 +105,7 @@ export const nights: Night[] = [
 		heads: 8,
 		seed: 'all-nighter-apr28',
 		img: 'nights/night-2.jpg',
-		joined: ['night-owl-11', 'soft-cloud-84', 'first-monitor-02', 'last-match-39', 'late-radio-29', 'warm-lamp-63', 'dim-moth-55', 'quiet-fox-17'],
+		joined: ['solomon', 'kai', 'marcus', 'tariq', 'maya', 'yared', 'dani', 'sam'],
 		intentions: [
 			'wire up all three APIs before the demo at 9am',
 			'write the integration tests for the payments endpoint',
@@ -117,21 +117,21 @@ export const nights: Night[] = [
 			'just moral support, here for the pizza'
 		],
 		tracklist: [
-			{ title: 'Nightride FM, synthwave radio', artist: 'Nightride FM', addedBy: 'night-owl-11', genre: 'synthwave', source: 'youtube', videoId: 'UjlMEqTu2KI', reactions: 16 },
-			{ title: 'Resonance', artist: 'HOME', addedBy: 'soft-cloud-84', genre: 'synthwave', reactions: 13 },
-			{ title: 'Intro', artist: 'The xx', addedBy: 'first-monitor-02', genre: 'indie', reactions: 7 },
-			{ title: 'Instant Crush', artist: 'Daft Punk', addedBy: 'last-match-39', genre: 'electronic', reactions: 10 },
-			{ title: 'shinjuku fm, soft lofi / smooth jazz', artist: 'TOKYO TONES', addedBy: 'late-radio-29', genre: 'lofi', source: 'youtube', videoId: '2CDRu6-Vgfo', reactions: 11 },
-			{ title: 'Dreams', artist: 'Fleetwood Mac', addedBy: 'warm-lamp-63', genre: 'classic rock', reactions: 9 },
-			{ title: 'Teardrop', artist: 'Massive Attack', addedBy: 'dim-moth-55', genre: 'trip-hop', reactions: 12 },
-			{ title: 'Sunset', artist: 'The Midnight', addedBy: 'night-owl-11', genre: 'synthwave', reactions: 8 },
-			{ title: 'Alright', artist: 'Kendrick Lamar', addedBy: 'quiet-fox-17', genre: 'hip-hop', reactions: 6 },
-			{ title: 'Vienna', artist: 'Billy Joel', addedBy: 'soft-cloud-84', genre: 'classic rock', reactions: 5, note: 'for the 6am walk home' }
+			{ title: 'Nightride FM, synthwave radio', artist: 'Nightride FM', addedBy: 'solomon', genre: 'synthwave', source: 'youtube', videoId: 'UjlMEqTu2KI', reactions: 16 },
+			{ title: 'Resonance', artist: 'HOME', addedBy: 'kai', genre: 'synthwave', reactions: 13 },
+			{ title: 'Intro', artist: 'The xx', addedBy: 'marcus', genre: 'indie', reactions: 7 },
+			{ title: 'Instant Crush', artist: 'Daft Punk', addedBy: 'tariq', genre: 'electronic', reactions: 10 },
+			{ title: 'shinjuku fm, soft lofi / smooth jazz', artist: 'TOKYO TONES', addedBy: 'maya', genre: 'lofi', source: 'youtube', videoId: '2CDRu6-Vgfo', reactions: 11 },
+			{ title: 'Dreams', artist: 'Fleetwood Mac', addedBy: 'yared', genre: 'classic rock', reactions: 9 },
+			{ title: 'Teardrop', artist: 'Massive Attack', addedBy: 'dani', genre: 'trip-hop', reactions: 12 },
+			{ title: 'Sunset', artist: 'The Midnight', addedBy: 'solomon', genre: 'synthwave', reactions: 8 },
+			{ title: 'Alright', artist: 'Kendrick Lamar', addedBy: 'sam', genre: 'hip-hop', reactions: 6 },
+			{ title: 'Vienna', artist: 'Billy Joel', addedBy: 'kai', genre: 'classic rock', reactions: 5, note: 'for the 6am walk home' }
 		],
 		chatMoments: [
-			{ who: 'first-monitor-02', text: 'api #3 just returned a 418. i am a teapot now', at: '01:12' },
-			{ who: 'night-owl-11', text: 'deploy is green. i repeat, deploy is green', at: '05:58' },
-			{ who: 'warm-lamp-63', text: 'pizza receipt pinned for posterity', at: '06:20' }
+			{ who: 'marcus', text: 'api #3 just returned a 418. i am a teapot now', at: '01:12' },
+			{ who: 'solomon', text: 'deploy is green. i repeat, deploy is green', at: '05:58' },
+			{ who: 'yared', text: 'pizza receipt pinned for posterity', at: '06:20' }
 		]
 	},
 	{
@@ -147,7 +147,7 @@ export const nights: Night[] = [
 		heads: 5,
 		seed: 'all-nighter-jun03',
 		img: 'nights/night-3.jpg',
-		joined: ['slow-kettle-08', 'ember-owl-42', 'soft-cloud-84', 'late-radio-29', 'dim-moth-55'],
+		joined: ['nate', 'elena', 'kai', 'maya', 'dani'],
 		intentions: [
 			'finish the finals essay, at least the introduction',
 			'get through the problem sets before my brain gives up',
@@ -156,20 +156,20 @@ export const nights: Night[] = [
 			'write the conclusion I have been avoiding for two weeks'
 		],
 		tracklist: [
-			{ title: 'beats to sleep / chill to', artist: 'Lofi Girl', addedBy: 'slow-kettle-08', genre: 'lofi', source: 'youtube', videoId: 'JD-kMIpDfnY', reactions: 10 },
-			{ title: 'Holocene', artist: 'Bon Iver', addedBy: 'ember-owl-42', genre: 'indie folk', reactions: 9 },
-			{ title: 'Rain Song', artist: 'Led Zeppelin', addedBy: 'soft-cloud-84', genre: 'classic rock', reactions: 6 },
-			{ title: 'Pink + White', artist: 'Frank Ocean', addedBy: 'late-radio-29', genre: 'r&b', reactions: 12 },
-			{ title: 'Motion Picture Soundtrack', artist: 'Radiohead', addedBy: 'dim-moth-55', genre: 'alternative', reactions: 8 },
-			{ title: 'cliché', artist: 'mxmtoon', addedBy: 'ember-owl-42', genre: 'indie', reactions: 4 },
-			{ title: 'The Night We Met', artist: 'Lord Huron', addedBy: 'soft-cloud-84', genre: 'indie folk', reactions: 7 },
-			{ title: 'Space Song', artist: 'Beach House', addedBy: 'slow-kettle-08', genre: 'dream pop', reactions: 11 },
-			{ title: 'Nights', artist: 'Frank Ocean', addedBy: 'late-radio-29', genre: 'r&b', reactions: 5 }
+			{ title: 'beats to sleep / chill to', artist: 'Lofi Girl', addedBy: 'nate', genre: 'lofi', source: 'youtube', videoId: 'JD-kMIpDfnY', reactions: 10 },
+			{ title: 'Holocene', artist: 'Bon Iver', addedBy: 'elena', genre: 'indie folk', reactions: 9 },
+			{ title: 'Rain Song', artist: 'Led Zeppelin', addedBy: 'kai', genre: 'classic rock', reactions: 6 },
+			{ title: 'Pink + White', artist: 'Frank Ocean', addedBy: 'maya', genre: 'r&b', reactions: 12 },
+			{ title: 'Motion Picture Soundtrack', artist: 'Radiohead', addedBy: 'dani', genre: 'alternative', reactions: 8 },
+			{ title: 'cliché', artist: 'mxmtoon', addedBy: 'elena', genre: 'indie', reactions: 4 },
+			{ title: 'The Night We Met', artist: 'Lord Huron', addedBy: 'kai', genre: 'indie folk', reactions: 7 },
+			{ title: 'Space Song', artist: 'Beach House', addedBy: 'nate', genre: 'dream pop', reactions: 11 },
+			{ title: 'Nights', artist: 'Frank Ocean', addedBy: 'maya', genre: 'r&b', reactions: 5 }
 		],
 		chatMoments: [
-			{ who: 'soft-cloud-84', text: 'the second speaker is clipping and i do not care', at: '03:05' },
-			{ who: 'slow-kettle-08', text: 'rain is louder than the music now', at: '03:48' },
-			{ who: 'dim-moth-55', text: 'library closed 2 hours ago lol', at: '04:10' }
+			{ who: 'kai', text: 'the second speaker is clipping and i do not care', at: '03:05' },
+			{ who: 'nate', text: 'rain is louder than the music now', at: '03:48' },
+			{ who: 'dani', text: 'library closed 2 hours ago lol', at: '04:10' }
 		]
 	},
 	{
@@ -185,7 +185,7 @@ export const nights: Night[] = [
 		heads: 7,
 		seed: 'all-nighter-sep22',
 		img: 'nights/night-4.jpg',
-		joined: ['first-monitor-02', 'night-owl-11', 'quiet-fox-17', 'warm-lamp-63', 'last-match-39', 'ember-owl-42', 'soft-cloud-84'],
+		joined: ['marcus', 'solomon', 'sam', 'yared', 'tariq', 'elena', 'kai'],
 		intentions: [
 			'set up the repo for the new semester project',
 			'read the brief and write a plan before doing anything',
@@ -196,20 +196,20 @@ export const nights: Night[] = [
 			'set up my dev environment, it broke over the summer'
 		],
 		tracklist: [
-			{ title: 'shinjuku fm, soft lofi / smooth jazz', artist: 'TOKYO TONES', addedBy: 'first-monitor-02', genre: 'lofi', source: 'youtube', videoId: '2CDRu6-Vgfo', reactions: 15 },
-			{ title: 'Buddy Holly', artist: 'Weezer', addedBy: 'night-owl-11', genre: 'alternative', reactions: 8 },
-			{ title: 'Electric Feel', artist: 'MGMT', addedBy: 'quiet-fox-17', genre: 'indie', reactions: 9 },
-			{ title: 'Nightfall', artist: 'Little Dragon', addedBy: 'warm-lamp-63', genre: 'electronic', reactions: 6 },
-			{ title: 'Lost in the World', artist: 'Kanye West', addedBy: 'last-match-39', genre: 'hip-hop', reactions: 7 },
-			{ title: 'Lovers Rock', artist: 'TV Girl', addedBy: 'ember-owl-42', genre: 'indie pop', reactions: 13 },
-			{ title: '505', artist: 'Arctic Monkeys', addedBy: 'soft-cloud-84', genre: 'indie rock', reactions: 11 },
-			{ title: 'Sofia', artist: 'Clairo', addedBy: 'quiet-fox-17', genre: 'indie pop', reactions: 5 },
-			{ title: 'New Person, Same Old Mistakes', artist: 'Tame Impala', addedBy: 'night-owl-11', genre: 'psych pop', reactions: 10 }
+			{ title: 'shinjuku fm, soft lofi / smooth jazz', artist: 'TOKYO TONES', addedBy: 'marcus', genre: 'lofi', source: 'youtube', videoId: '2CDRu6-Vgfo', reactions: 15 },
+			{ title: 'Buddy Holly', artist: 'Weezer', addedBy: 'solomon', genre: 'alternative', reactions: 8 },
+			{ title: 'Electric Feel', artist: 'MGMT', addedBy: 'sam', genre: 'indie', reactions: 9 },
+			{ title: 'Nightfall', artist: 'Little Dragon', addedBy: 'yared', genre: 'electronic', reactions: 6 },
+			{ title: 'Lost in the World', artist: 'Kanye West', addedBy: 'tariq', genre: 'hip-hop', reactions: 7 },
+			{ title: 'Lovers Rock', artist: 'TV Girl', addedBy: 'elena', genre: 'indie pop', reactions: 13 },
+			{ title: '505', artist: 'Arctic Monkeys', addedBy: 'kai', genre: 'indie rock', reactions: 11 },
+			{ title: 'Sofia', artist: 'Clairo', addedBy: 'sam', genre: 'indie pop', reactions: 5 },
+			{ title: 'New Person, Same Old Mistakes', artist: 'Tame Impala', addedBy: 'solomon', genre: 'psych pop', reactions: 10 }
 		],
 		chatMoments: [
-			{ who: 'first-monitor-02', text: 'aux rules posted. read them. live them.', at: '22:14' },
-			{ who: 'ember-owl-42', text: 'nobody ate dinner did they', at: '00:31' },
-			{ who: 'last-match-39', text: 'ordering bread at 2am, reply with a number', at: '02:02' }
+			{ who: 'marcus', text: 'aux rules posted. read them. live them.', at: '22:14' },
+			{ who: 'elena', text: 'nobody ate dinner did they', at: '00:31' },
+			{ who: 'tariq', text: 'ordering bread at 2am, reply with a number', at: '02:02' }
 		]
 	},
 	{
@@ -225,7 +225,7 @@ export const nights: Night[] = [
 		heads: 9,
 		seed: 'all-nighter-oct18',
 		img: 'nights/ritual.jpg',
-		joined: ['ember-owl-42', 'night-owl-11', 'quiet-fox-17', 'slow-kettle-08', 'warm-lamp-63'],
+		joined: ['elena', 'solomon', 'sam', 'nate', 'yared'],
 		intentions: [
 			'refactor the realtime socket layer before dawn',
 			'ship the v2 design system updates',
@@ -234,16 +234,16 @@ export const nights: Night[] = [
 			'stay locked in till the Entoto sunrise'
 		],
 		tracklist: [
-			{ title: 'Yèkèrmo Sèw (A Man of Experience)', artist: 'Mulatu Astatke', addedBy: 'ember-owl-42', genre: 'ethio-jazz', reactions: 18, note: 'classic late night Ethio-jazz' },
-			{ title: 'Tezeta (Nostalgia)', artist: 'Mulatu Astatke', addedBy: 'quiet-fox-17', genre: 'ethio-jazz', reactions: 15 },
-			{ title: 'shinjuku fm, soft lofi / smooth jazz', artist: 'TOKYO TONES', addedBy: 'night-owl-11', genre: 'lofi', source: 'youtube', videoId: '2CDRu6-Vgfo', reactions: 12 },
-			{ title: 'Resonance', artist: 'HOME', addedBy: 'slow-kettle-08', genre: 'synthwave', reactions: 14 },
-			{ title: 'beats to relax / study to', artist: 'Lofi Girl', addedBy: 'warm-lamp-63', genre: 'lofi', source: 'youtube', videoId: 'rFZHOHl-L8A', reactions: 10 }
+			{ title: 'Yèkèrmo Sèw (A Man of Experience)', artist: 'Mulatu Astatke', addedBy: 'elena', genre: 'ethio-jazz', reactions: 18, note: 'classic late night Ethio-jazz' },
+			{ title: 'Tezeta (Nostalgia)', artist: 'Mulatu Astatke', addedBy: 'sam', genre: 'ethio-jazz', reactions: 15 },
+			{ title: 'shinjuku fm, soft lofi / smooth jazz', artist: 'TOKYO TONES', addedBy: 'solomon', genre: 'lofi', source: 'youtube', videoId: '2CDRu6-Vgfo', reactions: 12 },
+			{ title: 'Resonance', artist: 'HOME', addedBy: 'nate', genre: 'synthwave', reactions: 14 },
+			{ title: 'beats to relax / study to', artist: 'Lofi Girl', addedBy: 'yared', genre: 'lofi', source: 'youtube', videoId: 'rFZHOHl-L8A', reactions: 10 }
 		],
 		chatMoments: [
-			{ who: 'ember-owl-42', text: 'the coffee here in addis hits completely different at 3am', at: '03:15' },
-			{ who: 'night-owl-11', text: 'pull request approved and merged cleanly', at: '05:22' },
-			{ who: 'quiet-fox-17', text: 'sunrise over the mountains right now is unreal', at: '06:05' }
+			{ who: 'elena', text: 'the coffee here in addis hits completely different at 3am', at: '03:15' },
+			{ who: 'solomon', text: 'pull request approved and merged cleanly', at: '05:22' },
+			{ who: 'sam', text: 'sunrise over the mountains right now is unreal', at: '06:05' }
 		]
 	}
 ];

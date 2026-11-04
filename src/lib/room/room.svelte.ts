@@ -31,13 +31,6 @@ const LS_ID = 'an.client';
 const LS_ACTIVE_ROOM = 'an.active_room';
 const LS_ACTIVE_TITLE = 'an.active_title';
 
-const ADJ = ['ember', 'night', 'quiet', 'slow', 'warm', 'late', 'dim', 'soft', 'first', 'last'];
-const NOUN = ['owl', 'fox', 'kettle', 'radio', 'lamp', 'cloud', 'moth', 'engine', 'monitor', 'match'];
-
-function pick<T>(list: T[]): T {
-	return list[Math.floor(Math.random() * list.length)];
-}
-
 function randomId(): string {
 	try {
 		return crypto.randomUUID();
@@ -276,7 +269,7 @@ class Room {
 		this.inited = true;
 
 		this.clientId = loadOrMake(LS_ID, randomId);
-		this.name = loadOrMake(LS_NAME, () => `${pick(ADJ)}-${pick(NOUN)}-${Math.floor(Math.random() * 90 + 10)}`);
+		this.name = loadOrMake(LS_NAME, () => `guest-${Math.floor(Math.random() * 900 + 100)}`);
 
 		this.peers.set(this.clientId, { id: this.clientId, name: this.name, ts: Date.now(), self: true });
 		this.flushPeers();

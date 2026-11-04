@@ -54,7 +54,7 @@
 				{isSignUp ? 'Join the Night Crew' : 'Sign In to Enter the Room'}
 			</h2>
 			<p class="mt-2 text-xs leading-relaxed text-taupe">
-				Participate with other night owls, queue music in sync, and log your progress till sunrise.
+				Participate in live sessions, queue music in sync, and log your progress till sunrise.
 			</p>
 		</div>
 
@@ -80,7 +80,7 @@
 						type="text"
 						required
 						class="w-full rounded-lg border border-cream/15 bg-night px-3.5 py-2 text-xs font-mono text-cream outline-none transition-colors focus:border-lamp"
-						placeholder="e.g. ember-owl-42"
+						placeholder="e.g. solomon"
 						bind:value={callsign}
 					/>
 				</div>
@@ -95,7 +95,7 @@
 					type="email"
 					required
 					class="w-full rounded-lg border border-cream/15 bg-night px-3.5 py-2 text-xs font-mono text-cream outline-none transition-colors focus:border-lamp"
-					placeholder="you@nightowl.fm"
+					placeholder="you@example.com"
 					bind:value={email}
 				/>
 			</div>
@@ -138,7 +138,7 @@
 						successMsg = '';
 					}}
 				>
-					{isSignUp ? 'Already have an account? Sign In' : 'New here? Create a night-owl account'}
+					{isSignUp ? 'Already have an account? Sign In' : 'New here? Create an account'}
 				</button>
 			</div>
 		</form>
