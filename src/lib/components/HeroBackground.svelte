@@ -5,7 +5,7 @@
 
 	function getNightPhase(): 'dusk' | 'night' | 'dawn' | 'day' {
 		const hour = new Date().getHours();
-		if (hour >= 20 && hour < 23) return 'dusk';
+		if (hour >= 19 && hour < 23) return 'dusk';
 		if (hour >= 23 || hour < 5) return 'night';
 		if (hour >= 5 && hour < 8) return 'dawn';
 		return 'dusk';
