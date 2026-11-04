@@ -90,7 +90,7 @@
 			<button
 				type="button"
 				class="text-[11px] font-mono text-lamp hover:underline inline-flex items-center gap-1"
-				onclick={() => window.dispatchEvent(new CustomEvent('an:open-profile-modal'))}
+				onclick={() => window.dispatchEvent(new CustomEvent('an:open-profile-modal', { detail: { edit: true } }))}
 			>
 				Edit Profile ↗
 			</button>
