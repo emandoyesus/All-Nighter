@@ -1,11 +1,12 @@
-export const INTERSTELLAR_VIDEO_ID = 'UDVtMYqUAyw';
+// Official WaterTower Music instrumental track (pure score, no spoken voice / poetry)
+export const INTERSTELLAR_VIDEO_ID = 'JuSsvM8B4Jc';
 
 const LS_SITE_SOUND = 'an.site_sound';
 const LS_SITE_VOL = 'an.site_sound_vol';
 
 class SiteAudioEngine {
 	isPlaying = $state<boolean>(false);
-	volume = $state<number>(75);
+	volume = $state<number>(45);
 	ready = $state<boolean>(false);
 
 	constructor() {

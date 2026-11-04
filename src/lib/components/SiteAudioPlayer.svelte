@@ -15,8 +15,8 @@
 			.then((YT) => {
 				if (!alive || !frameEl) return;
 				player = new YT.Player(frameEl, {
-					width: '200',
-					height: '200',
+					width: '320',
+					height: '180',
 					videoId: INTERSTELLAR_VIDEO_ID,
 					playerVars: {
 						autoplay: 0,
@@ -24,6 +24,7 @@
 						disablekb: 1,
 						loop: 1,
 						playlist: INTERSTELLAR_VIDEO_ID,
+						playsinline: 1,
 						origin: location.origin
 					},
 					events: {
@@ -94,7 +95,7 @@
 </script>
 
 <div
-	class="fixed -top-[9999px] -left-[9999px] w-1 h-1 opacity-0 pointer-events-none -z-50 overflow-hidden"
+	class="fixed -top-[9999px] -left-[9999px] w-[320px] h-[180px] opacity-[0.001] pointer-events-none -z-50 overflow-hidden"
 	aria-hidden="true"
 >
 	<div bind:this={frameEl}></div>
