@@ -1,45 +1,250 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { auth } from '#lib/auth.svelte';
 	import { isSupabaseConfigured } from '#lib/supabase';
 	import { room } from '#lib/room/room.svelte';
-	import IconUser from '@tabler/icons-svelte/icons/user';
 	import IconX from '@tabler/icons-svelte/icons/x';
+	import IconCheck from '@tabler/icons-svelte/icons/check';
+	import IconDice from '@tabler/icons-svelte/icons/dice';
+	import IconUpload from '@tabler/icons-svelte/icons/upload';
+	import IconPhoto from '@tabler/icons-svelte/icons/photo';
+	import IconLink from '@tabler/icons-svelte/icons/link';
 	import IconLogout from '@tabler/icons-svelte/icons/logout';
+	import IconLock from '@tabler/icons-svelte/icons/lock';
+	import IconSparkles from '@tabler/icons-svelte/icons/sparkles';
+	import IconMoon from '@tabler/icons-svelte/icons/moon';
 
 	let open = $state(false);
+	let showAuthForm = $state(false);
 	let isSignUp = $state(false);
-	let email = $state('');
-	let password = $state('');
-	let callsign = $state('');
-	let error = $state('');
-	let loading = $state(false);
-	let successMsg = $state('');
-	let avatarInput = $state('');
-	let savingAvatar = $state(false);
-	let avatarMsg = $state('');
-	let imgError = $state(false);
 
-	$effect(() => {
-		if (auth.user) {
-			avatarInput = auth.avatarUrl || '';
-			imgError = false;
+	// Profile draft states
+	let editCallsign = $state('');
+	let editAvatar = $state('');
+	let editIntention = $state('');
+	let editMood = $state('');
+	let avatarTab = $state<'presets' | 'upload' | 'url'>('presets');
+	let customUrlInput = $state('');
+
+	// Feedback & loading
+	let saving = $state(false);
+	let saveSuccess = $state(false);
+	let errorMessage = $state('');
+	let imgPreviewError = $state(false);
+
+	// Auth form states
+	let authEmail = $state('');
+	let authPassword = $state('');
+	let authLoading = $state(false);
+	let authError = $state('');
+	let authSuccess = $state('');
+
+	// Hidden file input reference
+	let fileInput: HTMLInputElement | undefined = $state();
+
+	const PRESET_AVATARS = [
+		{ id: 'hoodie', name: 'Dark Hoodie', url: '/default-avatar.svg' },
+		{ id: 'moon', name: 'Midnight Moon', url: '/avatars/moon.svg' },
+		{ id: 'owl', name: 'Night Owl', url: '/avatars/owl.svg' },
+		{ id: 'headphones', name: 'Studio Cans', url: '/avatars/headphones.svg' },
+		{ id: 'coffee', name: 'Espresso Mug', url: '/avatars/coffee.svg' },
+		{ id: 'cassette', name: 'Analog Tape', url: '/avatars/cassette.svg' },
+		{ id: 'vinyl', name: 'Vinyl Record', url: '/avatars/vinyl.svg' },
+		{ id: 'terminal', name: 'Terminal Shell', url: '/avatars/terminal.svg' },
+		{ id: 'saturn', name: 'Cosmic Saturn', url: '/avatars/saturn.svg' },
+		{ id: 'cat', name: 'Neon Cat', url: '/avatars/cat.svg' }
+	];
+
+	const RANDOM_CALLSIGNS = [
+		'midnight-coder',
+		'cyber-runner',
+		'dawn-chaser',
+		'analog-ghost',
+		'neon-pilot',
+		'lofi-architect',
+		'night-owl',
+		'tape-rewind',
+		'pixel-drifter',
+		'synth-operator',
+		'dark-mode',
+		'moon-walker',
+		'stellar-pulse',
+		'echo-coder',
+		'orbit-surfer',
+		'terminal-sage',
+		'velvet-groove',
+		'quiet-storm',
+		'clock-shifter',
+		'sub-zero',
+		'astral-dev',
+		'binary-moth',
+		'neon-solitude',
+		'dawn-walker'
+	];
+
+	function syncFromCurrentProfile() {
+		editCallsign = auth.displayName || room.name || 'night-owl';
+		editAvatar = auth.avatarUrl || room.avatar || '/default-avatar.svg';
+		editIntention = room.intention || '';
+		editMood = room.statusText || '';
+		customUrlInput = editAvatar.startsWith('http') ? editAvatar : '';
+		imgPreviewError = false;
+		saveSuccess = false;
+		errorMessage = '';
+	}
+
+	function openModal() {
+		syncFromCurrentProfile();
+		open = true;
+	}
+
+	function handleRandomCallsign() {
+		const pool = RANDOM_CALLSIGNS.filter((c) => c !== editCallsign);
+		const pick = pool[Math.floor(Math.random() * pool.length)];
+		editCallsign = pick;
+	}
+
+	function selectPreset(url: string) {
+		editAvatar = url;
+		imgPreviewError = false;
+	}
+
+	function handleCustomUrlApply() {
+		if (!customUrlInput.trim()) return;
+		editAvatar = customUrlInput.trim();
+		imgPreviewError = false;
+	}
+
+	function handleFileUpload(e: Event) {
+		const target = e.target as HTMLInputElement;
+		const file = target.files?.[0];
+		if (!file) return;
+
+		if (!file.type.startsWith('image/')) {
+			errorMessage = 'Please select a valid image file.';
+			return;
 		}
-	});
 
-	async function handleSaveAvatar() {
-		savingAvatar = true;
-		avatarMsg = '';
+		const reader = new FileReader();
+		reader.onload = () => {
+			const img = new Image();
+			img.onload = () => {
+				// Resize to 256x256 cover crop for ultra-fast, compact profile storage
+				const canvas = document.createElement('canvas');
+				const size = 256;
+				canvas.width = size;
+				canvas.height = size;
+				const ctx = canvas.getContext('2d');
+				if (!ctx) return;
+
+				const minSide = Math.min(img.width, img.height);
+				const sx = (img.width - minSide) / 2;
+				const sy = (img.height - minSide) / 2;
+
+				ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, size, size);
+				const dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+				editAvatar = dataUrl;
+				imgPreviewError = false;
+				errorMessage = '';
+			};
+			img.src = reader.result as string;
+		};
+		reader.readAsDataURL(file);
+		// Reset input
+		target.value = '';
+	}
+
+	async function handleSaveProfile() {
+		saving = true;
+		errorMessage = '';
+		saveSuccess = false;
+
+		const cleanCallsign = editCallsign.trim() || room.name || 'night-owl';
+		const cleanAvatar = editAvatar.trim() || '/default-avatar.svg';
+
 		try {
-			await auth.updateProfile({ avatarUrl: avatarInput.trim() });
-			avatarMsg = 'Saved!';
-			imgError = false;
+			// Update local room state and storage
+			room.setName(cleanCallsign);
+			room.setAvatar(cleanAvatar);
+			room.setIntention(editIntention.trim());
+			if (editMood !== room.statusText) {
+				room.setStatus(editMood);
+			}
+
+			// If user is authenticated with Supabase, update account metadata
+			if (auth.isAuthenticated && isSupabaseConfigured) {
+				await auth.updateProfile({
+					callsign: cleanCallsign,
+					avatarUrl: cleanAvatar
+				});
+			}
+
+			saveSuccess = true;
+			window.dispatchEvent(new CustomEvent('an:profile-updated'));
+
 			setTimeout(() => {
-				avatarMsg = '';
-			}, 2500);
+				if (saveSuccess) {
+					open = false;
+					saveSuccess = false;
+				}
+			}, 900);
 		} catch (err: any) {
-			avatarMsg = 'Failed to save';
+			errorMessage = err?.message || 'Could not save profile changes.';
 		} finally {
-			savingAvatar = false;
+			saving = false;
+		}
+	}
+
+	async function handleAuthSubmit(e: SubmitEvent) {
+		e.preventDefault();
+		authError = '';
+		authSuccess = '';
+		authLoading = true;
+
+		try {
+			if (isSignUp) {
+				const { data, error: err } = await auth.signUpWithEmail(
+					authEmail,
+					authPassword,
+					editCallsign || room.name
+				);
+				if (err) throw err;
+				if (data.session) {
+					authSuccess = 'Account created & synced!';
+					showAuthForm = false;
+					syncFromCurrentProfile();
+				} else {
+					authSuccess = 'Verification email sent! Check your inbox.';
+				}
+			} else {
+				const { data, error: err } = await auth.signInWithEmail(authEmail, authPassword);
+				if (err) throw err;
+				if (data.user?.user_metadata?.callsign) {
+					room.setName(data.user.user_metadata.callsign);
+				}
+				if (data.user?.user_metadata?.avatar_url) {
+					room.setAvatar(data.user.user_metadata.avatar_url);
+				}
+				authSuccess = 'Signed in!';
+				showAuthForm = false;
+				syncFromCurrentProfile();
+			}
+		} catch (err: any) {
+			authError = err?.message || 'Authentication failed';
+		} finally {
+			authLoading = false;
+		}
+	}
+
+	async function handleSignOut() {
+		await auth.signOut();
+		syncFromCurrentProfile();
+		open = false;
+	}
+
+	function handleKeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape' && open) {
+			open = false;
 		}
 	}
 
@@ -68,264 +273,440 @@
 		};
 	}
 
-	function handleKeydown(e: KeyboardEvent) {
-		if (e.key === 'Escape' && open) {
-			open = false;
-		}
-	}
+	onMount(() => {
+		const onOpen = () => openModal();
+		window.addEventListener('an:open-profile-modal', onOpen);
+		return () => {
+			window.removeEventListener('an:open-profile-modal', onOpen);
+		};
+	});
 
-	async function handleSubmit(e: SubmitEvent) {
-		e.preventDefault();
-		error = '';
-		successMsg = '';
-		loading = true;
-
-		try {
-			if (isSignUp) {
-				const { data, error: err } = await auth.signUpWithEmail(email, password, callsign || room.name);
-				if (err) throw err;
-				if (data.session) {
-					successMsg = 'Account created!';
-					if (callsign) room.setName(callsign);
-					open = false;
-				} else {
-					successMsg = 'Confirmation link sent to your email!';
-				}
-			} else {
-				const { data, error: err } = await auth.signInWithEmail(email, password);
-				if (err) throw err;
-				if (data.user?.user_metadata?.callsign) {
-					room.setName(data.user.user_metadata.callsign);
-				}
-				open = false;
-			}
-		} catch (err: any) {
-			error = err?.message || 'Authentication failed';
-		} finally {
-			loading = false;
-		}
-	}
-
-	async function handleSignOut() {
-		await auth.signOut();
-		open = false;
-	}
+	const currentDisplayAvatar = $derived(
+		auth.avatarUrl || room.avatar || '/default-avatar.svg'
+	);
+	const currentDisplayName = $derived(
+		auth.displayName || room.name || 'night-owl'
+	);
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
 
-{#if isSupabaseConfigured}
-	<div class="relative" use:clickOutside={() => (open = false)}>
+<!-- Profile Trigger Button in Navigation -->
+<div class="relative">
+	<button
+		type="button"
+		class="relative flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full border border-lamp/30 bg-night-2 transition-all hover:border-lamp hover:scale-105 active:scale-95 p-0 overflow-hidden"
+		onclick={openModal}
+		title={`${currentDisplayName} · Profile & Settings`}
+		aria-label={`Profile: ${currentDisplayName}`}
+	>
+		<img
+			src={currentDisplayAvatar}
+			alt={currentDisplayName}
+			class="h-full w-full rounded-full object-cover"
+			onerror={(e) => {
+				(e.currentTarget as HTMLImageElement).src = '/default-avatar.svg';
+			}}
+		/>
 		{#if auth.isAuthenticated}
-			<!-- Authenticated user icon -->
-			<button
-				class="relative flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full border border-lamp/40 bg-night-2 transition-all hover:border-lamp active:scale-95 p-0 overflow-hidden"
-				onclick={() => (open = !open)}
-				title="{auth.displayName} ({auth.user?.email || 'Profile'})"
-				aria-label="Account profile ({auth.displayName})"
-				aria-expanded={open}
-			>
-				<img
-					src={!imgError && auth.avatarUrl ? auth.avatarUrl : '/default-avatar.svg'}
-					alt={auth.displayName || 'Profile'}
-					class="h-full w-full rounded-full object-cover"
-					onerror={() => (imgError = true)}
-				/>
-				<span class="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-lamp border-2 border-night"></span>
-			</button>
+			<span
+				class="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-lamp border-2 border-night"
+				title="Connected to Supabase"
+			></span>
+		{:else}
+			<span
+				class="absolute bottom-0 right-0 h-2 w-2 rounded-full bg-aqua-foam/60 border border-night"
+				title="Local Guest Profile"
+			></span>
+		{/if}
+	</button>
+</div>
 
-			<!-- Profile Dropdown (anchored to top-right icon, opens downwards into page) -->
-			{#if open}
-				<div
-					class="absolute right-0 top-full mt-2.5 z-50 w-72 sm:w-80 rounded-card border border-cream/15 bg-night-2 p-4 shadow-2xl backdrop-blur-xl"
-					role="dialog"
-					aria-label="Account Profile"
+<!-- Professional Profile Modal Dialog -->
+{#if open}
+	<div
+		use:portal
+		class="fixed inset-0 z-50 flex items-center justify-center bg-night/85 p-4 sm:p-6 backdrop-blur-md overflow-y-auto"
+		role="dialog"
+		aria-modal="true"
+		aria-label="Night Profile & Settings"
+	>
+		<div
+			class="relative w-full max-w-lg rounded-2xl border border-cream/15 bg-night-2 p-5 sm:p-6 shadow-2xl text-cream my-auto"
+			use:clickOutside={() => (open = false)}
+		>
+			<!-- Header -->
+			<div class="flex items-center justify-between pb-4 border-b border-cream/10">
+				<div class="flex items-center gap-2.5">
+					<span class="grid h-7 w-7 place-items-center rounded-lg border border-lamp/30 bg-lamp/10 text-lamp">
+						<IconSparkles size={15} stroke={1.7} />
+					</span>
+					<div>
+						<h3 class="text-sm sm:text-base font-semibold text-cream leading-tight">
+							Night Profile
+						</h3>
+						<p class="text-[11px] text-faint">Customize your callsign and avatar for the room</p>
+					</div>
+				</div>
+				<button
+					type="button"
+					class="rounded-lg p-1.5 text-faint transition-colors hover:text-cream hover:bg-cream/10"
+					onclick={() => (open = false)}
+					aria-label="Close"
 				>
-					<div class="flex items-center justify-between pb-3 border-b border-cream/10">
-						<div class="flex items-center gap-2.5 min-w-0">
-							<img
-								src={!imgError && auth.avatarUrl ? auth.avatarUrl : '/default-avatar.svg'}
-								alt={auth.displayName || 'Profile'}
-								class="h-9 w-9 shrink-0 rounded-full object-cover border border-lamp/30 bg-night"
-								onerror={() => (imgError = true)}
-							/>
-							<div class="min-w-0">
-								<p class="truncate text-xs font-semibold text-cream">{auth.displayName || 'All-Nighter'}</p>
-								<p class="truncate text-[11px] text-faint">{auth.user?.email}</p>
-							</div>
+					<IconX size={17} stroke={1.5} />
+				</button>
+			</div>
+
+			<!-- Live Profile Preview Card -->
+			<div class="mt-4 rounded-xl border border-cream/10 bg-night/80 p-3.5 sm:p-4">
+				<div class="flex items-center gap-4">
+					<!-- Avatar in live preview -->
+					<div class="relative shrink-0">
+						<img
+							src={!imgPreviewError && editAvatar ? editAvatar : '/default-avatar.svg'}
+							alt={editCallsign || 'Preview'}
+							class="h-16 w-16 sm:h-18 sm:w-18 rounded-full object-cover border-2 border-lamp/40 bg-night-2"
+							onerror={() => (imgPreviewError = true)}
+						/>
+						<span
+							class="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full bg-lamp border-2 border-night"
+							title="Awake now"
+						></span>
+					</div>
+
+					<!-- Details in live preview -->
+					<div class="min-w-0 flex-1">
+						<div class="flex items-center gap-2">
+							<span class="font-mono text-base sm:text-lg font-bold text-lamp truncate tracking-wide">
+								{editCallsign.trim() || 'unnamed'}
+							</span>
+							{#if editMood}
+								<span class="rounded-full bg-cream/10 px-2 py-0.5 text-[10px] text-lamp font-medium">
+									{editMood}
+								</span>
+							{/if}
 						</div>
+
+						<p class="mt-0.5 text-xs text-taupe truncate">
+							{#if auth.isAuthenticated}
+								<span class="inline-flex items-center gap-1 text-[11px] text-lamp/90 font-mono">
+									<IconCheck size={11} stroke={2} />
+									{auth.user?.email}
+								</span>
+							{:else}
+								<span class="text-[11px] text-faint font-mono">Guest Session · Local Profile</span>
+							{/if}
+						</p>
+
+						{#if editIntention}
+							<p class="mt-1.5 text-xs text-cream/90 italic truncate">
+								"{editIntention}"
+							</p>
+						{/if}
+					</div>
+				</div>
+			</div>
+
+			{#if errorMessage}
+				<div class="mt-3 rounded-lg border border-ruby/30 bg-ruby/10 p-2.5 text-xs text-rose-300">
+					{errorMessage}
+				</div>
+			{/if}
+
+			{#if saveSuccess}
+				<div class="mt-3 flex items-center gap-2 rounded-lg border border-lamp/40 bg-lamp/10 p-2.5 text-xs font-medium text-lamp">
+					<IconCheck size={15} stroke={2} />
+					Profile updated successfully!
+				</div>
+			{/if}
+
+			<!-- Profile Edit Form -->
+			<div class="mt-4 space-y-4">
+				<!-- Callsign input with random generator -->
+				<div>
+					<div class="flex items-center justify-between mb-1.5">
+						<label for="profile-callsign" class="text-xs font-mono uppercase tracking-wider text-faint">
+							Callsign / Display Name
+						</label>
+						<span class="font-mono text-[10px] text-faint">{editCallsign.length}/24</span>
+					</div>
+					<div class="flex items-center gap-2">
+						<input
+							id="profile-callsign"
+							type="text"
+							maxlength="24"
+							class="w-full rounded-lg border border-cream/15 bg-night px-3 py-2 text-sm text-cream font-mono outline-none transition-colors focus:border-lamp"
+							placeholder="e.g. midnight-coder"
+							bind:value={editCallsign}
+						/>
 						<button
 							type="button"
-							class="rounded p-1 text-faint hover:text-cream hover:bg-cream/5"
-							onclick={() => (open = false)}
-							aria-label="Close"
+							class="btn btn-ghost btn-sm px-2.5 py-2 shrink-0 border border-cream/15 hover:border-lamp/50 hover:text-lamp"
+							onclick={handleRandomCallsign}
+							title="Generate random night callsign"
 						>
-							<IconX size={15} stroke={1.5} />
+							<IconDice size={16} stroke={1.5} />
+							<span class="hidden sm:inline text-xs">Random</span>
 						</button>
 					</div>
+				</div>
 
-					<div class="mt-3 space-y-2.5 text-xs">
-						<div class="rounded-lg bg-night/60 p-2.5 border border-cream/5">
-							<p class="text-[10px] uppercase font-mono tracking-wider text-faint">Room Callsign</p>
-							<p class="font-mono text-sm text-lamp font-medium mt-0.5">{auth.displayName}</p>
+				<!-- Avatar Picker Segment -->
+				<div>
+					<div class="flex items-center justify-between mb-2">
+						<span class="text-xs font-mono uppercase tracking-wider text-faint">Choose Avatar</span>
+						<div class="flex rounded-md border border-cream/10 bg-night p-0.5 text-[11px] font-mono">
+							<button
+								type="button"
+								class="rounded px-2 py-0.5 transition-colors {avatarTab === 'presets' ? 'bg-lamp/20 text-lamp font-medium' : 'text-faint hover:text-cream'}"
+								onclick={() => (avatarTab = 'presets')}
+							>
+								Presets
+							</button>
+							<button
+								type="button"
+								class="rounded px-2 py-0.5 transition-colors {avatarTab === 'upload' ? 'bg-lamp/20 text-lamp font-medium' : 'text-faint hover:text-cream'}"
+								onclick={() => (avatarTab = 'upload')}
+							>
+								Upload
+							</button>
+							<button
+								type="button"
+								class="rounded px-2 py-0.5 transition-colors {avatarTab === 'url' ? 'bg-lamp/20 text-lamp font-medium' : 'text-faint hover:text-cream'}"
+								onclick={() => (avatarTab = 'url')}
+							>
+								Link URL
+							</button>
 						</div>
-						<div class="rounded-lg bg-night/60 p-2.5 border border-cream/5">
-							<p class="text-[10px] uppercase font-mono tracking-wider text-faint">Logged In Email</p>
-							<p class="text-xs text-cream/90 truncate mt-0.5">{auth.user?.email}</p>
+					</div>
+
+					<!-- Tab A: Presets Grid -->
+					{#if avatarTab === 'presets'}
+						<div class="grid grid-cols-5 gap-2 rounded-xl border border-cream/10 bg-night/50 p-2.5">
+							{#each PRESET_AVATARS as preset (preset.id)}
+								{@const selected = editAvatar === preset.url}
+								<button
+									type="button"
+									class="group relative flex flex-col items-center gap-1 rounded-lg p-1.5 transition-all {selected ? 'border border-lamp bg-lamp/15' : 'border border-cream/5 hover:border-cream/20 hover:bg-cream/5'}"
+									onclick={() => selectPreset(preset.url)}
+									title={preset.name}
+								>
+									<img
+										src={preset.url}
+										alt={preset.name}
+										class="h-10 w-10 rounded-full object-cover border {selected ? 'border-lamp' : 'border-cream/15 group-hover:border-cream/40'}"
+									/>
+									<span class="truncate text-[9px] font-mono text-faint group-hover:text-cream max-w-full">
+										{preset.name.split(' ')[0]}
+									</span>
+									{#if selected}
+										<span class="absolute top-1 right-1 grid h-3.5 w-3.5 place-items-center rounded-full bg-lamp text-night">
+											<IconCheck size={9} stroke={3} />
+										</span>
+									{/if}
+								</button>
+							{/each}
 						</div>
-						<div class="rounded-lg bg-night/60 p-2.5 border border-cream/5">
-							<div class="flex items-center justify-between mb-1">
-								<p class="text-[10px] uppercase font-mono tracking-wider text-faint">Profile Picture URL</p>
-								{#if avatarMsg}
-									<span class="text-[10px] text-lamp font-mono">{avatarMsg}</span>
-								{/if}
+					{:else if avatarTab === 'upload'}
+						<!-- Tab B: Upload Image -->
+						<div class="rounded-xl border border-dashed border-cream/20 bg-night/50 p-4 text-center">
+							<input
+								type="file"
+								accept="image/*"
+								class="hidden"
+								bind:this={fileInput}
+								onchange={handleFileUpload}
+							/>
+							<div class="flex flex-col items-center gap-2">
+								<span class="grid h-10 w-10 place-items-center rounded-full bg-lamp/10 text-lamp border border-lamp/30">
+									<IconUpload size={18} stroke={1.5} />
+								</span>
+								<div>
+									<p class="text-xs font-medium text-cream">Upload your photo or avatar</p>
+									<p class="text-[11px] text-faint">PNG, JPG, WebP or SVG · automatically cropped to square</p>
+								</div>
+								<button
+									type="button"
+									class="btn btn-primary btn-sm text-xs mt-1 px-4"
+									onclick={() => fileInput?.click()}
+								>
+									Choose File
+								</button>
 							</div>
-							<div class="flex items-center gap-1.5">
+						</div>
+					{:else if avatarTab === 'url'}
+						<!-- Tab C: Custom URL -->
+						<div class="rounded-xl border border-cream/10 bg-night/50 p-3 space-y-2">
+							<div class="flex items-center gap-2">
 								<input
 									type="url"
-									class="w-full rounded border border-cream/15 bg-night px-2.5 py-1 text-xs text-cream outline-none focus:border-lamp font-mono placeholder:text-faint/60"
-									placeholder="Image URL (optional)"
-									bind:value={avatarInput}
+									class="w-full rounded-lg border border-cream/15 bg-night px-3 py-1.5 text-xs text-cream font-mono outline-none focus:border-lamp placeholder:text-faint/60"
+									placeholder="https://example.com/your-avatar.jpg"
+									bind:value={customUrlInput}
 								/>
 								<button
 									type="button"
-									class="btn btn-primary btn-sm text-[11px] px-2.5 py-1 shrink-0"
-									disabled={savingAvatar}
-									onclick={handleSaveAvatar}
+									class="btn btn-ghost btn-sm text-xs shrink-0 border border-cream/15 hover:border-lamp"
+									onclick={handleCustomUrlApply}
 								>
-									{savingAvatar ? 'Saving...' : 'Save'}
+									Apply
 								</button>
 							</div>
+							<p class="text-[10px] text-faint">Paste a public image link (Discord, GitHub, Gravatar, Unsplash, etc.)</p>
 						</div>
+					{/if}
+				</div>
 
-						<div class="pt-2 flex justify-between items-center gap-2">
+				<!-- Tonight's Intention & Mood -->
+				<div>
+					<label for="profile-intention" class="block text-xs font-mono uppercase tracking-wider text-faint mb-1.5">
+						Tonight's Intention / Focus
+					</label>
+					<input
+						id="profile-intention"
+						type="text"
+						maxlength="80"
+						class="w-full rounded-lg border border-cream/15 bg-night px-3 py-2 text-sm text-cream outline-none focus:border-lamp placeholder:text-faint/60"
+						placeholder="What are you working on tonight?"
+						bind:value={editIntention}
+					/>
+				</div>
+
+				<!-- Mood chips -->
+				<div>
+					<span class="block text-xs font-mono uppercase tracking-wider text-faint mb-1.5">Current Mood</span>
+					<div class="flex flex-wrap gap-1.5">
+						{#each ['🎧 Locked in', '☕ Coffee run', '🐛 Bug hunting', '🥱 4am wall', '🌌 Flow state'] as mood}
 							<button
 								type="button"
-								class="btn btn-ghost btn-sm text-xs flex-1 border border-cream/10 hover:border-ruby/40 hover:text-rose-300"
+								class="rounded-full px-2.5 py-1 text-xs transition-colors border {editMood === mood
+									? 'border-lamp bg-lamp/15 text-lamp font-medium'
+									: 'border-cream/10 bg-night/50 text-taupe hover:border-cream/25 hover:text-cream'}"
+								onclick={() => (editMood = editMood === mood ? '' : mood)}
+							>
+								{mood}
+							</button>
+						{/each}
+					</div>
+				</div>
+
+				<!-- Account / Cloud Sync Card -->
+				<div class="rounded-xl border border-cream/10 bg-night/50 p-3">
+					{#if auth.isAuthenticated}
+						<div class="flex items-center justify-between">
+							<div class="min-w-0">
+								<p class="text-[11px] font-mono uppercase tracking-wider text-faint">Cloud Account</p>
+								<p class="truncate text-xs font-medium text-cream">{auth.user?.email}</p>
+							</div>
+							<button
+								type="button"
+								class="inline-flex items-center gap-1 rounded px-2.5 py-1 text-xs text-rose-300 hover:bg-rose-500/10 transition-colors"
 								onclick={handleSignOut}
 							>
-								<IconLogout size={14} stroke={1.5} />
+								<IconLogout size={13} stroke={1.5} />
 								Sign Out
 							</button>
-							<button
-								type="button"
-								class="btn btn-primary btn-sm text-xs px-4"
-								onclick={() => (open = false)}
-							>
-								Done
-							</button>
 						</div>
-					</div>
-				</div>
-			{/if}
-		{:else}
-			<!-- Unauthenticated trigger icon -->
-			<button
-				class="relative flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full border border-cream/20 bg-night-2 transition-all hover:border-cream/40 active:scale-95 p-0 overflow-hidden"
-				onclick={() => {
-					open = true;
-					callsign = room.name;
-				}}
-				title="Sign in / Profile"
-				aria-label="Sign in"
-			>
-				<img
-					src="/default-avatar.svg"
-					alt="Profile"
-					class="h-full w-full rounded-full object-cover opacity-85 transition-opacity hover:opacity-100"
-				/>
-			</button>
-
-			<!-- Sign In / Sign Up Modal portaled to document.body so header CSS transform does not clip it -->
-			{#if open}
-				<div
-					use:portal
-					class="fixed inset-x-0 bottom-0 top-16 md:top-[68px] z-40 flex items-center justify-center bg-night/85 p-4 backdrop-blur-md overflow-y-auto"
-					role="dialog"
-					aria-modal="true"
-				>
-					<div
-						class="relative w-full max-w-sm rounded-card border border-cream/15 bg-night-2 p-6 shadow-2xl my-auto"
-						use:clickOutside={() => (open = false)}
-					>
-						<div class="flex items-center justify-between pb-3 border-b border-cream/10">
-							<h3 class="text-base font-semibold text-cream">
-								{isSignUp ? 'Create Callsign Account' : 'Sign In to All-Nighter'}
-							</h3>
-							<button class="icon-btn text-faint hover:text-cream" onclick={() => (open = false)} aria-label="Close">
-								<IconX size={16} stroke={1.5} />
-							</button>
-						</div>
-
-						<form class="mt-4 space-y-3" onsubmit={handleSubmit}>
-							{#if error}
-								<div class="rounded-sm border border-ruby/30 bg-ruby/10 p-2 text-xs text-rose-300">
-									{error}
-								</div>
-							{/if}
-							{#if successMsg}
-								<div class="rounded-sm border border-lamp/30 bg-lamp/10 p-2 text-xs text-lamp">
-									{successMsg}
-								</div>
-							{/if}
-
-							{#if isSignUp}
+					{:else}
+						<div>
+							<div class="flex items-center justify-between">
 								<div>
-									<label for="callsign" class="block text-[11px] font-mono text-faint uppercase mb-1">Callsign</label>
-									<input
-										id="callsign"
-										type="text"
-										class="w-full rounded border border-cream/15 bg-night px-3 py-1.5 text-xs text-cream outline-none focus:border-lamp font-mono"
-										placeholder="e.g. solomon"
-										bind:value={callsign}
-									/>
+									<p class="text-xs font-medium text-cream">Cloud Sync & Persistence</p>
+									<p class="text-[11px] text-faint">Sync callsign & room privileges across devices</p>
 								</div>
-							{/if}
-
-							<div>
-								<label for="email" class="block text-[11px] font-mono text-faint uppercase mb-1">Email</label>
-								<input
-									id="email"
-									type="email"
-									required
-									class="w-full rounded border border-cream/15 bg-night px-3 py-1.5 text-xs text-cream outline-none focus:border-lamp font-mono"
-									placeholder="you@example.com"
-									bind:value={email}
-								/>
-							</div>
-
-							<div>
-								<label for="password" class="block text-[11px] font-mono text-faint uppercase mb-1">Password</label>
-								<input
-									id="password"
-									type="password"
-									required
-									minlength="6"
-									class="w-full rounded border border-cream/15 bg-night px-3 py-1.5 text-xs text-cream outline-none focus:border-lamp font-mono"
-									bind:value={password}
-								/>
-							</div>
-
-							<button type="submit" class="btn btn-primary w-full text-xs mt-2" disabled={loading}>
-								{loading ? 'Connecting...' : isSignUp ? 'Create Account' : 'Sign In'}
-							</button>
-
-							<div class="pt-2 text-center text-xs text-faint">
 								<button
 									type="button"
-									class="text-lamp hover:underline"
-									onclick={() => {
-										isSignUp = !isSignUp;
-										error = '';
-									}}
+									class="text-xs text-lamp hover:underline font-mono"
+									onclick={() => (showAuthForm = !showAuthForm)}
 								>
-									{isSignUp ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
+									{showAuthForm ? 'Close form' : 'Sign in / Sign up'}
 								</button>
 							</div>
-						</form>
-					</div>
+
+							{#if showAuthForm}
+								<form class="mt-3 space-y-2.5 pt-3 border-t border-cream/10" onsubmit={handleAuthSubmit}>
+									{#if authError}
+										<div class="rounded p-2 text-xs text-rose-300 bg-ruby/10 border border-ruby/30">
+											{authError}
+										</div>
+									{/if}
+									{#if authSuccess}
+										<div class="rounded p-2 text-xs text-lamp bg-lamp/10 border border-lamp/30">
+											{authSuccess}
+										</div>
+									{/if}
+									<div>
+										<label for="auth-email" class="block text-[10px] font-mono uppercase text-faint mb-1">Email</label>
+										<input
+											id="auth-email"
+											type="email"
+											required
+											class="w-full rounded border border-cream/15 bg-night px-2.5 py-1.5 text-xs text-cream outline-none focus:border-lamp font-mono"
+											placeholder="you@example.com"
+											bind:value={authEmail}
+										/>
+									</div>
+									<div>
+										<label for="auth-password" class="block text-[10px] font-mono uppercase text-faint mb-1">Password</label>
+										<input
+											id="auth-password"
+											type="password"
+											required
+											minlength="6"
+											class="w-full rounded border border-cream/15 bg-night px-2.5 py-1.5 text-xs text-cream outline-none focus:border-lamp font-mono"
+											bind:value={authPassword}
+										/>
+									</div>
+									<div class="flex items-center justify-between pt-1">
+										<button
+											type="button"
+											class="text-[11px] text-faint hover:text-cream underline"
+											onclick={() => (isSignUp = !isSignUp)}
+										>
+											{isSignUp ? 'Already have an account? Sign in' : 'New here? Create account'}
+										</button>
+										<button
+											type="submit"
+											class="btn btn-primary btn-sm text-xs px-3"
+											disabled={authLoading}
+										>
+											{authLoading ? 'Connecting...' : isSignUp ? 'Sign Up' : 'Sign In'}
+										</button>
+									</div>
+								</form>
+							{/if}
+						</div>
+					{/if}
 				</div>
-			{/if}
-		{/if}
+			</div>
+
+			<!-- Footer Action Buttons -->
+			<div class="mt-5 flex items-center justify-end gap-2.5 pt-4 border-t border-cream/10">
+				<button
+					type="button"
+					class="btn btn-ghost btn-sm text-xs px-4"
+					onclick={() => (open = false)}
+				>
+					Cancel
+				</button>
+				<button
+					type="button"
+					class="btn btn-primary btn-sm text-xs px-5 inline-flex items-center gap-1.5"
+					disabled={saving}
+					onclick={handleSaveProfile}
+				>
+					{#if saving}
+						<span class="soft-blink h-2 w-2 rounded-full bg-night"></span>
+						Saving...
+					{:else if saveSuccess}
+						<IconCheck size={14} stroke={2.5} />
+						Saved!
+					{:else}
+						Save Changes
+					{/if}
+				</button>
+			</div>
+		</div>
 	</div>
 {/if}

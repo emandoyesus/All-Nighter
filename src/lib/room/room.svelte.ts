@@ -28,6 +28,7 @@ import { isSupabaseConfigured } from '#lib/supabase';
 
 const LS_NAME = 'an.callsign';
 const LS_ID = 'an.client';
+const LS_AVATAR = 'an.avatar';
 const LS_ACTIVE_ROOM = 'an.active_room';
 const LS_ACTIVE_TITLE = 'an.active_title';
 
@@ -199,6 +200,7 @@ class Room {
 	room = $state('');
 	clientId = '';
 	name = $state('');
+	avatar = $state('');
 	statusText = $state('');
 	status = $state<ConnStatus>('connecting');
 	state = $state<RoomState>(emptyState());
@@ -281,8 +283,15 @@ class Room {
 
 		this.clientId = loadOrMake(LS_ID, randomId);
 		this.name = loadOrMake(LS_NAME, () => `guest-${Math.floor(Math.random() * 900 + 100)}`);
+		this.avatar = loadOrMake(LS_AVATAR, () => auth.avatarUrl || '/default-avatar.svg');
 
-		this.peers.set(this.clientId, { id: this.clientId, name: this.name, ts: Date.now(), self: true });
+		this.peers.set(this.clientId, {
+			id: this.clientId,
+			name: this.name,
+			avatar: this.avatar,
+			ts: Date.now(),
+			self: true
+		});
 		this.flushPeers();
 
 		void this.connect();
@@ -488,11 +497,19 @@ class Room {
 			return;
 		}
 		try {
-			const data = JSON.parse(text) as { name?: string; ts?: number; status?: string; intention?: string; tz?: string };
+			const data = JSON.parse(text) as {
+				name?: string;
+				avatar?: string;
+				ts?: number;
+				status?: string;
+				intention?: string;
+				tz?: string;
+			};
 			if (!data?.name) return;
 			this.peers.set(id, {
 				id,
 				name: String(data.name).slice(0, 24),
+				avatar: data.avatar ? String(data.avatar) : undefined,
 				status: data.status ? String(data.status).slice(0, 24) : undefined,
 				intention: data.intention ? String(data.intention).slice(0, 80) : undefined,
 				tz: data.tz ? String(data.tz).slice(0, 40) : undefined,
@@ -941,9 +958,11 @@ class Room {
 	announce(): void {
 		if (!this.clientId || this.joinState !== 'approved' || !this.room) return;
 		const userTz = typeof Intl !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : undefined;
+		const currentAvatar = this.avatar || auth.avatarUrl || '/default-avatar.svg';
 		this.peers.set(this.clientId, {
 			id: this.clientId,
 			name: this.name,
+			avatar: currentAvatar,
 			status: this.statusText || undefined,
 			intention: this.intention || undefined,
 			tz: userTz,
@@ -955,6 +974,7 @@ class Room {
 			this.presenceTopic(this.room, this.clientId),
 			JSON.stringify({
 				name: this.name,
+				avatar: currentAvatar,
 				status: this.statusText || undefined,
 				intention: this.intention || undefined,
 				tz: userTz,
@@ -970,6 +990,16 @@ class Room {
 		this.name = cleaned;
 		try {
 			localStorage.setItem(LS_NAME, cleaned);
+		} catch {
+			/* private mode */
+		}
+		this.announce();
+	}
+
+	setAvatar(value: string): void {
+		this.avatar = value;
+		try {
+			localStorage.setItem(LS_AVATAR, value);
 		} catch {
 			/* private mode */
 		}

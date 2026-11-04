@@ -46,11 +46,19 @@
 		{#each room.awake as peer (peer.id)}
 			{@const pClock = peerClock(peer.tz)}
 			<li class="flex items-start gap-2">
-				<span
-					class="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-lamp/15 text-[11px] font-semibold text-lamp"
-				>
-					{initial(peer.name)}
-				</span>
+				{#if peer.avatar}
+					<img
+						src={peer.avatar}
+						alt={peer.name}
+						class="mt-0.5 h-6 w-6 shrink-0 rounded-full object-cover border border-lamp/30 bg-night"
+					/>
+				{:else}
+					<span
+						class="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-lamp/15 text-[11px] font-semibold text-lamp"
+					>
+						{initial(peer.name)}
+					</span>
+				{/if}
 				<div class="min-w-0 flex-1">
 					<div class="flex flex-wrap items-center gap-1.5">
 						<span class="text-sm {peer.self ? 'text-cream font-medium' : 'text-taupe'}">{peer.name}</span>
@@ -77,7 +85,16 @@
 
 	<!-- Your callsign -->
 	<div class="mt-4 border-t border-cream/10 pt-4">
-		<label for="callsign" class="mb-1.5 block text-xs text-faint">Your callsign</label>
+		<div class="mb-1.5 flex items-center justify-between">
+			<label for="callsign" class="text-xs text-faint">Your callsign</label>
+			<button
+				type="button"
+				class="text-[11px] font-mono text-lamp hover:underline inline-flex items-center gap-1"
+				onclick={() => window.dispatchEvent(new CustomEvent('an:open-profile-modal'))}
+			>
+				Edit Profile ↗
+			</button>
+		</div>
 		<input
 			id="callsign"
 			type="text"
