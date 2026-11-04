@@ -4,7 +4,6 @@
 	import { room } from '#lib/room/room.svelte';
 	import { siteAudio } from '#lib/audio/site-audio.svelte';
 	import { gsap, prefersReducedMotion, setupGsap } from '#lib/motion';
-	import { magnetic } from '#lib/magnetic';
 	import { ambientMusic } from '#lib/audio/ambient-music.svelte';
 	import IconVolumeOff from '@tabler/icons-svelte/icons/volume-off';
 	import AuthModal from './AuthModal.svelte';
@@ -173,17 +172,6 @@
 					<span class="hidden sm:inline text-[11px]">Audio</span>
 				{/if}
 			</button>
-
-			<!-- Contextual Room Action Button (only on desktop when not in the room) -->
-			{#if !isRoom && !inRoom}
-				<a
-					href={roomLink}
-					class="btn btn-primary hidden text-xs font-medium md:inline-flex"
-					use:magnetic={0.12}
-				>
-					{live ? 'Tune in' : 'Step inside'}
-				</a>
-			{/if}
 
 			<!-- Profile Icon / Modal -->
 			<AuthModal />
