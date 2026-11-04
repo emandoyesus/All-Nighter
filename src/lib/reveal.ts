@@ -18,17 +18,16 @@ export function reveal(node: HTMLElement, delay = 0) {
 
 	const tween = gsap.fromTo(
 		node,
-		{ autoAlpha: 0, y: 30, scale: 0.985 },
+		{ autoAlpha: 0.2, y: 10 },
 		{
 			autoAlpha: 1,
 			y: 0,
-			scale: 1,
-			duration: 0.95,
-			ease: 'power4.out',
-			delay: delay / 1000,
+			duration: 0.28,
+			ease: 'power2.out',
+			delay: Math.min(delay, 120) / 1000,
 			scrollTrigger: {
 				trigger: node,
-				start: 'top 88%',
+				start: 'top 96%',
 				once: true
 			},
 			onComplete: () => node.classList.add('revealed')

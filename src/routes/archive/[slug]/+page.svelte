@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { asset } from '$app/paths';
 	import Nav from '#lib/components/Nav.svelte';
 	import PlaylistExport from '#lib/components/PlaylistExport.svelte';
 	import { reveal } from '#lib/reveal';
@@ -58,54 +57,67 @@
 				<IconArrowLeft size={15} stroke={1.5} />
 				The Archive
 			</a>
-			<div class="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
-				<div>
-					<span class="num rounded-full border border-lamp/30 bg-lamp/10 px-2.5 py-1 text-[10px] uppercase tracking-[0.14em] text-lamp">
-						{night.tag}
-					</span>
+			<div class="mt-6 relative max-w-4xl rounded-2xl border border-cream/10 bg-gradient-to-b from-night via-night-2 to-night-2 p-6 sm:p-8 overflow-hidden">
+				<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-lamp/70 via-cyber-teal to-lamp/30"></div>
+
+				<div class="flex items-center justify-between gap-3 border-b border-cream/10 pb-4 pl-1">
+					<div class="flex items-center gap-2.5">
+						<span class="num inline-flex items-center gap-1.5 rounded bg-lamp/10 px-2.5 py-0.5 text-[10px] uppercase tracking-[0.14em] text-lamp border border-lamp/30">
+							<span class="h-1 w-1 rounded-full bg-lamp"></span>
+							{night.tag}
+						</span>
+						<span class="num text-[11px] uppercase tracking-wider text-faint">
+							LOGBOOK ENTRY
+						</span>
+					</div>
+					<p class="num text-xs text-taupe">{night.date}</p>
+				</div>
+
+				<div class="pt-4 pl-1">
 					<h1
-						class="mt-3 text-3xl font-semibold leading-tight tracking-tight md:text-4xl"
+						class="text-3xl font-semibold leading-tight tracking-tight md:text-4xl text-cream"
 						data-split
 						use:splitReveal={{ scroll: false, delay: 0.05 }}
 					>
 						{night.title}
 					</h1>
-					<p class="num mt-2 text-sm text-taupe">{night.date}</p>
-					<p class="mt-3 max-w-[62ch] leading-relaxed text-taupe">{night.note}</p>
+					<p class="mt-3 max-w-[62ch] text-sm leading-relaxed text-taupe">{night.note}</p>
 
 					{#if night.chatMoments && night.chatMoments.length > 0}
-						<div class="mt-4 max-w-[62ch] rounded-field border border-cream/10 bg-night/50 p-3.5">
-							<p class="zine-quote">{night.chatMoments[0].text}</p>
-							<p class="num mt-1 text-[10px] text-faint">— {night.chatMoments[0].who} · {night.chatMoments[0].at}</p>
+						<div class="mt-5 max-w-[62ch] rounded-lg border border-cream/8 bg-night-3/70 p-3.5 pl-4">
+							<div class="flex items-center justify-between font-mono text-[9px] uppercase tracking-wider text-faint mb-1.5">
+								<span class="text-lamp/80 flex items-center gap-1">
+									<span>REC</span>
+									<span>//</span>
+									<span>{night.chatMoments[0].at}</span>
+								</span>
+								<span>@{night.chatMoments[0].who}</span>
+							</div>
+							<p class="font-mono text-xs leading-relaxed text-cream/90 italic">
+								"{night.chatMoments[0].text}"
+							</p>
 						</div>
 					{/if}
 
-					<div class="mt-6 flex flex-wrap gap-2">
-						<span class="num inline-flex items-center gap-1.5 rounded-full border border-cream/10 px-3 py-1 text-xs text-taupe">
+					<div class="mt-6 flex flex-wrap gap-2.5 pt-5 border-t border-cream/5 font-mono">
+						<span class="inline-flex items-center gap-1.5 rounded-full border border-cream/10 bg-night/60 px-3 py-1 text-xs text-taupe">
 							<IconClock size={13} stroke={1.5} class="text-lamp" />
-							{night.hours}
+							<span class="text-cream/90">{night.hours}</span>
 						</span>
-						<span class="num inline-flex items-center gap-1.5 rounded-full border border-cream/10 px-3 py-1 text-xs text-taupe">
+						<span class="inline-flex items-center gap-1.5 rounded-full border border-cream/10 bg-night/60 px-3 py-1 text-xs text-taupe">
 							<IconMusic size={13} stroke={1.5} class="text-lamp" />
-							{night.tracks} tracks
+							<span class="text-cream/90">{night.tracks} tracks</span>
 						</span>
-						<span class="num inline-flex items-center gap-1.5 rounded-full border border-cream/10 px-3 py-1 text-xs text-taupe">
+						<span class="inline-flex items-center gap-1.5 rounded-full border border-cream/10 bg-night/60 px-3 py-1 text-xs text-taupe">
 							<IconUsers size={13} stroke={1.5} class="text-lamp" />
-							{night.heads} peak
+							<span class="text-cream/90">{night.heads} peak awake</span>
 						</span>
-						<span class="num inline-flex items-center gap-1.5 rounded-full border border-cream/10 px-3 py-1 text-xs text-taupe">
+						<span class="inline-flex items-center gap-1.5 rounded-full border border-cream/10 bg-night/60 px-3 py-1 text-xs text-taupe">
 							<IconDisc size={13} stroke={1.5} class="text-lamp" />
-							{genre}
+							<span class="text-cream/90">{genre}</span>
 						</span>
 					</div>
 				</div>
-				<img
-					src={asset(night.img)}
-					alt=""
-					width="800"
-					height="500"
-					class="photo-warm hidden aspect-[16/10] w-full rounded-card object-cover ring-1 ring-cream/10 lg:block"
-				/>
 			</div>
 		</div>
 	</section>
