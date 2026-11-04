@@ -25,6 +25,7 @@
 						loop: 1,
 						playlist: INTERSTELLAR_VIDEO_ID,
 						playsinline: 1,
+						start: 5,
 						origin: location.origin
 					},
 					events: {
@@ -33,6 +34,7 @@
 							siteAudio.ready = true;
 							try {
 								player.setVolume(siteAudio.volume);
+								player.seekTo(5, true);
 								if (siteAudio.isPlaying && !room.state.playing) {
 									player.unMute();
 									player.playVideo();
@@ -42,9 +44,10 @@
 							} catch {}
 						},
 						onStateChange: (e: { data: number }) => {
-							// Loop back if ended
+							// Loop back if ended, restarting at 5 seconds
 							if (e.data === 0 && siteAudio.isPlaying) {
 								try {
+									player.seekTo(5, true);
 									player.playVideo();
 								} catch {}
 							}
@@ -77,6 +80,9 @@
 			try {
 				player.unMute();
 				player.setVolume(siteAudio.volume);
+				if ((player.getCurrentTime?.() ?? 0) < 5) {
+					player.seekTo(5, true);
+				}
 				player.playVideo();
 			} catch {}
 		} else {
