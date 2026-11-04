@@ -367,44 +367,103 @@
 
 			<!-- Night Milestone Timeline Footer -->
 			<div class="border-t border-cream/10 pt-4 mt-2">
-				<div class="relative mb-3">
-					<!-- Track -->
-					<div class="h-1.5 w-full rounded-full bg-cream/10 overflow-hidden">
+				<div class="relative py-1">
+					<!-- Precision Telemetry Track with border and glowing head -->
+					<div class="relative h-2.5 w-full rounded-full bg-night-3 border border-cream/15 p-[2px] overflow-hidden shadow-inner">
+						<!-- Hash tick marks across the track -->
+						<div class="absolute inset-0 flex justify-between px-[25%] pointer-events-none z-10 opacity-30">
+							<span class="w-px h-full bg-cream/30"></span>
+							<span class="w-px h-full bg-cream/30"></span>
+						</div>
+
+						<!-- Gradient Fill -->
 						<div
-							class="h-full bg-gradient-to-r from-lamp via-lamp to-amber transition-all duration-1000 ease-linear rounded-full"
-							style="width: {progress}%"
-						></div>
+							class="relative h-full rounded-full bg-gradient-to-r from-cyber-teal via-lamp to-amber transition-all duration-700 ease-out"
+							style="width: {Math.max(1.5, Math.min(100, progress))}%"
+						>
+							<!-- Luminous leading edge pip -->
+							<div class="absolute right-0 top-0 bottom-0 w-2 rounded-full bg-white/90 shadow-sm"></div>
+						</div>
 					</div>
 
 					<!-- Milestones -->
-					<div class="mt-2 flex justify-between text-[10px] font-mono uppercase tracking-wider text-faint">
+					<div class="mt-3 flex justify-between font-mono text-[10px] uppercase tracking-wider text-faint">
 						{#if currentPhase === 'pre_midnight'}
-							<span class="{progress >= 0 ? 'text-cream font-medium' : ''}">{String(dawn.h).padStart(2, '0')}:{String(dawn.m).padStart(2, '0')} Dawn</span>
-							<span class="{progress >= 33 ? 'text-cream font-medium' : ''}">12:00 Midday</span>
-							<span class="{progress >= 66 ? 'text-cream font-medium' : ''}">18:00 Sunset</span>
-							<span class="{progress >= 95 ? 'text-amber font-semibold' : ''}">00:00 Midnight</span>
+							<div class="flex flex-col items-start gap-0.5">
+								<span class="flex items-center gap-1.5 {progress >= 0 ? 'text-lamp font-medium' : ''}">
+									<span class="h-1.5 w-1.5 rounded-full {progress >= 0 ? 'bg-lamp' : 'bg-cream/20'}"></span>
+									<span>{String(dawn.h).padStart(2, '0')}:{String(dawn.m).padStart(2, '0')}</span>
+								</span>
+								<span class="text-[9px] text-faint/80 pl-3">Dawn</span>
+							</div>
+							<div class="flex flex-col items-center gap-0.5">
+								<span class="flex items-center gap-1.5 {progress >= 33 ? 'text-lamp font-medium' : ''}">
+									<span class="h-1.5 w-1.5 rounded-full {progress >= 33 ? 'bg-lamp' : 'bg-cream/20'}"></span>
+									<span>12:00</span>
+								</span>
+								<span class="text-[9px] text-faint/80">Midday</span>
+							</div>
+							<div class="flex flex-col items-center gap-0.5">
+								<span class="flex items-center gap-1.5 {progress >= 66 ? 'text-lamp font-medium' : ''}">
+									<span class="h-1.5 w-1.5 rounded-full {progress >= 66 ? 'bg-lamp' : 'bg-cream/20'}"></span>
+									<span>18:00</span>
+								</span>
+								<span class="text-[9px] text-faint/80">Sunset</span>
+							</div>
+							<div class="flex flex-col items-end gap-0.5">
+								<span class="flex items-center gap-1.5 {progress >= 95 ? 'text-amber font-semibold' : ''}">
+									<span class="h-1.5 w-1.5 rounded-full {progress >= 95 ? 'bg-amber soft-blink' : 'bg-cream/20'}"></span>
+									<span>00:00</span>
+								</span>
+								<span class="text-[9px] text-faint/80 pr-3">Midnight</span>
+							</div>
 						{:else}
-							<span class="{progress >= 0 ? 'text-cream font-medium' : ''}">00:00 Mid</span>
-							<span class="{progress >= 33 ? 'text-cream font-medium' : ''}">02:00 Deep</span>
-							<span class="{progress >= 66 ? 'text-cream font-medium' : ''}">04:00 Witching</span>
-							<span class="{progress >= 95 ? 'text-amber font-semibold' : ''}">{String(dawn.h).padStart(2, '0')}:{String(dawn.m).padStart(2, '0')} Dawn</span>
+							<div class="flex flex-col items-start gap-0.5">
+								<span class="flex items-center gap-1.5 {progress >= 0 ? 'text-lamp font-medium' : ''}">
+									<span class="h-1.5 w-1.5 rounded-full {progress >= 0 ? 'bg-lamp' : 'bg-cream/20'}"></span>
+									<span>00:00</span>
+								</span>
+								<span class="text-[9px] text-faint/80 pl-3">Doors Open</span>
+							</div>
+							<div class="flex flex-col items-center gap-0.5">
+								<span class="flex items-center gap-1.5 {progress >= 33 ? 'text-lamp font-medium' : ''}">
+									<span class="h-1.5 w-1.5 rounded-full {progress >= 33 ? 'bg-lamp' : 'bg-cream/20'}"></span>
+									<span>02:00</span>
+								</span>
+								<span class="text-[9px] text-faint/80">Deep Night</span>
+							</div>
+							<div class="flex flex-col items-center gap-0.5">
+								<span class="flex items-center gap-1.5 {progress >= 66 ? 'text-lamp font-medium' : ''}">
+									<span class="h-1.5 w-1.5 rounded-full {progress >= 66 ? 'bg-lamp' : 'bg-cream/20'}"></span>
+									<span>04:00</span>
+								</span>
+								<span class="text-[9px] text-faint/80">Witching Hour</span>
+							</div>
+							<div class="flex flex-col items-end gap-0.5">
+								<span class="flex items-center gap-1.5 {progress >= 95 ? 'text-amber font-semibold' : ''}">
+									<span class="h-1.5 w-1.5 rounded-full {progress >= 95 ? 'bg-amber soft-blink' : 'bg-cream/20'}"></span>
+									<span>{String(dawn.h).padStart(2, '0')}:{String(dawn.m).padStart(2, '0')}</span>
+								</span>
+								<span class="text-[9px] text-faint/80 pr-3">Dawn</span>
+							</div>
 						{/if}
 					</div>
 				</div>
 
-				<div class="flex flex-wrap items-center justify-between gap-2 text-xs text-taupe pt-1">
-					<span class="inline-flex items-center gap-1.5">
-						{#if currentPhase === 'pre_midnight'}
-							<IconFlame size={13} stroke={2} class="text-amber" />
-							<span class="font-mono text-cream">{Math.round(progress)}% of pre-session completed</span>
-						{:else}
-							<IconSparkles size={13} stroke={1.5} class="text-amber" />
-							<span class="font-mono text-cream">{Math.round(progress)}% of night completed</span>
-						{/if}
-					</span>
-					<span class="font-mono text-faint">
-						{remainingText}
-					</span>
+				<!-- Telemetry Status Badges -->
+				<div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-cream/8 font-mono text-xs">
+					<div class="flex items-center gap-2">
+						<span class="inline-flex items-center gap-1.5 rounded-full border border-lamp/30 bg-lamp/10 px-2.5 py-0.5 text-[11px] text-lamp font-medium">
+							<span class="h-1.5 w-1.5 rounded-full bg-lamp {currentPhase === 'session_active' ? 'soft-blink' : ''}"></span>
+							{Math.round(progress)}% complete
+						</span>
+						<span class="text-faint text-[11px] hidden sm:inline">
+							{currentPhase === 'pre_midnight' ? 'daytime prep' : 'night session'}
+						</span>
+					</div>
+					<div class="flex items-center gap-2 text-taupe text-[11px]">
+						<span class="text-cream font-medium">{remainingText}</span>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -489,18 +548,31 @@
 				</p>
 			{/if}
 
-			<div class="mt-4 border-t border-cream/8 pt-3">
-				<div class="mb-1.5 flex items-center justify-between text-[11px] text-faint">
-					<span>{currentPhase === 'pre_midnight' ? 'daytime progress' : 'night progress'}</span>
-					<span class="num text-taupe">
-						{Math.round(progress)}% {currentPhase === 'pre_midnight' ? 'to midnight' : 'to dawn'}
+			<div class="mt-4 border-t border-cream/8 pt-3.5">
+				<div class="mb-2 flex items-center justify-between font-mono text-[11px]">
+					<span class="inline-flex items-center gap-1.5 text-faint">
+						<span class="h-1.5 w-1.5 rounded-full bg-lamp {currentPhase === 'session_active' ? 'soft-blink' : ''}"></span>
+						<span>{currentPhase === 'pre_midnight' ? 'Daytime prep' : 'Night timeline'}</span>
+					</span>
+					<span class="text-cream font-medium">
+						{Math.round(progress)}% · {remainingText}
 					</span>
 				</div>
-				<div class="progress-bar">
+
+				<!-- Upgraded Telemetry Bar -->
+				<div class="relative h-2.5 w-full rounded-full bg-night-3 border border-cream/15 p-[2px] overflow-hidden shadow-inner">
 					<div
-						class="progress-fill"
-						style="width: {progress}%"
-					></div>
+						class="relative h-full rounded-full bg-gradient-to-r from-cyber-teal via-lamp to-amber transition-all duration-700 ease-out"
+						style="width: {Math.max(2, Math.min(100, progress))}%"
+					>
+						<div class="absolute right-0 top-0 bottom-0 w-1.5 rounded-full bg-white/90 shadow-sm"></div>
+					</div>
+				</div>
+
+				<div class="mt-1.5 flex justify-between font-mono text-[9px] uppercase tracking-wider text-faint">
+					<span>{currentPhase === 'pre_midnight' ? '06:00 Dawn' : '00:00 Mid'}</span>
+					<span>50%</span>
+					<span>{currentPhase === 'pre_midnight' ? '00:00 Midnight' : `${String(dawn.h).padStart(2, '0')}:${String(dawn.m).padStart(2, '0')} Dawn`}</span>
 				</div>
 			</div>
 		</div>
