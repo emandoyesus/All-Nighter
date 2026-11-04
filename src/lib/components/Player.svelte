@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { room } from '#lib/room/room.svelte';
 	import { formatTime } from '#lib/room/youtube';
-	import { ambient } from '#lib/audio/ambient.svelte';
+	import { siteAudio } from '#lib/audio/site-audio.svelte';
 	import DeskHud from './DeskHud.svelte';
 	import AudioVisualizer from './AudioVisualizer.svelte';
 	import IconPlay from '@tabler/icons-svelte/icons/player-play';
@@ -12,9 +12,7 @@
 	import IconVolumeOff from '@tabler/icons-svelte/icons/volume-off';
 	import IconMusic from '@tabler/icons-svelte/icons/music';
 	import IconExternal from '@tabler/icons-svelte/icons/external-link';
-	import IconCloudRain from '@tabler/icons-svelte/icons/cloud-rain';
 	import IconDisc from '@tabler/icons-svelte/icons/disc';
-	import IconWaveSine from '@tabler/icons-svelte/icons/wave-sine';
 	import IconMaximize from '@tabler/icons-svelte/icons/maximize';
 
 	let ready = $state(false);
@@ -294,43 +292,21 @@
 			<span class="num text-[11px] text-faint mr-1">Ambience:</span>
 			<button
 				type="button"
-				class="rounded px-2 py-0.5 text-[11px] transition-colors {ambient.type === 'rain' && ambient.isPlaying ? 'bg-lamp/20 text-lamp font-medium' : 'text-faint hover:text-cream'}"
-				onclick={() => ambient.setType('rain')}
-				title="Rain against window"
+				class="rounded px-2.5 py-0.5 text-[11px] transition-colors inline-flex items-center gap-1.5 {siteAudio.isPlaying ? 'bg-lamp/20 text-lamp font-medium border border-lamp/30' : 'text-faint hover:text-cream border border-transparent'}"
+				onclick={() => siteAudio.toggle()}
+				title={siteAudio.isPlaying ? 'Mute Interstellar soundtrack' : 'Play Interstellar soundtrack'}
 			>
-				<IconCloudRain size={12} stroke={1.5} class="inline mr-1" />
-				Rain
+				{#if siteAudio.isPlaying}
+					<span class="inline-flex items-end gap-[2px] h-2.5 w-2.5" aria-hidden="true">
+						<span class="eq-bar w-[2px] h-full bg-lamp rounded-full" style="animation-delay: 0s;"></span>
+						<span class="eq-bar w-[2px] h-full bg-lamp rounded-full" style="animation-delay: 0.25s;"></span>
+						<span class="eq-bar w-[2px] h-full bg-lamp rounded-full" style="animation-delay: 0.5s;"></span>
+					</span>
+				{:else}
+					<IconDisc size={12} stroke={1.5} />
+				{/if}
+				Interstellar
 			</button>
-			<button
-				type="button"
-				class="rounded px-2 py-0.5 text-[11px] transition-colors {ambient.type === 'vinyl' && ambient.isPlaying ? 'bg-lamp/20 text-lamp font-medium' : 'text-faint hover:text-cream'}"
-				onclick={() => ambient.setType('vinyl')}
-				title="Vinyl needle crackle"
-			>
-				<IconDisc size={12} stroke={1.5} class="inline mr-1" />
-				Vinyl
-			</button>
-			<button
-				type="button"
-				class="rounded px-2 py-0.5 text-[11px] transition-colors {ambient.type === 'tape' && ambient.isPlaying ? 'bg-lamp/20 text-lamp font-medium' : 'text-faint hover:text-cream'}"
-				onclick={() => ambient.setType('tape')}
-				title="Warm lo-fi tape hiss"
-			>
-				<IconWaveSine size={12} stroke={1.5} class="inline mr-1" />
-				Tape
-			</button>
-
-			{#if ambient.isPlaying && ambient.type !== 'none'}
-				<input
-					type="range"
-					min="0"
-					max="100"
-					value={ambient.volume}
-					oninput={(e) => ambient.setVolume(Number(e.currentTarget.value))}
-					class="seek w-14 ml-1 cursor-pointer"
-					title="Ambience volume: {ambient.volume}%"
-				/>
-			{/if}
 		</div>
 
 		<button
