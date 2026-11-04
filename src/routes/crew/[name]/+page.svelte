@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { asset } from '$app/paths';
 	import Nav from '#lib/components/Nav.svelte';
 	import { countUp } from '#lib/count-up';
 	import { reveal } from '#lib/reveal';
@@ -95,18 +94,10 @@
 				<ul class="divide-y divide-cream/8">
 					{#each profile.nights as night (night.slug)}
 						<li>
-							<a href="/archive/{night.slug}" class="group flex items-center gap-3 px-5 py-3 transition-colors hover:bg-night/60">
-								<img
-									src={asset(night.img)}
-									alt=""
-									width="80"
-									height="50"
-									loading="lazy"
-									class="photo-warm h-10 w-16 shrink-0 rounded object-cover"
-								/>
+							<a href="/archive/{night.slug}" class="group flex items-center justify-between gap-3 px-5 py-3 transition-colors hover:bg-night/60">
 								<div class="min-w-0 flex-1">
-									<p class="truncate text-sm">{night.title}</p>
-									<p class="num mt-0.5 text-xs text-faint">{night.date} · {night.tag}</p>
+									<p class="truncate text-sm group-hover:text-cream">{night.title}</p>
+									<p class="num mt-0.5 text-xs text-faint">{night.date} · {night.tag} · {night.hours}</p>
 								</div>
 								<IconChevronRight size={14} stroke={1.5} class="shrink-0 text-faint transition-colors group-hover:text-lamp" />
 							</a>

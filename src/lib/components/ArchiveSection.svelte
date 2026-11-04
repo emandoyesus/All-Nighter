@@ -1,14 +1,20 @@
 <script lang="ts">
-	import { asset } from '$app/paths';
 	import { nights } from '#lib/data/archive';
-	import { reveal } from '#lib/reveal';
 	import { splitReveal } from '#lib/split-reveal';
 	import { tilt } from '#lib/tilt';
 	import IconChevronRight from '@tabler/icons-svelte/icons/chevron-right';
+	import IconClock from '@tabler/icons-svelte/icons/clock';
+	import IconMusic from '@tabler/icons-svelte/icons/music';
+	import IconUsers from '@tabler/icons-svelte/icons/users';
 </script>
 
-<section id="archive" class="border-t border-cream/10 bg-night-2">
-	<div class="mx-auto max-w-[1400px] px-5 py-16 md:py-24">
+<section id="archive" class="relative border-t border-cream/10 bg-[#060a0b] py-16 md:py-24 overflow-hidden">
+	<!-- Subtle dot ledger pattern -->
+	<div class="pointer-events-none absolute inset-0 opacity-25" style="background-image: radial-gradient(rgba(131, 249, 214, 0.15) 1px, transparent 1px); background-size: 24px 24px;"></div>
+	<!-- Ambient top gradient divider line -->
+	<div class="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-lamp/40 to-transparent"></div>
+
+	<div class="relative mx-auto max-w-[1400px] px-5">
 		<p class="eyebrow">{nights.length} nights on record</p>
 		<h2 class="mt-4 text-3xl font-semibold tracking-tight md:text-4xl" data-split use:splitReveal>
 			The archive
@@ -22,42 +28,81 @@
 			{#each nights as night, i (night.seed)}
 				<a
 					href="/archive/{night.slug}"
-					class="group w-[82vw] max-w-[400px] shrink-0 snap-start overflow-hidden rounded-card bg-night ring-1 ring-cream/10 transition-colors hover:ring-lamp/40 sm:w-[60vw] lg:w-[380px]"
-					data-reveal
-					use:reveal={i * 70}
+					class="group relative flex w-[85vw] max-w-[420px] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-xl border border-cream/10 bg-gradient-to-b from-night-2 via-night-2 to-night p-6 transition-all duration-300 hover:border-lamp/50 sm:w-[60vw] lg:w-[390px]"
 					use:tilt={3}
 				>
-					<div class="relative overflow-hidden">
-						<img
-							src={asset(night.img)}
-							alt=""
-							width="800"
-							height="500"
-							loading="lazy"
-							class="photo-warm aspect-[16/10] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-						/>
-						<!-- zine-style tag chip -->
-						<span class="num absolute left-3 top-3 rounded-full bg-night/80 px-2.5 py-1 text-[10px] uppercase tracking-[0.14em] text-lamp backdrop-blur">
-							{night.tag}
-						</span>
-					</div>
-					<div class="p-5">
-						<div class="num flex items-center justify-between gap-3 text-xs text-faint">
-							<span>{night.date}</span>
-							<span class="truncate text-right">{night.hours} · {night.tracks} tracks</span>
-						</div>
-						<h3 class="mt-2.5 text-lg font-medium leading-snug">{night.title}</h3>
+					<!-- Notebook binding spine accent -->
+					<div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-lamp/60 via-cyber-teal to-lamp/20 group-hover:w-1.5 transition-all"></div>
 
-						<!-- best chat moment as a zine pull-quote -->
+					<!-- Watermark Serial Index Number -->
+					<span class="pointer-events-none absolute right-5 top-3 font-mono text-5xl font-extrabold text-cream/[0.04] select-none group-hover:text-lamp/[0.08] transition-colors">
+						{String(i + 1).padStart(2, '0')}
+					</span>
+
+					<div>
+						<!-- Top Bar -->
+						<div class="flex items-center justify-between gap-2 border-b border-cream/10 pb-3 pl-1">
+							<div class="flex items-center gap-2">
+								<span class="inline-flex items-center gap-1.5 rounded bg-lamp/10 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] text-lamp border border-lamp/30">
+									<span class="h-1 w-1 rounded-full bg-lamp"></span>
+									{night.tag}
+								</span>
+								<span class="font-mono text-[10px] uppercase tracking-wider text-faint">
+									LOG #{String(i + 1).padStart(3, '0')}
+								</span>
+							</div>
+							<span class="font-mono text-xs text-taupe">{night.date}</span>
+						</div>
+
+						<!-- Title & Note -->
+						<div class="pt-3.5 pl-1">
+							<h3 class="text-xl font-semibold tracking-tight text-cream group-hover:text-lamp transition-colors leading-snug">
+								{night.title}
+							</h3>
+							<p class="mt-2 text-xs leading-relaxed text-taupe line-clamp-3">
+								{night.note}
+							</p>
+						</div>
+
+						<!-- Chat Moment Quote Box -->
 						{#if night.chatMoments[0]}
-							<p class="zine-quote mt-3 line-clamp-2">{night.chatMoments[0].text}</p>
-							<p class="num mt-1 text-[10px] text-faint">— {night.chatMoments[0].who} · {night.chatMoments[0].at}</p>
+							<div class="mt-4 rounded-lg border border-cream/8 bg-night-3/70 p-3 pl-3.5">
+								<div class="flex items-center justify-between font-mono text-[9px] uppercase tracking-wider text-faint mb-1.5">
+									<span class="text-lamp/80 flex items-center gap-1">
+										<span>REC</span>
+										<span>//</span>
+										<span>{night.chatMoments[0].at}</span>
+									</span>
+									<span>@{night.chatMoments[0].who}</span>
+								</div>
+								<p class="font-mono text-[11px] leading-relaxed text-cream/90 italic">
+									"{night.chatMoments[0].text}"
+								</p>
+							</div>
 						{/if}
+					</div>
 
-						<div class="num mt-4 flex items-center gap-1 text-xs text-taupe transition-colors group-hover:text-lamp">
-							<span>Read the night</span>
-							<IconChevronRight size={13} stroke={1.5} />
+					<!-- Bottom Ledger Metrics Strip -->
+					<div class="mt-6 border-t border-cream/8 pt-4 pl-1 flex items-center justify-between gap-3 font-mono text-xs text-faint">
+						<div class="flex items-center gap-3">
+							<span class="inline-flex items-center gap-1">
+								<IconClock size={12} stroke={1.5} class="text-lamp/70" />
+								<span class="text-cream/80">{night.hours}</span>
+							</span>
+							<span class="inline-flex items-center gap-1">
+								<IconMusic size={12} stroke={1.5} class="text-lamp/70" />
+								<span class="text-cream/80">{night.tracks} tracks</span>
+							</span>
+							<span class="inline-flex items-center gap-1">
+								<IconUsers size={12} stroke={1.5} class="text-lamp/70" />
+								<span class="text-cream/80">{night.heads}</span>
+							</span>
 						</div>
+
+						<span class="inline-flex items-center gap-1 text-taupe font-sans text-xs group-hover:text-lamp transition-colors shrink-0">
+							<span>Read</span>
+							<IconChevronRight size={13} stroke={1.5} class="transition-transform group-hover:translate-x-0.5" />
+						</span>
 					</div>
 				</a>
 			{/each}
