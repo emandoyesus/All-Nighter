@@ -49,7 +49,7 @@ export function playFocusChime(): void {
 	});
 }
 
-/** Relaxing chime indicating Break mode (floor open). */
+/** Relaxing chime indicating Normal mode (floor open). */
 export function playBreakChime(): void {
 	const ac = getAudioContext();
 	if (!ac) return;

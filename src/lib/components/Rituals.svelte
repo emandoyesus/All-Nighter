@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { asset } from '$app/paths';
+	import { nights } from '#lib/data/archive';
 	import { reveal } from '#lib/reveal';
 	import { splitReveal } from '#lib/split-reveal';
 	import { parallax } from '#lib/parallax';
@@ -22,15 +23,15 @@
 	<div class="h-16 -mb-8 pointer-events-none bg-gradient-to-b from-transparent to-night/80" aria-hidden="true"></div>
 
 	<div class="mt-10 grid gap-4 md:grid-cols-5">
-		<!-- Focus mode card -->
+		<!-- Normal mode card -->
 		<article
-			class="relative flex min-h-[300px] flex-col justify-end overflow-hidden rounded-card ring-1 ring-cream/10 md:col-span-3"
+			class="relative flex min-h-[300px] flex-col justify-end overflow-hidden rounded-card ring-1 border border-cream/10 md:col-span-3"
 			data-reveal
 			use:reveal
 		>
 			<img
 				src={asset('nights/ritual.jpg')}
-				alt="Late-night radio audio mixing console with glowing amber VU meters, headphones, and a rainy window"
+				alt="Late-night audio mixing desk with glowing amber meters and headphones"
 				width="1200"
 				height="800"
 				loading="lazy"
@@ -43,40 +44,39 @@
 			></div>
 			<div class="relative flex h-full flex-col justify-end p-6 md:p-7">
 				<span class="mb-3 inline-flex w-fit items-center gap-1.5 rounded-full border border-lamp/40 bg-lamp/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-lamp">
-					<IconTarget size={11} stroke={2} />
-					Focus mode
+					<IconWaveSine size={11} stroke={2} />
+					Normal mode
 				</span>
-				<h3 class="text-xl font-medium">We go quiet for fifty.</h3>
+				<h3 class="text-xl font-medium">Open floor, shared aux.</h3>
 				<p class="mt-2 max-w-[46ch] text-sm leading-relaxed text-taupe">
-					Chat mutes. The queue favors calm. You can still see who's in the room — that shared
-					presence is the whole point. Post one line: what you're working on tonight.
+					Chat is active and anyone can queue tracks. Work at your own pace, talk through ideas, or listen along in sync with everyone awake tonight.
 				</p>
 			</div>
 		</article>
 
-		<!-- Break mode card -->
+		<!-- Focus mode card -->
 		<article
-			class="flex min-h-[240px] flex-col justify-end rounded-card p-6 ring-1 ring-cream/10 md:col-span-2 md:p-7"
+			class="flex min-h-[240px] flex-col justify-end rounded-card p-6 border border-cream/10 md:col-span-2 md:p-7"
 			style="background: linear-gradient(160deg, color-mix(in srgb, var(--color-amber) 12%, var(--color-night-3)) 0%, var(--color-night-2) 100%)"
 			data-reveal
 			use:reveal={80}
 		>
-			<span class="mb-3 inline-flex w-fit items-center gap-1.5 rounded-full border border-amber/40 bg-amber/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-amber-200"
+			<span
+				class="mb-3 inline-flex w-fit items-center gap-1.5 rounded-full border border-amber/40 bg-amber/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-amber-200"
 				style="--tw-text-opacity:1; color: var(--color-amber)"
 			>
-				<IconWaveSine size={11} stroke={2} />
-				Break mode
+				<IconTarget size={11} stroke={2} />
+				Focus mode
 			</span>
-			<h3 class="text-xl font-semibold text-cream">Then the floor opens.</h3>
+			<h3 class="text-xl font-semibold text-cream">Quiet sprint for fifty.</h3>
 			<p class="mt-2 max-w-[38ch] text-sm leading-relaxed text-cream/70">
-				Chat comes back. Anyone can add to the queue. Dedicate a track. Ten minutes, then we lock
-				back in.
+				Chat mutes and the playlist locks in for deep concentration. Shared presence keeps everyone accountable until the timer completes.
 			</p>
 		</article>
 
 		<!-- Dawn card -->
 		<article
-			class="rounded-card bg-night-2 p-6 ring-1 ring-cream/10 md:col-span-5 md:flex md:items-center md:justify-between md:gap-8 md:p-7"
+			class="rounded-card bg-night-2 p-6 border border-cream/10 md:col-span-5 md:flex md:items-center md:justify-between md:gap-8 md:p-7"
 			data-reveal
 			use:reveal={140}
 		>
@@ -91,7 +91,7 @@
 					worked on, and the moments that got screenshotted. Kept in the archive, forever.
 				</p>
 			</div>
-			<p class="num mt-4 shrink-0 text-xs text-faint md:mt-0">4 nights on record</p>
+			<p class="num mt-4 shrink-0 text-xs text-faint md:mt-0">{nights.length} nights on record</p>
 		</article>
 	</div>
 </section>
