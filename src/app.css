@@ -329,15 +329,7 @@
 /* --- reveal on scroll (GSAP drives the motion) ------------------------ */
 
 [data-reveal] {
-	opacity: 0;
-	transform: translateY(20px);
-}
-
-@media (prefers-reduced-motion: reduce) {
-	[data-reveal] {
-		opacity: 1;
-		transform: none;
-	}
+	opacity: 1;
 }
 
 /* --- live equalizer (motivated: playing state) ------------------------ */
@@ -535,7 +527,6 @@ input[type='range'].seek {
 	margin: calc(var(--s, 3px) / -2);
 	border-radius: 50%;
 	background: #ffffff;
-	box-shadow: 0 0 2px rgba(255, 255, 255, 0.4);
 	opacity: 0.65;
 	animation: star-shine var(--d, 7s) ease-in-out infinite alternate;
 	animation-delay: var(--dl, 0s);
@@ -543,13 +534,11 @@ input[type='range'].seek {
 
 .star--warm {
 	background: #ffc970;
-	box-shadow: 0 0 3px rgba(255, 184, 77, 0.45);
 	opacity: 0.75;
 }
 
 .star--lamp {
 	background: #7dd3fc;
-	box-shadow: 0 0 3px rgba(56, 189, 248, 0.45);
 	opacity: 0.75;
 }
 

@@ -46,11 +46,8 @@
 
 <div class="mx-auto max-w-md py-8">
 	<div class="relative overflow-hidden rounded-2xl border border-cream/15 bg-night-2/95 p-6 sm:p-8 shadow-2xl backdrop-blur-xl">
-		<!-- Atmospheric ambient highlight -->
-		<div class="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-lamp/10 blur-3xl"></div>
-
 		<div class="text-center">
-			<span class="inline-flex h-12 w-12 items-center justify-center rounded-full border border-lamp/30 bg-lamp/10 text-lamp mb-4 shadow-[0_0_15px_rgba(56,189,248,0.15)]">
+			<span class="inline-flex h-12 w-12 items-center justify-center rounded-full border border-lamp/30 bg-lamp/10 text-lamp mb-4">
 				<IconMoon size={22} stroke={1.7} />
 			</span>
 			<h2 class="text-2xl font-bold tracking-tight text-cream">
