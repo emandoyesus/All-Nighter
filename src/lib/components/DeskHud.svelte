@@ -86,6 +86,17 @@
 		const s = sec % 60;
 		return `${m}:${String(s).padStart(2, '0')}`;
 	}
+
+	$effect(() => {
+		if (typeof document === 'undefined') return;
+		if (open) {
+			const prev = document.body.style.overflow;
+			document.body.style.overflow = 'hidden';
+			return () => {
+				document.body.style.overflow = prev;
+			};
+		}
+	});
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
