@@ -62,11 +62,8 @@
 
 <header
 	bind:this={header}
-	class="sticky top-0 z-50 border-b border-cream/10 bg-[#060a0b]/85 backdrop-blur-xl supports-[backdrop-filter]:bg-[#060a0b]/75 transition-colors"
+	class="sticky top-0 z-50 border-b border-cream/10 bg-[#060a0b]/90 backdrop-blur-md transition-colors"
 >
-	<!-- Ambient top glowing hairline -->
-	<div class="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-lamp/35 to-transparent"></div>
-
 	<div class="mx-auto flex h-16 max-w-[1400px] items-center justify-between gap-3 px-4 sm:px-6 md:h-[68px]">
 		<!-- Left: Brand Logo & Title -->
 		<a
@@ -74,8 +71,8 @@
 			class="group flex shrink-0 items-center gap-2.5 transition-opacity hover:opacity-95"
 			aria-label="All Nighter Home"
 		>
-			<!-- Standalone Moon Crescent Icon matching favicon -->
-			<div class="relative grid h-8 w-8 place-items-center rounded-lg border border-lamp/30 bg-lamp/10 text-lamp transition-all duration-300 group-hover:border-lamp/60 group-hover:bg-lamp/15 group-hover:shadow-[0_0_14px_rgba(131,249,214,0.25)]">
+			<!-- Standalone Moon Crescent Icon matching favicon (flat matte, no glow) -->
+			<div class="relative grid h-8 w-8 place-items-center rounded-lg border border-lamp/30 bg-lamp/10 text-lamp transition-colors group-hover:border-lamp/60 group-hover:bg-lamp/15">
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					viewBox="0 0 24 24"
@@ -97,43 +94,43 @@
 			</div>
 		</a>
 
-		<!-- Center: Segmented Navigation Capsule -->
+		<!-- Center: Segmented Navigation Capsule (no glows, crisp borders) -->
 		<nav
-			class="flex items-center rounded-full border border-cream/10 bg-night-2/90 p-1 shadow-[0_2px_12px_rgba(0,0,0,0.4)] backdrop-blur-md"
+			class="flex items-center rounded-full border border-cream/10 bg-night-2 p-1"
 			aria-label="Main navigation"
 		>
 			<a
 				href="/"
-				class="relative inline-flex items-center gap-1.5 rounded-full px-2.5 sm:px-3.5 py-1 text-xs font-medium transition-all {isHome
-					? 'bg-lamp/15 text-lamp border border-lamp/35 shadow-[0_0_12px_rgba(131,249,214,0.15)]'
+				class="relative inline-flex items-center gap-1.5 rounded-full px-2.5 sm:px-3.5 py-1 text-xs font-medium transition-colors {isHome
+					? 'bg-lamp/15 text-lamp border border-lamp/35'
 					: 'text-taupe hover:bg-cream/5 hover:text-cream'}"
 				aria-current={isHome ? 'page' : undefined}
 			>
 				{#if isHome}
-					<span class="h-1.5 w-1.5 rounded-full bg-lamp shadow-[0_0_6px_#83f9d6]"></span>
+					<span class="h-1.5 w-1.5 rounded-full bg-lamp"></span>
 				{/if}
 				Tonight
 			</a>
 
 			<a
 				href={roomLink}
-				class="relative inline-flex items-center gap-1.5 rounded-full px-2.5 sm:px-3.5 py-1 text-xs font-medium transition-all {isRoom
-					? 'bg-lamp/15 text-lamp border border-lamp/35 shadow-[0_0_12px_rgba(131,249,214,0.15)]'
+				class="relative inline-flex items-center gap-1.5 rounded-full px-2.5 sm:px-3.5 py-1 text-xs font-medium transition-colors {isRoom
+					? 'bg-lamp/15 text-lamp border border-lamp/35'
 					: 'text-taupe hover:bg-cream/5 hover:text-cream'}"
 				aria-current={isRoom ? 'page' : undefined}
 			>
 				{#if inRoom}
-					<span class="soft-blink h-1.5 w-1.5 rounded-full bg-amber shadow-[0_0_6px_#ffb84d]"></span>
+					<span class="soft-blink h-1.5 w-1.5 rounded-full bg-amber"></span>
 					<span class="truncate max-w-[90px] sm:max-w-[130px]">{room.title || 'In Room'}</span>
 				{:else if live}
-					<span class="soft-blink h-1.5 w-1.5 rounded-full bg-ruby shadow-[0_0_6px_#ff334b]"></span>
+					<span class="soft-blink h-1.5 w-1.5 rounded-full bg-ruby"></span>
 					<span>The Room</span>
 					<span class="hidden sm:inline-block rounded bg-ruby/20 px-1 py-0.2 font-mono text-[9px] uppercase tracking-wider text-rose-300 border border-ruby/30">
 						LIVE
 					</span>
 				{:else}
 					{#if isRoom}
-						<span class="h-1.5 w-1.5 rounded-full bg-lamp shadow-[0_0_6px_#83f9d6]"></span>
+						<span class="h-1.5 w-1.5 rounded-full bg-lamp"></span>
 					{/if}
 					The Room
 				{/if}
@@ -141,13 +138,13 @@
 
 			<a
 				href="/archive"
-				class="relative inline-flex items-center gap-1.5 rounded-full px-2.5 sm:px-3.5 py-1 text-xs font-medium transition-all {isArchive
-					? 'bg-lamp/15 text-lamp border border-lamp/35 shadow-[0_0_12px_rgba(131,249,214,0.15)]'
+				class="relative inline-flex items-center gap-1.5 rounded-full px-2.5 sm:px-3.5 py-1 text-xs font-medium transition-colors {isArchive
+					? 'bg-lamp/15 text-lamp border border-lamp/35'
 					: 'text-taupe hover:bg-cream/5 hover:text-cream'}"
 				aria-current={isArchive ? 'page' : undefined}
 			>
 				{#if isArchive}
-					<span class="h-1.5 w-1.5 rounded-full bg-lamp shadow-[0_0_6px_#83f9d6]"></span>
+					<span class="h-1.5 w-1.5 rounded-full bg-lamp"></span>
 				{/if}
 				The Archive
 			</a>
@@ -155,11 +152,11 @@
 
 		<!-- Right: Audio Controller, Contextual Action & Auth Profile -->
 		<div class="flex items-center gap-2 sm:gap-3">
-			<!-- Website Sound Quick Toggle with Equalizer Visualizer -->
+			<!-- Website Sound Quick Toggle with Equalizer Visualizer (matte, no glow) -->
 			<button
-				class="inline-flex items-center gap-1.5 rounded-full border px-2.5 sm:px-3 py-1.5 text-xs font-mono transition-all {siteAudio.isPlaying
-					? 'border-lamp/40 bg-lamp/10 text-lamp hover:bg-lamp/15 shadow-[0_0_10px_rgba(131,249,214,0.12)]'
-					: 'border-cream/12 bg-night-2/80 text-faint hover:border-cream/25 hover:text-cream'}"
+				class="inline-flex items-center gap-1.5 rounded-full border px-2.5 sm:px-3 py-1.5 text-xs font-mono transition-colors {siteAudio.isPlaying
+					? 'border-lamp/40 bg-lamp/10 text-lamp hover:bg-lamp/15'
+					: 'border-cream/12 bg-night-2 text-faint hover:border-cream/25 hover:text-cream'}"
 				onclick={toggleSound}
 				title={siteAudio.isPlaying ? 'Mute atmospheric ambient soundtrack' : 'Play atmospheric ambient soundtrack'}
 				aria-label={siteAudio.isPlaying ? 'Mute soundtrack' : 'Play soundtrack'}

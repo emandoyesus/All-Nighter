@@ -240,17 +240,17 @@
 			{#if open}
 				<div
 					use:portal
-					class="fixed inset-0 z-[100] flex items-center justify-center bg-night/85 p-4 backdrop-blur-md"
+					class="fixed inset-x-0 bottom-0 top-16 md:top-[68px] z-40 flex items-center justify-center bg-night/85 p-4 backdrop-blur-md overflow-y-auto"
 					role="dialog"
 					aria-modal="true"
 				>
 					<div
-						class="relative w-full max-w-sm rounded-card border border-cream/15 bg-night-2 p-6 shadow-2xl"
+						class="relative w-full max-w-sm rounded-card border border-cream/15 bg-night-2 p-6 shadow-2xl my-auto"
 						use:clickOutside={() => (open = false)}
 					>
 						<div class="flex items-center justify-between pb-3 border-b border-cream/10">
 							<h3 class="text-base font-semibold text-cream">
-								{isSignUp ? 'Create Night-Owl Account' : 'Sign In to All-Nighter'}
+								{isSignUp ? 'Create Callsign Account' : 'Sign In to All-Nighter'}
 							</h3>
 							<button class="icon-btn text-faint hover:text-cream" onclick={() => (open = false)} aria-label="Close">
 								<IconX size={16} stroke={1.5} />
