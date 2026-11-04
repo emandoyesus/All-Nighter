@@ -46,7 +46,6 @@
 		buildings: BuildingData[];
 	}
 
-	const clamp = (n: number, a = 0, b = 1) => Math.min(b, Math.max(a, n));
 	const rng = (seed: number) => {
 		let s = seed;
 		return () => (s = (s * 16807) % 2147483647) / 2147483647;
@@ -270,34 +269,11 @@
 			}
 		}
 
-		let currentLevel = -1;
-		let ticking = false;
+		const STATIC_LEVEL = 0.55;
 
 		const render = () => {
-			ticking = false;
-			const y = window.scrollY;
-			const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-			const p = clamp(y / (maxScroll * 0.75));
-
-			if (root) {
-				root.style.setProperty('--p', p.toFixed(3));
-				root.style.setProperty('--y', y.toFixed(0));
-			}
-
-			// Quantize lighting updates to avoid redrawing canvas every single pixel
-			const q = Math.round((0.25 + 0.75 * p) * 20) / 20;
-			if (q !== currentLevel) {
-				currentLevel = q;
-				for (const layer of layers) {
-					drawLayer(layer, currentLevel);
-				}
-			}
-		};
-
-		const onScroll = () => {
-			if (!ticking) {
-				ticking = true;
-				requestAnimationFrame(render);
+			for (const layer of layers) {
+				drawLayer(layer, STATIC_LEVEL);
 			}
 		};
 
@@ -307,16 +283,13 @@
 			for (const layer of layers) {
 				buildGeometry(layer, w, h);
 			}
-			currentLevel = -1;
 			render();
 		};
 
 		onResize();
-		window.addEventListener('scroll', onScroll, { passive: true });
 		window.addEventListener('resize', onResize);
 
 		return () => {
-			window.removeEventListener('scroll', onScroll);
 			window.removeEventListener('resize', onResize);
 		};
 	});
@@ -331,8 +304,6 @@
 
 <style>
 	.skyline {
-		--p: 0;
-		--y: 0;
 		position: absolute;
 		inset: 0;
 		pointer-events: none;
@@ -351,43 +322,35 @@
 			color-mix(in srgb, var(--color-night-2) 40%, transparent) 40%,
 			transparent 70%
 		);
-		opacity: var(--p);
+		opacity: 0.35;
 	}
 
 	.city {
 		position: absolute;
 		left: 0;
-		bottom: -2px;
+		bottom: 0;
 		width: 100%;
 		pointer-events: none;
-		will-change: transform;
+		transform: none;
 	}
 
 	.city--far {
 		height: 36vh;
 		opacity: 0.38;
 		filter: blur(1.2px);
-		transform: translate3d(0, calc(var(--y) * -0.03px), 0);
+		transform: none;
 	}
 
 	.city--mid {
 		height: 30vh;
 		opacity: 0.65;
 		filter: blur(0.4px);
-		transform: translate3d(0, calc(var(--y) * -0.07px), 0);
+		transform: none;
 	}
 
 	.city--near {
 		height: 24vh;
 		opacity: 0.9;
-		transform: translate3d(0, calc(var(--y) * -0.12px), 0);
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		.city--far,
-		.city--mid,
-		.city--near {
-			transform: none;
-		}
+		transform: none;
 	}
 </style>
