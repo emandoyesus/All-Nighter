@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="100%" height="100%">
+	<defs>
+		<linearGradient id="bg-moon" x1="0%" y1="0%" x2="100%" y2="100%">
+			<stop offset="0%" stop-color="#0e1719" />
+			<stop offset="100%" stop-color="#060c0d" />
+		</linearGradient>
+	</defs>
+	<circle cx="64" cy="64" r="64" fill="url(#bg-moon)" />
+	<circle cx="64" cy="64" r="62.5" fill="none" stroke="#17616d" stroke-width="1.5" stroke-opacity="0.6" />
+	<!-- Stars -->
+	<circle cx="34" cy="38" r="1.5" fill="#83f9d6" opacity="0.7" />
+	<circle cx="92" cy="30" r="1.2" fill="#f3ece1" opacity="0.6" />
+	<circle cx="96" cy="88" r="1.5" fill="#83f9d6" opacity="0.5" />
+	<circle cx="30" cy="84" r="1.2" fill="#f3ece1" opacity="0.4" />
+	<circle cx="78" cy="46" r="2" fill="#83f9d6" opacity="0.9" />
+	<!-- Crescent Moon -->
+	<path
+		d="M62 26 C42 26 26 42 26 62 C26 82 42 98 62 98 C74 98 84 92 90 82 C70 82 54 66 54 46 C54 38 57 31 62 26 Z"
+		fill="#83f9d6"
+	/>
+	<circle cx="68" cy="60" r="3" fill="#17616d" opacity="0.4" />
+	<circle cx="58" cy="74" r="4" fill="#17616d" opacity="0.3" />
+</svg>

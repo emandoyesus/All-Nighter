@@ -49,6 +49,7 @@ export type RoomState = {
 export type Peer = {
 	id: string;
 	name: string;
+	avatar?: string;
 	ts: number;
 	self?: boolean;
 	status?: string;
