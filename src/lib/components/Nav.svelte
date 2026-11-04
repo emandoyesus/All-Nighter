@@ -151,47 +151,27 @@
 
 		<!-- Right: Audio Controller & Auth Profile -->
 		<div class="flex items-center gap-2 sm:gap-3">
-			<!-- Website Sound Quick Toggle & Volume Controller -->
-			<div
-				class="inline-flex items-center rounded-full border transition-colors {siteAudio.isPlaying
-					? 'border-lamp/40 bg-night-2 text-lamp'
-					: 'border-cream/12 bg-night-2 text-faint hover:border-cream/25'}"
+			<!-- Website Sound Quick Toggle (matte, no glow) -->
+			<button
+				class="inline-flex items-center gap-1.5 rounded-full border px-2.5 sm:px-3 py-1.5 text-xs font-mono transition-colors {siteAudio.isPlaying
+					? 'border-lamp/40 bg-lamp/10 text-lamp hover:bg-lamp/15'
+					: 'border-cream/12 bg-night-2 text-faint hover:border-cream/25 hover:text-cream'}"
+				onclick={toggleSound}
+				title={siteAudio.isPlaying ? 'Mute atmospheric ambient soundtrack' : 'Play atmospheric ambient soundtrack'}
+				aria-label={siteAudio.isPlaying ? 'Mute soundtrack' : 'Play soundtrack'}
 			>
-				<button
-					class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-mono transition-colors hover:text-cream"
-					onclick={toggleSound}
-					title={siteAudio.isPlaying ? 'Mute background soundtrack' : 'Play atmospheric soundtrack'}
-					aria-label={siteAudio.isPlaying ? 'Mute soundtrack' : 'Play soundtrack'}
-				>
-					{#if siteAudio.isPlaying}
-						<span class="inline-flex items-end gap-[2px] h-3 w-3" aria-hidden="true">
-							<span class="eq-bar w-[2px] h-full bg-lamp rounded-full" style="animation-delay: 0s;"></span>
-							<span class="eq-bar w-[2px] h-full bg-lamp rounded-full" style="animation-delay: 0.25s;"></span>
-							<span class="eq-bar w-[2px] h-full bg-lamp rounded-full" style="animation-delay: 0.5s;"></span>
-						</span>
-						<span class="text-[11px] font-medium text-lamp">Audio</span>
-					{:else}
-						<IconVolumeOff size={13} stroke={1.5} class="text-faint" />
-						<span class="hidden sm:inline text-[11px]">Audio</span>
-					{/if}
-				</button>
-
 				{#if siteAudio.isPlaying}
-					<div class="hidden sm:inline-flex items-center gap-1.5 pr-3 pl-1 border-l border-cream/10">
-						<input
-							type="range"
-							min="0"
-							max="100"
-							value={siteAudio.volume}
-							oninput={(e) => siteAudio.setVolume(Number(e.currentTarget.value))}
-							class="h-1 w-14 accent-lamp bg-night-3 rounded-full cursor-pointer opacity-75 hover:opacity-100 transition-opacity"
-							title="Audio Volume: {siteAudio.volume}%"
-							aria-label="Audio Volume"
-						/>
-						<span class="font-mono text-[9px] text-taupe w-6 text-right select-none">{siteAudio.volume}%</span>
-					</div>
+					<span class="inline-flex items-end gap-[2px] h-3 w-3" aria-hidden="true">
+						<span class="eq-bar w-[2px] h-full bg-lamp rounded-full" style="animation-delay: 0s;"></span>
+						<span class="eq-bar w-[2px] h-full bg-lamp rounded-full" style="animation-delay: 0.25s;"></span>
+						<span class="eq-bar w-[2px] h-full bg-lamp rounded-full" style="animation-delay: 0.5s;"></span>
+					</span>
+					<span class="hidden sm:inline text-[11px] font-medium text-lamp">Audio on</span>
+				{:else}
+					<IconVolumeOff size={13} stroke={1.5} class="text-faint" />
+					<span class="hidden sm:inline text-[11px]">Audio</span>
 				{/if}
-			</div>
+			</button>
 
 			<!-- Profile Icon / Modal -->
 			<AuthModal />
