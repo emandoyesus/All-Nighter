@@ -61,9 +61,15 @@
 
 <header
 	bind:this={header}
-	class="sticky top-0 z-50 border-b border-cream/10 bg-[#060a0b]/90 backdrop-blur-md transition-colors"
+	class="sticky top-0 z-50 border-b border-cream/10 bg-[#060a0b]/90 backdrop-blur-md transition-colors relative overflow-hidden"
 >
-	<div class="mx-auto flex h-16 max-w-[1400px] items-center justify-between gap-3 px-4 sm:px-6 md:h-[68px]">
+	<!-- 5% orange color wash on the right side -->
+	<div
+		class="pointer-events-none absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-orange-500/[0.05] to-transparent"
+		aria-hidden="true"
+	></div>
+
+	<div class="relative z-10 mx-auto flex h-16 max-w-[1400px] items-center justify-between gap-3 px-4 sm:px-6 md:h-[68px]">
 		<!-- Left: Brand Logo & Title -->
 		<a
 			href="/"

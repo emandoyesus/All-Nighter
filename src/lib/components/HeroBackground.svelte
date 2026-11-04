@@ -93,6 +93,12 @@
 	<!-- Skyline Canvas (City Silhouette) -->
 	<Skyline />
 
+	<!-- Right-side 5% orange sunrise atmospheric horizon -->
+	<div
+		class="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-orange-500/[0.05] via-orange-500/[0.02] to-transparent z-10"
+		aria-hidden="true"
+	></div>
+
 	<!-- Bottom Atmospheric Mask: softly feathers hero base into the grounded content below -->
 	<div
 		class="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-b from-transparent via-night/60 to-night pointer-events-none z-10"
