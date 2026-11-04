@@ -44,6 +44,8 @@
 	let fileInput: HTMLInputElement | undefined = $state();
 
 	const PRESET_AVATARS = [
+		{ id: 'lofigirl', name: 'Lo-Fi Girl', url: '/avatars/lofi-girl.svg' },
+		{ id: 'cybergirl', name: 'Cyber Girl', url: '/avatars/cyber-girl.svg' },
 		{ id: 'hoodie', name: 'Dark Hoodie', url: '/default-avatar.svg' },
 		{ id: 'moon', name: 'Midnight Moon', url: '/avatars/moon.svg' },
 		{ id: 'owl', name: 'Night Owl', url: '/avatars/owl.svg' },
@@ -722,7 +724,7 @@
 						</div>
 					{:else if avatarTab === 'presets'}
 						<!-- Presets Grid -->
-						<div class="grid grid-cols-5 gap-2 rounded-xl border border-cream/10 bg-[#060a0b] p-2.5">
+						<div class="grid grid-cols-4 sm:grid-cols-6 gap-2 rounded-xl border border-cream/10 bg-[#060a0b] p-2.5">
 							{#each PRESET_AVATARS as preset (preset.id)}
 								{@const selected = editAvatar === preset.url}
 								<button
