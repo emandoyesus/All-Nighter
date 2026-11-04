@@ -4,9 +4,7 @@
 	import { room } from '#lib/room/room.svelte';
 	import IconUser from '@tabler/icons-svelte/icons/user';
 	import IconX from '@tabler/icons-svelte/icons/x';
-	import IconCheck from '@tabler/icons-svelte/icons/check';
 	import IconLogout from '@tabler/icons-svelte/icons/logout';
-	import IconKey from '@tabler/icons-svelte/icons/key';
 
 	let open = $state(false);
 	let isSignUp = $state(false);
@@ -16,6 +14,37 @@
 	let error = $state('');
 	let loading = $state(false);
 	let successMsg = $state('');
+
+	function portal(node: HTMLElement) {
+		document.body.appendChild(node);
+		return {
+			destroy() {
+				if (node.parentNode) {
+					node.parentNode.removeChild(node);
+				}
+			}
+		};
+	}
+
+	function clickOutside(node: HTMLElement, onOutside: () => void) {
+		const handleClick = (e: MouseEvent | TouchEvent) => {
+			if (node && !node.contains(e.target as Node)) {
+				onOutside();
+			}
+		};
+		document.addEventListener('pointerdown', handleClick, true);
+		return {
+			destroy() {
+				document.removeEventListener('pointerdown', handleClick, true);
+			}
+		};
+	}
+
+	function handleKeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape' && open) {
+			open = false;
+		}
+	}
 
 	async function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
@@ -55,141 +84,186 @@
 	}
 </script>
 
-<!-- Account status trigger icon in Top Right -->
+<svelte:window onkeydown={handleKeydown} />
+
 {#if isSupabaseConfigured}
-	{#if auth.isAuthenticated}
-		<button
-			class="relative flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full border border-lamp/40 bg-lamp/10 text-lamp transition-all hover:border-lamp hover:bg-lamp/20 active:scale-95"
-			onclick={() => (open = true)}
-			title="{auth.displayName} ({auth.user?.email || 'Profile'})"
-			aria-label="Account profile ({auth.displayName})"
-		>
-			<IconUser size={16} stroke={1.8} />
-			<span class="absolute bottom-0.5 right-0.5 h-2 w-2 rounded-full bg-lamp border border-night shadow-[0_0_6px_#f59e0b]"></span>
-		</button>
-	{:else}
-		<button
-			class="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full border border-cream/15 bg-night/80 text-faint transition-all hover:border-cream/30 hover:text-cream active:scale-95"
-			onclick={() => {
-				open = true;
-				callsign = room.name;
-			}}
-			title="Sign in / Profile"
-			aria-label="Sign in"
-		>
-			<IconUser size={16} stroke={1.5} />
-		</button>
-	{/if}
-{/if}
+	<div class="relative" use:clickOutside={() => (open = false)}>
+		{#if auth.isAuthenticated}
+			<!-- Authenticated user icon -->
+			<button
+				class="relative flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full border border-lamp/40 bg-lamp/10 text-lamp transition-all hover:border-lamp hover:bg-lamp/20 active:scale-95"
+				onclick={() => (open = !open)}
+				title="{auth.displayName} ({auth.user?.email || 'Profile'})"
+				aria-label="Account profile ({auth.displayName})"
+				aria-expanded={open}
+			>
+				<span class="text-xs font-semibold">
+					{(auth.displayName || 'U')[0].toUpperCase()}
+				</span>
+				<span class="absolute bottom-0.5 right-0.5 h-2 w-2 rounded-full bg-lamp border border-night shadow-[0_0_6px_#f59e0b]"></span>
+			</button>
 
-{#if open}
-	<div
-		class="fixed inset-0 z-50 flex items-center justify-center bg-night/80 p-4 backdrop-blur-md"
-		role="dialog"
-		aria-modal="true"
-	>
-		<div class="relative w-full max-w-sm rounded-card border border-cream/15 bg-night-2 p-6 shadow-2xl">
-			<div class="flex items-center justify-between pb-3 border-b border-cream/10">
-				<h3 class="text-base font-semibold text-cream">
-					{#if auth.isAuthenticated}
-						Account Profile
-					{:else}
-						{isSignUp ? 'Create Night-Owl Account' : 'Sign In to All-Nighter'}
-					{/if}
-				</h3>
-				<button class="icon-btn text-faint hover:text-cream" onclick={() => (open = false)} aria-label="Close">
-					<IconX size={16} stroke={1.5} />
-				</button>
-			</div>
-
-			{#if auth.isAuthenticated}
-				<div class="mt-4 space-y-3 text-xs">
-					<div>
-						<p class="text-faint">Logged in as:</p>
-						<p class="text-sm font-medium text-cream">{auth.user?.email}</p>
-					</div>
-					<div>
-						<p class="text-faint">Room Callsign:</p>
-						<p class="font-mono text-lamp">{auth.displayName}</p>
-					</div>
-					<div class="pt-4 border-t border-cream/10 flex justify-between items-center">
-						<button class="btn btn-ghost btn-sm text-xs" onclick={handleSignOut}>
-							<IconLogout size={14} stroke={1.5} />
-							Sign Out
-						</button>
-						<button class="btn btn-primary btn-sm" onclick={() => (open = false)}>
-							Done
-						</button>
-					</div>
-				</div>
-			{:else}
-				<form class="mt-4 space-y-3" onsubmit={handleSubmit}>
-					{#if error}
-						<div class="rounded-sm border border-ruby/30 bg-ruby/10 p-2 text-xs text-rose-300">
-							{error}
+			<!-- Profile Dropdown (anchored to top-right icon, opens downwards into page) -->
+			{#if open}
+				<div
+					class="absolute right-0 top-full mt-2.5 z-50 w-72 sm:w-80 rounded-card border border-cream/15 bg-night-2 p-4 shadow-2xl backdrop-blur-xl"
+					role="dialog"
+					aria-label="Account Profile"
+				>
+					<div class="flex items-center justify-between pb-3 border-b border-cream/10">
+						<div class="flex items-center gap-2.5 min-w-0">
+							<span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-lamp/15 text-sm font-semibold text-lamp border border-lamp/30">
+								{(auth.displayName || 'U')[0].toUpperCase()}
+							</span>
+							<div class="min-w-0">
+								<p class="truncate text-xs font-semibold text-cream">{auth.displayName || 'All-Nighter'}</p>
+								<p class="truncate text-[11px] text-faint">{auth.user?.email}</p>
+							</div>
 						</div>
-					{/if}
-					{#if successMsg}
-						<div class="rounded-sm border border-lamp/30 bg-lamp/10 p-2 text-xs text-lamp">
-							{successMsg}
-						</div>
-					{/if}
-
-					{#if isSignUp}
-						<div>
-							<label for="callsign" class="block text-[11px] font-mono text-faint uppercase mb-1">Callsign</label>
-							<input
-								id="callsign"
-								type="text"
-								class="w-full rounded border border-cream/15 bg-night px-3 py-1.5 text-xs text-cream outline-none focus:border-lamp font-mono"
-								placeholder="e.g. ember-owl-42"
-								bind:value={callsign}
-							/>
-						</div>
-					{/if}
-
-					<div>
-						<label for="email" class="block text-[11px] font-mono text-faint uppercase mb-1">Email</label>
-						<input
-							id="email"
-							type="email"
-							required
-							class="w-full rounded border border-cream/15 bg-night px-3 py-1.5 text-xs text-cream outline-none focus:border-lamp font-mono"
-							placeholder="you@nightowl.fm"
-							bind:value={email}
-						/>
-					</div>
-
-					<div>
-						<label for="password" class="block text-[11px] font-mono text-faint uppercase mb-1">Password</label>
-						<input
-							id="password"
-							type="password"
-							required
-							minlength="6"
-							class="w-full rounded border border-cream/15 bg-night px-3 py-1.5 text-xs text-cream outline-none focus:border-lamp font-mono"
-							bind:value={password}
-						/>
-					</div>
-
-					<button type="submit" class="btn btn-primary w-full text-xs mt-2" disabled={loading}>
-						{loading ? 'Connecting...' : isSignUp ? 'Create Account' : 'Sign In'}
-					</button>
-
-					<div class="pt-2 text-center text-xs text-faint">
 						<button
 							type="button"
-							class="text-lamp hover:underline"
-							onclick={() => {
-								isSignUp = !isSignUp;
-								error = '';
-							}}
+							class="rounded p-1 text-faint hover:text-cream hover:bg-cream/5"
+							onclick={() => (open = false)}
+							aria-label="Close"
 						>
-							{isSignUp ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
+							<IconX size={15} stroke={1.5} />
 						</button>
 					</div>
-				</form>
+
+					<div class="mt-3 space-y-2.5 text-xs">
+						<div class="rounded-lg bg-night/60 p-2.5 border border-cream/5">
+							<p class="text-[10px] uppercase font-mono tracking-wider text-faint">Room Callsign</p>
+							<p class="font-mono text-sm text-lamp font-medium mt-0.5">{auth.displayName}</p>
+						</div>
+						<div class="rounded-lg bg-night/60 p-2.5 border border-cream/5">
+							<p class="text-[10px] uppercase font-mono tracking-wider text-faint">Logged In Email</p>
+							<p class="text-xs text-cream/90 truncate mt-0.5">{auth.user?.email}</p>
+						</div>
+
+						<div class="pt-2 flex justify-between items-center gap-2">
+							<button
+								type="button"
+								class="btn btn-ghost btn-sm text-xs flex-1 border border-cream/10 hover:border-ruby/40 hover:text-rose-300"
+								onclick={handleSignOut}
+							>
+								<IconLogout size={14} stroke={1.5} />
+								Sign Out
+							</button>
+							<button
+								type="button"
+								class="btn btn-primary btn-sm text-xs px-4"
+								onclick={() => (open = false)}
+							>
+								Done
+							</button>
+						</div>
+					</div>
+				</div>
 			{/if}
-		</div>
+		{:else}
+			<!-- Unauthenticated trigger icon -->
+			<button
+				class="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full border border-cream/15 bg-night/80 text-faint transition-all hover:border-cream/30 hover:text-cream active:scale-95"
+				onclick={() => {
+					open = true;
+					callsign = room.name;
+				}}
+				title="Sign in / Profile"
+				aria-label="Sign in"
+			>
+				<IconUser size={16} stroke={1.5} />
+			</button>
+
+			<!-- Sign In / Sign Up Modal portaled to document.body so header CSS transform does not clip it -->
+			{#if open}
+				<div
+					use:portal
+					class="fixed inset-0 z-[100] flex items-center justify-center bg-night/85 p-4 backdrop-blur-md"
+					role="dialog"
+					aria-modal="true"
+				>
+					<div
+						class="relative w-full max-w-sm rounded-card border border-cream/15 bg-night-2 p-6 shadow-2xl"
+						use:clickOutside={() => (open = false)}
+					>
+						<div class="flex items-center justify-between pb-3 border-b border-cream/10">
+							<h3 class="text-base font-semibold text-cream">
+								{isSignUp ? 'Create Night-Owl Account' : 'Sign In to All-Nighter'}
+							</h3>
+							<button class="icon-btn text-faint hover:text-cream" onclick={() => (open = false)} aria-label="Close">
+								<IconX size={16} stroke={1.5} />
+							</button>
+						</div>
+
+						<form class="mt-4 space-y-3" onsubmit={handleSubmit}>
+							{#if error}
+								<div class="rounded-sm border border-ruby/30 bg-ruby/10 p-2 text-xs text-rose-300">
+									{error}
+								</div>
+							{/if}
+							{#if successMsg}
+								<div class="rounded-sm border border-lamp/30 bg-lamp/10 p-2 text-xs text-lamp">
+									{successMsg}
+								</div>
+							{/if}
+
+							{#if isSignUp}
+								<div>
+									<label for="callsign" class="block text-[11px] font-mono text-faint uppercase mb-1">Callsign</label>
+									<input
+										id="callsign"
+										type="text"
+										class="w-full rounded border border-cream/15 bg-night px-3 py-1.5 text-xs text-cream outline-none focus:border-lamp font-mono"
+										placeholder="e.g. ember-owl-42"
+										bind:value={callsign}
+									/>
+								</div>
+							{/if}
+
+							<div>
+								<label for="email" class="block text-[11px] font-mono text-faint uppercase mb-1">Email</label>
+								<input
+									id="email"
+									type="email"
+									required
+									class="w-full rounded border border-cream/15 bg-night px-3 py-1.5 text-xs text-cream outline-none focus:border-lamp font-mono"
+									placeholder="you@nightowl.fm"
+									bind:value={email}
+								/>
+							</div>
+
+							<div>
+								<label for="password" class="block text-[11px] font-mono text-faint uppercase mb-1">Password</label>
+								<input
+									id="password"
+									type="password"
+									required
+									minlength="6"
+									class="w-full rounded border border-cream/15 bg-night px-3 py-1.5 text-xs text-cream outline-none focus:border-lamp font-mono"
+									bind:value={password}
+								/>
+							</div>
+
+							<button type="submit" class="btn btn-primary w-full text-xs mt-2" disabled={loading}>
+								{loading ? 'Connecting...' : isSignUp ? 'Create Account' : 'Sign In'}
+							</button>
+
+							<div class="pt-2 text-center text-xs text-faint">
+								<button
+									type="button"
+									class="text-lamp hover:underline"
+									onclick={() => {
+										isSignUp = !isSignUp;
+										error = '';
+									}}
+								>
+									{isSignUp ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
+								</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			{/if}
+		{/if}
 	</div>
 {/if}
