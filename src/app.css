@@ -10,15 +10,24 @@
 	--font-display: 'Space Grotesk Variable', 'Space Grotesk', system-ui, sans-serif;
 	--font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
 
-	/* Pure ultra-dark neutral night theme (deep black base, blue accent for buttons and highlights) */
+	/*
+	 * Palette 08 — Cyber Teal & Aqua Foam (accents only)
+	 * Surfaces stay locked dark; Aqua Foam carries the accent text, icons and
+	 * borders, while Cyber Teal fills primary buttons with an Aqua Foam edge.
+	 */
+	--color-cyber-teal: #114d57;
+	--color-cyber-teal-2: #17616d;
+	--color-aqua-foam: #83f9d6;
+
+	/* Pure ultra-dark neutral night theme */
 	--color-night: #030303;
 	--color-night-2: #080808;
 	--color-night-3: #0f0f0f;
 	--color-cream: #f3ece1;
 	--color-taupe: #a8a092;
 	--color-faint: #635d54;
-	--color-lamp: #38bdf8;
-	--color-lamp-2: #60a5fa;
+	--color-lamp: #83f9d6;
+	--color-lamp-2: #a5fbe2;
 	--color-amber: #FFB84D;
 	--color-amber-2: #ffc970;
 
@@ -55,8 +64,8 @@
 	}
 
 	::selection {
-		background: var(--color-lamp);
-		color: var(--color-night);
+		background: var(--color-aqua-foam);
+		color: var(--color-cyber-teal);
 	}
 
 	:focus-visible {
@@ -115,12 +124,14 @@
 }
 
 .btn-primary {
-	background: var(--color-lamp);
-	color: var(--color-night);
+	background: var(--color-cyber-teal);
+	border: 1px solid color-mix(in srgb, var(--color-aqua-foam) 45%, transparent);
+	color: var(--color-aqua-foam);
 }
 
 .btn-primary:hover {
-	background: var(--color-lamp-2);
+	background: var(--color-cyber-teal-2);
+	border-color: var(--color-aqua-foam);
 }
 
 .btn-amber {

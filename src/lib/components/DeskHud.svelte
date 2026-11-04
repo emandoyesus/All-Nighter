@@ -93,7 +93,7 @@
 
 {#if open}
 	<div
-		class="fixed inset-0 z-50 flex flex-col justify-between bg-night p-6 md:p-12 text-cream selection:bg-lamp selection:text-night"
+		class="fixed inset-0 z-50 flex flex-col justify-between bg-night p-6 md:p-12 text-cream selection:bg-aqua-foam selection:text-cyber-teal"
 		role="dialog"
 		aria-modal="true"
 	>

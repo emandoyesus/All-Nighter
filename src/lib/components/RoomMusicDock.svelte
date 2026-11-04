@@ -157,7 +157,7 @@
 					<!-- Play / Pause Button -->
 					<button
 						class="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full transition-transform active:scale-95 {playing
-							? 'bg-lamp text-night'
+							? 'bg-cyber-teal text-aqua-foam ring-1 ring-aqua-foam/40'
 							: 'bg-cream text-night hover:bg-cream/90'}"
 						onclick={togglePlay}
 						title={playing ? 'Pause (Space)' : 'Play (Space)'}

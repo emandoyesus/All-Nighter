@@ -165,7 +165,7 @@
 			<div class="mt-6 flex flex-wrap items-center justify-between gap-2 border-t border-cream/10 pt-4">
 				<button class="btn btn-primary btn-sm" onclick={handleSave}>
 					{#if saved}
-						<IconCheck size={14} stroke={2} class="text-night" />
+						<IconCheck size={14} stroke={2} />
 						Saved to My Logbook!
 					{:else}
 						<IconBookmark size={14} stroke={1.5} />
