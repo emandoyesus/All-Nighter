@@ -244,12 +244,28 @@
 		await auth.signOut();
 		syncFromCurrentProfile();
 		open = false;
+		isEditing = false;
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
-		if (e.key === 'Escape' && open) {
-			open = false;
+		if (e.key === 'Escape') {
+			if (isEditing) {
+				isEditing = false;
+			} else if (open) {
+				open = false;
+			}
 		}
+	}
+
+	function portal(node: HTMLElement) {
+		document.body.appendChild(node);
+		return {
+			destroy() {
+				if (node.parentNode) {
+					node.parentNode.removeChild(node);
+				}
+			}
+		};
 	}
 
 	function clickOutside(node: HTMLElement, onOutside: () => void) {
@@ -297,13 +313,13 @@
 />
 
 <!-- Root Container anchored in navigation -->
-<div class="relative" use:clickOutside={() => (open = false)}>
+<div class="relative" use:clickOutside={() => { if (!isEditing) open = false; }}>
 	<!-- Profile Trigger Button in Navigation -->
 	<button
 		type="button"
 		class="relative flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full border border-lamp/30 bg-night-2 transition-all hover:border-lamp hover:scale-105 active:scale-95 p-0 overflow-hidden"
 		onclick={() => {
-			if (open) {
+			if (open && !isEditing) {
 				open = false;
 			} else {
 				openModal(false);
@@ -334,92 +350,75 @@
 		{/if}
 	</button>
 
-	<!-- Profile Dropdown (anchored right under the profile icon, no modal backdrop) -->
-	{#if open}
+	<!-- 1. SOLID, OPAQUE DROPDOWN (anchored right under profile icon, no transparency, no screen dimming) -->
+	{#if open && !isEditing}
 		<div
-			class="absolute right-0 top-full mt-2.5 z-50 w-[320px] sm:w-[360px] max-w-[calc(100vw-1.5rem)] max-h-[calc(100vh-5rem)] overflow-y-auto rounded-2xl border border-cream/15 bg-night-2/95 p-4 sm:p-5 shadow-2xl backdrop-blur-xl text-cream"
+			class="absolute right-0 top-full mt-2.5 z-50 w-[310px] sm:w-[340px] max-w-[calc(100vw-1.5rem)] rounded-2xl border border-cream/20 bg-[#0a1012] p-4 shadow-2xl text-cream"
 			role="dialog"
-			aria-label="Night Profile & Settings"
+			aria-label="Night Profile"
 		>
 			<!-- Dropdown Header -->
-			<div class="flex items-center justify-between pb-3 border-b border-cream/10">
-				<div class="flex items-center gap-2 min-w-0">
-					<div class="min-w-0">
-						<h3 class="text-xs font-semibold uppercase tracking-wider text-cream truncate">
-							{isEditing ? 'Edit Profile' : 'Night Profile'}
-						</h3>
-					</div>
+			<div class="flex items-center justify-between pb-2.5 border-b border-cream/10">
+				<div class="min-w-0">
+					<h3 class="text-xs font-semibold uppercase tracking-wider text-cream truncate">
+						Night Profile
+					</h3>
 				</div>
-				<div class="flex items-center gap-1">
-					{#if isEditing}
-						<button
-							type="button"
-							class="inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] text-taupe hover:text-cream transition-colors"
-							onclick={() => {
-								syncFromCurrentProfile();
-								isEditing = false;
-							}}
-						>
-							<IconArrowLeft size={12} stroke={1.5} />
-							<span>Back</span>
-						</button>
-					{/if}
-					<button
-						type="button"
-						class="rounded p-1 text-faint transition-colors hover:text-cream hover:bg-cream/10"
-						onclick={() => (open = false)}
-						aria-label="Close"
-					>
-						<IconX size={15} stroke={1.5} />
-					</button>
-				</div>
+				<button
+					type="button"
+					class="rounded p-1 text-faint transition-colors hover:text-cream hover:bg-cream/10"
+					onclick={() => (open = false)}
+					aria-label="Close"
+				>
+					<IconX size={15} stroke={1.5} />
+				</button>
 			</div>
 
-			<!-- Just a small text: "Edit your profile to be able to edit all this" -->
-			{#if !isEditing}
-				<p class="mt-2 text-xs text-faint leading-tight">
-					Edit your profile to be able to edit all this
-				</p>
-			{/if}
+			<!-- Small text: "Edit your profile to be able to edit all this" -->
+			<p class="mt-2.5 text-xs text-faint leading-tight">
+				Edit your profile to be able to edit all this
+			</p>
 
-			<!-- Profile Preview Card with Direct Photo Upload -->
-			<div class="mt-3 rounded-xl border border-cream/10 bg-night/80 p-3">
+			<!-- Profile Preview Card (100% Solid, Non-transparent) -->
+			<div class="mt-3 rounded-xl border border-cream/10 bg-[#060a0b] p-3">
 				<div class="flex items-center gap-3">
-					<!-- Avatar with clickable photo upload trigger -->
+					<!-- Avatar with direct upload trigger -->
 					<div class="relative shrink-0 group">
 						<img
-							src={!imgPreviewError && (isEditing ? editAvatar : currentDisplayAvatar) ? (isEditing ? editAvatar : currentDisplayAvatar) : '/default-avatar.svg'}
-							alt={editCallsign || 'Preview'}
-							class="h-14 w-14 rounded-full object-cover border-2 border-lamp/40 bg-night-2 transition-transform group-hover:scale-[1.03]"
-							onerror={() => (imgPreviewError = true)}
+							src={currentDisplayAvatar}
+							alt={currentDisplayName}
+							class="h-13 w-13 rounded-full object-cover border-2 border-lamp/40 bg-[#0a1012] transition-transform group-hover:scale-[1.03]"
+							onerror={(e) => {
+								(e.currentTarget as HTMLImageElement).src = '/default-avatar.svg';
+							}}
 						/>
 						<span
-							class="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-lamp border-2 border-night"
+							class="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-lamp border-2 border-[#060a0b]"
 							title="Awake now"
 						></span>
 
 						<!-- Clickable camera overlay to upload photo directly -->
 						<button
 							type="button"
-							class="absolute inset-0 flex flex-col items-center justify-center rounded-full bg-night/75 text-lamp opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-[1px]"
+							class="absolute inset-0 flex flex-col items-center justify-center rounded-full bg-[#060a0b]/85 text-lamp opacity-0 group-hover:opacity-100 transition-opacity"
 							onclick={triggerUpload}
 							title="Upload your own photo"
 							aria-label="Upload your own photo"
 						>
-							<IconCamera size={16} stroke={1.7} />
-							<span class="text-[8px] font-mono tracking-tighter text-white">Upload</span>
+							<IconCamera size={15} stroke={1.7} />
+							<span class="text-[8px] font-mono text-white">Upload</span>
 						</button>
 					</div>
 
-					<!-- Details in live preview -->
+					<!-- Details -->
 					<div class="min-w-0 flex-1">
 						<div class="flex items-center gap-1.5">
 							<span class="font-mono text-sm sm:text-base font-bold text-lamp truncate">
-								{(isEditing ? editCallsign : currentDisplayName).trim() || 'unnamed'}
+								{currentDisplayName}
 							</span>
-							{#if (isEditing ? editMood : room.statusText)}
+							{#if room.statusText}
 								<span class="rounded-full bg-cream/10 px-1.5 py-0.5 text-[9px] text-lamp font-medium">
-									{isEditing ? editMood : room.statusText}
+									{room.statusText}
 								</span>
 							{/if}
 						</div>
@@ -448,179 +447,30 @@
 					</div>
 				</div>
 
-				{#if (isEditing ? editIntention : room.intention)}
-					<p class="mt-2 text-[11px] text-cream/90 italic truncate border-t border-cream/5 pt-1.5">
-						"{isEditing ? editIntention : room.intention}"
+				{#if room.intention}
+					<p class="mt-2 text-[11px] text-cream/90 italic truncate border-t border-cream/10 pt-1.5">
+						"{room.intention}"
 					</p>
 				{/if}
 			</div>
 
-			{#if errorMessage}
-				<div class="mt-2.5 rounded-lg border border-ruby/30 bg-ruby/10 p-2 text-xs text-rose-300">
-					{errorMessage}
-				</div>
-			{/if}
-
-			{#if saveSuccess}
-				<div class="mt-2.5 flex items-center gap-1.5 rounded-lg border border-lamp/40 bg-lamp/10 p-2 text-xs font-medium text-lamp">
-					<IconCheck size={14} stroke={2.5} />
-					Profile updated!
-				</div>
-			{/if}
-
-			<!-- Profile Edit Form (shown when in edit mode) -->
-			{#if isEditing}
-				<div class="mt-3 space-y-3">
-					<!-- Upload Photo & Presets Selector -->
-					<div>
-						<div class="flex items-center justify-between mb-1.5">
-							<span class="text-[10px] font-mono uppercase tracking-wider text-faint">Change Photo</span>
-							<div class="flex rounded border border-cream/10 bg-night p-0.5 text-[10px] font-mono">
-								<button
-									type="button"
-									class="rounded px-2 py-0.5 transition-colors {avatarTab === 'upload' ? 'bg-lamp/20 text-lamp font-medium' : 'text-faint hover:text-cream'}"
-									onclick={() => (avatarTab = 'upload')}
-								>
-									Upload
-								</button>
-								<button
-									type="button"
-									class="rounded px-2 py-0.5 transition-colors {avatarTab === 'presets' ? 'bg-lamp/20 text-lamp font-medium' : 'text-faint hover:text-cream'}"
-									onclick={() => (avatarTab = 'presets')}
-								>
-									Presets
-								</button>
-								<button
-									type="button"
-									class="rounded px-2 py-0.5 transition-colors {avatarTab === 'url' ? 'bg-lamp/20 text-lamp font-medium' : 'text-faint hover:text-cream'}"
-									onclick={() => (avatarTab = 'url')}
-								>
-									URL
-								</button>
-							</div>
-						</div>
-
-						{#if avatarTab === 'upload'}
-							<!-- Direct Device Photo Upload -->
-							<div class="rounded-xl border border-dashed border-cream/20 bg-night/50 p-3 text-center">
-								<p class="text-xs font-medium text-cream mb-0.5">Upload your own photo</p>
-								<p class="text-[10px] text-faint mb-2">JPG, PNG, WebP · Cropped to square</p>
-								<button
-									type="button"
-									class="btn btn-primary btn-sm text-xs px-3 py-1 inline-flex items-center gap-1"
-									onclick={triggerUpload}
-								>
-									<IconUpload size={13} stroke={2} />
-									<span>Choose file</span>
-								</button>
-							</div>
-						{:else if avatarTab === 'presets'}
-							<!-- Presets Grid -->
-							<div class="grid grid-cols-5 gap-1.5 rounded-xl border border-cream/10 bg-night/50 p-2">
-								{#each PRESET_AVATARS as preset (preset.id)}
-									{@const selected = editAvatar === preset.url}
-									<button
-										type="button"
-										class="group relative flex flex-col items-center gap-0.5 rounded p-1 transition-all {selected ? 'border border-lamp bg-lamp/15' : 'border border-cream/5 hover:border-cream/20'}"
-										onclick={() => selectPreset(preset.url)}
-										title={preset.name}
-									>
-										<img
-											src={preset.url}
-											alt={preset.name}
-											class="h-8 w-8 rounded-full object-cover border {selected ? 'border-lamp' : 'border-cream/15'}"
-										/>
-										<span class="truncate text-[8px] font-mono text-faint group-hover:text-cream max-w-full">
-											{preset.name.split(' ')[0]}
-										</span>
-									</button>
-								{/each}
-							</div>
-						{:else if avatarTab === 'url'}
-							<!-- Custom URL -->
-							<div class="flex items-center gap-1.5">
-								<input
-									type="url"
-									class="w-full rounded border border-cream/15 bg-night px-2.5 py-1 text-xs text-cream font-mono outline-none focus:border-lamp placeholder:text-faint/60"
-									placeholder="https://example.com/photo.jpg"
-									bind:value={customUrlInput}
-								/>
-								<button
-									type="button"
-									class="btn btn-ghost btn-sm text-xs shrink-0 border border-cream/15 hover:border-lamp"
-									onclick={handleCustomUrlApply}
-								>
-									Apply
-								</button>
-							</div>
-						{/if}
-					</div>
-
-					<!-- Callsign input with random generator -->
-					<div>
-						<div class="flex items-center justify-between mb-1">
-							<label for="profile-callsign" class="text-[10px] font-mono uppercase tracking-wider text-faint">
-								Callsign
-							</label>
-							<span class="font-mono text-[9px] text-faint">{editCallsign.length}/24</span>
-						</div>
-						<div class="flex items-center gap-1.5">
-							<input
-								id="profile-callsign"
-								type="text"
-								maxlength="24"
-								class="w-full rounded border border-cream/15 bg-night px-2.5 py-1.5 text-xs text-cream font-mono outline-none focus:border-lamp"
-								placeholder="e.g. midnight-coder"
-								bind:value={editCallsign}
-							/>
-							<button
-								type="button"
-								class="btn btn-ghost btn-sm px-2 py-1.5 shrink-0 border border-cream/15 hover:border-lamp hover:text-lamp"
-								onclick={handleRandomCallsign}
-								title="Generate random night callsign"
-							>
-								<IconDice size={14} stroke={1.5} />
-							</button>
-						</div>
-					</div>
-
-					<!-- Tonight's Intention -->
-					<div>
-						<label for="profile-intention" class="block text-[10px] font-mono uppercase tracking-wider text-faint mb-1">
-							Tonight's Intention
-						</label>
-						<input
-							id="profile-intention"
-							type="text"
-							maxlength="80"
-							class="w-full rounded border border-cream/15 bg-night px-2.5 py-1.5 text-xs text-cream outline-none focus:border-lamp placeholder:text-faint/60"
-							placeholder="What are you building tonight?"
-							bind:value={editIntention}
-						/>
-					</div>
-
-					<!-- Mood chips -->
-					<div>
-						<span class="block text-[10px] font-mono uppercase tracking-wider text-faint mb-1">Current Mood</span>
-						<div class="flex flex-wrap gap-1">
-							{#each ['🎧 Locked in', '☕ Coffee run', '🐛 Bug hunting', '🥱 4am wall', '🌌 Flow state'] as mood}
-								<button
-									type="button"
-									class="rounded-full px-2 py-0.5 text-[10px] transition-colors border {editMood === mood
-										? 'border-lamp bg-lamp/15 text-lamp font-medium'
-										: 'border-cream/10 bg-night/50 text-taupe hover:border-cream/25 hover:text-cream'}"
-									onclick={() => (editMood = editMood === mood ? '' : mood)}
-								>
-									{mood}
-								</button>
-							{/each}
-						</div>
-					</div>
-				</div>
-			{/if}
+			<!-- Main Action Button to enter Full Screen Edit Mode -->
+			<div class="mt-3.5 space-y-2">
+				<button
+					type="button"
+					class="btn btn-primary btn-sm w-full py-2 text-xs flex items-center justify-center gap-1.5"
+					onclick={() => {
+						syncFromCurrentProfile();
+						isEditing = true;
+					}}
+				>
+					<IconPencil size={13} stroke={2} />
+					<span>Edit Profile</span>
+				</button>
+			</div>
 
 			<!-- Account / Cloud Sync Card -->
-			<div class="mt-3 rounded-xl border border-cream/10 bg-night/50 p-2.5 text-xs">
+			<div class="mt-3 rounded-xl border border-cream/10 bg-[#060a0b] p-2.5 text-xs">
 				{#if auth.isAuthenticated}
 					<div class="flex items-center justify-between">
 						<div class="min-w-0">
@@ -704,51 +554,312 @@
 					</div>
 				{/if}
 			</div>
-
-			<!-- Footer Action Buttons -->
-			<div class="mt-3.5 flex items-center justify-between pt-2.5 border-t border-cream/10">
-				<div>
-					{#if !isEditing}
-						<button
-							type="button"
-							class="btn btn-ghost btn-sm text-xs px-2.5 py-1 inline-flex items-center gap-1 border border-cream/15 hover:border-lamp"
-							onclick={() => (isEditing = true)}
-						>
-							<IconPencil size={12} stroke={2} />
-							<span>Edit Profile</span>
-						</button>
-					{/if}
-				</div>
-
-				<div class="flex items-center gap-2">
-					<button
-						type="button"
-						class="btn btn-ghost btn-sm text-xs px-3 py-1"
-						onclick={() => (open = false)}
-					>
-						Done
-					</button>
-
-					{#if isEditing}
-						<button
-							type="button"
-							class="btn btn-primary btn-sm text-xs px-3.5 py-1 inline-flex items-center gap-1"
-							disabled={saving}
-							onclick={handleSaveProfile}
-						>
-							{#if saving}
-								<span class="soft-blink h-2 w-2 rounded-full bg-night"></span>
-								Saving...
-							{:else if saveSuccess}
-								<IconCheck size={13} stroke={2.5} />
-								Saved!
-							{:else}
-								Save Changes
-							{/if}
-						</button>
-					{/if}
-				</div>
-			</div>
 		</div>
 	{/if}
 </div>
+
+<!-- 2. FULL SCREEN EDIT PROFILE MODAL (opens when user clicks "Edit Profile" or chooses to edit) -->
+{#if open && isEditing}
+	<div
+		use:portal
+		class="fixed inset-0 z-50 flex items-center justify-center bg-night/95 p-4 sm:p-6 backdrop-blur-md overflow-y-auto"
+		role="dialog"
+		aria-modal="true"
+		aria-label="Edit Profile"
+	>
+		<div
+			class="relative w-full max-w-xl rounded-2xl border border-cream/20 bg-[#0a1012] p-5 sm:p-7 shadow-2xl text-cream my-auto"
+			use:clickOutside={() => (isEditing = false)}
+		>
+			<!-- Fullscreen Edit Header -->
+			<div class="flex items-center justify-between pb-4 border-b border-cream/10">
+				<div class="flex items-center gap-2.5">
+					<span class="grid h-8 w-8 place-items-center rounded-lg border border-lamp/30 bg-lamp/10 text-lamp">
+						<IconPencil size={16} stroke={2} />
+					</span>
+					<div>
+						<h3 class="text-base sm:text-lg font-semibold text-cream leading-tight">
+							Edit Profile
+						</h3>
+						<p class="text-xs text-faint">Customize your presence, photo, and nocturnal intention</p>
+					</div>
+				</div>
+				<button
+					type="button"
+					class="rounded-lg p-1.5 text-faint transition-colors hover:text-cream hover:bg-cream/10"
+					onclick={() => (isEditing = false)}
+					aria-label="Close"
+				>
+					<IconX size={18} stroke={1.5} />
+				</button>
+			</div>
+
+			<!-- Live Preview Hero Card in Edit Mode -->
+			<div class="mt-4 rounded-xl border border-cream/10 bg-[#060a0b] p-4">
+				<div class="flex items-center gap-4">
+					<!-- Avatar with direct upload trigger -->
+					<div class="relative shrink-0 group">
+						<img
+							src={!imgPreviewError && editAvatar ? editAvatar : '/default-avatar.svg'}
+							alt={editCallsign || 'Preview'}
+							class="h-16 w-16 sm:h-20 sm:w-20 rounded-full object-cover border-2 border-lamp/40 bg-[#0a1012] transition-transform group-hover:scale-[1.02]"
+							onerror={() => (imgPreviewError = true)}
+						/>
+						<span
+							class="absolute bottom-0 right-0 h-4 w-4 rounded-full bg-lamp border-2 border-[#060a0b]"
+							title="Awake now"
+						></span>
+
+						<button
+							type="button"
+							class="absolute inset-0 flex flex-col items-center justify-center rounded-full bg-[#060a0b]/85 text-lamp opacity-0 group-hover:opacity-100 transition-opacity"
+							onclick={triggerUpload}
+							title="Upload your own photo"
+							aria-label="Upload your own photo"
+						>
+							<IconCamera size={18} stroke={1.7} />
+							<span class="text-[9px] font-mono text-white">Upload</span>
+						</button>
+					</div>
+
+					<!-- Details in live preview -->
+					<div class="min-w-0 flex-1">
+						<div class="flex items-center gap-2">
+							<span class="font-mono text-base sm:text-lg font-bold text-lamp truncate">
+								{editCallsign.trim() || 'unnamed'}
+							</span>
+							{#if editMood}
+								<span class="rounded-full bg-cream/10 px-2 py-0.5 text-[10px] text-lamp font-medium">
+									{editMood}
+								</span>
+							{/if}
+						</div>
+
+						<p class="mt-0.5 text-xs text-taupe truncate">
+							{#if auth.isAuthenticated}
+								<span class="inline-flex items-center gap-1 text-[11px] text-lamp/90 font-mono">
+									<IconCheck size={11} stroke={2} />
+									{auth.user?.email}
+								</span>
+							{:else}
+								<span class="text-[11px] text-faint font-mono">Guest Session · Local Profile</span>
+							{/if}
+						</p>
+
+						{#if editIntention}
+							<p class="mt-1.5 text-xs text-cream/90 italic truncate">
+								"{editIntention}"
+							</p>
+						{/if}
+					</div>
+				</div>
+			</div>
+
+			{#if errorMessage}
+				<div class="mt-3 rounded-lg border border-ruby/30 bg-ruby/10 p-2.5 text-xs text-rose-300">
+					{errorMessage}
+				</div>
+			{/if}
+
+			{#if saveSuccess}
+				<div class="mt-3 flex items-center gap-2 rounded-lg border border-lamp/40 bg-lamp/10 p-2.5 text-xs font-medium text-lamp">
+					<IconCheck size={15} stroke={2} />
+					Profile updated successfully!
+				</div>
+			{/if}
+
+			<!-- Edit Suite Form -->
+			<div class="mt-5 space-y-4">
+				<!-- Upload Photo & Presets Selector -->
+				<div>
+					<div class="flex items-center justify-between mb-2">
+						<span class="text-xs font-mono uppercase tracking-wider text-faint">Profile Photo</span>
+						<div class="flex rounded-md border border-cream/10 bg-[#060a0b] p-0.5 text-[11px] font-mono">
+							<button
+								type="button"
+								class="rounded px-2.5 py-0.5 transition-colors {avatarTab === 'upload' ? 'bg-lamp/20 text-lamp font-medium' : 'text-faint hover:text-cream'}"
+								onclick={() => (avatarTab = 'upload')}
+							>
+								Upload Photo
+							</button>
+							<button
+								type="button"
+								class="rounded px-2.5 py-0.5 transition-colors {avatarTab === 'presets' ? 'bg-lamp/20 text-lamp font-medium' : 'text-faint hover:text-cream'}"
+								onclick={() => (avatarTab = 'presets')}
+							>
+								Presets
+							</button>
+							<button
+								type="button"
+								class="rounded px-2.5 py-0.5 transition-colors {avatarTab === 'url' ? 'bg-lamp/20 text-lamp font-medium' : 'text-faint hover:text-cream'}"
+								onclick={() => (avatarTab = 'url')}
+							>
+								Image URL
+							</button>
+						</div>
+					</div>
+
+					{#if avatarTab === 'upload'}
+						<!-- Direct Device Photo Upload Card -->
+						<div class="rounded-xl border border-dashed border-cream/20 bg-[#060a0b] p-4 text-center">
+							<div class="flex flex-col items-center gap-2">
+								<span class="grid h-10 w-10 place-items-center rounded-full bg-lamp/10 text-lamp border border-lamp/30">
+									<IconUpload size={18} stroke={1.5} />
+								</span>
+								<div>
+									<p class="text-xs font-medium text-cream">Upload your own photo from device</p>
+									<p class="text-[11px] text-faint">JPG, PNG, WebP or SVG · automatically cropped to square</p>
+								</div>
+								<button
+									type="button"
+									class="btn btn-primary btn-sm text-xs mt-1 px-4 py-1.5 inline-flex items-center gap-1.5"
+									onclick={triggerUpload}
+								>
+									<IconUpload size={14} stroke={2} />
+									<span>Choose Photo File</span>
+								</button>
+							</div>
+						</div>
+					{:else if avatarTab === 'presets'}
+						<!-- Presets Grid -->
+						<div class="grid grid-cols-5 gap-2 rounded-xl border border-cream/10 bg-[#060a0b] p-2.5">
+							{#each PRESET_AVATARS as preset (preset.id)}
+								{@const selected = editAvatar === preset.url}
+								<button
+									type="button"
+									class="group relative flex flex-col items-center gap-1 rounded-lg p-1.5 transition-all {selected ? 'border border-lamp bg-lamp/15' : 'border border-cream/5 hover:border-cream/20 hover:bg-cream/5'}"
+									onclick={() => selectPreset(preset.url)}
+									title={preset.name}
+								>
+									<img
+										src={preset.url}
+										alt={preset.name}
+										class="h-10 w-10 rounded-full object-cover border {selected ? 'border-lamp' : 'border-cream/15 group-hover:border-cream/40'}"
+									/>
+									<span class="truncate text-[9px] font-mono text-faint group-hover:text-cream max-w-full">
+										{preset.name.split(' ')[0]}
+									</span>
+									{#if selected}
+										<span class="absolute top-1 right-1 grid h-3.5 w-3.5 place-items-center rounded-full bg-lamp text-night">
+											<IconCheck size={9} stroke={3} />
+										</span>
+									{/if}
+								</button>
+							{/each}
+						</div>
+					{:else if avatarTab === 'url'}
+						<!-- Custom URL -->
+						<div class="rounded-xl border border-cream/10 bg-[#060a0b] p-3 space-y-2">
+							<div class="flex items-center gap-2">
+								<input
+									type="url"
+									class="w-full rounded-lg border border-cream/15 bg-night px-3 py-1.5 text-xs text-cream font-mono outline-none focus:border-lamp placeholder:text-faint/60"
+									placeholder="https://example.com/your-avatar.jpg"
+									bind:value={customUrlInput}
+								/>
+								<button
+									type="button"
+									class="btn btn-ghost btn-sm text-xs shrink-0 border border-cream/15 hover:border-lamp"
+									onclick={handleCustomUrlApply}
+								>
+									Apply
+								</button>
+							</div>
+							<p class="text-[10px] text-faint">Paste a public image link (Discord, GitHub, Gravatar, Unsplash, etc.)</p>
+						</div>
+					{/if}
+				</div>
+
+				<!-- Callsign input with random generator -->
+				<div>
+					<div class="flex items-center justify-between mb-1.5">
+						<label for="fullscreen-callsign" class="text-xs font-mono uppercase tracking-wider text-faint">
+							Callsign / Display Name
+						</label>
+						<span class="font-mono text-[10px] text-faint">{editCallsign.length}/24</span>
+					</div>
+					<div class="flex items-center gap-2">
+						<input
+							id="fullscreen-callsign"
+							type="text"
+							maxlength="24"
+							class="w-full rounded-lg border border-cream/15 bg-night px-3 py-2 text-sm text-cream font-mono outline-none transition-colors focus:border-lamp"
+							placeholder="e.g. midnight-coder"
+							bind:value={editCallsign}
+						/>
+						<button
+							type="button"
+							class="btn btn-ghost btn-sm px-2.5 py-2 shrink-0 border border-cream/15 hover:border-lamp/50 hover:text-lamp"
+							onclick={handleRandomCallsign}
+							title="Generate random night callsign"
+						>
+							<IconDice size={16} stroke={1.5} />
+							<span class="hidden sm:inline text-xs">Random</span>
+						</button>
+					</div>
+				</div>
+
+				<!-- Tonight's Intention -->
+				<div>
+					<label for="fullscreen-intention" class="block text-xs font-mono uppercase tracking-wider text-faint mb-1.5">
+						Tonight's Intention / Focus
+					</label>
+					<input
+						id="fullscreen-intention"
+						type="text"
+						maxlength="80"
+						class="w-full rounded-lg border border-cream/15 bg-night px-3 py-2 text-sm text-cream outline-none focus:border-lamp placeholder:text-faint/60"
+						placeholder="What are you working on tonight?"
+						bind:value={editIntention}
+					/>
+				</div>
+
+				<!-- Mood chips -->
+				<div>
+					<span class="block text-xs font-mono uppercase tracking-wider text-faint mb-1.5">Current Mood</span>
+					<div class="flex flex-wrap gap-1.5">
+						{#each ['🎧 Locked in', '☕ Coffee run', '🐛 Bug hunting', '🥱 4am wall', '🌌 Flow state'] as mood}
+							<button
+								type="button"
+								class="rounded-full px-2.5 py-1 text-xs transition-colors border {editMood === mood
+									? 'border-lamp bg-lamp/15 text-lamp font-medium'
+									: 'border-cream/10 bg-[#060a0b] text-taupe hover:border-cream/25 hover:text-cream'}"
+								onclick={() => (editMood = editMood === mood ? '' : mood)}
+							>
+								{mood}
+							</button>
+						{/each}
+					</div>
+				</div>
+			</div>
+
+			<!-- Fullscreen Footer Action Buttons -->
+			<div class="mt-6 flex items-center justify-between pt-4 border-t border-cream/10">
+				<button
+					type="button"
+					class="btn btn-ghost btn-sm text-xs px-4"
+					onclick={() => (isEditing = false)}
+				>
+					Cancel
+				</button>
+
+				<button
+					type="button"
+					class="btn btn-primary btn-sm text-xs px-5 py-2 inline-flex items-center gap-1.5"
+					disabled={saving}
+					onclick={handleSaveProfile}
+				>
+					{#if saving}
+						<span class="soft-blink h-2 w-2 rounded-full bg-night"></span>
+						Saving...
+					{:else if saveSuccess}
+						<IconCheck size={14} stroke={2.5} />
+						Saved!
+					{:else}
+						Save Changes
+					{/if}
+				</button>
+			</div>
+		</div>
+	</div>
+{/if}
