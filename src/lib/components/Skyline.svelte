@@ -269,13 +269,14 @@
 			}
 		}
 
-		const STATIC_LEVEL = 0.55;
+		// Static initial resting picture before any scroll (level = 0.25)
+		const STATIC_LEVEL = 0.25;
 
-		const render = () => {
+		function render() {
 			for (const layer of layers) {
 				drawLayer(layer, STATIC_LEVEL);
 			}
-		};
+		}
 
 		const onResize = () => {
 			const w = window.innerWidth;
@@ -296,7 +297,6 @@
 </script>
 
 <div class="skyline" bind:this={root} aria-hidden="true">
-	<div class="mist"></div>
 	<canvas class="city city--far" bind:this={farCanvas}></canvas>
 	<canvas class="city city--mid" bind:this={midCanvas}></canvas>
 	<canvas class="city city--near" bind:this={nearCanvas}></canvas>
@@ -310,47 +310,28 @@
 		overflow: hidden;
 	}
 
-	.mist {
-		position: absolute;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		height: 46vh;
-		background: radial-gradient(
-			ellipse 90% 100% at 50% 100%,
-			color-mix(in srgb, var(--color-lamp) 14%, transparent) 0%,
-			color-mix(in srgb, var(--color-night-2) 40%, transparent) 40%,
-			transparent 70%
-		);
-		opacity: 0.35;
-	}
-
 	.city {
 		position: absolute;
 		left: 0;
-		bottom: 0;
+		bottom: -2px;
 		width: 100%;
 		pointer-events: none;
-		transform: none;
 	}
 
 	.city--far {
 		height: 36vh;
 		opacity: 0.38;
 		filter: blur(1.2px);
-		transform: none;
 	}
 
 	.city--mid {
 		height: 30vh;
 		opacity: 0.65;
 		filter: blur(0.4px);
-		transform: none;
 	}
 
 	.city--near {
 		height: 24vh;
 		opacity: 0.9;
-		transform: none;
 	}
 </style>
