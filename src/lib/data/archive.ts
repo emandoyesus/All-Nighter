@@ -35,7 +35,7 @@ export type Night = {
 	tracks: number;
 	heads: number;
 	seed: string;
-	img: AssetPath;
+	img?: AssetPath;
 	joined: string[];
 	intentions: string[];
 	tracklist: ArchiveTrack[];
@@ -211,10 +211,52 @@ export const nights: Night[] = [
 			{ who: 'ember-owl-42', text: 'nobody ate dinner did they', at: '00:31' },
 			{ who: 'last-match-39', text: 'ordering bread at 2am, reply with a number', at: '02:02' }
 		]
+	},
+	{
+		slug: 'entoto-sunrise-addis-lock-in',
+		date: 'Oct 18',
+		iso: '2025-10-18T22:30:00',
+		tag: 'Addis Ababa',
+		title: 'Entoto sunrise & late night code',
+		note: 'Overlooking Addis Ababa from Entoto as the city lights flickered below. Strong Ethiopian coffee, three bug fixes, and sunrise over the highlands.',
+		hours: '7h 35m',
+		minutes: 455,
+		tracks: 48,
+		heads: 9,
+		seed: 'all-nighter-oct18',
+		img: 'nights/ritual.jpg',
+		joined: ['ember-owl-42', 'night-owl-11', 'quiet-fox-17', 'slow-kettle-08', 'warm-lamp-63'],
+		intentions: [
+			'refactor the realtime socket layer before dawn',
+			'ship the v2 design system updates',
+			'enjoy the coffee and keep the playlist rolling',
+			'write clean database migrations without downtime',
+			'stay locked in till the Entoto sunrise'
+		],
+		tracklist: [
+			{ title: 'Yèkèrmo Sèw (A Man of Experience)', artist: 'Mulatu Astatke', addedBy: 'ember-owl-42', genre: 'ethio-jazz', reactions: 18, note: 'classic late night Ethio-jazz' },
+			{ title: 'Tezeta (Nostalgia)', artist: 'Mulatu Astatke', addedBy: 'quiet-fox-17', genre: 'ethio-jazz', reactions: 15 },
+			{ title: 'shinjuku fm, soft lofi / smooth jazz', artist: 'TOKYO TONES', addedBy: 'night-owl-11', genre: 'lofi', source: 'youtube', videoId: '2CDRu6-Vgfo', reactions: 12 },
+			{ title: 'Resonance', artist: 'HOME', addedBy: 'slow-kettle-08', genre: 'synthwave', reactions: 14 },
+			{ title: 'beats to relax / study to', artist: 'Lofi Girl', addedBy: 'warm-lamp-63', genre: 'lofi', source: 'youtube', videoId: 'rFZHOHl-L8A', reactions: 10 }
+		],
+		chatMoments: [
+			{ who: 'ember-owl-42', text: 'the coffee here in addis hits completely different at 3am', at: '03:15' },
+			{ who: 'night-owl-11', text: 'pull request approved and merged cleanly', at: '05:22' },
+			{ who: 'quiet-fox-17', text: 'sunrise over the mountains right now is unreal', at: '06:05' }
+		]
 	}
 ];
 
 export const upcoming: UpcomingSession[] = [
+	{
+		slug: 'addis-ethio-jazz-lock-in',
+		title: 'Addis Ababa late night jazz & code',
+		theme: 'ethio-jazz',
+		date: 'Sat · 11:00 pm EAT',
+		iso: '2026-11-07T23:00:00+03:00',
+		blurb: 'Deep Ethio-jazz, fresh roast coffee, and uninterrupted midnight focus from Addis Ababa to the world.'
+	},
 	{
 		slug: 'nineties-night',
 		title: '90s night',
