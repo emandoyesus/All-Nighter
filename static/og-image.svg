@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+	<defs>
+		<linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+			<stop offset="0%" stop-color="#080e10" />
+			<stop offset="50%" stop-color="#030607" />
+			<stop offset="100%" stop-color="#020304" />
+		</linearGradient>
+		<radialGradient id="aurora" cx="80%" cy="20%" r="60%">
+			<stop offset="0%" stop-color="#114d57" stop-opacity="0.35" />
+			<stop offset="100%" stop-color="#030607" stop-opacity="0" />
+		</radialGradient>
+		<radialGradient id="dawn-wash" cx="95%" cy="50%" r="50%">
+			<stop offset="0%" stop-color="#ff9f43" stop-opacity="0.12" />
+			<stop offset="100%" stop-color="#030607" stop-opacity="0" />
+		</radialGradient>
+		<pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+			<circle cx="2" cy="2" r="1" fill="#83f9d6" fill-opacity="0.08" />
+		</pattern>
+	</defs>
+
+	<!-- Background fill -->
+	<rect width="1200" height="630" fill="url(#bg)" />
+	<rect width="1200" height="630" fill="url(#aurora)" />
+	<rect width="1200" height="630" fill="url(#dawn-wash)" />
+	<rect width="1200" height="630" fill="url(#grid)" />
+
+	<!-- Border frame -->
+	<rect x="24" y="24" width="1152" height="582" rx="16" fill="none" stroke="#83f9d6" stroke-opacity="0.2" stroke-width="1.5" />
+
+	<!-- Top Bar -->
+	<g transform="translate(70, 70)">
+		<!-- Moon Crest Icon -->
+		<path
+			d="M24 3.984a20 20 0 1 0 18.472 27.676c.682 -1.64 -.952 -3.288 -2.596 -2.62a13 13 0 0 1 -13.728 -21.574l.154 -.16c1.102 -1.26 .226 -3.306 -1.516 -3.306h-.532l-.136 -.012l-.12 -.004z"
+			fill="#83F9D6"
+		/>
+		<text x="64" y="32" font-family="'Space Grotesk', system-ui, sans-serif" font-size="28" font-weight="700" fill="#f3ece1" letter-spacing="-0.5">
+			All Nighter
+		</text>
+		<rect x="240" y="10" width="140" height="28" rx="14" fill="#83f9d6" fill-opacity="0.1" stroke="#83f9d6" stroke-opacity="0.3" />
+		<text x="310" y="28" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="600" fill="#83f9d6" text-anchor="middle" letter-spacing="1.5">
+			00:00–06:00
+		</text>
+	</g>
+
+	<!-- Main Hero Headline -->
+	<g transform="translate(70, 220)">
+		<text x="0" y="0" font-family="'Space Grotesk', system-ui, sans-serif" font-size="64" font-weight="800" fill="#f3ece1" letter-spacing="-1.5">
+			Show up.
+		</text>
+		<text x="0" y="74" font-family="'Space Grotesk', system-ui, sans-serif" font-size="64" font-weight="800" fill="#83f9d6" letter-spacing="-1.5">
+			Lock in till sunrise.
+		</text>
+		<text x="0" y="145" font-family="'Space Grotesk', system-ui, sans-serif" font-size="24" font-weight="400" fill="#a8a092" letter-spacing="-0.2">
+			One synchronized room. One shared track queue. Everyone awake and building.
+		</text>
+	</g>
+
+	<!-- Bottom Metrics / Telemetry Pill Bar -->
+	<g transform="translate(70, 500)">
+		<rect width="1060" height="54" rx="12" fill="#060a0b" stroke="#ffffff" stroke-opacity="0.1" />
+		
+		<circle cx="36" cy="27" r="4" fill="#83f9d6" />
+		<text x="52" y="32" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="500" fill="#f3ece1">
+			REALTIME DESK SYNC
+		</text>
+
+		<line x1="260" y1="16" x2="260" y2="38" stroke="#ffffff" stroke-opacity="0.15" />
+
+		<circle cx="295" cy="27" r="4" fill="#ffb84d" />
+		<text x="311" y="32" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="500" fill="#f3ece1">
+			ETHIOPIAN &amp; GLOBAL TIMEZONES
+		</text>
+
+		<line x1="600" y1="16" x2="600" y2="38" stroke="#ffffff" stroke-opacity="0.15" />
+
+		<circle cx="635" cy="27" r="4" fill="#83f9d6" />
+		<text x="651" y="32" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="500" fill="#f3ece1">
+			PERPETUAL ARCHIVE LOGBOOK
+		</text>
+
+		<text x="1030" y="32" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="600" fill="#83f9d6" text-anchor="end" letter-spacing="1">
+			ALLNIGHTER.DEV
+		</text>
+	</g>
+</svg>
