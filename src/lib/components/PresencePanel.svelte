@@ -45,7 +45,7 @@
 <div class="panel p-3.5 sm:p-4">
 	<div class="flex items-center justify-between">
 		<h3 class="text-xs sm:text-sm font-medium">Awake now</h3>
-		<span class="inline-flex items-center gap-1.5 rounded-full border border-lamp/40 bg-lamp/10 px-2 py-0.5 font-mono text-[10px] text-lamp font-medium shadow-[0_0_8px_color-mix(in_srgb,var(--color-lamp)_20%,transparent)]">
+		<span class="inline-flex items-center gap-1.5 rounded-full border border-lamp/40 bg-lamp/10 px-2 py-0.5 font-mono text-[10px] text-lamp font-medium">
 			<span class="h-1.5 w-1.5 rounded-full bg-lamp animate-pulse"></span>
 			{room.awake.length} awake
 		</span>
