@@ -495,10 +495,10 @@
 			</div>
 		</div>
 	{:else}
-		<div class="panel p-5">
+		<div class="panel p-3.5 sm:p-4">
 			<div class="flex items-center justify-between">
-				<p class="text-sm text-taupe">
-					{currentPhase === 'pre_midnight' ? 'till doors open (00:00)' : 'till sunrise (06:00)'}
+				<p class="text-xs text-taupe font-mono">
+					{currentPhase === 'pre_midnight' ? 'till midnight (00:00)' : 'till sunrise (06:00)'}
 				</p>
 				{#if currentPhase === 'session_active'}
 					<button
@@ -511,23 +511,23 @@
 						title="Customize dawn target time"
 						aria-label="Customize dawn time"
 					>
-						<IconPencil size={13} stroke={1.5} />
+						<IconPencil size={12} stroke={1.5} />
 					</button>
 				{/if}
 			</div>
 
-			<p class="num mt-2 text-4xl leading-none tracking-tight md:text-[2.6rem]" aria-label="countdown timer">
+			<p class="num mt-1 text-2xl sm:text-3xl font-semibold leading-none tracking-tight text-cream" aria-label="countdown timer">
 				{left}
 			</p>
 
 			{#if editing}
-				<form class="mt-3 flex items-center gap-2 border-t border-cream/10 pt-3" onsubmit={(e) => { e.preventDefault(); saveDawn(); }}>
-					<span class="text-xs text-faint">Target:</span>
+				<form class="mt-2 flex items-center gap-2 border-t border-cream/10 pt-2" onsubmit={(e) => { e.preventDefault(); saveDawn(); }}>
+					<span class="text-[11px] text-faint">Target:</span>
 					<input
 						type="number"
 						min="0"
 						max="23"
-						class="w-12 rounded border border-cream/15 bg-night/80 px-1.5 py-0.5 num text-xs text-cream outline-none focus:border-lamp"
+						class="w-10 rounded border border-cream/15 bg-night/80 px-1 py-0.5 num text-xs text-cream outline-none focus:border-lamp"
 						bind:value={editH}
 					/>
 					<span class="text-xs text-faint">:</span>
@@ -535,22 +535,18 @@
 						type="number"
 						min="0"
 						max="59"
-						class="w-12 rounded border border-cream/15 bg-night/80 px-1.5 py-0.5 num text-xs text-cream outline-none focus:border-lamp"
+						class="w-10 rounded border border-cream/15 bg-night/80 px-1 py-0.5 num text-xs text-cream outline-none focus:border-lamp"
 						bind:value={editM}
 					/>
 					<button type="submit" class="icon-btn text-lamp hover:text-cream" title="Save time" aria-label="Save time">
-						<IconCheck size={14} stroke={2} />
+						<IconCheck size={13} stroke={2} />
 					</button>
 				</form>
-			{:else}
-				<p class="num mt-2.5 text-xs text-faint">
-					{currentPhase === 'pre_midnight' ? 'lock-in starts at 00:00 local' : `dawn at ${String(dawn.h).padStart(2, '0')}:${String(dawn.m).padStart(2, '0')} local`}
-				</p>
 			{/if}
 
-			<div class="mt-4 border-t border-cream/8 pt-3.5">
-				<div class="mb-2 flex items-center justify-between font-mono text-[11px]">
-					<span class="inline-flex items-center gap-1.5 text-faint">
+			<div class="mt-2.5 border-t border-cream/8 pt-2">
+				<div class="mb-1 flex items-center justify-between font-mono text-[10px]">
+					<span class="inline-flex items-center gap-1 text-faint">
 						<span class="h-1.5 w-1.5 rounded-full bg-lamp {currentPhase === 'session_active' ? 'soft-blink' : ''}"></span>
 						<span>{currentPhase === 'pre_midnight' ? 'Daytime prep' : 'Night timeline'}</span>
 					</span>
@@ -560,19 +556,11 @@
 				</div>
 
 				<!-- Upgraded Telemetry Bar -->
-				<div class="relative h-2.5 w-full rounded-full bg-night-3 border border-cream/15 p-[2px] overflow-hidden shadow-inner">
+				<div class="relative h-1.5 w-full rounded-full bg-night-3 border border-cream/15 overflow-hidden">
 					<div
 						class="relative h-full rounded-full bg-gradient-to-r from-cyber-teal via-lamp to-amber transition-all duration-700 ease-out"
 						style="width: {Math.max(2, Math.min(100, progress))}%"
-					>
-						<div class="absolute right-0 top-0 bottom-0 w-1.5 rounded-full bg-white/90 shadow-sm"></div>
-					</div>
-				</div>
-
-				<div class="mt-1.5 flex justify-between font-mono text-[9px] uppercase tracking-wider text-faint">
-					<span>{currentPhase === 'pre_midnight' ? '06:00 Dawn' : '00:00 Mid'}</span>
-					<span>50%</span>
-					<span>{currentPhase === 'pre_midnight' ? '00:00 Midnight' : `${String(dawn.h).padStart(2, '0')}:${String(dawn.m).padStart(2, '0')} Dawn`}</span>
+					></div>
 				</div>
 			</div>
 		</div>

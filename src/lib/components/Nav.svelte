@@ -122,9 +122,9 @@
 					<span class="soft-blink h-1.5 w-1.5 rounded-full bg-amber"></span>
 					<span class="truncate max-w-[90px] sm:max-w-[130px]">{room.title || 'In Room'}</span>
 				{:else if live}
-					<span class="soft-blink h-1.5 w-1.5 rounded-full bg-ruby"></span>
+					<span class="soft-blink h-1.5 w-1.5 rounded-full bg-lamp shadow-[0_0_8px_var(--color-lamp)]"></span>
 					<span>The Room</span>
-					<span class="hidden sm:inline-block rounded bg-ruby/20 px-1 py-0.2 font-mono text-[9px] uppercase tracking-wider text-rose-300 border border-ruby/30">
+					<span class="hidden sm:inline-block rounded bg-lamp/20 px-1 py-0.2 font-mono text-[9px] uppercase tracking-wider text-lamp border border-lamp/30">
 						LIVE
 					</span>
 				{:else}

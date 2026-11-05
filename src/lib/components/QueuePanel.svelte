@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { room, parseTrackUrl } from '#lib/room/room.svelte';
-	import { parseYouTubeId, fetchVideoMeta, fetchPlaylistMeta, thumbnailFor, fetchSpotifyMeta, searchYouTubeVideo } from '#lib/room/youtube';
+	import { parseYouTubeId, fetchVideoMeta, fetchPlaylistMeta, fetchPlaylistTracks, thumbnailFor, fetchSpotifyMeta, searchYouTubeVideo } from '#lib/room/youtube';
 	import IconPlus from '@tabler/icons-svelte/icons/plus';
 	import IconX from '@tabler/icons-svelte/icons/x';
 	import IconPlay from '@tabler/icons-svelte/icons/player-play';
@@ -9,12 +9,14 @@
 	import IconChevronDown from '@tabler/icons-svelte/icons/chevron-down';
 	import IconDisc from '@tabler/icons-svelte/icons/disc';
 	import IconThumbUp from '@tabler/icons-svelte/icons/thumb-up';
+	import IconArrowsShuffle from '@tabler/icons-svelte/icons/arrows-shuffle';
 
 	let draft = $state('');
 	let dedicationDraft = $state('');
 	let tagDraft = $state<'focus' | 'hangout'>('focus');
 	let filterTag = $state<'all' | 'focus' | 'hangout'>('all');
 	let busy = $state(false);
+	let busyStatus = $state('Checking…');
 	let error = $state('');
 
 	const QUICK_PRESETS = [
@@ -46,13 +48,33 @@
 		// YouTube Playlist
 		if (parsed.source === 'youtube' && (parsed.isPlaylist || parsed.playlistId)) {
 			busy = true;
+			busyStatus = 'Unpacking playlist…';
 			const plistId = parsed.playlistId ?? '';
+			const firstVid = parsed.id ?? null;
 			const meta = plistId ? await fetchPlaylistMeta(plistId) : null;
+			const tracks = plistId ? await fetchPlaylistTracks(plistId, firstVid || meta?.firstVideoId) : [];
 			busy = false;
-			const title = meta?.title ?? `YouTube Playlist (${plistId || parsed.id})`;
-			const channel = meta?.channel ?? 'YouTube';
-			const videoId = meta?.firstVideoId || parsed.id || null;
-			room.add(videoId, title, channel, room.name, 'youtube', draft.trim(), ded, tag, true, plistId);
+			if (tracks.length > 0) {
+				room.addMany(
+					tracks.map((t) => ({
+						videoId: t.videoId,
+						title: t.title,
+						channel: t.channel,
+						source: 'youtube',
+						url: `https://www.youtube.com/watch?v=${t.videoId}&list=${plistId}`,
+						dedication: ded,
+						tag
+					})),
+					room.name,
+					tag,
+					meta?.title ?? 'YouTube Playlist'
+				);
+			} else {
+				const title = meta?.title ?? `YouTube Playlist (${plistId || parsed.id})`;
+				const channel = meta?.channel ?? 'YouTube';
+				const videoId = meta?.firstVideoId || parsed.id || null;
+				room.add(videoId, title, channel, room.name, 'youtube', draft.trim(), ded, tag, true, plistId);
+			}
 			draft = '';
 			dedicationDraft = '';
 			return;
@@ -137,8 +159,8 @@
 	);
 </script>
 
-<div class="panel mt-4">
-	<form class="px-4 pt-4" onsubmit={submit}>
+<div class="panel">
+	<form class="p-3.5 sm:p-4" onsubmit={submit}>
 		<div class="mb-2 flex flex-wrap items-center justify-between gap-1.5">
 			<label for="yt-link" class="block text-xs text-faint">Add a track or playlist link</label>
 			<div class="flex flex-wrap items-center gap-1">
@@ -171,7 +193,7 @@
 			/>
 			<button class="btn btn-primary" type="submit" disabled={busy}>
 				{#if busy}
-					Checking…
+					{busyStatus}
 				{:else}
 					<IconPlus size={15} stroke={1.5} />
 					Add
@@ -217,9 +239,21 @@
 
 	{#if room.state.queue.length > 0}
 		<div class="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-cream/10 px-4 pt-3">
-			<div class="flex items-center gap-2">
-				<h3 class="text-sm font-medium">Up next</h3>
-				<span class="num text-xs text-faint">{room.state.queue.length} in queue</span>
+			<div class="flex items-center gap-3">
+				<div class="flex items-center gap-2">
+					<h3 class="text-sm font-medium">Up next</h3>
+					<span class="num text-xs text-faint">{room.state.queue.length} in queue</span>
+				</div>
+				<button
+					type="button"
+					class="inline-flex items-center gap-1.5 rounded-field border border-cream/15 bg-night/60 px-2 py-0.5 text-xs text-taupe transition-colors hover:border-lamp/40 hover:text-cream disabled:opacity-30 disabled:pointer-events-none"
+					onclick={() => room.shuffleQueue()}
+					disabled={room.state.queue.length <= 1 || !room.canControlPlayback}
+					title={!room.canControlPlayback ? 'Aux is set to Admin only' : (room.state.queue.length <= 1 ? 'Need at least 2 tracks to shuffle' : 'Shuffle queue')}
+				>
+					<IconArrowsShuffle size={13} stroke={1.8} class="text-lamp" />
+					<span>Shuffle</span>
+				</button>
 			</div>
 			<!-- Queue filter tabs -->
 			<div class="flex rounded-full border border-cream/10 bg-night/60 p-0.5 text-xs">
@@ -248,7 +282,7 @@
 			</div>
 		</div>
 
-		<ul class="divide-y divide-cream/8">
+		<ul class="divide-y divide-cream/8 max-h-[340px] overflow-y-auto">
 			{#each filteredQueue as track, i (track.uid)}
 				<li class="flex items-center gap-3 px-4 py-2.5">
 					<span class="num w-4 shrink-0 text-xs text-faint">{i + 1}</span>
@@ -267,8 +301,8 @@
 						</div>
 					{/if}
 					<div class="min-w-0 flex-1">
-						<div class="flex items-center gap-2">
-							<p class="truncate text-sm">{track.title}</p>
+						<div class="flex min-w-0 items-center gap-2">
+							<p class="min-w-0 flex-1 truncate text-sm" title={track.title}>{track.title}</p>
 							{#if track.isPlaylist}
 								<span class="shrink-0 rounded bg-cyan/15 px-1.5 py-0.2 text-[9px] font-mono uppercase text-cyan font-semibold tracking-wider">
 									Playlist
@@ -284,17 +318,22 @@
 								</span>
 							{/if}
 						</div>
-						<p class="truncate text-xs text-faint">
-							{track.channel ?? track.source}
-							<span class="text-faint/70">·</span>
-							{track.addedBy}
+						<div class="flex min-w-0 items-center gap-1.5 truncate text-xs text-faint">
+							<span class="truncate text-taupe">{track.channel ?? track.source}</span>
+							<span class="text-faint/70 shrink-0">·</span>
+							<span class="inline-flex items-center gap-1 truncate">
+								<span class="text-faint shrink-0">added by</span>
+								<a href="/crew/{track.addedBy}" class="truncate font-medium text-cream/90 transition-colors hover:text-lamp underline decoration-cream/20 underline-offset-2">
+									{track.addedBy}
+								</a>
+							</span>
 							{#if (track.votes || 0) > 0}
-								<span class="text-faint/70">·</span>
-								{track.votes} upvotes
+								<span class="text-faint/70 shrink-0">·</span>
+								<span class="shrink-0">{track.votes} upvotes</span>
 							{/if}
-						</p>
+						</div>
 						{#if track.dedication}
-							<p class="mt-0.5 truncate text-[11px] italic text-faint/80">
+							<p class="mt-0.5 truncate text-[11px] italic text-faint/80" title={track.dedication}>
 								“{track.dedication}”
 							</p>
 						{/if}
@@ -328,9 +367,10 @@
 							<IconChevronDown size={15} stroke={1.5} />
 						</button>
 						<button
-							class="icon-btn"
+							class="icon-btn disabled:opacity-20 disabled:cursor-not-allowed"
 							onclick={() => room.playNow(track)}
-							title="Play now"
+							disabled={!room.canControlPlayback}
+							title={room.canControlPlayback ? "Play now" : "Aux control locked to admins"}
 							aria-label="Play {track.title} now"
 						>
 							<IconPlay size={15} stroke={1.5} />

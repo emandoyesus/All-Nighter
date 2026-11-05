@@ -8,10 +8,12 @@
 	import IconCheck from '@tabler/icons-svelte/icons/check';
 	import IconWorld from '@tabler/icons-svelte/icons/world';
 	import IconLock from '@tabler/icons-svelte/icons/lock';
+	import IconShield from '@tabler/icons-svelte/icons/shield';
 
 	let creating = $state(false);
 	let draft = $state('late-night-shift');
 	let isPrivate = $state(false);
+	let adminOnly = $state(false);
 	let nightPlan = $state('');
 	let copiedSlug = $state<string | null>(null);
 	let joinPrivateInput = $state('');
@@ -41,7 +43,7 @@
 			// Store the intention before creating the room so announce() picks it up
 			room.setIntention(nightPlan.trim());
 		}
-		room.createRoom(name, isPrivate);
+		room.createRoom(name, isPrivate, adminOnly);
 	}
 
 	function handleJoinPrivate(event: SubmitEvent): void {
@@ -98,11 +100,29 @@
 						class="flex items-center justify-between gap-4 rounded-field border border-cream/10 bg-night/50 px-4 py-3 transition-colors hover:border-cream/20"
 					>
 						<div class="min-w-0">
-							<div class="flex items-center gap-1.5">
+							<div class="flex items-center gap-1.5 flex-wrap">
 								<p class="truncate text-sm text-cream font-medium">{ad.title || ad.room}</p>
-								<span class="inline-flex items-center gap-1 rounded bg-lamp/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-lamp border border-lamp/30">
-									Public
-								</span>
+								{#if ad.isPrivate}
+									<span class="inline-flex items-center gap-1 rounded bg-amber-400/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-amber-300 border border-amber-400/30">
+										<IconLock size={10} stroke={2} />
+										Private
+									</span>
+								{:else}
+									<span class="inline-flex items-center gap-1 rounded bg-lamp/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-lamp border border-lamp/30">
+										<IconWorld size={10} stroke={2} />
+										Public
+									</span>
+								{/if}
+								{#if ad.adminOnlyPlayback}
+									<span class="inline-flex items-center gap-1 rounded bg-teal-500/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-aqua-foam border border-teal-500/30" title="Aux restricted to admins">
+										<IconShield size={10} stroke={2} />
+										Aux: Admin
+									</span>
+								{:else}
+									<span class="inline-flex items-center gap-1 rounded bg-cream/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-taupe border border-cream/20" title="Aux open to everyone">
+										Aux: No Admin
+									</span>
+								{/if}
 							</div>
 							<p class="num mt-0.5 truncate text-xs text-faint">
 								{ad.members} awake · host {ad.host || 'unknown'}
@@ -121,13 +141,23 @@
 									<IconCopy size={14} stroke={1.5} />
 								{/if}
 							</button>
-							<button
-								class="btn btn-primary btn-sm"
-								onclick={() => room.joinRoom(ad.room, ad.title)}
-							>
-								<IconDoorEnter size={14} stroke={1.5} />
-								Step in
-							</button>
+							{#if ad.isPrivate}
+								<button
+									class="btn btn-secondary btn-sm text-amber-300 hover:text-cream border-amber-400/30"
+									onclick={() => room.requestJoin(ad.room, ad.title)}
+								>
+									<IconLock size={14} stroke={1.5} />
+									Knock
+								</button>
+							{:else}
+								<button
+									class="btn btn-primary btn-sm"
+									onclick={() => room.joinRoom(ad.room, ad.title)}
+								>
+									<IconDoorEnter size={14} stroke={1.5} />
+									Step in
+								</button>
+							{/if}
 						</div>
 					</li>
 				{/each}
@@ -213,7 +243,40 @@
 							<IconLock size={14} stroke={2} />
 							Private Room
 						</span>
-						<span class="text-[11px] leading-snug opacity-75">Unlisted · Invite link only</span>
+						<span class="text-[11px] leading-snug opacity-75">Knock required · Direct with invite</span>
+					</button>
+				</div>
+			</div>
+
+			<!-- Aux Permissions Mode -->
+			<div>
+				<span class="mb-1.5 block text-xs text-faint">Aux Permissions</span>
+				<div class="grid grid-cols-2 gap-2">
+					<button
+						type="button"
+						class="flex flex-col items-start gap-1 rounded-field border px-3 py-2 text-left text-xs transition-colors {!adminOnly
+							? 'border-lamp/50 bg-lamp/10 text-lamp'
+							: 'border-cream/10 bg-night/50 text-taupe hover:border-cream/20 hover:text-cream'}"
+						onclick={() => (adminOnly = false)}
+					>
+						<span class="flex items-center gap-1.5 font-medium">
+							Aux: No Admin
+						</span>
+						<span class="text-[11px] leading-snug opacity-75">Anyone can play, pause, seek, skip</span>
+					</button>
+
+					<button
+						type="button"
+						class="flex flex-col items-start gap-1 rounded-field border px-3 py-2 text-left text-xs transition-colors {adminOnly
+							? 'border-teal-500/50 bg-teal-500/15 text-aqua-foam'
+							: 'border-cream/10 bg-night/50 text-taupe hover:border-cream/20 hover:text-cream'}"
+						onclick={() => (adminOnly = true)}
+					>
+						<span class="flex items-center gap-1.5 font-medium">
+							<IconShield size={14} stroke={2} />
+							Aux: Admin
+						</span>
+						<span class="text-[11px] leading-snug opacity-75">Only host & admins control playback</span>
 					</button>
 				</div>
 			</div>

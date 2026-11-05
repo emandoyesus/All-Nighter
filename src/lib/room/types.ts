@@ -45,6 +45,8 @@ export type RoomState = {
 	cycleAuto?: boolean;
 	doorLocked?: boolean;
 	isPrivate?: boolean;
+	adminOnlyPlayback?: boolean;
+	admins?: string[];
 };
 
 export type Peer = {
@@ -70,6 +72,7 @@ export type RoomAd = {
 	members: number;
 	ts: number;
 	isPrivate?: boolean;
+	adminOnlyPlayback?: boolean;
 };
 
 /** A pending "let me in" ticket from someone outside the room. */

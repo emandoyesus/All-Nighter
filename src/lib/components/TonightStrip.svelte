@@ -20,10 +20,10 @@
 		<span class="soft-blink h-1.5 w-1.5 rounded-full bg-faint" aria-hidden="true"></span>
 		<span>tuning in…</span>
 	{:else if hasRoom && topRoom}
-		<span class="soft-blink h-1.5 w-1.5 rounded-full bg-lamp tonight-strip__live" aria-hidden="true"></span>
-		<span class="tonight-strip__live">{topRoom.members} awake</span>
+		<span class="soft-blink h-1.5 w-1.5 rounded-full bg-lamp shadow-[0_0_8px_var(--color-lamp)] tonight-strip__live" aria-hidden="true"></span>
+		<span class="tonight-strip__live font-medium text-lamp">{topRoom.members} awake</span>
 		<span aria-hidden="true">·</span>
-		<span class="truncate max-w-[24ch]">{topRoom.title || topRoom.room}</span>
+		<span class="truncate max-w-[24ch] text-cream">{topRoom.title || topRoom.room}</span>
 		{#if listings.length > 1}
 			<span aria-hidden="true">·</span>
 			<a href="/room" class="today-strip__link text-taupe underline-offset-2 hover:text-lamp transition-colors hover:underline">

@@ -1,5 +1,12 @@
 <script lang="ts">
 	import { room } from '#lib/room/room.svelte';
+	import IconCrown from '@tabler/icons-svelte/icons/crown';
+	import IconShield from '@tabler/icons-svelte/icons/shield';
+	import IconShieldCheck from '@tabler/icons-svelte/icons/shield-check';
+	import IconChevronDown from '@tabler/icons-svelte/icons/chevron-down';
+	import IconChevronUp from '@tabler/icons-svelte/icons/chevron-up';
+
+	let showEdit = $state(false);
 
 	function initial(name: string): string {
 		return name.trim().charAt(0).toUpperCase() || '?';
@@ -35,39 +42,55 @@
 	}
 </script>
 
-<div class="panel p-5">
+<div class="panel p-3.5 sm:p-4">
 	<div class="flex items-center justify-between">
-		<h3 class="text-sm font-medium">Awake now</h3>
-		<span class="num text-xs text-faint">{room.awake.length}</span>
+		<h3 class="text-xs sm:text-sm font-medium">Awake now</h3>
+		<span class="inline-flex items-center gap-1.5 rounded-full border border-lamp/40 bg-lamp/10 px-2 py-0.5 font-mono text-[10px] text-lamp font-medium shadow-[0_0_8px_color-mix(in_srgb,var(--color-lamp)_20%,transparent)]">
+			<span class="h-1.5 w-1.5 rounded-full bg-lamp animate-pulse"></span>
+			{room.awake.length} awake
+		</span>
 	</div>
 
 	<!-- Roster with intentions & local time -->
-	<ul class="mt-3.5 space-y-2">
+	<ul class="mt-2.5 max-h-[160px] overflow-y-auto space-y-1.5 pr-0.5">
 		{#each room.awake as peer (peer.id)}
 			{@const pClock = peerClock(peer.tz)}
-			<li class="flex items-start gap-2">
+			{@const isPeerHost = peer.name === room.hostName() || (peer.self && room.isHost)}
+			{@const isPeerAdmin = room.isAdmin(peer.id, peer.name)}
+			<li class="flex items-center gap-2 group text-xs">
 				{#if peer.avatar}
 					<img
 						src={peer.avatar}
 						alt={peer.name}
-						class="mt-0.5 h-6 w-6 shrink-0 rounded-full object-cover border border-lamp/30 bg-night"
+						class="h-5 w-5 shrink-0 rounded-full object-cover border border-lamp/30 bg-night"
 					/>
 				{:else}
 					<span
-						class="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-lamp/15 text-[11px] font-semibold text-lamp"
+						class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-lamp/15 text-[10px] font-semibold text-lamp"
 					>
 						{initial(peer.name)}
 					</span>
 				{/if}
 				<div class="min-w-0 flex-1">
-					<div class="flex flex-wrap items-center gap-1.5">
-						<span class="text-sm {peer.self ? 'text-cream font-medium' : 'text-taupe'}">{peer.name}</span>
+					<div class="flex flex-wrap items-center gap-1">
+						<span class="{peer.self ? 'text-cream font-medium' : 'text-taupe'}">{peer.name}</span>
+						{#if isPeerHost}
+							<span class="inline-flex items-center gap-0.5 rounded bg-amber-400/15 px-1 py-0.1 text-[9px] text-amber-300 font-mono border border-amber-400/30" title="Room Host">
+								<IconCrown size={9} stroke={2} />
+								Host
+							</span>
+						{:else if isPeerAdmin}
+							<span class="inline-flex items-center gap-0.5 rounded bg-teal-500/15 px-1 py-0.1 text-[9px] text-aqua-foam font-mono border border-teal-500/30" title="Room Admin (Aux control)">
+								<IconShieldCheck size={9} stroke={2} />
+								Admin
+							</span>
+						{/if}
 						{#if peer.status}
-							<span class="rounded-full bg-cream/8 px-1.5 py-0.5 text-[11px] text-lamp">{peer.status}</span>
+							<span class="rounded-full bg-cream/8 px-1 py-0.1 text-[10px] text-lamp">{peer.status}</span>
 						{/if}
 						{#if pClock}
 							<span
-								class="num inline-flex items-center gap-1 rounded bg-night/80 px-1.5 py-0.5 text-[10px] text-faint ring-1 ring-cream/10"
+								class="num inline-flex items-center gap-0.5 rounded bg-night/80 px-1 py-0.1 text-[9px] text-faint ring-1 ring-cream/10"
 								title={`${pClock.badge} for ${peer.name}`}
 							>
 								<span>{pClock.icon}</span>
@@ -76,66 +99,105 @@
 						{/if}
 					</div>
 					{#if peer.intention}
-						<p class="mt-0.5 truncate text-[11px] italic text-faint/80">{peer.intention}</p>
+						<p class="truncate text-[10px] italic text-faint/80">{peer.intention}</p>
 					{/if}
 				</div>
+
+				<!-- Host control to toggle Admin status for peers -->
+				{#if room.isHost && !isPeerHost && !peer.self}
+					<button
+						type="button"
+						class="shrink-0 p-1 rounded transition-colors {isPeerAdmin
+							? 'text-aqua-foam hover:bg-teal-500/20'
+							: 'text-faint hover:text-cream hover:bg-white/5 opacity-0 group-hover:opacity-100 focus:opacity-100'}"
+						onclick={() => room.toggleAdmin(peer.id, peer.name)}
+						title={isPeerAdmin ? `Revoke admin privileges from ${peer.name}` : `Promote ${peer.name} to Admin (aux control)`}
+						aria-label={isPeerAdmin ? `Revoke admin from ${peer.name}` : `Make ${peer.name} admin`}
+					>
+						{#if isPeerAdmin}
+							<IconShieldCheck size={14} stroke={2} />
+						{:else}
+							<IconShield size={14} stroke={1.5} />
+						{/if}
+					</button>
+				{/if}
 			</li>
 		{/each}
 	</ul>
 
-	<!-- Your callsign -->
-	<div class="mt-4 border-t border-cream/10 pt-4">
-		<div class="mb-1.5 flex items-center justify-between">
-			<label for="callsign" class="text-xs text-faint">Your callsign</label>
-			<button
-				type="button"
-				class="text-[11px] font-mono text-lamp hover:underline inline-flex items-center gap-1"
-				onclick={() => window.dispatchEvent(new CustomEvent('an:open-profile-modal', { detail: { edit: true } }))}
-			>
-				Edit Profile ↗
-			</button>
-		</div>
-		<input
-			id="callsign"
-			type="text"
-			maxlength="24"
-			autocomplete="off"
-			class="w-full rounded-field border border-cream/10 bg-night/60 px-3 py-2 text-sm text-cream outline-none transition-colors focus:border-lamp/60"
-			value={room.name}
-			oninput={(e) => room.setName(e.currentTarget.value)}
-		/>
-	</div>
+	<!-- Collapsible Quick Profile & Mood -->
+	<div class="mt-2.5 border-t border-cream/8 pt-2">
+		<button
+			type="button"
+			class="flex w-full items-center justify-between text-[11px] text-faint hover:text-cream transition-colors"
+			onclick={() => (showEdit = !showEdit)}
+		>
+			<span class="font-mono">Your callsigh & intention</span>
+			<span class="inline-flex items-center gap-0.5 text-lamp">
+				{showEdit ? 'hide' : 'edit'}
+				{#if showEdit}
+					<IconChevronUp size={12} stroke={2} />
+				{:else}
+					<IconChevronDown size={12} stroke={2} />
+				{/if}
+			</span>
+		</button>
 
-	<!-- Tonight's intention -->
-	<div class="mt-3">
-		<label for="intention" class="mb-1.5 block text-xs text-faint">What are you working on tonight?</label>
-		<input
-			id="intention"
-			type="text"
-			maxlength="80"
-			autocomplete="off"
-			placeholder="one line is enough"
-			class="w-full rounded-field border border-cream/10 bg-night/60 px-3 py-2 text-sm text-cream outline-none transition-colors placeholder:text-faint/60 focus:border-lamp/60"
-			value={room.intention}
-			oninput={(e) => room.setIntention(e.currentTarget.value)}
-		/>
-	</div>
+		{#if showEdit}
+			<div class="mt-2 space-y-2">
+				<div>
+					<div class="mb-1 flex items-center justify-between">
+						<label for="callsign" class="text-[11px] text-faint">Callsign</label>
+						<button
+							type="button"
+							class="text-[10px] font-mono text-lamp hover:underline"
+							onclick={() => window.dispatchEvent(new CustomEvent('an:open-profile-modal', { detail: { edit: true } }))}
+						>
+							Edit Profile ↗
+						</button>
+					</div>
+					<input
+						id="callsign"
+						type="text"
+						maxlength="24"
+						autocomplete="off"
+						class="w-full rounded border border-cream/10 bg-night/60 px-2.5 py-1 text-xs text-cream outline-none transition-colors focus:border-lamp/60"
+						value={room.name}
+						oninput={(e) => room.setName(e.currentTarget.value)}
+					/>
+				</div>
 
-	<!-- Mood / status chips -->
-	<div class="mt-3.5">
-		<span class="mb-1.5 block text-xs text-faint">Your activity / mood</span>
-		<div class="flex flex-wrap gap-1.5">
-			{#each ['🎧 Locked in', '💻 Coding', '✍️ Writing', '🎨 Designing', '📚 Studying', '🐛 Bug hunting', '☕ Coffee run', '🥱 4am wall'] as mood}
-				<button
-					type="button"
-					class="rounded-full px-2.5 py-1 text-xs transition-colors border {room.statusText === mood
-						? 'border-lamp bg-lamp/15 text-lamp font-medium'
-						: 'border-cream/10 bg-night/50 text-taupe hover:border-cream/25 hover:text-cream'}"
-					onclick={() => room.setStatus(room.statusText === mood ? '' : mood)}
-				>
-					{mood}
-				</button>
-			{/each}
-		</div>
+				<div>
+					<label for="intention" class="mb-1 block text-[11px] text-faint">What are you working on?</label>
+					<input
+						id="intention"
+						type="text"
+						maxlength="80"
+						autocomplete="off"
+						placeholder="one line is enough"
+						class="w-full rounded border border-cream/10 bg-night/60 px-2.5 py-1 text-xs text-cream outline-none transition-colors placeholder:text-faint/60 focus:border-lamp/60"
+						value={room.intention}
+						oninput={(e) => room.setIntention(e.currentTarget.value)}
+					/>
+				</div>
+
+				<div>
+					<span class="mb-1 block text-[11px] text-faint">Mood</span>
+					<div class="flex flex-wrap gap-1">
+						{#each ['🎧 Locked in', '💻 Coding', '✍️ Writing', '🎨 Designing', '🐛 Bug hunting', '☕ Coffee run'] as mood}
+							<button
+								type="button"
+								class="rounded-full px-2 py-0.5 text-[10px] transition-colors border {room.statusText === mood
+									? 'border-lamp bg-lamp/15 text-lamp font-medium'
+									: 'border-cream/10 bg-night/50 text-taupe hover:border-cream/25 hover:text-cream'}"
+								onclick={() => room.setStatus(room.statusText === mood ? '' : mood)}
+							>
+								{mood}
+							</button>
+						{/each}
+					</div>
+				</div>
+			</div>
+		{/if}
 	</div>
 </div>

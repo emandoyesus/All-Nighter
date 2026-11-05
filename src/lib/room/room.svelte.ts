@@ -165,7 +165,9 @@ function emptyState(): RoomState {
 		modeExpiresAt: undefined,
 		cycleAuto: false,
 		doorLocked: false,
-		isPrivate: false
+		isPrivate: false,
+		adminOnlyPlayback: false,
+		admins: []
 	};
 }
 
@@ -223,8 +225,24 @@ class Room {
 	modeRemaining = $derived(
 		this.state.modeExpiresAt ? Math.max(0, Math.floor((this.state.modeExpiresAt - this.now) / 1000)) : 0
 	);
-	/** Whether host or solo listener can skip directly. */
-	canSkip = $derived(this.isHost || this.awake.length <= 1);
+	/** Whether this user is an admin or the room host. */
+	isAdminUser = $derived(
+		this.isHost ||
+		(this.state.admins?.includes(this.clientId) ?? false) ||
+		(this.state.admins?.includes(this.name) ?? false)
+	);
+	/** Whether host, admin, or solo listener can skip directly. */
+	canSkip = $derived(
+		!this.state.adminOnlyPlayback ||
+		this.isAdminUser ||
+		this.awake.length <= 1
+	);
+	/** Whether this user is allowed to Play / Pause / Seek / Shuffle. */
+	canControlPlayback = $derived(
+		!this.state.adminOnlyPlayback ||
+		this.isAdminUser ||
+		this.awake.length <= 1
+	);
 	/** This user's one-line intention for the night. */
 	intention = $state('');
 	/** Rooms advertised on the broker right now. */
@@ -236,6 +254,7 @@ class Room {
 	private peers = new Map<string, Peer>();
 	private inited = false;
 	private everConnected = false;
+	private lastRemoteState: any = null;
 	private attempts = 0;
 	private offlineSince = 0;
 	private requestTimer = 0;
@@ -327,7 +346,12 @@ class Room {
 			} catch {
 				/* ignore */
 			}
-			this.enterApproved(slug, title || slug, wasHost);
+			const hasInvite = typeof window !== 'undefined' && (new URL(window.location.href).searchParams.get('invite') === '1' || new URL(window.location.href).searchParams.has('key'));
+			if (wasHost || hasInvite) {
+				this.enterApproved(slug, title || slug, wasHost);
+			} else {
+				this.joinRoom(slug, title || slug);
+			}
 		}
 	}
 
@@ -530,7 +554,7 @@ class Room {
 		}
 		try {
 			const ad = JSON.parse(text) as RoomAd;
-			if (!ad?.room || ad.isPrivate) {
+			if (!ad?.room) {
 				this.directory = this.directory.filter((entry) => entry.room !== room);
 				return;
 			}
@@ -540,7 +564,8 @@ class Room {
 				host: String(ad.host ?? '').slice(0, 24),
 				members: Math.max(0, Number(ad.members) || 0),
 				ts: Number(ad.ts) || 0,
-				isPrivate: !!ad.isPrivate
+				isPrivate: !!ad.isPrivate,
+				adminOnlyPlayback: !!ad.adminOnlyPlayback
 			};
 			this.directory = [...this.directory.filter((item) => item.room !== entry.room), entry];
 		} catch {
@@ -609,29 +634,39 @@ class Room {
 			else playBreakChime();
 		}
 
-		// Gate visitor if room is locked and user is not host
-		if (msg.doorLocked && !this.isHost && this.joinState === 'approved' && !this.everConnected) {
+		// Gate visitor if room is private or door is locked, and user is not host / invited
+		const hasInvite = typeof window !== 'undefined' && (new URL(window.location.href).searchParams.get('invite') === '1' || new URL(window.location.href).searchParams.has('key'));
+		const isPermitted = this.isHost || hasInvite;
+
+		if ((msg.isPrivate || msg.doorLocked) && !isPermitted && this.joinState !== 'approved') {
 			this.joinState = 'waiting';
 			this.publishRequest();
 			this.startRequesting();
 		}
 
+		// Store last raw incoming state so admit() can hydrate immediately upon host approval
+		this.lastRemoteState = msg;
+
+		const isApproved = this.joinState === 'approved';
+
 		this.state = {
 			seq: incomingSeq,
 			by: incomingBy,
-			videoId: msg.videoId ?? null,
-			source: msg.source,
-			current: msg.current ?? null,
-			playing: !!msg.playing,
+			videoId: isApproved ? (msg.videoId ?? null) : null,
+			source: isApproved ? msg.source : undefined,
+			current: isApproved ? (msg.current ?? null) : null,
+			playing: isApproved ? !!msg.playing : false,
 			position: Number(msg.position) || 0,
 			clock: Number(msg.clock) || now,
-			queue: Array.isArray(msg.queue) ? msg.queue : [],
-			chat: this.state.chat ?? [],
+			queue: isApproved && Array.isArray(msg.queue) ? msg.queue : [],
+			chat: isApproved ? (this.state.chat ?? []) : [],
 			mode: msg.mode ?? this.mode,
 			modeExpiresAt: msg.modeExpiresAt,
 			cycleAuto: !!msg.cycleAuto,
 			doorLocked: !!msg.doorLocked,
-			isPrivate: !!msg.isPrivate
+			isPrivate: !!msg.isPrivate,
+			adminOnlyPlayback: !!msg.adminOnlyPlayback,
+			admins: Array.isArray(msg.admins) ? msg.admins : []
 		};
 	}
 
@@ -641,7 +676,7 @@ class Room {
 	}
 
 	private onChat(msg: ChatMessage): void {
-		if (!msg?.id) return;
+		if (!msg?.id || this.joinState !== 'approved') return;
 		const chat = this.state.chat || [];
 		if (chat.some((item) => item.id === msg.id)) return;
 		this.state = { ...this.state, chat: [...chat, msg].slice(-100) };
@@ -679,6 +714,8 @@ class Room {
 				cycleAuto: this.state.cycleAuto,
 				doorLocked: this.state.doorLocked,
 				isPrivate: this.state.isPrivate,
+				adminOnlyPlayback: this.state.adminOnlyPlayback,
+				admins: this.state.admins ?? [],
 				clock: Date.now()
 			}),
 			true
@@ -697,11 +734,19 @@ class Room {
 		logText?: string,
 		options?: { keepSeq?: boolean }
 	): void {
-		const clock = Date.now();
+		const now = Date.now();
 		const prevQueue = this.state.queue;
 		const base = next(this.state);
-		const seq = options?.keepSeq ? this.state.seq || clock : clock;
-		this.state = { ...base, seq, by: this.clientId, clock };
+		const seq = options?.keepSeq ? this.state.seq || now : now;
+
+		// If mutation did not explicitly change playback position, advance position by elapsed playback time
+		let position = base.position;
+		if (base.position === this.state.position && this.state.playing && this.state.clock) {
+			const elapsed = Math.max(0, (now + this.offset - this.state.clock) / 1000);
+			position = this.state.position + elapsed;
+		}
+
+		this.state = { ...base, position, seq, by: this.clientId, clock: now };
 		this.publishState();
 		if (logText) this.writeLog(logText);
 
@@ -738,9 +783,9 @@ class Room {
 	}
 
 	/** Create a room and step inside as its host. */
-	createRoom(name: string, isPrivate = false): void {
+	createRoom(name: string, isPrivate = false, adminOnlyPlayback = false): void {
 		const slug = sanitizeRoom(name);
-		this.enterApproved(slug, name.trim() || slug, true, true, isPrivate);
+		this.enterApproved(slug, name.trim() || slug, true, true, isPrivate, adminOnlyPlayback);
 	}
 
 	/** Claim an unhosted or deserted room and step inside as host. */
@@ -758,7 +803,20 @@ class Room {
 		} catch {
 			/* ignore */
 		}
-		this.enterApproved(clean, title?.trim() || clean, wasHost);
+		const hasInvite = typeof window !== 'undefined' && (new URL(window.location.href).searchParams.get('invite') === '1' || new URL(window.location.href).searchParams.has('key'));
+		if (wasHost || hasInvite) {
+			this.enterApproved(clean, title?.trim() || clean, wasHost);
+			return;
+		}
+
+		// Check if known in directory to be private
+		const knownAd = this.directory.find((d) => d.room === clean);
+		if (knownAd?.isPrivate) {
+			this.requestJoin(clean, title || knownAd.title);
+			return;
+		}
+
+		this.enterApproved(clean, title?.trim() || clean, false);
 	}
 
 	/** Ask the members of `slug` to let us in (if door is locked). */
@@ -815,12 +873,33 @@ class Room {
 		this.syncUrl(this.room);
 		this.subscribeActive();
 		this.announce();
+
+		// Hydrate full room state from cached remote state if available
+		if (this.lastRemoteState) {
+			const msg = this.lastRemoteState;
+			this.state = {
+				...this.state,
+				videoId: msg.videoId ?? null,
+				source: msg.source,
+				current: msg.current ?? null,
+				playing: !!msg.playing,
+				position: Number(msg.position) || 0,
+				queue: Array.isArray(msg.queue) ? msg.queue : [],
+				chat: this.state.chat ?? [],
+				mode: msg.mode ?? this.mode,
+				doorLocked: !!msg.doorLocked,
+				isPrivate: !!msg.isPrivate,
+				adminOnlyPlayback: !!msg.adminOnlyPlayback,
+				admins: Array.isArray(msg.admins) ? msg.admins : []
+			};
+		}
+
 		this.publishState();
 		this.startDirectory();
 		void this.dbSync.attachRoom(this.room, this.title, this.clientId, this.name);
 	}
 
-	private enterApproved(slug: string, title: string, host: boolean, isNew = false, isPrivate = false): void {
+	private enterApproved(slug: string, title: string, host: boolean, isNew = false, isPrivate = false, adminOnlyPlayback = false): void {
 		this.resetRoom();
 		this.room = slug;
 		this.title = title;
@@ -842,7 +921,8 @@ class Room {
 				clock: Date.now(),
 				by: this.name || 'host',
 				isPrivate,
-				doorLocked: isPrivate
+				doorLocked: isPrivate,
+				adminOnlyPlayback
 			};
 		}
 
@@ -944,11 +1024,6 @@ class Room {
 
 	private updateAd(): void {
 		if (!this.room || this.joinState !== 'approved') return;
-		if (this.state.isPrivate) {
-			// Private room: clear directory retained ad so it remains unlisted
-			this.pub(this.dirTopic(this.room), '', true);
-			return;
-		}
 		this.pub(
 			this.dirTopic(this.room),
 			JSON.stringify({
@@ -957,14 +1032,15 @@ class Room {
 				host: this.isHost ? this.name : this.hostName(),
 				members: this.awake.length,
 				ts: Date.now(),
-				isPrivate: false
+				isPrivate: !!this.state.isPrivate,
+				adminOnlyPlayback: !!this.state.adminOnlyPlayback
 			} satisfies RoomAd),
 			true
 		);
 	}
 
 	/** Keep the original host name when other members refresh the ad. */
-	private hostName(): string {
+	hostName(): string {
 		return this.directory.find((entry) => entry.room === this.room)?.host || this.name;
 	}
 
@@ -1090,13 +1166,38 @@ class Room {
 				isPrivate: nextPrivate,
 				doorLocked: nextPrivate ? true : s.doorLocked
 			}),
-			nextPrivate ? 'made the room private (unlisted)' : 'made the room public (listed in directory)'
+			nextPrivate ? 'switched the room to private' : 'switched the room to public'
 		);
-		if (nextPrivate) {
-			this.pub(this.dirTopic(this.room), '', true);
-		} else {
-			this.updateAd();
-		}
+		this.updateAd();
+	}
+
+	isAdmin(peerId: string, peerName?: string): boolean {
+		if (this.isHost && (peerId === this.clientId || peerName === this.name)) return true;
+		if (this.hostName() === peerName) return true;
+		const list = this.state.admins ?? [];
+		return list.includes(peerId) || (peerName ? list.includes(peerName) : false);
+	}
+
+	toggleAdmin(peerId: string, peerName?: string): void {
+		if (!this.isHost) return;
+		const current = this.state.admins ?? [];
+		const isCurrentlyAdmin = current.includes(peerId) || (peerName ? current.includes(peerName) : false);
+		const nextAdmins = isCurrentlyAdmin
+			? current.filter((id) => id !== peerId && (!peerName || id !== peerName))
+			: [...current, peerId];
+		this.mutate(
+			(s) => ({ ...s, admins: nextAdmins }),
+			isCurrentlyAdmin ? `revoked admin rights from ${peerName || peerId}` : `promoted ${peerName || peerId} to room admin`
+		);
+	}
+
+	setAdminOnlyPlayback(enabled: boolean): void {
+		if (!this.isHost) return;
+		this.mutate(
+			(s) => ({ ...s, adminOnlyPlayback: enabled }),
+			enabled ? 'set Aux to Admin only' : 'set Aux to No Admin (open to everyone)'
+		);
+		this.updateAd();
 	}
 
 	add(
@@ -1150,6 +1251,62 @@ class Room {
 			const queue = [...s.queue, track];
 			return { ...s, queue };
 		}, `added “${title}”` + (playlist ? ' (playlist)' : '') + (track.dedication ? ` (dedicated: “${track.dedication}”)` : ''));
+	}
+
+	addMany(
+		tracks: Array<{
+			videoId: string | null;
+			title: string;
+			channel?: string;
+			source?: TrackSource;
+			url?: string;
+			dedication?: string;
+			tag?: 'focus' | 'hangout';
+			isPlaylist?: boolean;
+			playlistId?: string;
+		}>,
+		addedBy: string,
+		tag?: 'focus' | 'hangout',
+		playlistTitle?: string
+	): void {
+		if (!tracks.length) return;
+		const newTracks: Track[] = tracks.map((t) => ({
+			uid: randomId(),
+			videoId: t.videoId,
+			source: t.source ?? 'youtube',
+			url: t.url ?? (t.videoId ? `https://www.youtube.com/watch?v=${t.videoId}` : ''),
+			title: t.title,
+			channel: t.channel || 'YouTube',
+			addedBy,
+			addedById: this.clientId,
+			votes: 0,
+			voters: [],
+			reactions: {},
+			dedication: t.dedication?.trim() ? t.dedication.trim().slice(0, 80) : undefined,
+			tag: t.tag ?? tag,
+			isPlaylist: t.isPlaylist,
+			playlistId: t.playlistId
+		}));
+
+		this.mutate((s) => {
+			if (!s.current) {
+				const [first, ...rest] = newTracks;
+				return {
+					...s,
+					current: first,
+					videoId: first.videoId,
+					playlistId: first.playlistId ?? null,
+					source: first.source,
+					playing: true,
+					position: 0,
+					queue: [...s.queue, ...rest]
+				};
+			}
+			return {
+				...s,
+				queue: [...s.queue, ...newTracks]
+			};
+		}, `queued playlist “${playlistTitle || 'Playlist'}” (${newTracks.length} tracks)`);
 	}
 
 	vote(uid: string): void {
@@ -1206,7 +1363,20 @@ class Room {
 		});
 	}
 
+	shuffleQueue(): void {
+		if (!this.canControlPlayback || this.state.queue.length <= 1) return;
+		this.mutate((s) => {
+			const q = [...s.queue];
+			for (let i = q.length - 1; i > 0; i--) {
+				const j = Math.floor(Math.random() * (i + 1));
+				[q[i], q[j]] = [q[j], q[i]];
+			}
+			return { ...s, queue: q };
+		}, 'shuffled the queue');
+	}
+
 	playNow(track: Track): void {
+		if (!this.canControlPlayback) return;
 		this.mutate(
 			(s) => {
 				const queue = s.queue.filter((item) => item.uid !== track.uid);
@@ -1226,10 +1396,12 @@ class Room {
 	}
 
 	toggle(position: number): void {
+		if (!this.canControlPlayback) return;
 		this.mutate((s) => ({ ...s, playing: !s.playing, position }));
 	}
 
 	seekTo(position: number): void {
+		if (!this.canControlPlayback) return;
 		this.mutate((s) => ({ ...s, position }));
 	}
 
@@ -1298,7 +1470,8 @@ class Room {
 
 	inviteUrl(slug: string): string {
 		if (typeof location === 'undefined') return '';
-		return `${location.origin}${location.pathname}?room=${sanitizeRoom(slug)}`;
+		const base = `${location.origin}${location.pathname}?room=${sanitizeRoom(slug)}`;
+		return this.state.isPrivate ? `${base}&invite=1` : base;
 	}
 
 	/* --------------------------------------------------------- housekeeping */

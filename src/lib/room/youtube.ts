@@ -183,3 +183,180 @@ export async function fetchPlaylistMeta(playlistId: string): Promise<PlaylistMet
 	}
 }
 
+/**
+ * Uses a headless YouTube player to resolve all video IDs contained in a YouTube playlist.
+ */
+export function fetchPlaylistVideoIds(playlistId: string): Promise<string[]> {
+	if (typeof window === 'undefined') return Promise.resolve([]);
+
+	return new Promise((resolve) => {
+		loadYouTubeApi()
+			.then((YT) => {
+				if (!YT?.Player) return resolve([]);
+
+				const container = document.createElement('div');
+				container.id = 'yt-playlist-resolver-' + Math.random().toString(36).slice(2, 8);
+				container.style.cssText =
+					'position:fixed;width:1px;height:1px;top:-9999px;left:-9999px;opacity:0.001;pointer-events:none;z-index:-1;';
+				document.body.appendChild(container);
+
+				let resolved = false;
+				let pollInterval: any = null;
+				let player: any = null;
+
+				const cleanup = () => {
+					if (pollInterval) clearInterval(pollInterval);
+					try {
+						player?.destroy?.();
+					} catch {}
+					try {
+						container.remove();
+					} catch {}
+				};
+
+				const finish = (ids: string[]) => {
+					if (resolved) return;
+					resolved = true;
+					clearTimeout(timeout);
+					cleanup();
+					resolve(ids);
+				};
+
+				const timeout = setTimeout(() => {
+					try {
+						const ids = player?.getPlaylist?.();
+						if (Array.isArray(ids) && ids.length > 0) {
+							finish(ids);
+							return;
+						}
+					} catch {}
+					finish([]);
+				}, 6500);
+
+				try {
+					player = new YT.Player(container, {
+						height: '1',
+						width: '1',
+						playerVars: {
+							listType: 'playlist',
+							list: playlistId,
+							autoplay: 0,
+							controls: 0,
+							disablekb: 1,
+							fs: 0
+						},
+						events: {
+							onReady: (e: any) => {
+								try {
+									const list = e.target.getPlaylist?.();
+									if (Array.isArray(list) && list.length > 0) {
+										finish(list);
+										return;
+									}
+									e.target.cuePlaylist?.({ list: playlistId, listType: 'playlist' });
+								} catch {}
+
+								pollInterval = setInterval(() => {
+									try {
+										const list = player?.getPlaylist?.();
+										if (Array.isArray(list) && list.length > 0) {
+											finish(list);
+										}
+									} catch {}
+								}, 200);
+							},
+							onStateChange: (e: any) => {
+								try {
+									const list = e.target.getPlaylist?.();
+									if (Array.isArray(list) && list.length > 0) {
+										finish(list);
+									}
+								} catch {}
+							},
+							onError: () => finish([])
+						}
+					});
+				} catch {
+					finish([]);
+				}
+			})
+			.catch(() => resolve([]));
+	});
+}
+
+export type PlaylistTrackItem = {
+	videoId: string;
+	title: string;
+	channel: string;
+};
+
+/**
+ * Resolves a full YouTube playlist into individual track items with metadata.
+ */
+export async function fetchPlaylistTracks(
+	playlistId: string,
+	firstVideoId?: string | null
+): Promise<PlaylistTrackItem[]> {
+	const metaPromise = fetchPlaylistMeta(playlistId);
+	const idsPromise = fetchPlaylistVideoIds(playlistId);
+
+	const [meta, rawIds] = await Promise.all([metaPromise, idsPromise]);
+
+	let ids = [...rawIds];
+	if (firstVideoId && !ids.includes(firstVideoId)) {
+		ids.unshift(firstVideoId);
+	} else if (firstVideoId && ids.includes(firstVideoId)) {
+		const idx = ids.indexOf(firstVideoId);
+		if (idx > 0) {
+			// Put selected video first, followed by remainder of the playlist
+			ids = [...ids.slice(idx), ...ids.slice(0, idx)];
+		}
+	} else if (meta?.firstVideoId && !ids.includes(meta.firstVideoId)) {
+		ids.unshift(meta.firstVideoId);
+	}
+
+	if (ids.length === 0) {
+		const singleId = firstVideoId || meta?.firstVideoId;
+		if (singleId) {
+			const singleMeta = await fetchVideoMeta(singleId);
+			return [
+				{
+					videoId: singleId,
+					title: singleMeta?.title ?? meta?.title ?? `YouTube Track (${singleId})`,
+					channel: singleMeta?.channel ?? meta?.channel ?? 'YouTube'
+				}
+			];
+		}
+		return [];
+	}
+
+	// Limit to max 50 tracks to keep room sync swift and reliable
+	const targetIds = ids.slice(0, 50);
+	const tracks: PlaylistTrackItem[] = [];
+
+	// Fetch titles in parallel batches of 6
+	const batchSize = 6;
+	for (let i = 0; i < targetIds.length; i += batchSize) {
+		const chunk = targetIds.slice(i, i + batchSize);
+		const metas = await Promise.all(
+			chunk.map(async (vid) => {
+				try {
+					return await fetchVideoMeta(vid);
+				} catch {
+					return null;
+				}
+			})
+		);
+		chunk.forEach((vid, idx) => {
+			const m = metas[idx];
+			tracks.push({
+				videoId: vid,
+				title: m?.title ?? `${meta?.title ?? 'Track'} #${i + idx + 1}`,
+				channel: m?.channel ?? meta?.channel ?? 'YouTube'
+			});
+		});
+	}
+
+	return tracks;
+}
+
