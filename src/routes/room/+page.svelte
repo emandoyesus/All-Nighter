@@ -109,7 +109,7 @@
 									Share link
 								{/if}
 							</button>
-							<button class="btn btn-primary btn-sm text-xs" onclick={() => (showDawnModal = true)}>
+							<button class="btn btn-amber btn-sm text-xs" onclick={() => (showDawnModal = true)}>
 								<IconSun size={14} stroke={2} />
 								Log session
 							</button>
