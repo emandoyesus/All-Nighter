@@ -67,7 +67,7 @@
 			<p class="mt-2 truncate text-lg font-semibold leading-tight text-cream">{stats.topContributor.name}</p>
 			<p class="num mt-0.5 inline-flex items-center gap-1 text-[11px] text-faint">
 				<IconUsers size={11} stroke={1.5} />
-				<span use:countUp={stats.topContributor.count} class="text-amber-200/90">{stats.topContributor.count}</span> picks
+				<span use:countUp={stats.topContributor.count} class="text-amber-200/90">{stats.topContributor.count}</span> {stats.topContributor.count === 1 ? 'pick' : 'picks'}
 			</p>
 		</div>
 	</div>

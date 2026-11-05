@@ -61,7 +61,7 @@ export const nights: Night[] = [
 		note: 'Overlooking Addis Ababa from Entoto as the city lights flickered below. Strong Ethiopian coffee, three bug fixes, and sunrise over the highlands.',
 		hours: '7h 35m',
 		minutes: 455,
-		tracks: 48,
+		tracks: 5,
 		heads: 9,
 		seed: 'all-nighter-oct18',
 		img: 'nights/ritual.jpg',
