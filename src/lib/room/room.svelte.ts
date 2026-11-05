@@ -6,7 +6,8 @@ import {
 	PRESENCE_TICK,
 	PRESENCE_TTL,
 	REQUEST_TICK,
-	REQUEST_TTL
+	REQUEST_TTL,
+	isDawnReached
 } from '#lib/config';
 import type {
 	ChatMessage,
@@ -24,7 +25,9 @@ import { playFocusChime, playBreakChime, playDawnChime } from '#lib/audio/chime'
 import { goto } from '$app/navigation';
 import { SupabaseRoomSync } from './supabase-sync';
 import { auth } from '#lib/auth.svelte';
-import { isSupabaseConfigured } from '#lib/supabase';
+import { supabase, isSupabaseConfigured } from '#lib/supabase';
+import { buildNightFromRoom, saveToMyNights } from '#lib/data/local-logbook';
+import type { Night } from '#lib/data/archive';
 
 const LS_NAME = 'an.callsign';
 const LS_ID = 'an.client';
@@ -219,6 +222,16 @@ class Room {
 	joinState = $state<JoinState>('lobby');
 	title = $state('');
 	isHost = $state(false);
+	/** Whether dawn has been reached for the night session */
+	isDawn = $derived(isDawnReached(new Date(this.now)));
+	/** Transient alert banner for room deleted / archived events */
+	roomAlert = $state<{ type: 'deleted' | 'archived'; message: string; slug?: string } | null>(null);
+	/** Timestamp when this session was entered */
+	roomStartedAt = $state(0);
+	/** Whether this room was started during the night before dawn */
+	private startedBeforeDawn = false;
+	/** Whether this session was already auto-archived */
+	private dawnArchived = false;
 	/** Current room mode: 'normal' (chat open, shared floor) or 'focus' (quiet sprint). */
 	mode = $state<'normal' | 'focus' | 'break'>('normal');
 	/** Seconds remaining in current mode cycle. */
@@ -501,6 +514,20 @@ class Room {
 			}
 			return;
 		}
+		if (rest === 'ctl') {
+			if (!text) return;
+			try {
+				const cmd = JSON.parse(text);
+				if (cmd.type === 'room_deleted') {
+					this.onRemoteRoomDeleted(cmd.by);
+				} else if (cmd.type === 'room_archived') {
+					this.onRemoteRoomArchived(cmd.night);
+				}
+			} catch {
+				/* ignore malformed */
+			}
+			return;
+		}
 		if (rest.startsWith('p/')) {
 			this.onPresence(rest.slice(2), text);
 			return;
@@ -777,6 +804,7 @@ class Room {
 			this.t('p/#'),
 			this.t('log'),
 			this.t('chat'),
+			this.t('ctl'),
 			this.t('join/#'),
 			this.decTopic(this.room, this.clientId)
 		]);
@@ -905,6 +933,9 @@ class Room {
 		this.title = title;
 		this.isHost = host;
 		this.joinState = 'approved';
+		this.roomStartedAt = Date.now();
+		this.startedBeforeDawn = !isDawnReached(new Date());
+		this.dawnArchived = false;
 
 		if (isNew) {
 			const starter: Track = {
@@ -981,6 +1012,162 @@ class Room {
 		this.resetRoom();
 		this.joinState = 'lobby';
 		this.syncUrl('');
+	}
+
+	/**
+	 * Delete this room session (Owner only).
+	 * If it is already dawn, the room will be archived into the logbook instead of deleted.
+	 */
+	async deleteRoom(): Promise<void> {
+		if (!this.isHost) {
+			console.warn('[Room] Only the owner can delete a room.');
+			return;
+		}
+
+		// If it is already dawn, archive rather than plain delete
+		if (this.isDawn) {
+			await this.archiveRoom();
+			return;
+		}
+
+		if (!this.room) return;
+		const roomSlug = this.room;
+		const roomTitle = this.title || roomSlug;
+
+		// 1. Broadcast deletion to all peers in the room
+		this.pub(
+			this.t('ctl'),
+			JSON.stringify({ type: 'room_deleted', by: this.name, room: roomSlug, ts: Date.now() }),
+			true
+		);
+
+		// 2. Remove directory ad immediately
+		this.pub(this.dirTopic(roomSlug), '', true);
+
+		// 3. Mark closed in database if Supabase enabled
+		if (this.dbSync.isEnabled && supabase) {
+			try {
+				await supabase
+					.from('rooms')
+					.update({ status: 'closed', closed_at: new Date().toISOString() })
+					.eq('slug', roomSlug);
+			} catch (err) {
+				console.warn('[Supabase] Failed to mark room closed:', err);
+			}
+		}
+
+		// 4. Clean up host flag & return to lobby
+		try {
+			localStorage.removeItem('an.host.' + roomSlug);
+		} catch {}
+
+		this.roomAlert = {
+			type: 'deleted',
+			message: `Room “${roomTitle}” was deleted.`
+		};
+		this.leave();
+	}
+
+	/**
+	 * Archive the current room session into the logbook (Owner only).
+	 */
+	async archiveRoom(): Promise<void> {
+		if (!this.isHost) {
+			console.warn('[Room] Only the owner can archive a room.');
+			return;
+		}
+		if (!this.room) return;
+		const roomSlug = this.room;
+		const roomTitle = this.title || roomSlug;
+
+		// 1. Build night archive record
+		const night = buildNightFromRoom(
+			roomSlug,
+			roomTitle,
+			this.awake,
+			this.state.current,
+			this.state.queue
+		);
+
+		// 2. Save locally into personal logbook
+		saveToMyNights(night);
+
+		// 3. Save to Supabase session_archives if enabled
+		if (this.dbSync.isEnabled) {
+			try {
+				await this.dbSync.archiveSession({
+					slug: night.slug,
+					title: night.title,
+					startedAt: new Date(this.roomStartedAt || Date.now() - 6 * 3600 * 1000).toISOString(),
+					attendees: this.awake.map((p) => p.name),
+					playlist: this.state.queue,
+					summary: night.note
+				});
+			} catch (err) {
+				console.warn('[Room] Supabase archive failed:', err);
+			}
+		}
+
+		// 4. Play sunrise chime
+		try {
+			playDawnChime();
+		} catch {}
+
+		// 5. Broadcast archival to all peers so they also save it to their logbook
+		this.pub(
+			this.t('ctl'),
+			JSON.stringify({ type: 'room_archived', by: this.name, room: roomSlug, night, ts: Date.now() }),
+			true
+		);
+
+		// 6. Remove directory ad
+		this.pub(this.dirTopic(roomSlug), '', true);
+
+		// 7. Clean up host flag & leave
+		try {
+			localStorage.removeItem('an.host.' + roomSlug);
+		} catch {}
+
+		this.roomAlert = {
+			type: 'archived',
+			message: `Dawn reached! Session “${night.title}” has been archived to your logbook.`,
+			slug: night.slug
+		};
+		this.leave();
+
+		// 8. Navigate to the archive page
+		if (typeof window !== 'undefined') {
+			goto(`/archive/${night.slug}`);
+		}
+	}
+
+	private onRemoteRoomDeleted(by: string): void {
+		if (!this.isHost) {
+			this.roomAlert = {
+				type: 'deleted',
+				message: `Room session was closed and deleted by the owner (${by || 'host'}).`
+			};
+			this.leave();
+		}
+	}
+
+	private onRemoteRoomArchived(night: Night): void {
+		if (!this.isHost) {
+			if (night) {
+				try {
+					saveToMyNights(night);
+				} catch {}
+			}
+			this.roomAlert = {
+				type: 'archived',
+				message: `Dawn reached! Session “${night?.title || this.title || this.room}” has been archived to the logbook.`,
+				slug: night?.slug
+			};
+			this.leave();
+			if (night?.slug && typeof window !== 'undefined') {
+				goto(`/archive/${night.slug}`);
+			}
+		}
 	}
 
 	private syncUrl(slug: string): void {
@@ -1479,6 +1666,19 @@ class Room {
 	private tick(): void {
 		const now = Date.now();
 		this.now = now;
+
+		// Auto-archive when dawn is reached during an active overnight session
+		if (
+			this.isHost &&
+			this.joinState === 'approved' &&
+			this.room &&
+			this.startedBeforeDawn &&
+			this.isDawn &&
+			!this.dawnArchived
+		) {
+			this.dawnArchived = true;
+			void this.archiveRoom();
+		}
 
 		// Pomodoro automatic cycle transition by host
 		if (this.isHost && this.state.cycleAuto && this.state.modeExpiresAt && now >= this.state.modeExpiresAt) {

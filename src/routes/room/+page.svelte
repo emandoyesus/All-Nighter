@@ -24,6 +24,7 @@
 	import IconTarget from '@tabler/icons-svelte/icons/target';
 	import IconWaveSine from '@tabler/icons-svelte/icons/wave-sine';
 	import IconSun from '@tabler/icons-svelte/icons/sun';
+	import IconX from '@tabler/icons-svelte/icons/x';
 
 	let copied = $state(false);
 	let showDawnModal = $state(false);
@@ -67,6 +68,35 @@
 	{/if}
 {:else}
 	<main class="min-h-[calc(100dvh-64px)] md:min-h-[calc(100dvh-68px)]">
+		{#if room.roomAlert}
+			<div class="mx-auto max-w-[1440px] px-3 sm:px-5 pt-3">
+				<div
+					class="flex items-center justify-between gap-3 rounded-field border px-4 py-2.5 text-xs font-mono transition-all {room.roomAlert.type === 'archived' ? 'border-amber/40 bg-amber/10 text-amber' : 'border-ruby/40 bg-ruby/10 text-ruby'}"
+				>
+					<div class="flex items-center gap-2 flex-wrap">
+						{#if room.roomAlert.type === 'archived'}
+							<IconSun size={15} stroke={2} />
+						{:else}
+							<span class="h-1.5 w-1.5 rounded-full bg-ruby"></span>
+						{/if}
+						<span>{room.roomAlert.message}</span>
+						{#if room.roomAlert.slug}
+							<a href="/archive/{room.roomAlert.slug}" class="underline hover:text-cream ml-1 font-semibold">
+								View in Logbook →
+							</a>
+						{/if}
+					</div>
+					<button
+						class="icon-btn text-faint hover:text-cream text-xs"
+						onclick={() => (room.roomAlert = null)}
+						aria-label="Dismiss alert"
+					>
+						<IconX size={14} stroke={1.5} />
+					</button>
+				</div>
+			</div>
+		{/if}
+
 		{#if inRoom}
 			<!-- Compact Room Header -->
 			<section class="border-b border-cream/10 bg-night-2/90 px-3 sm:px-5 py-2 sm:py-2.5 backdrop-blur-md sticky top-0 z-40">
@@ -164,18 +194,33 @@
 
 						{#if room.isHost}
 							<div class="pt-1">
-								<button
-									class="btn btn-ghost text-ruby hover:bg-ruby/10 w-full text-[11px] font-mono tracking-wider py-1 border border-ruby/20 transition-all"
-									onclick={() => {
-										if (confirm('Delete this room session and close the door for everyone?')) {
-											room.leave();
-										}
-									}}
-									title="Close and delete the room session"
-								>
-									<span class="soft-blink h-1.5 w-1.5 rounded-full bg-ruby"></span>
-									Delete room session
-								</button>
+								{#if room.isDawn}
+									<button
+										class="btn btn-ghost text-amber hover:bg-amber/10 w-full text-[11px] font-mono tracking-wider py-1.5 border border-amber/30 transition-all flex items-center justify-center gap-1.5"
+										onclick={() => {
+											if (confirm('Archive this room session to the logbook?')) {
+												room.archiveRoom();
+											}
+										}}
+										title="Archive room session to logbook"
+									>
+										<IconSun size={13} stroke={2} class="text-amber" />
+										Archive room session (Dawn reached)
+									</button>
+								{:else}
+									<button
+										class="btn btn-ghost text-ruby hover:bg-ruby/10 w-full text-[11px] font-mono tracking-wider py-1.5 border border-ruby/20 transition-all flex items-center justify-center gap-1.5"
+										onclick={() => {
+											if (confirm('Delete this room session and close the door for everyone?')) {
+												room.deleteRoom();
+											}
+										}}
+										title="Close and delete the room session"
+									>
+										<span class="soft-blink h-1.5 w-1.5 rounded-full bg-ruby"></span>
+										Delete room session
+									</button>
+								{/if}
 							</div>
 						{/if}
 					</aside>
