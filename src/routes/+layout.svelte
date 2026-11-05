@@ -42,7 +42,7 @@
 <GlobalPlayer />
 <SiteAudioPlayer />
 
-<div class="relative z-10 min-h-screen flex flex-col {room.joinState === 'approved' ? 'pb-16 sm:pb-20' : ''}">
+<div class="relative min-h-screen flex flex-col {room.joinState === 'approved' ? 'pb-16 sm:pb-20' : ''}">
 	{@render children()}
 </div>
 
