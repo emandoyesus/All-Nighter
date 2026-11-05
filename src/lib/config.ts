@@ -17,6 +17,41 @@ export const MIDDAY = { h: 12, m: 0 };
 export const SUNSET = { h: 18, m: 0 };
 export const NIGHT_START = { h: 0, m: 0 }; // Midnight lock-in start
 
+export const LS_DAWN = 'an.dawn_time';
+
+/** Load user-configured or default dawn target time. */
+export function getDawnTarget(): { h: number; m: number } {
+	if (typeof window !== 'undefined') {
+		try {
+			const saved = localStorage.getItem(LS_DAWN);
+			if (saved) {
+				const parsed = JSON.parse(saved);
+				if (typeof parsed.h === 'number' && typeof parsed.m === 'number') {
+					if (parsed.h === 6 && parsed.m === 30) {
+						return { ...DAWN };
+					}
+					return parsed;
+				}
+			}
+		} catch {}
+	}
+	return { ...DAWN };
+}
+
+/**
+ * Returns true if dawn has been reached for the night session
+ * (i.e. daytime post-dawn: from dawn until midnight).
+ * Between 00:00 (midnight) and dawn (default 06:00), the session is active night.
+ */
+export function isDawnReached(now = new Date()): boolean {
+	const dawn = getDawnTarget();
+	const isNightLockIn =
+		now.getHours() >= 0 &&
+		(now.getHours() < dawn.h || (now.getHours() === dawn.h && now.getMinutes() < dawn.m));
+
+	return !isNightLockIn;
+}
+
 /** Public MQTT brokers (WebSockets, no account). Tried in order at startup.
  *  Verified reachable; swap freely for your own broker. */
 export const BROKERS = ['wss://broker.emqx.io:8084/mqtt', 'wss://test.mosquitto.org:8081/mqtt'];
