@@ -2,7 +2,6 @@
 	import { onMount } from 'svelte';
 	import Nav from '#lib/components/Nav.svelte';
 	import ArchiveStats from '#lib/components/ArchiveStats.svelte';
-	import NightZones from '#lib/components/NightZones.svelte';
 	import { nights, genres, contributors } from '#lib/data/archive';
 	import type { Night } from '#lib/data/archive';
 	import { loadMyNights } from '#lib/data/local-logbook';
@@ -101,8 +100,6 @@
 	</section>
 
 	<ArchiveStats />
-
-	<NightZones />
 
 	<section class="relative border-t border-cream/10 bg-[#060a0b] py-14 md:py-20 overflow-hidden">
 		<!-- Subtle dot ledger pattern -->
