@@ -86,7 +86,7 @@
 				<IconArrowLeft size={15} stroke={1.5} />
 				Tonight
 			</a>
-			<p class="eyebrow mt-4">{nights.length} nights on record</p>
+			<p class="eyebrow mt-4">{nights.length} {nights.length === 1 ? 'night' : 'nights'} on record</p>
 			<h1
 				class="mt-2 text-3xl font-semibold tracking-tight md:text-4xl"
 				data-split
@@ -124,7 +124,7 @@
 						The logbook
 					</h2>
 					<p class="num mt-1.5 text-xs text-faint">
-						{filtered.length} of {baseNights.length} nights on record
+						{filtered.length} of {baseNights.length} {baseNights.length === 1 ? 'night' : 'nights'} on record
 					</p>
 				</div>
 

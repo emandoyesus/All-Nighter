@@ -91,7 +91,7 @@
 					worked on, and the moments that got screenshotted. Kept in the archive, forever.
 				</p>
 			</div>
-			<p class="num mt-4 shrink-0 text-xs text-faint md:mt-0">{nights.length} nights on record</p>
+			<p class="num mt-4 shrink-0 text-xs text-faint md:mt-0">{nights.length} {nights.length === 1 ? 'night' : 'nights'} on record</p>
 		</article>
 	</div>
 </section>
