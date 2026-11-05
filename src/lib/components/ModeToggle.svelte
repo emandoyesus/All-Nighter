@@ -6,6 +6,7 @@
 	import IconRepeat from '@tabler/icons-svelte/icons/repeat';
 	import IconLock from '@tabler/icons-svelte/icons/lock';
 	import IconLockOpen from '@tabler/icons-svelte/icons/lock-open';
+	import IconWorld from '@tabler/icons-svelte/icons/world';
 
 	type RoomMode = 'normal' | 'focus' | 'break';
 
@@ -96,6 +97,23 @@
 			>
 				<IconRepeat size={12} stroke={1.5} />
 				<span>Auto-cycle: {room.state.cycleAuto ? 'On' : 'Off'}</span>
+			</button>
+
+			<button
+				type="button"
+				class="inline-flex items-center gap-1.5 rounded-field border px-2 py-1 text-[11px] transition-colors {room.state.isPrivate
+					? 'border-amber-400/40 bg-amber-400/10 text-amber-300'
+					: 'border-lamp/40 bg-lamp/10 text-lamp'}"
+				onclick={() => room.togglePrivacy()}
+				title={room.state.isPrivate ? 'Room is private (unlisted from directory). Click to make public.' : 'Room is public (listed in directory). Click to make private.'}
+			>
+				{#if room.state.isPrivate}
+					<IconLock size={12} stroke={1.5} />
+					<span>Room: Private</span>
+				{:else}
+					<IconWorld size={12} stroke={1.5} />
+					<span>Room: Public</span>
+				{/if}
 			</button>
 
 			<button

@@ -164,7 +164,8 @@ function emptyState(): RoomState {
 		mode: 'normal',
 		modeExpiresAt: undefined,
 		cycleAuto: false,
-		doorLocked: false
+		doorLocked: false,
+		isPrivate: false
 	};
 }
 
@@ -529,13 +530,17 @@ class Room {
 		}
 		try {
 			const ad = JSON.parse(text) as RoomAd;
-			if (!ad?.room) return;
+			if (!ad?.room || ad.isPrivate) {
+				this.directory = this.directory.filter((entry) => entry.room !== room);
+				return;
+			}
 			const entry: RoomAd = {
 				room: sanitizeRoom(ad.room),
 				title: String(ad.title ?? ad.room).slice(0, 40),
 				host: String(ad.host ?? '').slice(0, 24),
 				members: Math.max(0, Number(ad.members) || 0),
-				ts: Number(ad.ts) || 0
+				ts: Number(ad.ts) || 0,
+				isPrivate: !!ad.isPrivate
 			};
 			this.directory = [...this.directory.filter((item) => item.room !== entry.room), entry];
 		} catch {
@@ -625,7 +630,8 @@ class Room {
 			mode: msg.mode ?? this.mode,
 			modeExpiresAt: msg.modeExpiresAt,
 			cycleAuto: !!msg.cycleAuto,
-			doorLocked: !!msg.doorLocked
+			doorLocked: !!msg.doorLocked,
+			isPrivate: !!msg.isPrivate
 		};
 	}
 
@@ -672,6 +678,7 @@ class Room {
 				modeExpiresAt: this.state.modeExpiresAt,
 				cycleAuto: this.state.cycleAuto,
 				doorLocked: this.state.doorLocked,
+				isPrivate: this.state.isPrivate,
 				clock: Date.now()
 			}),
 			true
@@ -731,9 +738,9 @@ class Room {
 	}
 
 	/** Create a room and step inside as its host. */
-	createRoom(name: string): void {
+	createRoom(name: string, isPrivate = false): void {
 		const slug = sanitizeRoom(name);
-		this.enterApproved(slug, name.trim() || slug, true, true);
+		this.enterApproved(slug, name.trim() || slug, true, true, isPrivate);
 	}
 
 	/** Claim an unhosted or deserted room and step inside as host. */
@@ -813,7 +820,7 @@ class Room {
 		void this.dbSync.attachRoom(this.room, this.title, this.clientId, this.name);
 	}
 
-	private enterApproved(slug: string, title: string, host: boolean, isNew = false): void {
+	private enterApproved(slug: string, title: string, host: boolean, isNew = false, isPrivate = false): void {
 		this.resetRoom();
 		this.room = slug;
 		this.title = title;
@@ -833,7 +840,9 @@ class Room {
 				playing: true,
 				position: 0,
 				clock: Date.now(),
-				by: this.name || 'host'
+				by: this.name || 'host',
+				isPrivate,
+				doorLocked: isPrivate
 			};
 		}
 
@@ -935,6 +944,11 @@ class Room {
 
 	private updateAd(): void {
 		if (!this.room || this.joinState !== 'approved') return;
+		if (this.state.isPrivate) {
+			// Private room: clear directory retained ad so it remains unlisted
+			this.pub(this.dirTopic(this.room), '', true);
+			return;
+		}
 		this.pub(
 			this.dirTopic(this.room),
 			JSON.stringify({
@@ -942,7 +956,8 @@ class Room {
 				title: this.title || this.room,
 				host: this.isHost ? this.name : this.hostName(),
 				members: this.awake.length,
-				ts: Date.now()
+				ts: Date.now(),
+				isPrivate: false
 			} satisfies RoomAd),
 			true
 		);
@@ -1064,6 +1079,24 @@ class Room {
 			}),
 			nextLock ? 'locked the room door' : 'unlocked the room door'
 		);
+	}
+
+	togglePrivacy(): void {
+		if (!this.isHost) return;
+		const nextPrivate = !this.state.isPrivate;
+		this.mutate(
+			(s) => ({
+				...s,
+				isPrivate: nextPrivate,
+				doorLocked: nextPrivate ? true : s.doorLocked
+			}),
+			nextPrivate ? 'made the room private (unlisted)' : 'made the room public (listed in directory)'
+		);
+		if (nextPrivate) {
+			this.pub(this.dirTopic(this.room), '', true);
+		} else {
+			this.updateAd();
+		}
 	}
 
 	add(
