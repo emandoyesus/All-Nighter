@@ -146,7 +146,7 @@
 					</button>
 					<button
 						type="button"
-						class="rounded-full px-3 py-1 transition-colors {sourceTab === 'my' ? 'bg-lamp/20 font-medium text-lamp' : 'text-taupe hover:text-cream'}"
+						class="rounded-full px-3 py-1 transition-colors {sourceTab === 'my' ? 'bg-amber/20 font-medium text-amber' : 'text-taupe hover:text-cream'}"
 						onclick={() => (sourceTab = 'my')}
 					>
 						My Logbook ({myNights.length})
@@ -223,10 +223,10 @@
 			{#each filtered as night, i (night.seed)}
 				<a
 					href="/archive/{night.slug}"
-					class="group relative flex h-full flex-col justify-between overflow-hidden rounded-xl border border-cream/10 bg-gradient-to-b from-night-2 via-night-2 to-night p-5 transition-all duration-300 hover:border-lamp/50 hover:bg-night-2/90"
+					class="group relative flex h-full flex-col justify-between overflow-hidden rounded-xl border border-cream/10 bg-night-2 p-5 transition-all duration-300 hover:border-lamp/50 hover:bg-night-2/90"
 				>
 					<!-- Notebook spine accent -->
-					<div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-lamp/60 via-cyber-teal to-lamp/20 group-hover:w-1.5 transition-all"></div>
+					<div class="absolute left-0 top-0 bottom-0 w-1 bg-cyber-teal group-hover:w-1.5 transition-all"></div>
 
 					<!-- Watermark Serial Index Number -->
 					<span class="pointer-events-none absolute right-4 top-2 font-mono text-4xl font-extrabold text-cream/[0.04] select-none group-hover:text-lamp/[0.08] transition-colors">
@@ -281,15 +281,15 @@
 						<div class="flex items-center justify-between gap-2 font-mono text-[11px] text-faint">
 							<div class="flex items-center gap-3">
 								<span class="inline-flex items-center gap-1">
-									<IconClock size={12} stroke={1.5} class="text-lamp/70" />
+									<IconClock size={12} stroke={1.5} class="text-amber" />
 									<span class="text-cream/80">{night.hours}</span>
 								</span>
 								<span class="inline-flex items-center gap-1">
-									<IconMusic size={12} stroke={1.5} class="text-lamp/70" />
+									<IconMusic size={12} stroke={1.5} class="text-lamp" />
 									<span class="text-cream/80">{night.tracks} tracks</span>
 								</span>
 								<span class="inline-flex items-center gap-1 hidden sm:inline-flex">
-									<IconUsers size={12} stroke={1.5} class="text-lamp/70" />
+									<IconUsers size={12} stroke={1.5} class="text-amber-200/80" />
 									<span class="text-cream/80">{night.heads}</span>
 								</span>
 							</div>

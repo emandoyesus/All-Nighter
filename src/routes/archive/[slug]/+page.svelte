@@ -57,8 +57,8 @@
 				<IconArrowLeft size={15} stroke={1.5} />
 				The Archive
 			</a>
-			<div class="mt-6 relative max-w-4xl rounded-2xl border border-cream/10 bg-gradient-to-b from-night via-night-2 to-night-2 p-6 sm:p-8 overflow-hidden">
-				<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-lamp/70 via-cyber-teal to-lamp/30"></div>
+			<div class="mt-6 relative max-w-4xl rounded-2xl border border-cream/10 bg-night-2 p-6 sm:p-8 overflow-hidden">
+				<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-cyber-teal"></div>
 
 				<div class="flex items-center justify-between gap-3 border-b border-cream/10 pb-4 pl-1">
 					<div class="flex items-center gap-2.5">
@@ -101,7 +101,7 @@
 
 					<div class="mt-6 flex flex-wrap gap-2.5 pt-5 border-t border-cream/5 font-mono">
 						<span class="inline-flex items-center gap-1.5 rounded-full border border-cream/10 bg-night/60 px-3 py-1 text-xs text-taupe">
-							<IconClock size={13} stroke={1.5} class="text-lamp" />
+							<IconClock size={13} stroke={1.5} class="text-amber" />
 							<span class="text-cream/90">{night.hours}</span>
 						</span>
 						<span class="inline-flex items-center gap-1.5 rounded-full border border-cream/10 bg-night/60 px-3 py-1 text-xs text-taupe">
@@ -109,7 +109,7 @@
 							<span class="text-cream/90">{night.tracks} tracks</span>
 						</span>
 						<span class="inline-flex items-center gap-1.5 rounded-full border border-cream/10 bg-night/60 px-3 py-1 text-xs text-taupe">
-							<IconUsers size={13} stroke={1.5} class="text-lamp" />
+							<IconUsers size={13} stroke={1.5} class="text-amber-200" />
 							<span class="text-cream/90">{night.heads} peak awake</span>
 						</span>
 						<span class="inline-flex items-center gap-1.5 rounded-full border border-cream/10 bg-night/60 px-3 py-1 text-xs text-taupe">

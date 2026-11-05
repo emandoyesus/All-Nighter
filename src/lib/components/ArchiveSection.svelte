@@ -32,11 +32,11 @@
 			{#each sortedNights as night, i (night.seed)}
 				<a
 					href="/archive/{night.slug}"
-					class="group relative flex w-[85vw] max-w-[420px] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-xl border border-cream/10 bg-gradient-to-b from-night-2 via-night-2 to-night p-6 transition-all duration-300 hover:border-lamp/50 sm:w-[60vw] lg:w-[390px]"
+					class="group relative flex w-[85vw] max-w-[420px] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-xl border border-cream/10 bg-night-2 p-6 transition-all duration-300 hover:border-lamp/50 sm:w-[60vw] lg:w-[390px]"
 					use:tilt={3}
 				>
 					<!-- Notebook binding spine accent -->
-					<div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-lamp/60 via-cyber-teal to-lamp/20 group-hover:w-1.5 transition-all"></div>
+					<div class="absolute left-0 top-0 bottom-0 w-1 bg-cyber-teal group-hover:w-1.5 transition-all"></div>
 
 					<!-- Watermark Serial Index Number -->
 					<span class="pointer-events-none absolute right-5 top-3 font-mono text-5xl font-extrabold text-cream/[0.04] select-none group-hover:text-lamp/[0.08] transition-colors">
@@ -90,15 +90,15 @@
 					<div class="mt-6 border-t border-cream/8 pt-4 pl-1 flex items-center justify-between gap-3 font-mono text-xs text-faint">
 						<div class="flex items-center gap-3">
 							<span class="inline-flex items-center gap-1">
-								<IconClock size={12} stroke={1.5} class="text-lamp/70" />
+								<IconClock size={12} stroke={1.5} class="text-amber" />
 								<span class="text-cream/80">{night.hours}</span>
 							</span>
 							<span class="inline-flex items-center gap-1">
-								<IconMusic size={12} stroke={1.5} class="text-lamp/70" />
+								<IconMusic size={12} stroke={1.5} class="text-lamp" />
 								<span class="text-cream/80">{night.tracks} tracks</span>
 							</span>
 							<span class="inline-flex items-center gap-1">
-								<IconUsers size={12} stroke={1.5} class="text-lamp/70" />
+								<IconUsers size={12} stroke={1.5} class="text-amber-200/80" />
 								<span class="text-cream/80">{night.heads}</span>
 							</span>
 						</div>
