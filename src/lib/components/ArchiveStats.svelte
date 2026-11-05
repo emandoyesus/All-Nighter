@@ -13,7 +13,7 @@
 	const crew = contributors().length;
 </script>
 
-<section class="mx-auto max-w-[1400px] px-5 pt-8">
+<section class="mx-auto max-w-[1400px] px-5 pt-8 pb-12 md:pb-16">
 	<div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
 		<div class="panel p-4" data-reveal use:reveal={0}>
 			<p class="flex items-center gap-1.5 text-xs text-faint">
