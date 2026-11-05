@@ -18,9 +18,8 @@
 	let { open = $bindable(false) }: { open: boolean } = $props();
 
 	const HUD_WALLPAPERS = [
-		{ id: 'lofi-desk', label: 'Lofi Desk', src: asset('hud/bg-1.jpg') },
-		{ id: 'city-night', label: 'City Night', src: asset('hud/bg-2.jpg') },
-		{ id: 'neon-horizon', label: 'Neon Horizon', src: asset('hud/bg-3.jpg') }
+		{ id: 'neon-horizon', label: 'Neon Horizon', src: asset('hud/wallpaper-1.jpg') },
+		{ id: 'night-room', label: 'Night Room', src: asset('hud/wallpaper-2.png') }
 	];
 
 	const LS_WALLPAPER = 'an.hud_wallpaper';
