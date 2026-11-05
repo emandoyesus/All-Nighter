@@ -146,7 +146,9 @@
 			<article class="panel flex flex-col p-5" data-reveal use:reveal={i * 60}>
 				<div class="flex items-start justify-between gap-3">
 					<div class="min-w-0">
-						<span class="num rounded-full border border-lamp/30 bg-lamp/10 px-2.5 py-0.5 text-[10px] uppercase tracking-[0.14em] text-lamp">
+						<span class="num rounded-full border px-2.5 py-0.5 text-[10px] uppercase tracking-[0.14em] {session.theme === 'focus' || session.theme === 'ethio-jazz'
+							? 'border-amber/35 bg-amber/10 text-amber'
+							: 'border-lamp/30 bg-lamp/10 text-lamp'}">
 							{session.theme} night
 						</span>
 						<h3 class="mt-2.5 text-lg font-medium leading-snug">{session.title}</h3>
