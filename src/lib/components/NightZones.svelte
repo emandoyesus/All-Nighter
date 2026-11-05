@@ -109,27 +109,27 @@
 						: city.isNightEvening
 							? 'border-lamp/25 bg-lamp/[0.03]'
 							: city.isDawn
-								? 'border-amber-400/30 bg-amber-400/5'
+								? 'border-amber/35 bg-amber/5'
 								: 'border-cream/8 bg-night/40 opacity-50'}"
 				>
 					<div class="flex items-center justify-between gap-1">
-						<span class="truncate text-xs font-medium {city.isNight ? 'text-cream' : 'text-taupe'}">
+						<span class="truncate text-xs font-medium {city.isNight ? 'text-cream' : city.isDawn ? 'text-amber-100' : 'text-taupe'}">
 							{city.city}
 						</span>
 						{#if city.isDeepNight || city.isNightEvening}
 							<IconMoon size={13} stroke={1.5} class="text-lamp shrink-0" />
 						{:else if city.isDawn}
-							<IconSunrise size={13} stroke={1.5} class="text-amber-300 shrink-0" />
+							<IconSunrise size={13} stroke={1.5} class="text-amber shrink-0" />
 						{:else}
 							<IconSun size={12} stroke={1.5} class="text-faint/60 shrink-0" />
 						{/if}
 					</div>
 
 					<div class="mt-3 flex items-baseline justify-between">
-						<span class="num text-sm font-semibold {city.isNight ? 'text-lamp' : 'text-cream/90'}">
+						<span class="num text-sm font-semibold {city.isDawn ? 'text-amber' : city.isNight ? 'text-lamp' : 'text-cream/90'}">
 							{city.timeString}
 						</span>
-						<span class="num text-[10px] uppercase tracking-wider text-faint">
+						<span class="num text-[10px] uppercase tracking-wider {city.isDawn ? 'text-amber-200/80 font-medium' : 'text-faint'}">
 							{city.phase}
 						</span>
 					</div>
