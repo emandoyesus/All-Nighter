@@ -7,6 +7,7 @@
 	import Countdown from '#lib/components/Countdown.svelte';
 	import NowPlayingBar from '#lib/components/NowPlayingBar.svelte';
 	import ChatPanel from '#lib/components/ChatPanel.svelte';
+	import PresencePanel from '#lib/components/PresencePanel.svelte';
 	import RoomLobby from '#lib/components/RoomLobby.svelte';
 	import JoinGate from '#lib/components/JoinGate.svelte';
 	import JoinRequests from '#lib/components/JoinRequests.svelte';
@@ -34,7 +35,7 @@
 
 	async function copyLink(): Promise<void> {
 		try {
-			await navigator.clipboard.writeText(room.roomUrl());
+			await navigator.clipboard.writeText(room.inviteUrl(room.room));
 			copied = true;
 			window.setTimeout(() => (copied = false), 1800);
 		} catch {}
@@ -66,114 +67,105 @@
 	{/if}
 {:else}
 	<main class="min-h-[calc(100dvh-64px)] md:min-h-[calc(100dvh-68px)]">
-		<section class="border-b border-cream/10 bg-night-2">
-			<div class="mx-auto max-w-[1400px] px-5 py-10 md:py-12">
-				<a href="/" class="inline-flex items-center gap-1.5 text-sm text-taupe transition-colors hover:text-cream">
-					<IconArrowLeft size={15} stroke={1.5} />
-					Tonight
-				</a>
-				<div class="mt-4 flex flex-wrap items-center justify-between gap-3">
-					<div class="flex items-center gap-3">
-						<h1 class="text-3xl font-semibold tracking-tight md:text-4xl">
-							{#if inRoom}
-								{room.title || 'The Room'}
-							{:else if gated}
-								Knocking
-							{:else}
-								The Room
-							{/if}
+		{#if inRoom}
+			<!-- Compact Room Header -->
+			<section class="border-b border-cream/10 bg-night-2/90 px-3 sm:px-5 py-2 sm:py-2.5 backdrop-blur-md sticky top-0 z-40">
+				<div class="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-2">
+					<div class="flex items-center gap-2 sm:gap-3 flex-wrap min-w-0">
+						<a href="/" class="inline-flex items-center gap-1 text-xs text-taupe transition-colors hover:text-cream font-mono">
+							<IconArrowLeft size={13} stroke={1.5} />
+							Tonight
+						</a>
+						<span class="text-faint/40">/</span>
+						<h1 class="truncate text-sm sm:text-base font-semibold tracking-tight text-cream">
+							{room.title || 'The Room'}
 						</h1>
-						{#if inRoom}
-							{#if room.state.isPrivate}
-								<span class="inline-flex items-center gap-1 rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 font-mono text-[10px] text-amber-300">
-									Private
-								</span>
-							{:else}
-								<span class="inline-flex items-center gap-1 rounded-full border border-lamp/30 bg-lamp/10 px-2 py-0.5 font-mono text-[10px] text-lamp">
-									Public
-								</span>
-							{/if}
-							{#if room.mode === 'focus'}
-								<span class="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-400/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-amber-300">
-									<IconTarget size={11} stroke={2} />
-									Focus
-								</span>
-							{:else}
-								<span class="inline-flex items-center gap-1.5 rounded-full border border-lamp/40 bg-lamp/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-lamp">
-									<IconWaveSine size={11} stroke={2} />
-									Normal
-								</span>
-							{/if}
+						{#if room.state.isPrivate}
+							<span class="inline-flex items-center gap-1 rounded bg-amber-400/10 px-1.5 py-0.2 font-mono text-[9px] uppercase tracking-wider text-amber-300 border border-amber-400/30">
+								Private
+							</span>
+						{:else}
+							<span class="inline-flex items-center gap-1 rounded bg-lamp/10 px-1.5 py-0.2 font-mono text-[9px] uppercase tracking-wider text-lamp border border-lamp/30">
+								Public
+							</span>
 						{/if}
+						{#if room.mode === 'focus'}
+							<span class="inline-flex items-center gap-1 rounded bg-amber-400/10 px-1.5 py-0.2 font-mono text-[9px] uppercase tracking-wider text-amber-300 border border-amber-400/30">
+								<IconTarget size={10} stroke={2} />
+								Focus
+							</span>
+						{:else}
+							<span class="inline-flex items-center gap-1 rounded bg-lamp/10 px-1.5 py-0.2 font-mono text-[9px] uppercase tracking-wider text-lamp border border-lamp/30">
+								<IconWaveSine size={10} stroke={2} />
+								Normal
+							</span>
+						{/if}
+
+						<!-- AMBIENT AWAKE BADGE -->
+						<a
+							href="#crew-roster"
+							class="inline-flex items-center gap-1.5 rounded-full border border-lamp/40 bg-lamp/10 px-2 py-0.5 font-mono text-[11px] text-lamp font-medium shadow-[0_0_10px_color-mix(in_srgb,var(--color-lamp)_20%,transparent)] hover:border-lamp transition-colors"
+							title="Click to view crew roster"
+						>
+							<span class="h-1.5 w-1.5 rounded-full bg-lamp animate-pulse"></span>
+							<span>{room.awake.length} awake</span>
+						</a>
 					</div>
 
-					{#if inRoom}
-						<div class="flex items-center gap-2">
-							<button class="btn btn-ghost btn-sm" onclick={copyLink} title="Copy direct room invite link">
-								{#if copied}
-									<IconCheck size={14} stroke={1.5} />
-									Copied
-								{:else}
-									<IconCopy size={14} stroke={1.5} />
-									Share link
-								{/if}
-							</button>
-							<button class="btn btn-amber btn-sm text-xs" onclick={() => (showDawnModal = true)}>
-								<IconSun size={14} stroke={2} />
-								Log session
-							</button>
-						</div>
-					{/if}
+					<div class="flex items-center gap-1.5">
+						<button class="btn btn-ghost btn-sm text-xs py-1 px-2.5" onclick={copyLink} title="Copy direct room invite link">
+							{#if copied}
+								<IconCheck size={13} stroke={1.5} />
+								Copied
+							{:else}
+								<IconCopy size={13} stroke={1.5} />
+								Share
+							{/if}
+						</button>
+						<button class="btn btn-amber btn-sm text-xs py-1 px-2.5" onclick={() => (showDawnModal = true)} title="Log room session">
+							<IconSun size={13} stroke={2} />
+							Log
+						</button>
+						<button
+							class="btn btn-danger-outline btn-sm text-xs py-1 px-2 font-mono"
+							onclick={() => room.leave()}
+							title="Step out of room"
+						>
+							Leave
+						</button>
+					</div>
 				</div>
-				<p class="mt-2 max-w-[58ch] leading-relaxed text-taupe">
-					{#if inRoom}
-						One queue, one player, everyone awake. Relax in Normal mode or toggle Focus to sprint.
-					{:else if gated}
-						Wait for a member to open the door.
-					{:else}
-						Open a room and the night starts with you, or knock on one already running.
-					{/if}
-				</p>
-			</div>
-		</section>
+			</section>
 
-		{#if inRoom}
-			<section class="mx-auto max-w-[1400px] px-5 py-6 md:py-8 pb-28 md:pb-32">
+			<!-- Compact Room Workspace -->
+			<section class="mx-auto max-w-[1440px] px-3 sm:px-4 py-3 md:py-4 pb-16">
 				{#if room.status !== 'online'}
-					<div class="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-card border border-lamp/30 bg-lamp/8 px-4 py-2.5">
-						<p class="text-sm text-cream">
+					<div class="mb-3 flex flex-wrap items-center justify-between gap-2 rounded border border-lamp/30 bg-lamp/8 px-3 py-1.5 text-xs text-cream">
+						<p>
 							{room.status === 'connecting' ? 'Reconnecting to the room…' : 'Playing solo for now.'}
-							<span class="text-taupe">Others may not hear changes yet.</span>
 						</p>
-						<button class="btn btn-ghost btn-sm" onclick={() => room.init()}>Retry</button>
+						<button class="btn btn-ghost btn-sm text-xs py-0.5 px-2" onclick={() => room.init()}>Retry</button>
 					</div>
 				{/if}
-				<NowPlayingBar />
-				<div class="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]">
-					<div class="min-w-0 flex flex-col gap-4">
+
+				<div class="grid gap-3 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]">
+					<div class="min-w-0 flex flex-col gap-3">
 						<Player />
 						<QueuePanel />
 					</div>
-					<aside class="flex min-w-0 flex-col gap-4">
+					<aside class="flex min-w-0 flex-col gap-3">
 						<JoinRequests />
-						<Countdown />
+						<div id="crew-roster">
+							<PresencePanel />
+						</div>
 						<ModeToggle />
+						<Countdown />
 						<ChatPanel />
 
-						<!-- Red Light Room Actions -->
-						<div class="flex flex-col gap-2 pt-2">
-							<button
-								class="btn btn-danger w-full text-xs font-mono tracking-wider transition-all"
-								onclick={() => room.leave()}
-								title="Leave the current room session"
-							>
-								<span class="h-2 w-2 rounded-full bg-ruby"></span>
-								Step out of room
-							</button>
-
-							{#if room.isHost}
+						{#if room.isHost}
+							<div class="pt-1">
 								<button
-									class="btn btn-danger-outline w-full text-[11px] font-mono tracking-wider transition-all"
+									class="btn btn-ghost text-ruby hover:bg-ruby/10 w-full text-[11px] font-mono tracking-wider py-1 border border-ruby/20 transition-all"
 									onclick={() => {
 										if (confirm('Delete this room session and close the door for everyone?')) {
 											room.leave();
@@ -184,17 +176,38 @@
 									<span class="soft-blink h-1.5 w-1.5 rounded-full bg-ruby"></span>
 									Delete room session
 								</button>
-							{/if}
-						</div>
+							</div>
+						{/if}
 					</aside>
 				</div>
 				<DawnRitualModal bind:open={showDawnModal} />
 			</section>
 		{:else if gated}
+			<section class="border-b border-cream/10 bg-night-2">
+				<div class="mx-auto max-w-[1400px] px-5 py-8 md:py-10">
+					<a href="/" class="inline-flex items-center gap-1.5 text-sm text-taupe transition-colors hover:text-cream">
+						<IconArrowLeft size={15} stroke={1.5} />
+						Tonight
+					</a>
+					<h1 class="mt-3 text-2xl font-semibold tracking-tight md:text-3xl">Knocking</h1>
+				</div>
+			</section>
 			<section class="mx-auto max-w-[1400px] px-5 py-10 md:py-16">
 				<JoinGate />
 			</section>
 		{:else}
+			<section class="border-b border-cream/10 bg-night-2">
+				<div class="mx-auto max-w-[1400px] px-5 py-6 md:py-8">
+					<a href="/" class="inline-flex items-center gap-1.5 text-sm text-taupe transition-colors hover:text-cream">
+						<IconArrowLeft size={15} stroke={1.5} />
+						Tonight
+					</a>
+					<div class="mt-2 flex items-center justify-between">
+						<h1 class="text-2xl font-semibold tracking-tight md:text-3xl">The Room</h1>
+					</div>
+					<p class="mt-1 text-sm text-taupe">Open a room and the night starts with you, or knock on one already running.</p>
+				</div>
+			</section>
 			<section class="mx-auto max-w-[1400px] px-5 py-6 md:py-8">
 				<RoomLobby />
 			</section>

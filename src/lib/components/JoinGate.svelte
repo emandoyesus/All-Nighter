@@ -4,6 +4,7 @@
 	import IconDoorEnter from '@tabler/icons-svelte/icons/door-enter';
 	import IconCircleOff from '@tabler/icons-svelte/icons/circle-off';
 	import IconClock from '@tabler/icons-svelte/icons/clock';
+	import IconLock from '@tabler/icons-svelte/icons/lock';
 
 	function initial(name: string): string {
 		return name.trim().charAt(0).toUpperCase() || '?';
@@ -42,13 +43,23 @@
 			</div>
 
 			<div class="mt-6 flex flex-col items-center rounded-field border border-dashed border-cream/15 px-6 py-10 text-center">
-				<span class="grid h-11 w-11 place-items-center rounded-full bg-lamp/15 text-lamp">
-					<IconClock size={20} stroke={1.5} />
-				</span>
-				<p class="mt-4 text-sm text-cream">Waiting at the door</p>
-				<p class="mt-1.5 max-w-[34ch] text-xs leading-relaxed text-faint">
-					Your ask is out. The crew inside decides who gets in.
-				</p>
+				{#if room.state.isPrivate}
+					<span class="grid h-11 w-11 place-items-center rounded-full bg-amber-400/15 text-amber-300">
+						<IconLock size={20} stroke={1.5} />
+					</span>
+					<p class="mt-4 text-sm text-cream font-medium">Private Room · Waiting for approval</p>
+					<p class="mt-1.5 max-w-[34ch] text-xs leading-relaxed text-faint">
+						This room is private. You knocked at the door — music, queue, and chat remain locked until a host lets you in.
+					</p>
+				{:else}
+					<span class="grid h-11 w-11 place-items-center rounded-full bg-lamp/15 text-lamp">
+						<IconClock size={20} stroke={1.5} />
+					</span>
+					<p class="mt-4 text-sm text-cream">Waiting at the door</p>
+					<p class="mt-1.5 max-w-[34ch] text-xs leading-relaxed text-faint">
+						Your ask is out. The crew inside decides who gets in.
+					</p>
+				{/if}
 			</div>
 
 			<div class="mt-5">

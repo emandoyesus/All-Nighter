@@ -13,6 +13,8 @@
 	import IconExternal from '@tabler/icons-svelte/icons/external-link';
 	import IconDisc from '@tabler/icons-svelte/icons/disc';
 	import IconMaximize from '@tabler/icons-svelte/icons/maximize';
+	import IconArrowsShuffle from '@tabler/icons-svelte/icons/arrows-shuffle';
+	import IconShield from '@tabler/icons-svelte/icons/shield';
 
 	const LS_VOLUME = 'an.volume';
 
@@ -144,19 +146,34 @@
 
 <div class="panel overflow-hidden">
 	<div class="flex items-center justify-between gap-3 border-b border-cream/10 px-4 py-3">
-		<div class="min-w-0">
+		<div class="min-w-0 flex-1">
 			{#if room.state.current}
-				<p class="truncate text-sm font-medium">{room.state.current.title}</p>
-				<p class="truncate text-xs text-faint">
-					{room.state.current.channel ?? 'YouTube'}
-					<span class="text-faint/70">·</span>
-					{room.state.current.addedBy}
+				<p class="truncate text-sm font-medium" title={room.state.current.title}>{room.state.current.title}</p>
+				<p class="truncate text-xs text-faint flex items-center gap-1.5">
+					<span class="truncate">{room.state.current.channel ?? 'YouTube'}</span>
+					<span class="text-faint/70 shrink-0">·</span>
+					<span class="inline-flex items-center gap-1 truncate">
+						<span class="text-faint shrink-0">added by</span>
+						<a href="/crew/{room.state.current.addedBy}" class="truncate font-medium text-cream/90 transition-colors hover:text-lamp underline decoration-cream/20 underline-offset-2">
+							{room.state.current.addedBy}
+						</a>
+					</span>
 				</p>
 			{:else}
 				<p class="text-sm text-taupe">Nothing on right now</p>
 			{/if}
 		</div>
 		<div class="flex items-center gap-2 shrink-0">
+			{#if room.state.adminOnlyPlayback}
+				<span class="inline-flex items-center gap-1 rounded bg-teal-500/10 px-1.5 py-0.5 text-[10px] text-aqua-foam font-mono border border-teal-500/30" title="Aux controls restricted to room admins">
+					<IconShield size={10} stroke={2} />
+					Aux: Admin
+				</span>
+			{:else}
+				<span class="inline-flex items-center gap-1 rounded bg-cream/8 px-1.5 py-0.5 text-[10px] text-taupe font-mono border border-cream/15" title="Aux is open to everyone (No Admin)">
+					Aux: No Admin
+				</span>
+			{/if}
 			{#if room.state.isPrivate}
 				<span class="inline-flex items-center gap-1 rounded bg-amber-400/10 px-1.5 py-0.5 text-[10px] text-amber-300 font-mono border border-amber-400/30">
 					Private
@@ -188,10 +205,10 @@
 					>
 						<IconMusic size={22} stroke={1.5} />
 					</span>
-					<h3 class="mt-4 text-lg font-medium flex items-center justify-center gap-2">
-						<span>{room.state.current.title}</span>
+					<h3 class="mt-4 text-base sm:text-lg font-medium flex items-center justify-center gap-2 max-w-full px-4">
+						<span class="truncate" title={room.state.current.title}>{room.state.current.title}</span>
 						{#if room.state.current.isPlaylist}
-							<span class="rounded bg-lamp/15 px-2 py-0.5 text-[10px] font-mono uppercase text-lamp tracking-wider">Playlist</span>
+							<span class="shrink-0 rounded bg-lamp/15 px-2 py-0.5 text-[10px] font-mono uppercase text-lamp tracking-wider">Playlist</span>
 						{/if}
 					</h3>
 					<p class="mx-auto mt-1.5 max-w-[40ch] text-sm leading-relaxed text-taupe">
@@ -242,8 +259,9 @@
 		<button
 			class="icon-btn"
 			onclick={toggle}
-			disabled={!hasVideo && !playing}
+			disabled={(!hasVideo && !playing) || !room.canControlPlayback}
 			aria-label={playing ? 'Pause for everyone' : 'Resume for everyone'}
+			title={!room.canControlPlayback ? 'Aux is set to Admin only' : (playing ? 'Pause for everyone' : 'Resume for everyone')}
 		>
 			{#if playing}
 				<IconPause size={18} stroke={1.5} />
@@ -257,23 +275,34 @@
 			onclick={skip}
 			disabled={queued === 0 || !room.canSkip}
 			aria-label="Skip to the next track"
-			title={room.canSkip ? (room.isHost ? 'Host skip' : 'Solo skip') : 'Only host can skip'}
+			title={!room.canSkip ? 'Aux is set to Admin only' : (room.isHost ? 'Host skip' : (room.isAdminUser ? 'Admin skip' : 'Skip track'))}
 		>
 			<IconSkip size={18} stroke={1.5} />
+		</button>
+
+		<button
+			class="icon-btn"
+			onclick={() => room.shuffleQueue()}
+			disabled={queued <= 1 || !room.canControlPlayback}
+			aria-label="Shuffle queue"
+			title={!room.canControlPlayback ? 'Aux is set to Admin only' : (queued <= 1 ? 'Need at least 2 tracks to shuffle' : 'Shuffle queue')}
+		>
+			<IconArrowsShuffle size={17} stroke={1.5} />
 		</button>
 
 		<span class="num w-11 shrink-0 text-right text-xs text-taupe">{formatTime(localTime)}</span>
 
 		<input
 			type="range"
-			class="seek min-w-0 flex-1"
+			class="seek min-w-0 flex-1 {room.canControlPlayback ? '' : 'opacity-40 cursor-not-allowed'}"
 			min="0"
 			max={duration > 0 ? duration : 100}
 			step="1"
 			value={duration > 0 ? Math.min(localTime, duration) : 0}
 			oninput={scrub}
-			disabled={!hasVideo || duration <= 0}
+			disabled={!hasVideo || duration <= 0 || !room.canControlPlayback}
 			aria-label="Seek within the track"
+			title={!room.canControlPlayback ? 'Aux is locked to room admins' : 'Seek track'}
 		/>
 
 		<span class="num w-11 shrink-0 text-xs text-faint">

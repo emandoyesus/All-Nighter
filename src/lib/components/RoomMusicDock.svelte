@@ -15,6 +15,7 @@
 	import IconFlame from '@tabler/icons-svelte/icons/flame';
 	import IconMoon from '@tabler/icons-svelte/icons/moon';
 	import IconHeadphones from '@tabler/icons-svelte/icons/headphones';
+	import IconArrowsShuffle from '@tabler/icons-svelte/icons/arrows-shuffle';
 
 	const track = $derived(room.state.current);
 	const playing = $derived(room.state.playing);
@@ -106,7 +107,7 @@
 	<div class="mx-auto flex h-16 sm:h-[72px] max-w-[1400px] items-center justify-between gap-3 px-4 md:px-6">
 		{#if track}
 			<!-- LEFT: Track Metadata & Audio Visualizer -->
-			<div class="flex min-w-0 items-center gap-3 md:w-[320px] lg:w-[360px]">
+			<div class="flex min-w-0 items-center gap-3 max-w-[42%] sm:max-w-[48%] md:w-[320px] lg:w-[360px]">
 				<!-- Thumbnail / Disc Art -->
 				<button
 					class="group relative h-10 w-10 sm:h-11 sm:w-11 shrink-0 overflow-hidden rounded-lg border border-cream/15 bg-night-3 transition-transform hover:scale-105"
@@ -129,10 +130,11 @@
 
 				<!-- Title, Artist & Visualizer -->
 				<div class="min-w-0 flex-1">
-					<div class="flex items-center gap-2">
+					<div class="flex min-w-0 items-center gap-2">
 						<button
-							class="truncate text-left text-xs sm:text-sm font-medium text-cream hover:text-lamp transition-colors"
+							class="min-w-0 flex-1 truncate text-left text-xs sm:text-sm font-medium text-cream hover:text-lamp transition-colors"
 							onclick={scrollToPlayer}
+							title={track.title}
 						>
 							{track.title}
 						</button>
@@ -143,10 +145,19 @@
 						{/if}
 						<AudioVisualizer active={playing} size="sm" class="shrink-0 hidden xs:inline-flex" />
 					</div>
-					<div class="flex items-center gap-1.5 truncate text-[11px] text-faint">
+					<div class="flex min-w-0 items-center gap-1.5 truncate text-[11px] text-faint">
 						<span class="truncate text-taupe">{track.channel ?? track.source}</span>
-						<span>·</span>
-						<span class="truncate">via {track.addedBy}</span>
+						<span class="shrink-0">·</span>
+						<span class="truncate inline-flex items-center gap-1">
+							<span class="shrink-0">added by</span>
+							<a
+								href="/crew/{track.addedBy}"
+								class="truncate font-medium text-cream/90 transition-colors hover:text-lamp underline decoration-cream/20 underline-offset-2"
+								onclick={(e) => e.stopPropagation()}
+							>
+								{track.addedBy}
+							</a>
+						</span>
 					</div>
 				</div>
 			</div>
@@ -156,12 +167,13 @@
 				<div class="flex items-center gap-3 sm:gap-4">
 					<!-- Play / Pause Button -->
 					<button
-						class="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full transition-transform active:scale-95 {playing
+						class="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full transition-transform active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed {playing
 							? 'bg-cyber-teal text-aqua-foam ring-1 ring-aqua-foam/40'
 							: 'bg-cream text-night hover:bg-cream/90'}"
 						onclick={togglePlay}
-						title={playing ? 'Pause (Space)' : 'Play (Space)'}
-						aria-label={playing ? 'Pause' : 'Play'}
+						disabled={!room.canControlPlayback}
+						title={!room.canControlPlayback ? 'Aux is set to Admin only' : (playing ? 'Pause (Space)' : 'Play (Space)')}
+						aria-label={!room.canControlPlayback ? 'Aux locked' : (playing ? 'Pause' : 'Play')}
 					>
 						{#if playing}
 							<IconPause size={16} stroke={2.5} />
@@ -175,10 +187,21 @@
 						class="flex h-7 w-7 items-center justify-center rounded-full text-taupe transition-colors hover:text-cream disabled:opacity-30 disabled:hover:text-taupe"
 						onclick={skipTrack}
 						disabled={queued === 0 || !room.canSkip}
-						title={room.canSkip ? (room.isHost ? 'Host skip' : 'Solo skip') : 'Only host can skip'}
+						title={!room.canSkip ? 'Aux is set to Admin only' : (room.isHost ? 'Host skip' : (room.isAdminUser ? 'Admin skip' : 'Skip track'))}
 						aria-label="Skip to next track"
 					>
 						<IconSkip size={16} stroke={1.5} />
+					</button>
+
+					<!-- Shuffle Button -->
+					<button
+						class="flex h-7 w-7 items-center justify-center rounded-full text-taupe transition-colors hover:text-cream disabled:opacity-30 disabled:hover:text-taupe"
+						onclick={() => room.shuffleQueue()}
+						disabled={queued <= 1 || !room.canControlPlayback}
+						title={!room.canControlPlayback ? 'Aux is set to Admin only' : (queued <= 1 ? 'Need at least 2 tracks to shuffle' : 'Shuffle queue')}
+						aria-label="Shuffle queue"
+					>
+						<IconArrowsShuffle size={15} stroke={1.5} />
 					</button>
 				</div>
 

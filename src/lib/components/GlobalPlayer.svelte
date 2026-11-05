@@ -45,6 +45,14 @@
 
 	function applyToPlayer(): void {
 		if (!ready || !player) return;
+		if (room.joinState !== 'approved') {
+			try {
+				player.stopVideo?.();
+			} catch {}
+			loadedVideoId = null;
+			loadedPlaylistId = null;
+			return;
+		}
 		const s = room.state;
 
 		if (!s.videoId && !s.playlistId && !s.current?.playlistId) {
@@ -186,6 +194,7 @@
 	}
 
 	function togglePlay(): void {
+		if (!room.canControlPlayback) return;
 		const curPos = ready && player?.getCurrentTime ? (player.getCurrentTime() ?? room.state.position) : room.state.position;
 		const nextPlaying = !room.state.playing;
 
@@ -208,11 +217,13 @@
 	}
 
 	function skip(): void {
+		if (!room.canSkip) return;
 		room.skip();
 		applyToPlayer();
 	}
 
 	function seek(time: number): void {
+		if (!room.canControlPlayback) return;
 		localTime = time;
 		room.seekTo(time);
 		if (ready && player?.seekTo) player.seekTo(time, true);
@@ -451,16 +462,23 @@
 		<!-- Interactive button overlay right on the video itself -->
 		<button
 			type="button"
-			class="absolute inset-0 z-10 flex items-center justify-center bg-black/25 opacity-0 group-hover:opacity-100 transition-all cursor-pointer border-0 {room.state.playing ? '' : '!opacity-100 !bg-black/50'}"
+			class="absolute inset-0 z-10 flex items-center justify-center bg-black/25 opacity-0 group-hover:opacity-100 transition-all {room.canControlPlayback ? 'cursor-pointer' : 'cursor-not-allowed'} border-0 {room.state.playing ? '' : '!opacity-100 !bg-black/50'}"
 			onclick={(e) => {
 				e.stopPropagation();
-				togglePlay();
+				if (room.canControlPlayback) {
+					togglePlay();
+				}
 			}}
-			aria-label={room.state.playing ? 'Pause video' : 'Play video'}
-			title={room.state.playing ? 'Pause (Space)' : 'Play (Space)'}
+			aria-label={!room.canControlPlayback ? 'Aux is locked to admins' : (room.state.playing ? 'Pause video' : 'Play video')}
+			title={!room.canControlPlayback ? 'Aux is locked to admins' : (room.state.playing ? 'Pause (Space)' : 'Play (Space)')}
 		>
 			<span class="flex h-14 w-14 items-center justify-center rounded-full bg-night/85 text-cream border border-cream/25 shadow-2xl backdrop-blur-md transition-transform group-hover:scale-110 active:scale-95">
-				{#if room.state.playing}
+				{#if !room.canControlPlayback}
+					<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-taupe">
+						<rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+						<path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+					</svg>
+				{:else if room.state.playing}
 					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="text-aqua-foam">
 						<rect x="6" y="4" width="4" height="16" rx="1"></rect>
 						<rect x="14" y="4" width="4" height="16" rx="1"></rect>

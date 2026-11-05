@@ -20,6 +20,14 @@
 	let localClock = $state('');
 	let phase = $state<'pre_midnight' | 'session_active'>('pre_midnight');
 	let targetLabel = $state('countdown to midnight doors open');
+	let pushedHistory = false;
+
+	function onPopState(): void {
+		if (open) {
+			pushedHistory = false;
+			open = false;
+		}
+	}
 
 	function getDawn(): { h: number; m: number } {
 		try {
@@ -78,7 +86,12 @@
 	onMount(() => {
 		updateCountdown();
 		const id = window.setInterval(updateCountdown, 1000);
-		return () => window.clearInterval(id);
+		window.addEventListener('popstate', onPopState);
+
+		return () => {
+			window.clearInterval(id);
+			window.removeEventListener('popstate', onPopState);
+		};
 	});
 
 	function formatModeTime(sec: number): string {
@@ -90,11 +103,20 @@
 	$effect(() => {
 		if (typeof document === 'undefined') return;
 		if (open) {
+			if (!pushedHistory && typeof window !== 'undefined') {
+				history.pushState({ deskHud: true }, '', window.location.href);
+				pushedHistory = true;
+			}
 			const prev = document.body.style.overflow;
 			document.body.style.overflow = 'hidden';
 			return () => {
 				document.body.style.overflow = prev;
 			};
+		} else {
+			if (pushedHistory && typeof window !== 'undefined') {
+				pushedHistory = false;
+				history.back();
+			}
 		}
 	});
 </script>
@@ -152,9 +174,9 @@
 			</h1>
 
 			<!-- Now Playing Card -->
-			<div class="mt-8 flex max-w-xl flex-col items-center rounded-card border border-cream/10 bg-night-2/70 p-6 backdrop-blur-md">
+			<div class="mt-8 flex w-full max-w-xl flex-col items-center rounded-card border border-cream/10 bg-night-2/70 p-6 backdrop-blur-md">
 				{#if room.state.current}
-					<div class="relative flex items-center gap-5 text-left">
+					<div class="relative flex w-full min-w-0 items-center gap-5 text-left">
 						<!-- Spinning disc animation -->
 						<div class="relative h-16 w-16 shrink-0 overflow-hidden rounded-full border border-cream/20 shadow-lg {room.state.playing ? 'animate-spin' : ''}" style="animation-duration: 8s; animation-timing-function: linear;">
 							{#if room.state.current.videoId}
@@ -172,18 +194,18 @@
 							<div class="absolute inset-0 m-auto h-3.5 w-3.5 rounded-full border border-cream/30 bg-night"></div>
 						</div>
 
-						<div class="min-w-0">
+						<div class="min-w-0 flex-1">
 							<p class="num text-[11px] uppercase tracking-wider text-lamp">Now Playing</p>
-							<h2 class="mt-0.5 truncate text-lg font-medium text-cream md:text-xl">
+							<h2 class="mt-0.5 truncate text-lg font-medium text-cream md:text-xl" title={room.state.current.title}>
 								{room.state.current.title}
 							</h2>
 							<p class="truncate text-xs text-taupe">
 								{room.state.current.channel ?? 'YouTube'}
 								<span class="text-faint/60">·</span>
-								curated by {room.state.current.addedBy}
+								added by <strong class="text-cream font-medium">{room.state.current.addedBy}</strong>
 							</p>
 							{#if room.state.current.dedication}
-								<p class="mt-1 truncate text-xs italic text-faint">
+								<p class="mt-1 truncate text-xs italic text-faint" title={room.state.current.dedication}>
 									“{room.state.current.dedication}”
 								</p>
 							{/if}
