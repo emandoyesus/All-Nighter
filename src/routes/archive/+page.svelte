@@ -13,6 +13,7 @@
 	import IconClock from '@tabler/icons-svelte/icons/clock';
 	import IconMusic from '@tabler/icons-svelte/icons/music';
 	import IconChevronRight from '@tabler/icons-svelte/icons/chevron-right';
+	import IconX from '@tabler/icons-svelte/icons/x';
 
 	let query = $state('');
 	let contributor = $state('');
@@ -25,13 +26,40 @@
 		myNights = loadMyNights();
 	});
 
-	const baseNights = $derived(
-		sourceTab === 'my' ? myNights : sourceTab === 'curated' ? nights : [...myNights, ...nights]
-	);
+	const baseNights = $derived.by(() => {
+		if (sourceTab === 'my') return myNights;
+		if (sourceTab === 'curated') return nights;
+		const seen = new Set<string>();
+		const result: Night[] = [];
+		for (const item of [...myNights, ...nights]) {
+			if (!seen.has(item.slug)) {
+				seen.add(item.slug);
+				result.push(item);
+			}
+		}
+		return result;
+	});
 
 	const months = $derived(
 		[...new Set(baseNights.map((night) => night.iso.slice(0, 7)))].sort().reverse()
 	);
+
+	const availableContributors = $derived.by(() => {
+		const set = new Set<string>();
+		for (const night of baseNights) {
+			for (const person of night.joined) set.add(person);
+			for (const track of night.tracklist) set.add(track.addedBy);
+		}
+		return [...set].sort();
+	});
+
+	const availableGenres = $derived.by(() => {
+		const set = new Set<string>();
+		for (const night of baseNights) {
+			for (const track of night.tracklist) set.add(track.genre);
+		}
+		return [...set].sort();
+	});
 
 	function monthLabel(value: string): string {
 		const [year, m] = value.split('-');
@@ -168,9 +196,20 @@
 				<input
 					type="search"
 					placeholder="Search tracks, people, notes..."
-					class="w-full rounded-field border border-cream/10 bg-night/60 py-2 pl-9 pr-3 text-sm text-cream outline-none transition-colors placeholder:text-faint/80 focus:border-lamp/60"
+					class="w-full rounded-field border border-cream/10 bg-night/60 py-2 pl-9 pr-8 text-sm text-cream outline-none transition-colors placeholder:text-faint/80 focus:border-lamp/60"
 					bind:value={query}
 				/>
+				{#if query}
+					<button
+						type="button"
+						class="absolute right-2.5 top-1/2 -translate-y-1/2 text-faint hover:text-cream transition-colors"
+						onclick={() => (query = '')}
+						title="Clear search query"
+						aria-label="Clear search query"
+					>
+						<IconX size={14} stroke={2} />
+					</button>
+				{/if}
 			</label>
 
 			<label class="block">
@@ -193,7 +232,7 @@
 					bind:value={contributor}
 				>
 					<option value="">Any contributor</option>
-					{#each contributors() as person (person)}
+					{#each availableContributors as person (person)}
 						<option value={person}>{person}</option>
 					{/each}
 				</select>
@@ -206,12 +245,69 @@
 					bind:value={genre}
 				>
 					<option value="">Any genre</option>
-					{#each genres() as value (value)}
+					{#each availableGenres as value (value)}
 						<option value={value}>{value}</option>
 					{/each}
 				</select>
 			</label>
 		</div>
+
+		{#if hasFilters}
+			<div class="mt-3 flex flex-wrap items-center gap-2">
+				<span class="text-[11px] text-faint uppercase font-mono tracking-wider">Filtered by:</span>
+				{#if query}
+					<button
+						type="button"
+						class="inline-flex items-center gap-1.5 rounded-full border border-lamp/30 bg-lamp/10 px-2.5 py-0.5 text-xs text-lamp hover:bg-lamp/15 transition-colors"
+						onclick={() => (query = '')}
+						title="Remove search filter"
+					>
+						<span>"{query}"</span>
+						<IconX size={12} stroke={2} />
+					</button>
+				{/if}
+				{#if month}
+					<button
+						type="button"
+						class="inline-flex items-center gap-1.5 rounded-full border border-lamp/30 bg-lamp/10 px-2.5 py-0.5 text-xs text-lamp hover:bg-lamp/15 transition-colors"
+						onclick={() => (month = '')}
+						title="Remove date filter"
+					>
+						<span>{monthLabel(month)}</span>
+						<IconX size={12} stroke={2} />
+					</button>
+				{/if}
+				{#if contributor}
+					<button
+						type="button"
+						class="inline-flex items-center gap-1.5 rounded-full border border-lamp/30 bg-lamp/10 px-2.5 py-0.5 text-xs text-lamp hover:bg-lamp/15 transition-colors"
+						onclick={() => (contributor = '')}
+						title="Remove contributor filter"
+					>
+						<span>@{contributor}</span>
+						<IconX size={12} stroke={2} />
+					</button>
+				{/if}
+				{#if genre}
+					<button
+						type="button"
+						class="inline-flex items-center gap-1.5 rounded-full border border-lamp/30 bg-lamp/10 px-2.5 py-0.5 text-xs text-lamp hover:bg-lamp/15 transition-colors"
+						onclick={() => (genre = '')}
+						title="Remove genre filter"
+					>
+						<span>genre: {genre}</span>
+						<IconX size={12} stroke={2} />
+					</button>
+				{/if}
+				<button
+					type="button"
+					class="text-xs text-faint hover:text-cream transition-colors underline underline-offset-2 ml-1"
+					onclick={reset}
+				>
+					Reset all
+				</button>
+			</div>
+		{/if}
 
 		<div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 			{#each filtered as night, i (night.seed)}
