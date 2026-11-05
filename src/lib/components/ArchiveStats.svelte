@@ -28,7 +28,7 @@
 
 		<div class="panel p-4" data-reveal use:reveal={55}>
 			<p class="flex items-center gap-1.5 text-xs text-faint">
-				<IconMusic size={14} stroke={1.5} />
+				<IconMusic size={14} stroke={1.5} class="text-lamp" />
 				Tracks played
 			</p>
 			<p class="num mt-2 text-2xl font-semibold text-cream" use:countUp={stats.tracks}>
@@ -39,7 +39,7 @@
 
 		<div class="panel p-4" data-reveal use:reveal={110}>
 			<p class="flex items-center gap-1.5 text-xs text-faint">
-				<IconClock size={14} stroke={1.5} />
+				<IconClock size={14} stroke={1.5} class="text-amber" />
 				Hours awake
 			</p>
 			<p class="num mt-2 text-2xl font-semibold text-cream" use:countUp={stats.hours}>
@@ -61,13 +61,13 @@
 
 		<div class="panel p-4" data-reveal use:reveal={220}>
 			<p class="flex items-center gap-1.5 text-xs text-faint">
-				<IconFlame size={14} stroke={1.5} />
+				<IconFlame size={14} stroke={1.5} class="text-amber" />
 				Top contributor
 			</p>
 			<p class="mt-2 truncate text-lg font-semibold leading-tight text-cream">{stats.topContributor.name}</p>
 			<p class="num mt-0.5 inline-flex items-center gap-1 text-[11px] text-faint">
 				<IconUsers size={11} stroke={1.5} />
-				<span use:countUp={stats.topContributor.count}>{stats.topContributor.count}</span> picks
+				<span use:countUp={stats.topContributor.count} class="text-amber-200/90">{stats.topContributor.count}</span> picks
 			</p>
 		</div>
 	</div>
