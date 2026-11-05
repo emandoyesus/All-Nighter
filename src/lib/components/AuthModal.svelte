@@ -818,9 +818,9 @@
 
 				<!-- Mood chips -->
 				<div>
-					<span class="block text-xs font-mono uppercase tracking-wider text-faint mb-1.5">Current Mood</span>
+					<span class="block text-xs font-mono uppercase tracking-wider text-faint mb-1.5">Activity & Mood</span>
 					<div class="flex flex-wrap gap-1.5">
-						{#each ['🎧 Locked in', '☕ Coffee run', '🐛 Bug hunting', '🥱 4am wall', '🌌 Flow state'] as mood}
+						{#each ['🎧 Locked in', '💻 Coding', '✍️ Writing', '🎨 Designing', '📚 Studying', '🐛 Bug hunting', '☕ Coffee run', '🥱 4am wall', '🌌 Flow state'] as mood}
 							<button
 								type="button"
 								class="rounded-full px-2.5 py-1 text-xs transition-colors border {editMood === mood

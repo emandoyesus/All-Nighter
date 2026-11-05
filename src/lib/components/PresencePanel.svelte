@@ -123,9 +123,9 @@
 
 	<!-- Mood / status chips -->
 	<div class="mt-3.5">
-		<span class="mb-1.5 block text-xs text-faint">Your mood</span>
+		<span class="mb-1.5 block text-xs text-faint">Your activity / mood</span>
 		<div class="flex flex-wrap gap-1.5">
-			{#each ['🎧 Locked in', '☕ Coffee run', '🐛 Bug hunting', '🥱 4am wall'] as mood}
+			{#each ['🎧 Locked in', '💻 Coding', '✍️ Writing', '🎨 Designing', '📚 Studying', '🐛 Bug hunting', '☕ Coffee run', '🥱 4am wall'] as mood}
 				<button
 					type="button"
 					class="rounded-full px-2.5 py-1 text-xs transition-colors border {room.statusText === mood
