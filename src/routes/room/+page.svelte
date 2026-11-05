@@ -134,7 +134,7 @@
 						<!-- AMBIENT AWAKE BADGE -->
 						<a
 							href="#crew-roster"
-							class="inline-flex items-center gap-1.5 rounded-full border border-lamp/40 bg-lamp/10 px-2 py-0.5 font-mono text-[11px] text-lamp font-medium shadow-[0_0_10px_color-mix(in_srgb,var(--color-lamp)_20%,transparent)] hover:border-lamp transition-colors"
+							class="inline-flex items-center gap-1.5 rounded-full border border-lamp/40 bg-lamp/10 px-2 py-0.5 font-mono text-[11px] text-lamp font-medium hover:border-lamp transition-colors"
 							title="Click to view crew roster"
 						>
 							<span class="h-1.5 w-1.5 rounded-full bg-lamp animate-pulse"></span>

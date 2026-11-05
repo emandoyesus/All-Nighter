@@ -752,5 +752,4 @@ input[type='range'].seek {
 
 .tonight-strip__live {
 	color: var(--color-lamp);
-	text-shadow: 0 0 10px color-mix(in srgb, var(--color-lamp) 35%, transparent);
 }

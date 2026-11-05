@@ -194,10 +194,7 @@
 			<div class="flex flex-wrap items-center justify-between gap-3 pb-3.5 border-b border-cream/10">
 				<!-- Phase Status & Identity -->
 				<div class="flex items-center gap-2.5">
-					<span class="relative flex h-2.5 w-2.5">
-						<span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-lamp opacity-60"></span>
-						<span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-lamp"></span>
-					</span>
+					<span class="h-2 w-2 rounded-full bg-lamp"></span>
 					<div>
 						<div class="flex items-center gap-1.5">
 							{#if currentPhase === 'pre_midnight'}
