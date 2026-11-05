@@ -19,7 +19,7 @@
 	<div class="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-lamp/40 to-transparent"></div>
 
 	<div class="relative mx-auto max-w-[1400px] px-5">
-		<p class="eyebrow">{nights.length} nights on record</p>
+		<p class="eyebrow">{nights.length} {nights.length === 1 ? 'night' : 'nights'} on record</p>
 		<h2 class="mt-4 text-3xl font-semibold tracking-tight md:text-4xl" data-split use:splitReveal>
 			The archive
 		</h2>
