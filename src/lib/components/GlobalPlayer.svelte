@@ -13,6 +13,8 @@
 	let frameEl: HTMLDivElement;
 	let player: any = null;
 	let ready = $state(false);
+	let loadedVideoId: string | null = null;
+	let loadedPlaylistId: string | null = null;
 
 	const LS_VOLUME = 'an.volume';
 	function loadSavedVolume(): number {
@@ -42,45 +44,97 @@
 	}
 
 	function applyToPlayer(): void {
-		if (!ready || !player?.getVideoData) return;
+		if (!ready || !player) return;
 		const s = room.state;
-		const currentId = player.getVideoData()?.video_id ?? null;
 
 		if (!s.videoId && !s.playlistId && !s.current?.playlistId) {
-			if (currentId) player.stopVideo();
+			if (loadedVideoId || loadedPlaylistId) {
+				try {
+					player.stopVideo?.();
+				} catch {}
+				loadedVideoId = null;
+				loadedPlaylistId = null;
+			}
 			return;
 		}
 
-		const targetPlaylist = s.playlistId || s.current?.playlistId;
+		const targetPlaylist = s.playlistId || s.current?.playlistId || null;
+		const videoChanged = (s.videoId ?? null) !== loadedVideoId;
+		const playlistChanged = targetPlaylist !== loadedPlaylistId;
 
-		if (currentId !== s.videoId) {
+		if (videoChanged || playlistChanged) {
+			loadedVideoId = s.videoId ?? null;
+			loadedPlaylistId = targetPlaylist;
+
 			if (targetPlaylist && !s.videoId) {
 				try {
-					player.loadPlaylist({
-						list: targetPlaylist,
-						listType: 'playlist',
-						index: 0,
-						startSeconds: Math.max(0, targetTime())
-					});
+					if (s.playing) {
+						player.loadPlaylist?.({
+							list: targetPlaylist,
+							listType: 'playlist',
+							index: 0,
+							startSeconds: Math.max(0, targetTime())
+						});
+					} else {
+						player.cuePlaylist?.({
+							list: targetPlaylist,
+							listType: 'playlist',
+							index: 0,
+							startSeconds: Math.max(0, targetTime())
+						});
+					}
 				} catch {
 					/* fallback */
 				}
 			} else if (s.videoId) {
-				player.loadVideoById({ videoId: s.videoId, startSeconds: Math.max(0, targetTime()) });
+				try {
+					if (s.playing) {
+						player.loadVideoById?.({ videoId: s.videoId, startSeconds: Math.max(0, targetTime()) });
+					} else {
+						player.cueVideoById?.({ videoId: s.videoId, startSeconds: Math.max(0, targetTime()) });
+					}
+				} catch {
+					/* fallback */
+				}
 			}
-			if (!unlocked) player.mute();
-			else player.setVolume(volume);
+
+			if (!unlocked) {
+				try {
+					player.mute?.();
+				} catch {}
+			} else {
+				try {
+					player.setVolume?.(volume);
+				} catch {}
+			}
 			return;
 		}
 
-		const target = targetTime();
-		const actual = player.getCurrentTime() ?? 0;
-		const curDrift = target - actual;
-		drift = curDrift;
-		if (Math.abs(curDrift) > DRIFT_TOLERANCE) player.seekTo(target, true);
-
-		if (s.playing && playerState !== PLAYING) player.playVideo();
-		else if (!s.playing && playerState === PLAYING) player.pauseVideo();
+		// Same video already loaded
+		if (s.playing) {
+			const target = targetTime();
+			const actual = player.getCurrentTime?.() ?? 0;
+			const curDrift = target - actual;
+			drift = curDrift;
+			if (Math.abs(curDrift) > DRIFT_TOLERANCE) {
+				try {
+					player.seekTo?.(target, true);
+				} catch {}
+			}
+			if (playerState !== PLAYING) {
+				try {
+					player.playVideo?.();
+				} catch {}
+			}
+		} else {
+			// Video is paused: pause immediately and do not seek (seeking unpauses in YouTube HTML5)
+			drift = 0;
+			if (playerState !== PAUSED) {
+				try {
+					player.pauseVideo?.();
+				} catch {}
+			}
+		}
 	}
 
 	function unlock(): void {
@@ -132,9 +186,25 @@
 	}
 
 	function togglePlay(): void {
-		if (!room.state.videoId || !ready) return;
-		room.toggle(player?.getCurrentTime?.() ?? room.state.position);
-		applyToPlayer();
+		const curPos = ready && player?.getCurrentTime ? (player.getCurrentTime() ?? room.state.position) : room.state.position;
+		const nextPlaying = !room.state.playing;
+
+		// Immediately command YouTube player for instant responsiveness
+		if (ready && player) {
+			try {
+				if (nextPlaying) {
+					player.playVideo?.();
+				} else {
+					player.pauseVideo?.();
+				}
+			} catch {}
+		}
+
+		room.toggle(curPos);
+
+		if (ready && player) {
+			applyToPlayer();
+		}
 	}
 
 	function skip(): void {
@@ -312,6 +382,7 @@
 		};
 		const onUnlockEvent = () => unlock();
 		const onWindowResize = () => syncViewportPosition();
+		const onWindowScroll = () => syncViewportPosition();
 
 		window.addEventListener('an:player:set-volume', onVolumeEvent);
 		window.addEventListener('an:player:toggle-mute', onMuteToggleEvent);
@@ -320,6 +391,7 @@
 		window.addEventListener('an:player:seek', onSeekEvent);
 		window.addEventListener('an:player:unlock', onUnlockEvent);
 		window.addEventListener('resize', onWindowResize);
+		window.addEventListener('scroll', onWindowScroll, { passive: true });
 
 		const beat = window.setInterval(() => {
 			if (ready && room.isDirector() && room.state.playing && player?.getCurrentTime) {
@@ -339,6 +411,7 @@
 			window.removeEventListener('an:player:seek', onSeekEvent);
 			window.removeEventListener('an:player:unlock', onUnlockEvent);
 			window.removeEventListener('resize', onWindowResize);
+			window.removeEventListener('scroll', onWindowScroll);
 			try {
 				player?.destroy();
 			} catch {}
@@ -366,7 +439,7 @@
 
 <div
 	bind:this={containerEl}
-	class="overflow-hidden bg-night shadow-2xl transition-[opacity] duration-200"
+	class="overflow-hidden bg-night shadow-2xl transition-[opacity] duration-200 group"
 	style="position: fixed; top: -9999px; left: -9999px; width: 320px; height: 180px; opacity: 0.001; pointer-events: none; z-index: -1;"
 	aria-hidden={room.joinState !== 'approved'}
 >
@@ -374,5 +447,30 @@
 		class="relative h-full w-full [&>iframe]:absolute [&>iframe]:inset-0 [&>iframe]:h-full [&>iframe]:w-full"
 	>
 		<div bind:this={frameEl}></div>
+
+		<!-- Interactive button overlay right on the video itself -->
+		<button
+			type="button"
+			class="absolute inset-0 z-10 flex items-center justify-center bg-black/25 opacity-0 group-hover:opacity-100 transition-all cursor-pointer border-0 {room.state.playing ? '' : '!opacity-100 !bg-black/50'}"
+			onclick={(e) => {
+				e.stopPropagation();
+				togglePlay();
+			}}
+			aria-label={room.state.playing ? 'Pause video' : 'Play video'}
+			title={room.state.playing ? 'Pause (Space)' : 'Play (Space)'}
+		>
+			<span class="flex h-14 w-14 items-center justify-center rounded-full bg-night/85 text-cream border border-cream/25 shadow-2xl backdrop-blur-md transition-transform group-hover:scale-110 active:scale-95">
+				{#if room.state.playing}
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="text-aqua-foam">
+						<rect x="6" y="4" width="4" height="16" rx="1"></rect>
+						<rect x="14" y="4" width="4" height="16" rx="1"></rect>
+					</svg>
+				{:else}
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="text-lamp ml-0.5">
+						<polygon points="5 3 19 12 5 21 5 3"></polygon>
+					</svg>
+				{/if}
+			</span>
+		</button>
 	</div>
 </div>
