@@ -19,7 +19,9 @@
 
 	const HUD_WALLPAPERS = [
 		{ id: 'neon-horizon', label: 'Neon Horizon', src: asset('hud/wallpaper-1.jpg') },
-		{ id: 'night-room', label: 'Night Room', src: asset('hud/wallpaper-2.png') }
+		{ id: 'night-room', label: 'Night Room', src: asset('hud/wallpaper-2.png') },
+		{ id: 'lofi-night', label: 'Lofi Night', src: asset('hud/wallpaper-3.jpg') },
+		{ id: 'midnight-cafe', label: 'Midnight Cafe', src: asset('hud/wallpaper-4.jpg') }
 	];
 
 	const LS_WALLPAPER = 'an.hud_wallpaper';
