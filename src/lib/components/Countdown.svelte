@@ -160,17 +160,17 @@
 	{#if isSunrise}
 		<div class="relative flex flex-col justify-between py-4">
 			<div class="flex items-center justify-between">
-				<span class="inline-flex items-center gap-2 rounded-full bg-lamp/15 px-3 py-1 text-xs font-medium text-lamp">
+				<span class="inline-flex items-center gap-2 rounded-full border border-amber/35 bg-amber/15 px-3 py-1 text-xs font-medium text-amber">
 					<IconSun size={16} stroke={2} />
 					Sunrise reached
 				</span>
-				<span class="num text-xs text-faint">
+				<span class="num text-xs text-amber-200/70">
 					{String(dawn.h).padStart(2, '0')}:{String(dawn.m).padStart(2, '0')} local dawn
 				</span>
 			</div>
 
 			<div class="my-auto py-6">
-				<p class="num font-mono text-xs uppercase tracking-[0.25em] text-faint">session complete</p>
+				<p class="num font-mono text-xs uppercase tracking-[0.25em] text-amber-200/80">session complete</p>
 				<h2 class="mt-2 text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-cream">
 					You made it through the night.
 				</h2>
@@ -180,7 +180,7 @@
 			</div>
 
 			<div class="flex flex-wrap items-center gap-3 pt-4 border-t border-cream/10">
-				<a href="/archive" class="btn btn-primary">
+				<a href="/archive" class="btn btn-amber">
 					View the archive
 				</a>
 				<button class="btn btn-ghost text-sm" onclick={() => (isSunrise = false)}>
@@ -223,7 +223,7 @@
 							</span>
 						{:else}
 							<button
-								class="inline-flex items-center gap-1.5 rounded-full border border-lamp/25 bg-lamp/10 px-2.5 py-1 text-xs text-lamp font-mono transition-colors hover:border-lamp/50"
+								class="inline-flex items-center gap-1.5 rounded-full border border-amber/30 bg-amber/10 px-2.5 py-1 text-xs text-amber font-mono transition-colors hover:border-amber/50"
 								onclick={() => {
 									editing = true;
 									editH = dawn.h;
@@ -233,8 +233,8 @@
 								aria-label="Customize dawn time"
 							>
 								<span>{String(dawn.h).padStart(2, '0')}:{String(dawn.m).padStart(2, '0')}</span>
-								<span class="text-[10px] uppercase tracking-wider text-lamp/80">dawn</span>
-								<IconPencil size={11} stroke={1.5} class="text-lamp/70 ml-0.5" />
+								<span class="text-[10px] uppercase tracking-wider text-amber-200/80">dawn</span>
+								<IconPencil size={11} stroke={1.5} class="text-amber/70 ml-0.5" />
 							</button>
 						{/if}
 					{/if}
@@ -249,9 +249,9 @@
 						<span>Pre-session countdown: doors unlock tonight at <strong class="text-lamp font-mono font-medium">00:00 midnight</strong></span>
 					</div>
 				{:else}
-					<div class="inline-flex items-center gap-2 rounded-full border border-lamp/25 bg-lamp/10 px-3 py-1 text-xs text-cream">
-						<IconBolt size={13} stroke={2} class="text-lamp" />
-						<span>All-nighter in progress: locked in until <strong class="text-lamp font-mono font-medium">{String(dawn.h).padStart(2, '0')}:{String(dawn.m).padStart(2, '0')} dawn</strong></span>
+					<div class="inline-flex items-center gap-2 rounded-full border border-amber/30 bg-amber/10 px-3 py-1 text-xs text-cream">
+						<IconBolt size={13} stroke={2} class="text-amber" />
+						<span>All-nighter in progress: locked in until <strong class="text-amber font-mono font-medium">{String(dawn.h).padStart(2, '0')}:{String(dawn.m).padStart(2, '0')} dawn</strong></span>
 					</div>
 				{/if}
 			</div>
@@ -471,13 +471,13 @@
 {:else}
 	<!-- Compact variant (Room Sidebar) -->
 	{#if isSunrise}
-		<div class="panel border-lamp/40 bg-gradient-to-b from-night-3 to-night-2 p-5 shadow-lg">
+		<div class="panel border-amber/40 bg-gradient-to-b from-night-3 to-[#17120a] p-5 shadow-lg">
 			<div class="flex items-center justify-between">
-				<span class="inline-flex items-center gap-1.5 rounded-full bg-lamp/15 px-2.5 py-0.5 text-xs font-medium text-lamp">
+				<span class="inline-flex items-center gap-1.5 rounded-full border border-amber/35 bg-amber/15 px-2.5 py-0.5 text-xs font-medium text-amber">
 					<IconSun size={15} stroke={2} />
 					Sunrise reached
 				</span>
-				<span class="num text-xs text-faint">{String(dawn.h).padStart(2, '0')}:{String(dawn.m).padStart(2, '0')} local</span>
+				<span class="num text-xs text-amber-200/70">{String(dawn.h).padStart(2, '0')}:{String(dawn.m).padStart(2, '0')} local</span>
 			</div>
 
 			<h3 class="mt-3 text-xl font-semibold text-cream">You made it through the night.</h3>
@@ -486,7 +486,7 @@
 			</p>
 
 			<div class="mt-4 flex items-center gap-2">
-				<a href="/archive" class="btn btn-primary btn-sm">
+				<a href="/archive" class="btn btn-amber btn-sm">
 					View the archive
 				</a>
 				<button class="btn btn-ghost btn-sm text-xs" onclick={() => (isSunrise = false)}>
