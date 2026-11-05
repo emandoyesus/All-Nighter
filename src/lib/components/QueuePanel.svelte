@@ -17,6 +17,25 @@
 	let busy = $state(false);
 	let error = $state('');
 
+	const QUICK_PRESETS = [
+		{ label: 'Alone', title: 'Alan Walker - Alone', channel: 'Alan Walker', videoId: '1-xGerv5FOk', tag: 'focus' as const },
+		{ label: 'Blinding Lights', title: 'The Weeknd - Blinding Lights', channel: 'The Weeknd', videoId: '4NRXx6U8ABQ', tag: 'hangout' as const },
+		{ label: 'Midnight City', title: 'M83 - Midnight City', channel: 'M83', videoId: 'dX3k_QDnzHE', tag: 'focus' as const }
+	];
+
+	function addPreset(preset: typeof QUICK_PRESETS[number]) {
+		room.add(
+			preset.videoId,
+			preset.title,
+			preset.channel,
+			room.name,
+			'youtube',
+			`https://www.youtube.com/watch?v=${preset.videoId}`,
+			undefined,
+			preset.tag
+		);
+	}
+
 	async function submit(e: Event): Promise<void> {
 		e.preventDefault();
 		error = '';
@@ -120,7 +139,23 @@
 
 <div class="panel mt-4">
 	<form class="px-4 pt-4" onsubmit={submit}>
-		<label for="yt-link" class="mb-1.5 block text-xs text-faint">Add a track or playlist link (YouTube, Spotify, SoundCloud)</label>
+		<div class="mb-2 flex flex-wrap items-center justify-between gap-1.5">
+			<label for="yt-link" class="block text-xs text-faint">Add a track or playlist link</label>
+			<div class="flex flex-wrap items-center gap-1">
+				<span class="text-[10px] font-mono uppercase tracking-wider text-faint">Presets:</span>
+				{#each QUICK_PRESETS as preset}
+					<button
+						type="button"
+						class="inline-flex items-center gap-1 rounded-full border border-cream/10 bg-night/80 px-2 py-0.5 text-[10px] text-taupe transition-colors hover:border-lamp/40 hover:text-lamp hover:bg-lamp/10"
+						onclick={() => addPreset(preset)}
+						title={`Quick add "${preset.title}" to room queue`}
+					>
+						<IconPlus size={10} stroke={2} />
+						<span>{preset.label}</span>
+					</button>
+				{/each}
+			</div>
+		</div>
 		<div class="flex gap-2">
 			<input
 				id="yt-link"

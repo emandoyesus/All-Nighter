@@ -15,9 +15,9 @@ export const crate: CratePick[] = [
 		note: 'late night anthem'
 	},
 	{
-		videoId: 'jfKfPfyJRdk',
-		title: 'lofi hip hop radio - beats to relax/study to',
-		channel: 'Lofi Girl',
-		note: 'deep focus & chill'
+		videoId: '4NRXx6U8ABQ',
+		title: 'Blinding Lights',
+		channel: 'The Weeknd',
+		note: 'midnight driving energy'
 	}
 ];
