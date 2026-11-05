@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { asset } from '$app/paths';
 	import { room } from '#lib/room/room.svelte';
 	import { siteAudio } from '#lib/audio/site-audio.svelte';
 	import { DAWN } from '#lib/config';
@@ -15,6 +16,33 @@
 	import IconTarget from '@tabler/icons-svelte/icons/target';
 
 	let { open = $bindable(false) }: { open: boolean } = $props();
+
+	const HUD_WALLPAPERS = [
+		{ id: 'lofi-desk', label: 'Lofi Desk', src: asset('hud/bg-1.jpg') },
+		{ id: 'city-night', label: 'City Night', src: asset('hud/bg-2.jpg') },
+		{ id: 'neon-horizon', label: 'Neon Horizon', src: asset('hud/bg-3.jpg') }
+	];
+
+	const LS_WALLPAPER = 'an.hud_wallpaper';
+	function loadSavedWallpaper(): number {
+		try {
+			const saved = localStorage.getItem(LS_WALLPAPER);
+			if (saved !== null) {
+				const n = Number(saved);
+				if (n >= 0 && n < HUD_WALLPAPERS.length) return n;
+			}
+		} catch {}
+		return 0;
+	}
+
+	let activeWallpaper = $state(0);
+
+	function setWallpaper(idx: number): void {
+		activeWallpaper = idx;
+		try {
+			localStorage.setItem(LS_WALLPAPER, String(idx));
+		} catch {}
+	}
 
 	let dawnLeft = $state('--:--:--');
 	let localClock = $state('');
@@ -84,6 +112,7 @@
 	}
 
 	onMount(() => {
+		activeWallpaper = loadSavedWallpaper();
 		updateCountdown();
 		const id = window.setInterval(updateCountdown, 1000);
 		window.addEventListener('popstate', onPopState);
@@ -125,10 +154,25 @@
 
 {#if open}
 	<div
-		class="fixed inset-0 z-50 flex flex-col justify-between bg-night p-6 md:p-12 text-cream selection:bg-aqua-foam selection:text-cyber-teal"
+		class="fixed inset-0 z-50 flex flex-col justify-between bg-night p-6 md:p-12 text-cream selection:bg-aqua-foam selection:text-cyber-teal overflow-hidden"
 		role="dialog"
 		aria-modal="true"
 	>
+		<!-- Dynamic HUD Background Wallpaper -->
+		<div class="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none" aria-hidden="true">
+			{#each HUD_WALLPAPERS as wp, idx}
+				<img
+					src={wp.src}
+					alt=""
+					class="absolute inset-0 h-full w-full object-cover transition-all duration-1000 ease-in-out {activeWallpaper === idx ? 'opacity-100 scale-100' : 'opacity-0 scale-105 pointer-events-none'}"
+					style="filter: brightness(0.38) contrast(1.1) saturate(0.9);"
+				/>
+			{/each}
+			<!-- Deep night gradient vignette for maximum contrast and legibility -->
+			<div class="absolute inset-0 bg-gradient-to-t from-night via-night/70 to-night/80"></div>
+			<div class="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(3,3,3,0.75)_100%)]"></div>
+		</div>
+
 		<!-- Top status bar -->
 		<header class="relative z-10 flex flex-wrap items-center justify-between gap-4">
 			<div class="flex items-center gap-3">
@@ -220,27 +264,45 @@
 			</div>
 		</main>
 
-		<!-- Bottom controls: Ambient sound + Audio player toggles -->
+		<!-- Bottom controls: Ambient sound + Audio player toggles + Wallpaper picker -->
 		<footer class="relative z-10 flex flex-wrap items-center justify-between gap-4 border-t border-cream/10 pt-6">
-			<!-- Desk Ambience: Interstellar only -->
-			<div class="flex items-center gap-2">
-				<span class="num text-xs text-faint mr-1">Desk Ambience:</span>
-				<button
-					class="btn btn-sm text-xs {siteAudio.isPlaying ? 'btn-primary' : 'btn-ghost'}"
-					onclick={() => siteAudio.toggle()}
-					title={siteAudio.isPlaying ? 'Mute Interstellar soundtrack' : 'Play Interstellar soundtrack'}
-				>
-					{#if siteAudio.isPlaying}
-						<span class="inline-flex items-end gap-[2px] h-3 w-3 mr-1" aria-hidden="true">
-							<span class="eq-bar w-[2px] h-full bg-lamp rounded-full" style="animation-delay: 0s;"></span>
-							<span class="eq-bar w-[2px] h-full bg-lamp rounded-full" style="animation-delay: 0.25s;"></span>
-							<span class="eq-bar w-[2px] h-full bg-lamp rounded-full" style="animation-delay: 0.5s;"></span>
-						</span>
-					{:else}
-						<IconDisc size={14} stroke={1.5} class="mr-1" />
-					{/if}
-					Interstellar
-				</button>
+			<div class="flex flex-wrap items-center gap-3">
+				<!-- Desk Ambience: Interstellar only -->
+				<div class="flex items-center gap-2">
+					<span class="num text-xs text-faint mr-1">Desk Ambience:</span>
+					<button
+						class="btn btn-sm text-xs {siteAudio.isPlaying ? 'btn-primary' : 'btn-ghost'}"
+						onclick={() => siteAudio.toggle()}
+						title={siteAudio.isPlaying ? 'Mute Interstellar soundtrack' : 'Play Interstellar soundtrack'}
+					>
+						{#if siteAudio.isPlaying}
+							<span class="inline-flex items-end gap-[2px] h-3 w-3 mr-1" aria-hidden="true">
+								<span class="eq-bar w-[2px] h-full bg-lamp rounded-full" style="animation-delay: 0s;"></span>
+								<span class="eq-bar w-[2px] h-full bg-lamp rounded-full" style="animation-delay: 0.25s;"></span>
+								<span class="eq-bar w-[2px] h-full bg-lamp rounded-full" style="animation-delay: 0.5s;"></span>
+							</span>
+						{:else}
+							<IconDisc size={14} stroke={1.5} class="mr-1" />
+						{/if}
+						Interstellar
+					</button>
+				</div>
+
+				<!-- Wallpaper Picker -->
+				<div class="flex items-center gap-1.5 pl-3 border-l border-cream/10">
+					<span class="num text-xs text-faint mr-0.5">Wallpaper:</span>
+					{#each HUD_WALLPAPERS as wp, idx}
+						<button
+							type="button"
+							class="group relative h-6 w-9 overflow-hidden rounded border transition-all {activeWallpaper === idx ? 'border-lamp ring-1 ring-lamp/50 scale-105' : 'border-cream/20 opacity-55 hover:opacity-100 hover:border-cream/50'}"
+							onclick={() => setWallpaper(idx)}
+							title={`Switch to "${wp.label}" background`}
+							aria-label={`Switch to "${wp.label}" background`}
+						>
+							<img src={wp.src} alt="" class="h-full w-full object-cover" />
+						</button>
+					{/each}
+				</div>
 			</div>
 
 			<!-- Player controls & local clock -->
