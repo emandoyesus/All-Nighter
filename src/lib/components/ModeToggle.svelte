@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { room } from '#lib/room/room.svelte';
+	import { playFocusChime, playBreakChime } from '#lib/audio/chime';
 	import IconWaveSine from '@tabler/icons-svelte/icons/wave-sine';
 	import IconTarget from '@tabler/icons-svelte/icons/target';
 	import IconRepeat from '@tabler/icons-svelte/icons/repeat';
@@ -12,6 +13,11 @@
 	const isNormal = $derived(mode === 'normal' || mode === 'break');
 
 	function setMode(next: RoomMode) {
+		if (next === 'focus') {
+			playFocusChime();
+		} else {
+			playBreakChime();
+		}
 		room.setMode(next);
 	}
 
@@ -35,6 +41,15 @@
 			</span>
 		{/if}
 	</div>
+
+	{#if room.modeRemaining > 0}
+		<div class="mb-3 h-1 w-full overflow-hidden rounded-full bg-cream/10">
+			<div
+				class="h-full transition-all duration-1000 {mode === 'focus' ? 'bg-amber' : 'bg-lamp'}"
+				style="width: {Math.min(100, Math.max(2, (1 - room.modeRemaining / (mode === 'focus' ? 3000 : 900)) * 100))}%"
+			></div>
+		</div>
+	{/if}
 
 	<!-- Prioritize Normal Mode on the left -->
 	<div class="grid grid-cols-2 gap-2">
