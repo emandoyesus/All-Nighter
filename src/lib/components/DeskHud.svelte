@@ -164,13 +164,14 @@
 				<img
 					src={wp.src}
 					alt=""
-					class="absolute inset-0 h-full w-full object-cover transition-all duration-1000 ease-in-out {activeWallpaper === idx ? 'opacity-100 scale-100' : 'opacity-0 scale-105 pointer-events-none'}"
-					style="filter: brightness(0.38) contrast(1.1) saturate(0.9);"
+					class="absolute inset-0 h-full w-full object-cover transition-all duration-700 ease-in-out {activeWallpaper === idx ? 'opacity-100 scale-100' : 'opacity-0 scale-105 pointer-events-none'}"
+					style="filter: brightness(0.78) contrast(1.05);"
 				/>
 			{/each}
-			<!-- Deep night gradient vignette for maximum contrast and legibility -->
-			<div class="absolute inset-0 bg-gradient-to-t from-night via-night/70 to-night/80"></div>
-			<div class="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(3,3,3,0.75)_100%)]"></div>
+			<!-- Light atmospheric gradient: clear center so artwork shines through -->
+			<div class="absolute inset-0 bg-night/25"></div>
+			<div class="absolute inset-0 bg-gradient-to-t from-night/85 via-transparent to-night/60"></div>
+			<div class="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_40%,rgba(3,3,3,0.5)_100%)]"></div>
 		</div>
 
 		<!-- Top status bar -->
@@ -210,10 +211,10 @@
 
 		<!-- Centerpiece: Dawn countdown & now playing -->
 		<main class="relative z-10 my-auto flex flex-col items-center justify-center text-center">
-			<p class="num text-xs uppercase tracking-[0.2em] text-faint">
+			<p class="num text-xs uppercase tracking-[0.2em] text-cream/80 drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
 				{targetLabel}
 			</p>
-			<h1 class="num mt-2 font-mono text-6xl font-semibold tracking-tighter text-cream md:text-8xl lg:text-9xl">
+			<h1 class="num mt-2 font-mono text-6xl font-semibold tracking-tighter text-cream md:text-8xl lg:text-9xl drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)]">
 				{dawnLeft}
 			</h1>
 
