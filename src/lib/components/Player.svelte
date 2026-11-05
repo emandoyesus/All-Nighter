@@ -156,9 +156,20 @@
 				<p class="text-sm text-taupe">Nothing on right now</p>
 			{/if}
 		</div>
-		{#if playing && hasVideo}
-			<AudioVisualizer active={playing} bars={5} size="sm" class="shrink-0" />
-		{/if}
+		<div class="flex items-center gap-2 shrink-0">
+			{#if room.state.isPrivate}
+				<span class="inline-flex items-center gap-1 rounded bg-amber-400/10 px-1.5 py-0.5 text-[10px] text-amber-300 font-mono border border-amber-400/30">
+					Private
+				</span>
+			{:else}
+				<span class="inline-flex items-center gap-1 rounded bg-lamp/10 px-1.5 py-0.5 text-[10px] text-lamp font-mono border border-lamp/30">
+					Public
+				</span>
+			{/if}
+			{#if playing && hasVideo}
+				<AudioVisualizer active={playing} bars={5} size="sm" class="shrink-0" />
+			{/if}
+		</div>
 	</div>
 
 	<!-- Video mount target for persistent GlobalPlayer -->

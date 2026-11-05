@@ -6,11 +6,15 @@
 	import IconMoon from '@tabler/icons-svelte/icons/moon';
 	import IconCopy from '@tabler/icons-svelte/icons/copy';
 	import IconCheck from '@tabler/icons-svelte/icons/check';
+	import IconWorld from '@tabler/icons-svelte/icons/world';
+	import IconLock from '@tabler/icons-svelte/icons/lock';
 
 	let creating = $state(false);
 	let draft = $state('late-night-shift');
+	let isPrivate = $state(false);
 	let nightPlan = $state('');
 	let copiedSlug = $state<string | null>(null);
+	let joinPrivateInput = $state('');
 
 	async function copyInvite(slug: string): Promise<void> {
 		try {
@@ -37,7 +41,25 @@
 			// Store the intention before creating the room so announce() picks it up
 			room.setIntention(nightPlan.trim());
 		}
-		room.createRoom(name);
+		room.createRoom(name, isPrivate);
+	}
+
+	function handleJoinPrivate(event: SubmitEvent): void {
+		event.preventDefault();
+		const target = joinPrivateInput.trim();
+		if (!target) return;
+		// Handle pasted full URLs like http://localhost:5173/room?room=my-room
+		if (target.includes('room=')) {
+			try {
+				const u = new URL(target, window.location.origin);
+				const p = u.searchParams.get('room');
+				if (p) {
+					room.joinRoom(p);
+					return;
+				}
+			} catch {}
+		}
+		room.joinRoom(target);
 	}
 </script>
 
@@ -76,7 +98,12 @@
 						class="flex items-center justify-between gap-4 rounded-field border border-cream/10 bg-night/50 px-4 py-3 transition-colors hover:border-cream/20"
 					>
 						<div class="min-w-0">
-							<p class="truncate text-sm text-cream">{ad.title || ad.room}</p>
+							<div class="flex items-center gap-1.5">
+								<p class="truncate text-sm text-cream font-medium">{ad.title || ad.room}</p>
+								<span class="inline-flex items-center gap-1 rounded bg-lamp/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-lamp border border-lamp/30">
+									Public
+								</span>
+							</div>
 							<p class="num mt-0.5 truncate text-xs text-faint">
 								{ad.members} awake · host {ad.host || 'unknown'}
 							</p>
@@ -116,6 +143,27 @@
 				</p>
 			</div>
 		{/if}
+
+		<!-- Join private room by slug / link -->
+		<div class="mt-4 border-t border-cream/10 pt-4">
+			<div class="flex items-center justify-between mb-1.5">
+				<span class="text-xs text-faint flex items-center gap-1.5">
+					<IconLock size={12} class="text-amber" />
+					<span>Join private room</span>
+				</span>
+			</div>
+			<form class="flex gap-2" onsubmit={handleJoinPrivate}>
+				<input
+					type="text"
+					placeholder="Enter room name or paste link..."
+					class="min-w-0 flex-1 rounded-field border border-cream/10 bg-night/60 px-3 py-1.5 text-xs text-cream outline-none focus:border-lamp/60"
+					bind:value={joinPrivateInput}
+				/>
+				<button type="submit" class="btn btn-ghost btn-sm shrink-0">
+					Join
+				</button>
+			</form>
+		</div>
 	</div>
 
 	<!-- Open a room panel -->
@@ -131,11 +179,45 @@
 				</div>
 			</div>
 			<p class="mt-4 text-xs leading-relaxed text-faint">
-				Pick a name. Share the link and let people knock — you decide who steps in.
+				Pick a name and privacy. Share the link and let people knock — you decide who steps in.
 			</p>
 		</div>
 
 		<form class="flex flex-col gap-3" onsubmit={create}>
+			<!-- Room Privacy Mode -->
+			<div>
+				<span class="mb-1.5 block text-xs text-faint">Room Privacy</span>
+				<div class="grid grid-cols-2 gap-2">
+					<button
+						type="button"
+						class="flex flex-col items-start gap-1 rounded-field border px-3 py-2 text-left text-xs transition-colors {!isPrivate
+							? 'border-lamp/50 bg-lamp/10 text-lamp'
+							: 'border-cream/10 bg-night/50 text-taupe hover:border-cream/20 hover:text-cream'}"
+						onclick={() => (isPrivate = false)}
+					>
+						<span class="flex items-center gap-1.5 font-medium">
+							<IconWorld size={14} stroke={2} />
+							Public Room
+						</span>
+						<span class="text-[11px] leading-snug opacity-75">Listed · Anyone can join</span>
+					</button>
+
+					<button
+						type="button"
+						class="flex flex-col items-start gap-1 rounded-field border px-3 py-2 text-left text-xs transition-colors {isPrivate
+							? 'border-amber-400/50 bg-amber-400/10 text-amber-300'
+							: 'border-cream/10 bg-night/50 text-taupe hover:border-cream/20 hover:text-cream'}"
+						onclick={() => (isPrivate = true)}
+					>
+						<span class="flex items-center gap-1.5 font-medium">
+							<IconLock size={14} stroke={2} />
+							Private Room
+						</span>
+						<span class="text-[11px] leading-snug opacity-75">Unlisted · Invite link only</span>
+					</button>
+				</div>
+			</div>
+
 			<label for="room-name" class="text-xs text-faint">Room name</label>
 			<input
 				id="room-name"
@@ -161,7 +243,7 @@
 
 			<button type="submit" class="btn btn-primary w-full">
 				<IconDoorEnter size={16} stroke={1.5} />
-				Open the door
+				{isPrivate ? 'Create Private Room' : 'Open the door'}
 			</button>
 		</form>
 

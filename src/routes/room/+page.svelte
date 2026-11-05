@@ -84,6 +84,15 @@
 							{/if}
 						</h1>
 						{#if inRoom}
+							{#if room.state.isPrivate}
+								<span class="inline-flex items-center gap-1 rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 font-mono text-[10px] text-amber-300">
+									Private
+								</span>
+							{:else}
+								<span class="inline-flex items-center gap-1 rounded-full border border-lamp/30 bg-lamp/10 px-2 py-0.5 font-mono text-[10px] text-lamp">
+									Public
+								</span>
+							{/if}
 							{#if room.mode === 'focus'}
 								<span class="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-400/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-amber-300">
 									<IconTarget size={11} stroke={2} />
