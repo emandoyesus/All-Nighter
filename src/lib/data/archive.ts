@@ -88,16 +88,7 @@ export const nights: Night[] = [
 	}
 ];
 
-export const upcoming: UpcomingSession[] = [
-	{
-		slug: 'addis-ethio-jazz-lock-in',
-		title: 'Addis Ababa late night jazz & code',
-		theme: 'ethio-jazz',
-		date: 'Sat · 11:00 pm EAT',
-		iso: '2026-11-07T23:00:00+03:00',
-		blurb: 'Deep Ethio-jazz, fresh roast coffee, and uninterrupted midnight focus from Addis Ababa to the world.'
-	}
-];
+export const upcoming: UpcomingSession[] = [];
 
 export function nightBySlug(slug: string): Night | undefined {
 	return nights.find((night) => night.slug === slug);
