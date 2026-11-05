@@ -76,9 +76,9 @@ export const nights: Night[] = [
 		tracklist: [
 			{ title: 'Yèkèrmo Sèw (A Man of Experience)', artist: 'Mulatu Astatke', addedBy: 'elena', genre: 'ethio-jazz', reactions: 18, note: 'classic late night Ethio-jazz' },
 			{ title: 'Tezeta (Nostalgia)', artist: 'Mulatu Astatke', addedBy: 'sam', genre: 'ethio-jazz', reactions: 15 },
-			{ title: 'shinjuku fm, soft lofi / smooth jazz', artist: 'TOKYO TONES', addedBy: 'solomon', genre: 'lofi', source: 'youtube', videoId: '2CDRu6-Vgfo', reactions: 12 },
+			{ title: 'Midnight City', artist: 'M83', addedBy: 'solomon', genre: 'synthwave', source: 'youtube', videoId: 'dX3k_QDnzHE', reactions: 12 },
 			{ title: 'Resonance', artist: 'HOME', addedBy: 'nate', genre: 'synthwave', reactions: 14 },
-			{ title: 'beats to relax / study to', artist: 'Lofi Girl', addedBy: 'yared', genre: 'lofi', source: 'youtube', videoId: 'rFZHOHl-L8A', reactions: 10 }
+			{ title: 'Blinding Lights', artist: 'The Weeknd', addedBy: 'yared', genre: 'pop', source: 'youtube', videoId: '4NRXx6U8ABQ', reactions: 10 }
 		],
 		chatMoments: [
 			{ who: 'elena', text: 'the coffee here in addis hits completely different at 3am', at: '03:15' },
