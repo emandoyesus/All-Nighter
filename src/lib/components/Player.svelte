@@ -14,6 +14,20 @@
 	import IconDisc from '@tabler/icons-svelte/icons/disc';
 	import IconMaximize from '@tabler/icons-svelte/icons/maximize';
 
+	const LS_VOLUME = 'an.volume';
+
+	function loadSavedVolume(): number {
+		if (typeof window === 'undefined') return 80;
+		try {
+			const saved = localStorage.getItem(LS_VOLUME);
+			if (saved !== null) {
+				const n = Number(saved);
+				if (Number.isFinite(n) && n >= 0 && n <= 100) return n;
+			}
+		} catch {}
+		return 80;
+	}
+
 	let ready = $state(false);
 	let unlocked = $state(false);
 	let localTime = $state(0);
@@ -47,6 +61,9 @@
 	function setVolume(val: number): void {
 		volume = Math.max(0, Math.min(100, Math.round(val)));
 		muted = volume === 0;
+		try {
+			localStorage.setItem(LS_VOLUME, String(volume));
+		} catch {}
 		window.dispatchEvent(new CustomEvent('an:player:set-volume', { detail: volume }));
 	}
 
@@ -91,6 +108,7 @@
 	}
 
 	onMount(() => {
+		volume = loadSavedVolume();
 		const onStatus = (e: Event) => {
 			const custom = e as CustomEvent<{
 				localTime: number;
@@ -209,11 +227,11 @@
 		{/if}
 	</div>
 
-	<div class="flex items-center gap-3 border-t border-cream/10 px-4 py-3">
+	<div class="flex items-center gap-3 border-t border-cream/10 px-4 py-3 relative z-30">
 		<button
 			class="icon-btn"
 			onclick={toggle}
-			disabled={!hasVideo}
+			disabled={!hasVideo && !playing}
 			aria-label={playing ? 'Pause for everyone' : 'Resume for everyone'}
 		>
 			{#if playing}
