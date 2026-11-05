@@ -230,6 +230,7 @@
 	}
 
 	let ro: ResizeObserver | null = null;
+	let mo: MutationObserver | null = null;
 	let observedViewport: HTMLElement | null = null;
 
 	function syncViewportPosition(): void {
@@ -238,7 +239,10 @@
 		const inActiveRoom = room.joinState === 'approved';
 		const hasVideo = !!room.state.videoId;
 
-		if (!viewport || !inActiveRoom || !hasVideo) {
+		// If inactive, no video, or any modal/dialog is open (e.g. Dawn Ritual, Auth, HUD), hide from viewport
+		const modalOpen = !!document.querySelector('[role="dialog"], [aria-modal="true"]');
+
+		if (!viewport || !inActiveRoom || !hasVideo || modalOpen) {
 			// Persistent audio mode: keep iframe playing in background with safe dimensions
 			containerEl.style.position = 'fixed';
 			containerEl.style.top = '-9999px';
@@ -276,6 +280,10 @@
 				if (!ro) ro = new ResizeObserver(() => syncViewportPosition());
 				ro.observe(viewport);
 			}
+		}
+		if (!mo && document.body) {
+			mo = new MutationObserver(() => syncViewportPosition());
+			mo.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['role', 'aria-modal'] });
 		}
 		syncViewportPosition();
 	}
@@ -415,6 +423,7 @@
 			window.clearInterval(tickInterval);
 			window.clearInterval(beat);
 			if (ro) ro.disconnect();
+			if (mo) mo.disconnect();
 			window.removeEventListener('an:player:set-volume', onVolumeEvent);
 			window.removeEventListener('an:player:toggle-mute', onMuteToggleEvent);
 			window.removeEventListener('an:player:skip', onSkipEvent);
