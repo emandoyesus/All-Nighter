@@ -34,6 +34,8 @@
 	let dropdownTab = $state<'profile' | 'stats'>('profile');
 	let modalTab = $state<'edit' | 'stats'>('edit');
 	let userStats = $state<UserProfileStats>(getUserProfileStats());
+	const achievedBadges = $derived(userStats.achievements.filter((a) => a.unlocked));
+	const isLockedInRoom = $derived(room.joinState === 'approved');
 
 	function refreshStats(): void {
 		userStats = getUserProfileStats(currentDisplayName);
@@ -200,12 +202,16 @@
 		errorMessage = '';
 		saveSuccess = false;
 
-		const cleanCallsign = editCallsign.trim() || room.name || 'night-owl';
+		const cleanCallsign = isLockedInRoom
+			? (room.name || 'night-owl')
+			: (editCallsign.trim() || room.name || 'night-owl');
 		const cleanAvatar = editAvatar.trim() || '/default-avatar.svg';
 
 		try {
 			// Update local room state and storage
-			room.setName(cleanCallsign);
+			if (!isLockedInRoom) {
+				room.setName(cleanCallsign);
+			}
 			room.setAvatar(cleanAvatar);
 			room.setIntention(editIntention.trim());
 			if (editMood !== room.statusText) {
@@ -604,12 +610,12 @@
 					<!-- Scrollable Badges List -->
 					<div>
 						<div class="flex items-center justify-between mb-1">
-							<span class="text-[9px] font-mono uppercase tracking-wider text-faint">Achievements</span>
-							<span class="text-[9px] font-mono text-lamp">{userStats.unlockedCount}/{userStats.totalAchievements}</span>
+							<span class="text-[9px] font-mono uppercase tracking-wider text-faint">Achieved Badges</span>
+							<span class="text-[9px] font-mono text-lamp">{achievedBadges.length} Unlocked</span>
 						</div>
 						<div class="space-y-1.5 max-h-[140px] overflow-y-auto pr-0.5 custom-scrollbar">
-							{#each userStats.achievements as a (a.id)}
-								<div class="flex items-center justify-between gap-2 rounded-lg border p-1.5 text-xs transition-colors {a.unlocked ? 'border-cream/15 bg-[#060a0b]' : 'border-cream/5 bg-night-3/30 opacity-55'}">
+							{#each achievedBadges as a (a.id)}
+								<div class="flex items-center justify-between gap-2 rounded-lg border p-1.5 text-xs transition-colors border-cream/15 bg-[#060a0b]">
 									<div class="flex items-center gap-2 min-w-0">
 										<span class="grid h-6 w-6 shrink-0 place-items-center rounded-lg border text-xs select-none {getTierBadgeClass(a.tier)}">
 											{a.emoji}
@@ -619,16 +625,14 @@
 											<p class="truncate text-[9px] text-faint">{a.description}</p>
 										</div>
 									</div>
-									{#if a.unlocked}
-										<span class="shrink-0 rounded bg-lamp/15 px-1 py-0.2 font-mono text-[8px] uppercase tracking-wider text-lamp border border-lamp/30">
-											✓ Done
-										</span>
-									{:else}
-										<span class="shrink-0 font-mono text-[9px] text-faint">
-											{a.current}/{a.target}
-										</span>
-									{/if}
+									<span class="shrink-0 rounded bg-lamp/15 px-1 py-0.2 font-mono text-[8px] uppercase tracking-wider text-lamp border border-lamp/30">
+										✓ Done
+									</span>
 								</div>
+							{:else}
+								<p class="text-[11px] text-faint text-center py-3 bg-[#060a0b] rounded-lg border border-cream/5 font-mono">
+									No badges achieved yet
+								</p>
 							{/each}
 						</div>
 					</div>
@@ -878,35 +882,35 @@
 						</div>
 					</div>
 
-					<!-- All 8 Achievements in Responsive Grid -->
+					<!-- Achieved Badges & Milestones in Responsive Grid -->
 					<div>
 						<div class="flex items-center justify-between mb-2">
-							<h4 class="text-xs font-mono uppercase tracking-wider text-faint">Nocturnal Badges & Milestones</h4>
-							<span class="text-xs font-mono text-lamp">{userStats.unlockedCount} / {userStats.totalAchievements} Unlocked</span>
+							<h4 class="text-xs font-mono uppercase tracking-wider text-faint">Achieved Badges & Milestones</h4>
+							<span class="text-xs font-mono text-lamp">{achievedBadges.length} Unlocked</span>
 						</div>
-						<div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-							{#each userStats.achievements as a (a.id)}
-								<div class="flex flex-col justify-between rounded-xl border p-3 transition-colors {a.unlocked ? 'border-cream/15 bg-[#060a0b]' : 'border-cream/5 bg-night-3/30 opacity-60'}">
-									<div>
-										<div class="flex items-start justify-between gap-2">
-											<div class="flex items-center gap-2.5">
-												<span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl border text-xl {getTierBadgeClass(a.tier)} shadow-sm select-none">
-													{a.emoji}
-												</span>
-												<div class="min-w-0">
-													<p class="text-sm font-semibold text-cream leading-tight truncate">{a.title}</p>
-													<span class="text-[9px] font-mono uppercase tracking-wider text-faint">{a.category}</span>
+						{#if achievedBadges.length > 0}
+							<div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+								{#each achievedBadges as a (a.id)}
+									<div class="flex flex-col justify-between rounded-xl border p-3 transition-colors border-cream/15 bg-[#060a0b]">
+										<div>
+											<div class="flex items-start justify-between gap-2">
+												<div class="flex items-center gap-2.5">
+													<span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl border text-xl {getTierBadgeClass(a.tier)} shadow-sm select-none">
+														{a.emoji}
+													</span>
+													<div class="min-w-0">
+														<p class="text-sm font-semibold text-cream leading-tight truncate">{a.title}</p>
+														<span class="text-[9px] font-mono uppercase tracking-wider text-faint">{a.category}</span>
+													</div>
 												</div>
+												<span class="shrink-0 rounded px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider border {getTierBadgeClass(a.tier)}">
+													{a.tier}
+												</span>
 											</div>
-											<span class="shrink-0 rounded px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider border {getTierBadgeClass(a.tier)}">
-												{a.tier}
-											</span>
+											<p class="mt-2 text-xs text-taupe leading-relaxed">{a.description}</p>
 										</div>
-										<p class="mt-2 text-xs text-taupe leading-relaxed">{a.description}</p>
-									</div>
 
-									<div class="mt-3 pt-2 border-t border-cream/5">
-										{#if a.unlocked}
+										<div class="mt-3 pt-2 border-t border-cream/5">
 											<div class="flex items-center justify-between text-[11px] font-mono text-lamp">
 												<span class="inline-flex items-center gap-1 font-semibold">
 													<IconCheck size={13} stroke={2.5} />
@@ -914,24 +918,21 @@
 												</span>
 												<span class="text-[10px] text-faint">Completed</span>
 											</div>
-										{:else}
-											<div>
-												<div class="flex items-center justify-between text-[10px] font-mono text-faint mb-1">
-													<span class="inline-flex items-center gap-1">
-														<IconLock size={10} stroke={2} />
-														Progress
-													</span>
-													<span>{a.current} / {a.target}</span>
-												</div>
-												<div class="h-1.5 w-full rounded-full bg-night-3 overflow-hidden border border-cream/10">
-													<div class="h-full rounded-full bg-cream/40" style="width: {Math.min(100, (a.current / a.target) * 100)}%"></div>
-												</div>
-											</div>
-										{/if}
+										</div>
 									</div>
-								</div>
-							{/each}
-						</div>
+								{/each}
+							</div>
+						{:else}
+							<div class="rounded-xl border border-cream/10 bg-[#060a0b] p-6 text-center">
+								<span class="grid h-10 w-10 mx-auto place-items-center rounded-xl bg-lamp/10 text-lamp mb-2">
+									<IconAward size={20} stroke={1.5} />
+								</span>
+								<p class="text-sm font-medium text-cream">No badges achieved yet</p>
+								<p class="text-xs text-taupe mt-1 max-w-[36ch] mx-auto">
+									Complete full all-nighters, declare intentions, and queue tracks with the crew to earn milestone badges.
+								</p>
+							</div>
+						{/if}
 					</div>
 				</div>
 			{:else}
@@ -1118,27 +1119,39 @@
 						<label for="fullscreen-callsign" class="text-xs font-mono uppercase tracking-wider text-faint">
 							Callsign / Display Name
 						</label>
-						<span class="font-mono text-[10px] text-faint">{editCallsign.length}/24</span>
+						{#if isLockedInRoom}
+							<span class="font-mono text-[10px] text-amber">Locked in session</span>
+						{:else}
+							<span class="font-mono text-[10px] text-faint">{editCallsign.length}/24</span>
+						{/if}
 					</div>
 					<div class="flex items-center gap-2">
 						<input
 							id="fullscreen-callsign"
 							type="text"
 							maxlength="24"
-							class="w-full rounded-lg border border-cream/15 bg-night px-3 py-2 text-sm text-cream font-mono outline-none transition-colors focus:border-lamp"
+							disabled={isLockedInRoom}
+							class="w-full rounded-lg border border-cream/15 bg-night px-3 py-2 text-sm font-mono outline-none transition-colors {isLockedInRoom ? 'text-taupe bg-night/50 cursor-not-allowed opacity-75' : 'text-cream focus:border-lamp'}"
 							placeholder="e.g. midnight-coder"
 							bind:value={editCallsign}
 						/>
-						<button
-							type="button"
-							class="btn btn-ghost btn-sm px-2.5 py-2 shrink-0 border border-cream/15 hover:border-lamp/50 hover:text-lamp"
-							onclick={handleRandomCallsign}
-							title="Generate random night callsign"
-						>
-							<IconDice size={16} stroke={1.5} />
-							<span class="hidden sm:inline text-xs">Random</span>
-						</button>
+						{#if !isLockedInRoom}
+							<button
+								type="button"
+								class="btn btn-ghost btn-sm px-2.5 py-2 shrink-0 border border-cream/15 hover:border-lamp/50 hover:text-lamp"
+								onclick={handleRandomCallsign}
+								title="Generate random night callsign"
+							>
+								<IconDice size={16} stroke={1.5} />
+								<span class="hidden sm:inline text-xs">Random</span>
+							</button>
+						{/if}
 					</div>
+					{#if isLockedInRoom}
+						<p class="mt-1.5 text-[11px] text-faint font-mono">
+							Callsign cannot be changed after joining a room. Step out to change your callsign.
+						</p>
+					{/if}
 				</div>
 
 				<!-- Tonight's Intention -->

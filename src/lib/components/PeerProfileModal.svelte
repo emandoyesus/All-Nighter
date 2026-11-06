@@ -46,6 +46,8 @@
 		room.state.queue.filter((t) => t.addedBy.toLowerCase() === peerName.toLowerCase())
 	);
 
+	const achievedBadges = $derived(stats.achievements.filter((a) => a.unlocked));
+
 	function peerLocalTime(tz?: string): string {
 		try {
 			const options: Intl.DateTimeFormatOptions = {
@@ -330,32 +332,34 @@
 					</div>
 				</div>
 
-				<!-- All 8 Achievements & Badges Grid -->
+				<!-- Achieved Badges & Milestones -->
 				<div>
 					<div class="flex items-center justify-between mb-2">
-						<h4 class="text-xs font-mono uppercase tracking-wider text-faint">Nocturnal Badges & Milestones</h4>
-						<span class="text-xs font-mono text-lamp">{stats.unlockedCount} / {stats.totalAchievements}</span>
+						<h4 class="text-xs font-mono uppercase tracking-wider text-faint">Achieved Badges</h4>
+						<span class="text-xs font-mono text-lamp">{achievedBadges.length} Unlocked</span>
 					</div>
-					<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-						{#each stats.achievements as a (a.id)}
-							<div class="flex items-center gap-2.5 rounded-xl border p-2.5 transition-colors {a.unlocked ? 'border-cream/15 bg-[#060a0b]' : 'border-cream/5 bg-night-3/30 opacity-55'}">
-								<span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl border text-lg {getTierBadgeClass(a.tier)} shadow-sm select-none">
-									{a.emoji}
-								</span>
-								<div class="min-w-0 flex-1">
-									<div class="flex items-center justify-between gap-1">
-										<p class="text-xs font-semibold text-cream truncate leading-tight">{a.title}</p>
-										{#if a.unlocked}
+					{#if achievedBadges.length > 0}
+						<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+							{#each achievedBadges as a (a.id)}
+								<div class="flex items-center gap-2.5 rounded-xl border border-cream/15 bg-[#060a0b] p-2.5 transition-colors">
+									<span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl border text-lg {getTierBadgeClass(a.tier)} shadow-sm select-none">
+										{a.emoji}
+									</span>
+									<div class="min-w-0 flex-1">
+										<div class="flex items-center justify-between gap-1">
+											<p class="text-xs font-semibold text-cream truncate leading-tight">{a.title}</p>
 											<span class="text-[9px] font-mono text-lamp font-bold shrink-0">✓ Done</span>
-										{:else}
-											<span class="text-[9px] font-mono text-faint shrink-0">{a.current}/{a.target}</span>
-										{/if}
+										</div>
+										<p class="truncate text-[10px] text-taupe mt-0.5">{a.description}</p>
 									</div>
-									<p class="truncate text-[10px] text-taupe mt-0.5">{a.description}</p>
 								</div>
-							</div>
-						{/each}
-					</div>
+							{/each}
+						</div>
+					{:else}
+						<div class="rounded-xl border border-cream/10 bg-[#060a0b] p-4 text-center">
+							<p class="text-xs text-taupe font-mono">No badges achieved yet</p>
+						</div>
+					{/if}
 				</div>
 
 				<!-- Current Room Contributions -->

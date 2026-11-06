@@ -42,7 +42,7 @@
 	}
 </script>
 
-<div class="panel p-3.5 sm:p-4">
+<div class="panel p-3.5 sm:p-4 overflow-hidden">
 	<div class="flex items-center justify-between">
 		<h3 class="text-xs sm:text-sm font-medium">Awake now</h3>
 		<span class="inline-flex items-center gap-1.5 rounded-full border border-lamp/40 bg-lamp/10 px-2 py-0.5 font-mono text-[10px] text-lamp font-medium">
@@ -52,7 +52,7 @@
 	</div>
 
 	<!-- Roster with intentions & local time -->
-	<ul class="mt-2.5 max-h-[160px] overflow-y-auto space-y-1.5 pr-0.5">
+	<ul class="mt-2.5 max-h-[160px] overflow-y-auto overflow-x-hidden space-y-1.5 pr-1 custom-scrollbar">
 		{#each room.awake as peer (peer.id)}
 			{@const pClock = peerClock(peer.tz)}
 			{@const isPeerHost = peer.name === room.hostName() || (peer.self && room.isHost)}
@@ -60,7 +60,7 @@
 			<li class="flex items-center gap-2 group text-xs">
 				<button
 					type="button"
-					class="flex items-center gap-2 min-w-0 flex-1 text-left rounded-lg p-1 -m-1 transition-colors hover:bg-cream/5 cursor-pointer"
+					class="flex items-center gap-2 min-w-0 flex-1 text-left rounded-lg p-1 transition-colors hover:bg-cream/5 cursor-pointer"
 					onclick={() => window.dispatchEvent(new CustomEvent('an:inspect-peer', { detail: { peer } }))}
 					title="View {peer.name}'s nocturnal profile"
 				>
@@ -139,7 +139,7 @@
 			class="flex w-full items-center justify-between text-[11px] text-faint hover:text-cream transition-colors"
 			onclick={() => (showEdit = !showEdit)}
 		>
-			<span class="font-mono">Your callsigh & intention</span>
+			<span class="font-mono">Your intention & mood</span>
 			<span class="inline-flex items-center gap-0.5 text-lamp">
 				{showEdit ? 'hide' : 'edit'}
 				{#if showEdit}
@@ -155,23 +155,36 @@
 				<div>
 					<div class="mb-1 flex items-center justify-between">
 						<label for="callsign" class="text-[11px] text-faint">Callsign</label>
-						<button
-							type="button"
-							class="text-[10px] font-mono text-lamp hover:underline"
-							onclick={() => window.dispatchEvent(new CustomEvent('an:open-profile-modal', { detail: { edit: true } }))}
-						>
-							Edit Profile ↗
-						</button>
+						{#if room.joinState === 'approved'}
+							<span class="text-[10px] font-mono text-amber">Locked in session</span>
+						{:else}
+							<button
+								type="button"
+								class="text-[10px] font-mono text-lamp hover:underline"
+								onclick={() => window.dispatchEvent(new CustomEvent('an:open-profile-modal', { detail: { edit: true } }))}
+							>
+								Edit Profile ↗
+							</button>
+						{/if}
 					</div>
 					<input
 						id="callsign"
 						type="text"
 						maxlength="24"
 						autocomplete="off"
-						class="w-full rounded border border-cream/10 bg-night/60 px-2.5 py-1 text-xs text-cream outline-none transition-colors focus:border-lamp/60"
+						disabled={room.joinState === 'approved'}
+						class="w-full rounded border border-cream/10 bg-night/60 px-2.5 py-1 text-xs outline-none transition-colors {room.joinState === 'approved' ? 'text-taupe bg-night/40 cursor-not-allowed opacity-75' : 'text-cream focus:border-lamp/60'}"
 						value={room.name}
-						oninput={(e) => room.setName(e.currentTarget.value)}
+						title={room.joinState === 'approved' ? 'Callsign cannot be changed after joining a room' : undefined}
+						oninput={(e) => {
+							if (room.joinState !== 'approved') {
+								room.setName(e.currentTarget.value);
+							}
+						}}
 					/>
+					{#if room.joinState === 'approved'}
+						<p class="mt-1 text-[10px] text-faint font-mono">Callsign cannot be changed while in room</p>
+					{/if}
 				</div>
 
 				<div>
