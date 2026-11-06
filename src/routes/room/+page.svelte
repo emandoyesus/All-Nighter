@@ -13,6 +13,7 @@
 	import JoinRequests from '#lib/components/JoinRequests.svelte';
 	import ModeToggle from '#lib/components/ModeToggle.svelte';
 	import DawnRitualModal from '#lib/components/DawnRitualModal.svelte';
+	import DeleteRoomModal from '#lib/components/DeleteRoomModal.svelte';
 	import RoomAuthGate from '#lib/components/RoomAuthGate.svelte';
 	import { auth } from '#lib/auth.svelte';
 	import { isSupabaseConfigured } from '#lib/supabase';
@@ -28,6 +29,7 @@
 
 	let copied = $state(false);
 	let showDawnModal = $state(false);
+	let showDeleteModal = $state(false);
 
 	onMount(() => room.init());
 
@@ -210,11 +212,7 @@
 								{:else}
 									<button
 										class="btn btn-ghost text-ruby hover:bg-ruby/10 w-full text-[11px] font-mono tracking-wider py-1.5 border border-ruby/20 transition-all flex items-center justify-center gap-1.5"
-										onclick={() => {
-											if (confirm('Delete this room session and close the door for everyone?')) {
-												room.deleteRoom();
-											}
-										}}
+										onclick={() => (showDeleteModal = true)}
 										title="Close and delete the room session"
 									>
 										<span class="soft-blink h-1.5 w-1.5 rounded-full bg-ruby"></span>
@@ -226,6 +224,7 @@
 					</aside>
 				</div>
 				<DawnRitualModal bind:open={showDawnModal} />
+				<DeleteRoomModal bind:open={showDeleteModal} />
 			</section>
 		{:else if gated}
 			<section class="border-b border-cream/10 bg-night-2">
