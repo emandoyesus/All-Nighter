@@ -54,7 +54,14 @@
 				{sourceLabel(track.source)}
 				<span class="text-faint/70">·</span>
 				added by
-				<a href="/crew/{track.addedBy}" class="text-taupe transition-colors hover:text-lamp">{track.addedBy}</a>
+				<button
+					type="button"
+					class="text-taupe transition-colors hover:text-lamp hover:underline cursor-pointer"
+					onclick={() => window.dispatchEvent(new CustomEvent('an:inspect-peer', { detail: { name: track.addedBy } }))}
+					title="View {track.addedBy}'s nocturnal profile"
+				>
+					{track.addedBy}
+				</button>
 			</p>
 		</div>
 

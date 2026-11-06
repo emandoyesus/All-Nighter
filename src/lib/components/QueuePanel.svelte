@@ -323,9 +323,14 @@
 							<span class="text-faint/70 shrink-0">·</span>
 							<span class="inline-flex items-center gap-1 truncate">
 								<span class="text-faint shrink-0">added by</span>
-								<a href="/crew/{track.addedBy}" class="truncate font-medium text-cream/90 transition-colors hover:text-lamp underline decoration-cream/20 underline-offset-2">
+								<button
+									type="button"
+									class="truncate font-medium text-cream/90 transition-colors hover:text-lamp underline decoration-cream/20 underline-offset-2 cursor-pointer text-left"
+									onclick={() => window.dispatchEvent(new CustomEvent('an:inspect-peer', { detail: { name: track.addedBy } }))}
+									title="View {track.addedBy}'s nocturnal profile"
+								>
 									{track.addedBy}
-								</a>
+								</button>
 							</span>
 							{#if (track.votes || 0) > 0}
 								<span class="text-faint/70 shrink-0">·</span>
