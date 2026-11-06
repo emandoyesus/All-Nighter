@@ -239,8 +239,8 @@
 		const inActiveRoom = room.joinState === 'approved';
 		const hasVideo = !!room.state.videoId;
 
-		// If inactive, no video, or any modal/dialog is open (e.g. Dawn Ritual, Auth, HUD), hide from viewport
-		const modalOpen = !!document.querySelector('[role="dialog"], [aria-modal="true"]');
+		// If inactive, no video, or any full-screen modal dialog is open (e.g. Dawn Ritual, Edit Profile, HUD), hide from viewport
+		const modalOpen = !!document.querySelector('[aria-modal="true"]');
 
 		if (!viewport || !inActiveRoom || !hasVideo || modalOpen) {
 			// Persistent audio mode: keep iframe playing in background with safe dimensions
@@ -283,7 +283,7 @@
 		}
 		if (!mo && document.body) {
 			mo = new MutationObserver(() => syncViewportPosition());
-			mo.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['role', 'aria-modal'] });
+			mo.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['aria-modal'] });
 		}
 		syncViewportPosition();
 	}

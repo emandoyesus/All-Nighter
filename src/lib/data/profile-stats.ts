@@ -17,6 +17,7 @@ export interface Achievement {
 	title: string;
 	description: string;
 	category: 'survival' | 'music' | 'focus' | 'community';
+	emoji: string;
 	icon: 'sun' | 'moon' | 'disc' | 'award' | 'flame' | 'target' | 'crown' | 'sparkles' | 'bolt';
 	current: number;
 	target: number;
@@ -184,13 +185,14 @@ export function getUserProfileStats(callsign?: string): UserProfileStats {
 	// Streak
 	const streak = myNights.length > 0 ? Math.min(myNights.length, 7) : 0;
 
-	// Achievements Definitions
+	// Achievements Definitions with unique iconic emojis
 	const achievements: Achievement[] = [
 		{
 			id: 'first-light',
 			title: 'First Light',
 			description: 'Complete your first full all-nighter till sunrise',
 			category: 'survival',
+			emoji: '☀️',
 			icon: 'sun',
 			current: nightsCount,
 			target: 1,
@@ -202,6 +204,7 @@ export function getUserProfileStats(callsign?: string): UserProfileStats {
 			title: 'Nocturnal Intention',
 			description: 'Declare your nocturnal project intention in the room',
 			category: 'focus',
+			emoji: '🎯',
 			icon: 'target',
 			current: persistent.intentionsSet,
 			target: 1,
@@ -213,6 +216,7 @@ export function getUserProfileStats(callsign?: string): UserProfileStats {
 			title: 'Aux Selector',
 			description: 'Add 5 or more tracks to the collaborative room queue',
 			category: 'music',
+			emoji: '💿',
 			icon: 'disc',
 			current: tracksCount,
 			target: 5,
@@ -224,6 +228,7 @@ export function getUserProfileStats(callsign?: string): UserProfileStats {
 			title: 'Sunrise Survivor',
 			description: 'Reach 06:00 AM dawn during a live active room session',
 			category: 'survival',
+			emoji: '🔥',
 			icon: 'flame',
 			current: dawnRitualsCount,
 			target: 1,
@@ -235,6 +240,7 @@ export function getUserProfileStats(callsign?: string): UserProfileStats {
 			title: 'The Architect',
 			description: 'Create and host your own night session room',
 			category: 'community',
+			emoji: '👑',
 			icon: 'crown',
 			current: persistent.roomsHosted,
 			target: 1,
@@ -246,6 +252,7 @@ export function getUserProfileStats(callsign?: string): UserProfileStats {
 			title: 'Focus Centurion',
 			description: 'Accumulate 100+ minutes in deep Pomodoro focus sprints',
 			category: 'focus',
+			emoji: '⚡',
 			icon: 'bolt',
 			current: persistent.focusMinutes,
 			target: 100,
@@ -257,6 +264,7 @@ export function getUserProfileStats(callsign?: string): UserProfileStats {
 			title: 'Shift Veteran',
 			description: 'Survive 3 or more logged all-nighter sessions',
 			category: 'survival',
+			emoji: '🌙',
 			icon: 'moon',
 			current: nightsCount,
 			target: 3,
@@ -268,6 +276,7 @@ export function getUserProfileStats(callsign?: string): UserProfileStats {
 			title: 'Dawn Warden',
 			description: 'Log 24 total hours locked in with the crew',
 			category: 'survival',
+			emoji: '🏆',
 			icon: 'award',
 			current: totalMinutes,
 			target: 1440,

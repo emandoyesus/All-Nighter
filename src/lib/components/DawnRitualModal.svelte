@@ -92,13 +92,29 @@
 		saved = true;
 		setTimeout(() => (saved = false), 2500);
 	}
+
+	function portal(node: HTMLElement) {
+		document.body.appendChild(node);
+		return {
+			destroy() {
+				if (node.parentNode) {
+					node.parentNode.removeChild(node);
+				}
+			}
+		};
+	}
 </script>
+
+<svelte:window onkeydown={(e) => { if (open && e.key === 'Escape') open = false; }} />
 
 {#if open}
 	<div
+		use:portal
 		class="fixed inset-0 z-[100] flex items-center justify-center bg-night/85 p-4 backdrop-blur-md"
 		role="dialog"
 		aria-modal="true"
+		tabindex="-1"
+		onclick={(e) => { if (e.target === e.currentTarget) open = false; }}
 	>
 		<div
 			class="relative w-full max-w-lg overflow-hidden rounded-card border border-cream/15 bg-night-2 p-6 shadow-2xl"
