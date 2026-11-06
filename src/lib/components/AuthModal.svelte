@@ -607,7 +607,7 @@
 							<span class="text-[9px] font-mono uppercase tracking-wider text-faint">Achievements</span>
 							<span class="text-[9px] font-mono text-lamp">{userStats.unlockedCount}/{userStats.totalAchievements}</span>
 						</div>
-						<div class="space-y-1.5 max-h-[140px] overflow-y-auto pr-0.5">
+						<div class="space-y-1.5 max-h-[140px] overflow-y-auto pr-0.5 custom-scrollbar">
 							{#each userStats.achievements as a (a.id)}
 								<div class="flex items-center justify-between gap-2 rounded-lg border p-1.5 text-xs transition-colors {a.unlocked ? 'border-cream/15 bg-[#060a0b]' : 'border-cream/5 bg-night-3/30 opacity-55'}">
 									<div class="flex items-center gap-2 min-w-0">
@@ -742,7 +742,7 @@
 {#if open && isEditing}
 	<div
 		use:portal
-		class="fixed inset-0 z-50 flex items-center justify-center bg-night/95 p-4 sm:p-6 backdrop-blur-md overflow-y-auto"
+		class="fixed inset-0 z-50 flex items-center justify-center bg-night/90 p-3 sm:p-6 backdrop-blur-md overflow-hidden"
 		role="dialog"
 		aria-modal="true"
 		aria-label="Edit Profile"
@@ -750,10 +750,10 @@
 		onclick={(e) => { if (e.target === e.currentTarget) closeModal(); }}
 	>
 		<div
-			class="relative w-full max-w-xl rounded-2xl border border-cream/20 bg-[#0a1012] p-5 sm:p-7 shadow-2xl text-cream my-auto"
+			class="relative w-full max-w-xl max-h-[92dvh] sm:max-h-[88dvh] flex flex-col rounded-2xl border border-cream/20 bg-[#0a1012] shadow-2xl text-cream overflow-hidden my-auto"
 		>
-			<!-- Fullscreen Edit Header -->
-			<div class="flex items-center justify-between pb-4 border-b border-cream/10">
+			<!-- Fixed Fullscreen Edit Header -->
+			<div class="flex items-center justify-between p-5 sm:p-6 pb-4 border-b border-cream/10 shrink-0">
 				<div class="flex items-center gap-2.5">
 					<span class="grid h-8 w-8 place-items-center rounded-lg border border-lamp/30 bg-lamp/10 text-lamp">
 						<IconPencil size={16} stroke={2} />
@@ -775,31 +775,36 @@
 				</button>
 			</div>
 
-			<!-- Modal View Tabs: Profile vs Achievements & Stats -->
-			<div class="mt-4 flex rounded-xl bg-[#060a0b] p-1 border border-cream/10 text-xs font-mono">
-				<button
-					type="button"
-					class="flex-1 rounded-lg py-2 font-medium transition-all flex items-center justify-center gap-2 {modalTab === 'edit' ? 'bg-cream/15 text-cream shadow-sm' : 'text-faint hover:text-cream'}"
-					onclick={() => (modalTab = 'edit')}
-				>
-					<IconPencil size={14} stroke={2} />
-					<span>Profile & Appearance</span>
-				</button>
-				<button
-					type="button"
-					class="flex-1 rounded-lg py-2 font-medium transition-all flex items-center justify-center gap-2 {modalTab === 'stats' ? 'bg-lamp/15 text-lamp border border-lamp/30 shadow-sm' : 'text-faint hover:text-cream'}"
-					onclick={() => {
-						refreshStats();
-						modalTab = 'stats';
-					}}
-				>
-					<IconTrophy size={14} stroke={2} />
-					<span>Achievements & Stats</span>
-					<span class="rounded bg-lamp/20 px-1.5 py-0.5 text-[10px] font-bold text-lamp">
-						{userStats.unlockedCount}/{userStats.totalAchievements}
-					</span>
-				</button>
+			<!-- Fixed Modal View Tabs: Profile vs Achievements & Stats -->
+			<div class="px-5 sm:px-6 pt-3.5 pb-2.5 shrink-0 bg-[#0a1012] border-b border-cream/5">
+				<div class="flex rounded-xl bg-[#060a0b] p-1 border border-cream/10 text-xs font-mono">
+					<button
+						type="button"
+						class="flex-1 rounded-lg py-2 font-medium transition-all flex items-center justify-center gap-2 {modalTab === 'edit' ? 'bg-cream/15 text-cream shadow-sm' : 'text-faint hover:text-cream'}"
+						onclick={() => (modalTab = 'edit')}
+					>
+						<IconPencil size={14} stroke={2} />
+						<span>Profile & Appearance</span>
+					</button>
+					<button
+						type="button"
+						class="flex-1 rounded-lg py-2 font-medium transition-all flex items-center justify-center gap-2 {modalTab === 'stats' ? 'bg-lamp/15 text-lamp border border-lamp/30 shadow-sm' : 'text-faint hover:text-cream'}"
+						onclick={() => {
+							refreshStats();
+							modalTab = 'stats';
+						}}
+					>
+						<IconTrophy size={14} stroke={2} />
+						<span>Achievements & Stats</span>
+						<span class="rounded bg-lamp/20 px-1.5 py-0.5 text-[10px] font-bold text-lamp">
+							{userStats.unlockedCount}/{userStats.totalAchievements}
+						</span>
+					</button>
+				</div>
 			</div>
+
+			<!-- Scrollable Modal Body with Sleek Custom Scrollbar -->
+			<div class="flex-1 overflow-y-auto custom-scrollbar p-5 sm:p-6 pt-4">
 
 			{#if modalTab === 'stats'}
 				<div class="mt-4 space-y-4">
@@ -879,7 +884,7 @@
 							<h4 class="text-xs font-mono uppercase tracking-wider text-faint">Nocturnal Badges & Milestones</h4>
 							<span class="text-xs font-mono text-lamp">{userStats.unlockedCount} / {userStats.totalAchievements} Unlocked</span>
 						</div>
-						<div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[300px] overflow-y-auto pr-1">
+						<div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
 							{#each userStats.achievements as a (a.id)}
 								<div class="flex flex-col justify-between rounded-xl border p-3 transition-colors {a.unlocked ? 'border-cream/15 bg-[#060a0b]' : 'border-cream/5 bg-night-3/30 opacity-60'}">
 									<div>
@@ -928,21 +933,11 @@
 							{/each}
 						</div>
 					</div>
-
-					<!-- Navigation Links at bottom of Achievements -->
-					<div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-cream/10">
-						<a href="/archive" class="btn btn-ghost btn-sm text-xs inline-flex items-center gap-1.5" onclick={closeModal}>
-							<IconMoon size={14} stroke={1.5} />
-							<span>Open My Logbook</span>
-						</a>
-						<button type="button" class="btn btn-primary btn-sm text-xs px-4" onclick={closeModal}>
-							Done
-						</button>
-					</div>
 				</div>
 			{:else}
-				<!-- Live Preview Hero Card in Edit Mode -->
-			<div class="mt-4 rounded-xl border border-cream/10 bg-[#060a0b] p-4">
+				<div class="space-y-4">
+					<!-- Live Preview Hero Card in Edit Mode -->
+					<div class="rounded-xl border border-cream/10 bg-[#060a0b] p-4">
 				<div class="flex items-center gap-4">
 					<!-- Avatar with direct upload trigger -->
 					<div class="relative shrink-0 group">
@@ -1179,35 +1174,47 @@
 					</div>
 				</div>
 			</div>
+		</div>
+	{/if}
+</div>
 
-			<!-- Fullscreen Footer Action Buttons -->
-			<div class="mt-6 flex items-center justify-between pt-4 border-t border-cream/10">
-				<button
-					type="button"
-					class="btn btn-ghost btn-sm text-xs px-4"
-					onclick={closeModal}
-				>
-					Cancel
-				</button>
+			<!-- Fixed Footer Action Buttons -->
+			<div class="flex items-center justify-between p-4 sm:p-5 border-t border-cream/10 bg-[#060a0b] shrink-0">
+				{#if modalTab === 'stats'}
+					<a href="/archive" class="btn btn-ghost btn-sm text-xs inline-flex items-center gap-1.5" onclick={closeModal}>
+						<IconMoon size={14} stroke={1.5} />
+						<span>Open My Logbook</span>
+					</a>
+					<button type="button" class="btn btn-primary btn-sm text-xs px-5" onclick={closeModal}>
+						Done
+					</button>
+				{:else}
+					<button
+						type="button"
+						class="btn btn-ghost btn-sm text-xs px-4"
+						onclick={closeModal}
+					>
+						Cancel
+					</button>
 
-				<button
-					type="button"
-					class="btn btn-primary btn-sm text-xs px-5 py-2 inline-flex items-center gap-1.5"
-					disabled={saving}
-					onclick={handleSaveProfile}
-				>
-					{#if saving}
-						<span class="soft-blink h-2 w-2 rounded-full bg-night"></span>
-						Saving...
-					{:else if saveSuccess}
-						<IconCheck size={14} stroke={2.5} />
-						Saved!
-					{:else}
-						Save Changes
-					{/if}
-				</button>
+					<button
+						type="button"
+						class="btn btn-primary btn-sm text-xs px-5 py-2 inline-flex items-center gap-1.5"
+						disabled={saving}
+						onclick={handleSaveProfile}
+					>
+						{#if saving}
+							<span class="soft-blink h-2 w-2 rounded-full bg-night"></span>
+							Saving...
+						{:else if saveSuccess}
+							<IconCheck size={14} stroke={2.5} />
+							Saved!
+						{:else}
+							Save Changes
+						{/if}
+					</button>
+				{/if}
 			</div>
-			{/if}
 		</div>
 	</div>
 {/if}
