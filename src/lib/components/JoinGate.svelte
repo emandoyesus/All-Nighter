@@ -5,10 +5,15 @@
 	import IconCircleOff from '@tabler/icons-svelte/icons/circle-off';
 	import IconClock from '@tabler/icons-svelte/icons/clock';
 	import IconLock from '@tabler/icons-svelte/icons/lock';
+	import IconKey from '@tabler/icons-svelte/icons/key';
 
 	function initial(name: string): string {
 		return name.trim().charAt(0).toUpperCase() || '?';
 	}
+
+	let inputKey = $state('');
+	let keyError = $state('');
+	let checking = $state(false);
 
 	const host = $derived(room.directory.find((entry) => entry.room === room.room)?.host || '');
 	const inside = $derived(room.awake.filter((peer) => !peer.self));
@@ -61,6 +66,46 @@
 					</p>
 				{/if}
 			</div>
+
+			{#if room.state.isPrivate}
+				<div class="mt-4 rounded-xl border border-cream/10 bg-[#060a0b] p-3.5 text-left">
+					<div class="flex items-center gap-1.5 mb-2 text-xs font-mono text-amber-300">
+						<IconKey size={13} stroke={2} />
+						<span>Have the Secret Room Key?</span>
+					</div>
+					<form
+						class="flex items-center gap-2"
+						onsubmit={async (e) => {
+							e.preventDefault();
+							if (!inputKey.trim() || checking) return;
+							checking = true;
+							keyError = '';
+							const ok = await room.unlockWithKey(inputKey);
+							checking = false;
+							if (!ok) {
+								keyError = 'Invalid room key. Check your link or ask the host.';
+							}
+						}}
+					>
+						<input
+							type="text"
+							placeholder="Enter secret room key"
+							bind:value={inputKey}
+							class="flex-1 rounded-lg border border-cream/15 bg-night/80 px-3 py-1.5 text-xs text-cream font-mono outline-none focus:border-amber-400/60"
+						/>
+						<button
+							type="submit"
+							disabled={checking || !inputKey.trim()}
+							class="btn btn-secondary btn-sm text-xs font-mono shrink-0 border-amber-400/40 text-amber-300 hover:text-cream disabled:opacity-50"
+						>
+							{checking ? 'Checking...' : 'Unlock'}
+						</button>
+					</form>
+					{#if keyError}
+						<p class="mt-1.5 text-[11px] text-red-400 font-mono">{keyError}</p>
+					{/if}
+				</div>
+			{/if}
 
 			<div class="mt-5">
 				<div class="flex items-center justify-between">

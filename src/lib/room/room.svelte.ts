@@ -186,6 +186,43 @@ export const DEFAULT_STARTER_TRACK: Track = {
 	votes: 1
 };
 
+/** Generate a clean, 12-char high-entropy cryptographic room key */
+export function generateRoomKey(): string {
+	const chars = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
+	const arr = new Uint8Array(12);
+	if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+		crypto.getRandomValues(arr);
+	} else {
+		for (let i = 0; i < arr.length; i++) arr[i] = Math.floor(Math.random() * 256);
+	}
+	return Array.from(arr)
+		.map((b) => chars[b % chars.length])
+		.join('');
+}
+
+/** Compute SHA-256 hash of a room key for secure verification over MQTT */
+export async function hashKey(key: string): Promise<string> {
+	if (!key) return '';
+	const clean = key.trim();
+	if (typeof crypto !== 'undefined' && crypto.subtle) {
+		try {
+			const buf = new TextEncoder().encode(clean);
+			const hash = await crypto.subtle.digest('SHA-256', buf);
+			return Array.from(new Uint8Array(hash))
+				.map((b) => b.toString(16).padStart(2, '0'))
+				.join('');
+		} catch {
+			/* fallback */
+		}
+	}
+	let h = 0x811c9dc5;
+	for (let i = 0; i < clean.length; i++) {
+		h ^= clean.charCodeAt(i);
+		h += (h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24);
+	}
+	return (h >>> 0).toString(16);
+}
+
 type MqttLike = {
 	connected: boolean;
 	publish(
@@ -218,6 +255,11 @@ class Room {
 	/** Estimated remote-minus-local clock skew, milliseconds. */
 	offset = $state(0);
 	lastRemoteAt = $state(0);
+
+	/** Secret invite key for private rooms */
+	accessKey = $state('');
+	/** SHA-256 hash of active access key */
+	activeKeyHash = $state('');
 
 	/** Room lifecycle. */
 	joinState = $state<JoinState>('lobby');
@@ -361,8 +403,13 @@ class Room {
 			} catch {
 				/* ignore */
 			}
-			const hasInvite = typeof window !== 'undefined' && (new URL(window.location.href).searchParams.get('invite') === '1' || new URL(window.location.href).searchParams.has('key'));
-			if (wasHost || hasInvite) {
+			const urlKey = typeof window !== 'undefined' ? new URL(window.location.href).searchParams.get('key')?.trim() : '';
+			const savedKey = this.getSavedKey(slug);
+			const candidateKey = urlKey || savedKey;
+			if (candidateKey) {
+				this.accessKey = candidateKey;
+			}
+			if (wasHost) {
 				this.enterApproved(slug, title || slug, wasHost);
 			} else {
 				this.joinRoom(slug, title || slug);
@@ -492,7 +539,7 @@ class Room {
 		if (rest === 'state') {
 			if (!text) return;
 			try {
-				this.accept(JSON.parse(text));
+				void this.accept(JSON.parse(text));
 			} catch {
 				/* ignore malformed */
 			}
@@ -639,7 +686,7 @@ class Room {
 		}
 	}
 
-	private accept(msg: Partial<RoomState> & { clock?: number }): void {
+	private async accept(msg: Partial<RoomState> & { clock?: number }): Promise<void> {
 		if (!msg || typeof msg.seq !== 'number') return;
 		if (msg.by === this.clientId) return;
 
@@ -663,14 +710,33 @@ class Room {
 			else playBreakChime();
 		}
 
-		// Gate visitor if room is private or door is locked, and user is not host / invited
-		const hasInvite = typeof window !== 'undefined' && (new URL(window.location.href).searchParams.get('invite') === '1' || new URL(window.location.href).searchParams.has('key'));
-		const isPermitted = this.isHost || hasInvite;
+		// Gate visitor if room is private or door is locked, and user is not host / permitted with valid key
+		let isPermitted = this.isHost;
+		if (!isPermitted && msg.accessKeyHash) {
+			const candidateKey =
+				this.accessKey ||
+				(typeof window !== 'undefined' ? new URL(window.location.href).searchParams.get('key')?.trim() : '') ||
+				this.getSavedKey(this.room);
+
+			if (candidateKey) {
+				const candidateHash = await hashKey(candidateKey);
+				if (candidateHash === msg.accessKeyHash) {
+					isPermitted = true;
+					this.accessKey = candidateKey;
+					this.activeKeyHash = candidateHash;
+					try {
+						localStorage.setItem('an.key.' + this.room, candidateKey);
+					} catch {}
+				}
+			}
+		}
 
 		if ((msg.isPrivate || msg.doorLocked) && !isPermitted && this.joinState !== 'approved') {
 			this.joinState = 'waiting';
 			this.publishRequest();
 			this.startRequesting();
+		} else if ((msg.isPrivate || msg.doorLocked) && isPermitted && this.joinState !== 'approved') {
+			this.admit();
 		}
 
 		// Store last raw incoming state so admit() can hydrate immediately upon host approval
@@ -694,6 +760,7 @@ class Room {
 			cycleAuto: !!msg.cycleAuto,
 			doorLocked: !!msg.doorLocked,
 			isPrivate: !!msg.isPrivate,
+			accessKeyHash: msg.accessKeyHash,
 			adminOnlyPlayback: !!msg.adminOnlyPlayback,
 			admins: Array.isArray(msg.admins) ? msg.admins : []
 		};
@@ -743,6 +810,7 @@ class Room {
 				cycleAuto: this.state.cycleAuto,
 				doorLocked: this.state.doorLocked,
 				isPrivate: this.state.isPrivate,
+				accessKeyHash: this.state.accessKeyHash,
 				adminOnlyPlayback: this.state.adminOnlyPlayback,
 				admins: this.state.admins ?? [],
 				clock: Date.now()
@@ -813,12 +881,23 @@ class Room {
 	}
 
 	/** Create a room and step inside as its host. */
-	createRoom(name: string, isPrivate = false, adminOnlyPlayback = false): void {
+	async createRoom(name: string, isPrivate = false, adminOnlyPlayback = false, customKey?: string): Promise<void> {
 		const slug = sanitizeRoom(name);
 		try {
 			recordStat('roomsHosted', 1);
 		} catch {}
-		this.enterApproved(slug, name.trim() || slug, true, true, isPrivate, adminOnlyPlayback);
+
+		let key = '';
+		let keyHash = '';
+		if (isPrivate) {
+			key = customKey?.trim() || generateRoomKey();
+			keyHash = await hashKey(key);
+			try {
+				localStorage.setItem('an.key.' + slug, key);
+			} catch {}
+		}
+
+		this.enterApproved(slug, name.trim() || slug, true, true, isPrivate, adminOnlyPlayback, key, keyHash);
 	}
 
 	/** Claim an unhosted or deserted room and step inside as host. */
@@ -836,8 +915,7 @@ class Room {
 		} catch {
 			/* ignore */
 		}
-		const hasInvite = typeof window !== 'undefined' && (new URL(window.location.href).searchParams.get('invite') === '1' || new URL(window.location.href).searchParams.has('key'));
-		if (wasHost || hasInvite) {
+		if (wasHost) {
 			this.enterApproved(clean, title?.trim() || clean, wasHost);
 			return;
 		}
@@ -845,8 +923,15 @@ class Room {
 		// Check if known in directory to be private
 		const knownAd = this.directory.find((d) => d.room === clean);
 		if (knownAd?.isPrivate) {
-			this.requestJoin(clean, title || knownAd.title);
-			return;
+			const candidateKey =
+				this.accessKey ||
+				(typeof window !== 'undefined' ? new URL(window.location.href).searchParams.get('key')?.trim() : '') ||
+				this.getSavedKey(clean);
+
+			if (!candidateKey) {
+				this.requestJoin(clean, title || knownAd.title);
+				return;
+			}
 		}
 
 		this.enterApproved(clean, title?.trim() || clean, false);
@@ -932,7 +1017,16 @@ class Room {
 		void this.dbSync.attachRoom(this.room, this.title, this.clientId, this.name);
 	}
 
-	private enterApproved(slug: string, title: string, host: boolean, isNew = false, isPrivate = false, adminOnlyPlayback = false): void {
+	private enterApproved(
+		slug: string,
+		title: string,
+		host: boolean,
+		isNew = false,
+		isPrivate = false,
+		adminOnlyPlayback = false,
+		accessKey = '',
+		accessKeyHash = ''
+	): void {
 		this.resetRoom();
 		this.room = slug;
 		this.title = title;
@@ -941,6 +1035,13 @@ class Room {
 		this.roomStartedAt = Date.now();
 		this.startedBeforeDawn = !isDawnReached(new Date());
 		this.dawnArchived = false;
+
+		if (accessKey) {
+			this.accessKey = accessKey;
+		}
+		if (accessKeyHash) {
+			this.activeKeyHash = accessKeyHash;
+		}
 
 		if (isNew) {
 			const starter: Track = {
@@ -958,6 +1059,7 @@ class Room {
 				by: this.name || 'host',
 				isPrivate,
 				doorLocked: isPrivate,
+				accessKeyHash: accessKeyHash || undefined,
 				adminOnlyPlayback
 			};
 		}
@@ -1186,9 +1288,14 @@ class Room {
 			if (url.pathname === '/room') {
 				if (slug) {
 					url.searchParams.set('room', slug);
+					if (this.state.isPrivate && this.accessKey) {
+						url.searchParams.set('key', this.accessKey);
+					}
 				} else {
 					url.searchParams.delete('room');
+					url.searchParams.delete('key');
 				}
+				url.searchParams.delete('invite');
 				goto(url.toString(), { replace: true, reset: false });
 			}
 		} catch {
@@ -1678,8 +1785,38 @@ class Room {
 
 	inviteUrl(slug: string): string {
 		if (typeof location === 'undefined') return '';
-		const base = `${location.origin}${location.pathname}?room=${sanitizeRoom(slug)}`;
-		return this.state.isPrivate ? `${base}&invite=1` : base;
+		const clean = sanitizeRoom(slug);
+		const base = `${location.origin}${location.pathname}?room=${clean}`;
+		if (this.state.isPrivate || (clean === this.room && this.state.isPrivate)) {
+			const key = this.accessKey || this.getSavedKey(clean);
+			return key ? `${base}&key=${encodeURIComponent(key)}` : base;
+		}
+		return base;
+	}
+
+	getSavedKey(slug: string): string {
+		if (typeof localStorage === 'undefined') return '';
+		try {
+			return localStorage.getItem('an.key.' + sanitizeRoom(slug)) || '';
+		} catch {
+			return '';
+		}
+	}
+
+	async unlockWithKey(key: string): Promise<boolean> {
+		const cleanKey = key.trim();
+		if (!cleanKey || !this.room) return false;
+		const h = await hashKey(cleanKey);
+		if (this.state.accessKeyHash && h === this.state.accessKeyHash) {
+			this.accessKey = cleanKey;
+			this.activeKeyHash = h;
+			try {
+				localStorage.setItem('an.key.' + this.room, cleanKey);
+			} catch {}
+			this.admit();
+			return true;
+		}
+		return false;
 	}
 
 	/* --------------------------------------------------------- housekeeping */

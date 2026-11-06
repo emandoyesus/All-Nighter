@@ -45,6 +45,7 @@ export type RoomState = {
 	cycleAuto?: boolean;
 	doorLocked?: boolean;
 	isPrivate?: boolean;
+	accessKeyHash?: string;
 	adminOnlyPlayback?: boolean;
 	admins?: string[];
 };

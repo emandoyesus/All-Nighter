@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { room, sanitizeRoom } from '#lib/room/room.svelte';
+	import { room, sanitizeRoom, generateRoomKey } from '#lib/room/room.svelte';
 	import IconPlus from '@tabler/icons-svelte/icons/plus';
 	import IconDoorEnter from '@tabler/icons-svelte/icons/door-enter';
 	import IconUsers from '@tabler/icons-svelte/icons/users';
@@ -9,10 +9,13 @@
 	import IconWorld from '@tabler/icons-svelte/icons/world';
 	import IconLock from '@tabler/icons-svelte/icons/lock';
 	import IconShield from '@tabler/icons-svelte/icons/shield';
+	import IconKey from '@tabler/icons-svelte/icons/key';
+	import IconDice from '@tabler/icons-svelte/icons/dice';
 
 	let creating = $state(false);
 	let draft = $state('late-night-shift');
 	let isPrivate = $state(false);
+	let roomKeyDraft = $state(generateRoomKey());
 	let adminOnly = $state(false);
 	let nightPlan = $state('');
 	let copiedSlug = $state<string | null>(null);
@@ -43,19 +46,26 @@
 			// Store the intention before creating the room so announce() picks it up
 			room.setIntention(nightPlan.trim());
 		}
-		room.createRoom(name, isPrivate, adminOnly);
+		void room.createRoom(name, isPrivate, adminOnly, isPrivate ? roomKeyDraft : undefined);
 	}
 
 	function handleJoinPrivate(event: SubmitEvent): void {
 		event.preventDefault();
 		const target = joinPrivateInput.trim();
 		if (!target) return;
-		// Handle pasted full URLs like http://localhost:5173/room?room=my-room
+		// Handle pasted full URLs like http://localhost:5173/room?room=my-room&key=123
 		if (target.includes('room=')) {
 			try {
 				const u = new URL(target, window.location.origin);
 				const p = u.searchParams.get('room');
+				const k = u.searchParams.get('key');
 				if (p) {
+					if (k) {
+						room.accessKey = k;
+						try {
+							localStorage.setItem('an.key.' + sanitizeRoom(p), k);
+						} catch {}
+					}
 					room.joinRoom(p);
 					return;
 				}
@@ -291,7 +301,39 @@
 				class="w-full rounded-field border border-cream/10 bg-night/60 px-3 py-2 text-sm text-cream outline-none transition-colors focus:border-lamp/60"
 				bind:value={draft}
 			/>
-			<p class="num text-[11px] text-faint">link → ?room={slug}</p>
+
+			{#if isPrivate}
+				<div class="rounded-xl border border-amber-400/25 bg-amber-400/5 p-3">
+					<div class="flex items-center justify-between mb-1">
+						<label for="private-key" class="text-xs font-mono text-amber-300 flex items-center gap-1.5">
+							<IconKey size={13} stroke={2} />
+							<span>Secret Invite Key</span>
+						</label>
+						<button
+							type="button"
+							class="text-[10px] font-mono text-faint hover:text-cream flex items-center gap-1 transition-colors cursor-pointer"
+							onclick={() => (roomKeyDraft = generateRoomKey())}
+							title="Generate new secure key"
+						>
+							<IconDice size={12} stroke={1.5} />
+							<span>Randomize</span>
+						</button>
+					</div>
+					<input
+						id="private-key"
+						type="text"
+						maxlength="32"
+						bind:value={roomKeyDraft}
+						placeholder="e.g. m4K7pW9xN2bQ"
+						class="w-full rounded-lg border border-amber-400/30 bg-night/80 px-2.5 py-1.5 text-xs text-amber-200 font-mono outline-none focus:border-amber-400"
+					/>
+					<p class="mt-1 text-[10px] text-faint font-mono">
+						Direct link: <span class="text-taupe">?room={slug}&key={roomKeyDraft}</span>
+					</p>
+				</div>
+			{:else}
+				<p class="num text-[11px] text-faint">link → ?room={slug}</p>
+			{/if}
 
 			<label for="night-plan" class="text-xs text-faint">What's the plan tonight?</label>
 			<input
