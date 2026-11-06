@@ -409,6 +409,63 @@ input[type='range'].seek {
 	cursor: pointer;
 }
 
+/* --- custom dark theme scrollbars ------------------------------------- */
+
+* {
+	scrollbar-width: thin;
+	scrollbar-color: rgba(243, 236, 225, 0.18) transparent;
+}
+
+*::-webkit-scrollbar {
+	width: 6px;
+	height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+	background: rgba(243, 236, 225, 0.18);
+	border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+	background: rgba(243, 236, 225, 0.35);
+}
+
+.custom-scrollbar {
+	scrollbar-width: thin;
+	scrollbar-color: rgba(131, 249, 214, 0.28) rgba(6, 10, 11, 0.5);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+	width: 5px;
+	height: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+	background: rgba(6, 10, 11, 0.5);
+	border-radius: 999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+	background: rgba(131, 249, 214, 0.28);
+	border-radius: 999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+	background: rgba(131, 249, 214, 0.5);
+}
+
+.no-scrollbar {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+	display: none;
+}
+
 /* --- archive rail scrollbar ------------------------------------------- */
 
 .rail {
