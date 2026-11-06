@@ -100,13 +100,11 @@
 				<span>Auto: {room.state.cycleAuto ? 'On' : 'Off'}</span>
 			</button>
 
-			<button
-				type="button"
-				class="inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-mono transition-colors {room.state.isPrivate
+			<span
+				class="inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-mono {room.state.isPrivate
 					? 'border-amber-400/40 bg-amber-400/10 text-amber-300'
 					: 'border-lamp/40 bg-lamp/10 text-lamp'}"
-				onclick={() => room.togglePrivacy()}
-				title={room.state.isPrivate ? 'Room is private (invite-only). Click to make public.' : 'Room is public. Click to make private.'}
+				title="Room privacy is locked upon creation and cannot be changed ({room.state.isPrivate ? 'Private' : 'Public'})"
 			>
 				{#if room.state.isPrivate}
 					<IconLock size={11} stroke={1.5} />
@@ -115,7 +113,7 @@
 					<IconWorld size={11} stroke={1.5} />
 					<span>Public</span>
 				{/if}
-			</button>
+			</span>
 
 			<button
 				type="button"

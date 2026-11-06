@@ -1465,33 +1465,8 @@ class Room {
 		);
 	}
 
-	async togglePrivacy(): Promise<void> {
-		if (!this.isHost) return;
-		const nextPrivate = !this.state.isPrivate;
-		let key = this.accessKey || this.getSavedKey(this.room);
-		let keyHash = this.state.accessKeyHash;
-
-		if (nextPrivate && (!key || !keyHash)) {
-			key = key || generateRoomKey();
-			keyHash = await hashKey(key);
-			this.accessKey = key;
-			this.activeKeyHash = keyHash;
-			try {
-				localStorage.setItem('an.key.' + this.room, key);
-			} catch {}
-		}
-
-		this.mutate(
-			(s) => ({
-				...s,
-				isPrivate: nextPrivate,
-				doorLocked: nextPrivate ? true : s.doorLocked,
-				accessKeyHash: nextPrivate ? keyHash : undefined
-			}),
-			nextPrivate ? 'switched the room to private' : 'switched the room to public'
-		);
-		this.syncUrl(this.room);
-		this.updateAd();
+	togglePrivacy(): void {
+		console.warn('[Room] Room privacy is permanent and cannot be modified after creation.');
 	}
 
 	isAdmin(peerId: string, peerName?: string): boolean {
