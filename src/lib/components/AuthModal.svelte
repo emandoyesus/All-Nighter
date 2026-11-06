@@ -224,7 +224,7 @@
 			window.dispatchEvent(new CustomEvent('an:profile-updated'));
 
 			setTimeout(() => {
-				isEditing = false;
+				closeModal();
 				saveSuccess = false;
 			}, 900);
 		} catch (err: any) {
@@ -278,17 +278,17 @@
 	async function handleSignOut() {
 		await auth.signOut();
 		syncFromCurrentProfile();
-		open = false;
+		closeModal();
+	}
+
+	function closeModal(): void {
 		isEditing = false;
+		open = false;
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.key === 'Escape') {
-			if (isEditing) {
-				isEditing = false;
-			} else if (open) {
-				open = false;
-			}
+			closeModal();
 		}
 	}
 
@@ -395,7 +395,7 @@
 	{#if open && !isEditing}
 		<div
 			class="absolute right-0 top-full mt-2.5 z-50 w-[310px] sm:w-[340px] max-w-[calc(100vw-1.5rem)] rounded-2xl border border-cream/20 bg-[#0a1012] p-4 shadow-2xl text-cream"
-			role="dialog"
+			role="region"
 			aria-label="Night Profile"
 		>
 			<!-- Dropdown Header -->
@@ -611,24 +611,8 @@
 							{#each userStats.achievements as a (a.id)}
 								<div class="flex items-center justify-between gap-2 rounded-lg border p-1.5 text-xs transition-colors {a.unlocked ? 'border-cream/15 bg-[#060a0b]' : 'border-cream/5 bg-night-3/30 opacity-55'}">
 									<div class="flex items-center gap-2 min-w-0">
-										<span class="grid h-5 w-5 shrink-0 place-items-center rounded border {getTierBadgeClass(a.tier)}">
-											{#if a.icon === 'sun'}
-												<IconSun size={11} stroke={2} />
-											{:else if a.icon === 'moon'}
-												<IconMoon size={11} stroke={2} />
-											{:else if a.icon === 'disc'}
-												<IconDisc size={11} stroke={2} />
-											{:else if a.icon === 'flame'}
-												<IconFlame size={11} stroke={2} />
-											{:else if a.icon === 'crown'}
-												<IconCrown size={11} stroke={2} />
-											{:else if a.icon === 'target'}
-												<IconTarget size={11} stroke={2} />
-											{:else if a.icon === 'bolt'}
-												<IconBolt size={11} stroke={2} />
-											{:else}
-												<IconAward size={11} stroke={2} />
-											{/if}
+										<span class="grid h-6 w-6 shrink-0 place-items-center rounded-lg border text-xs select-none {getTierBadgeClass(a.tier)}">
+											{a.emoji}
 										</span>
 										<div class="min-w-0">
 											<p class="truncate text-[11px] font-medium text-cream">{a.title}</p>
@@ -762,10 +746,11 @@
 		role="dialog"
 		aria-modal="true"
 		aria-label="Edit Profile"
+		tabindex="-1"
+		onclick={(e) => { if (e.target === e.currentTarget) closeModal(); }}
 	>
 		<div
 			class="relative w-full max-w-xl rounded-2xl border border-cream/20 bg-[#0a1012] p-5 sm:p-7 shadow-2xl text-cream my-auto"
-			use:clickOutside={() => (isEditing = false)}
 		>
 			<!-- Fullscreen Edit Header -->
 			<div class="flex items-center justify-between pb-4 border-b border-cream/10">
@@ -783,7 +768,7 @@
 				<button
 					type="button"
 					class="rounded-lg p-1.5 text-faint transition-colors hover:text-cream hover:bg-cream/10"
-					onclick={() => (isEditing = false)}
+					onclick={closeModal}
 					aria-label="Close"
 				>
 					<IconX size={18} stroke={1.5} />
@@ -900,24 +885,8 @@
 									<div>
 										<div class="flex items-start justify-between gap-2">
 											<div class="flex items-center gap-2.5">
-												<span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg border {getTierBadgeClass(a.tier)}">
-													{#if a.icon === 'sun'}
-														<IconSun size={18} stroke={2} />
-													{:else if a.icon === 'moon'}
-														<IconMoon size={18} stroke={2} />
-													{:else if a.icon === 'disc'}
-														<IconDisc size={18} stroke={2} />
-													{:else if a.icon === 'flame'}
-														<IconFlame size={18} stroke={2} />
-													{:else if a.icon === 'crown'}
-														<IconCrown size={18} stroke={2} />
-													{:else if a.icon === 'target'}
-														<IconTarget size={18} stroke={2} />
-													{:else if a.icon === 'bolt'}
-														<IconBolt size={18} stroke={2} />
-													{:else}
-														<IconAward size={18} stroke={2} />
-													{/if}
+												<span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl border text-xl {getTierBadgeClass(a.tier)} shadow-sm select-none">
+													{a.emoji}
 												</span>
 												<div class="min-w-0">
 													<p class="text-sm font-semibold text-cream leading-tight truncate">{a.title}</p>
@@ -962,11 +931,11 @@
 
 					<!-- Navigation Links at bottom of Achievements -->
 					<div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-cream/10">
-						<a href="/archive" class="btn btn-ghost btn-sm text-xs inline-flex items-center gap-1.5" onclick={() => (open = false)}>
+						<a href="/archive" class="btn btn-ghost btn-sm text-xs inline-flex items-center gap-1.5" onclick={closeModal}>
 							<IconMoon size={14} stroke={1.5} />
 							<span>Open My Logbook</span>
 						</a>
-						<button type="button" class="btn btn-primary btn-sm text-xs px-4" onclick={() => (isEditing = false)}>
+						<button type="button" class="btn btn-primary btn-sm text-xs px-4" onclick={closeModal}>
 							Done
 						</button>
 					</div>
@@ -1216,7 +1185,7 @@
 				<button
 					type="button"
 					class="btn btn-ghost btn-sm text-xs px-4"
-					onclick={() => (isEditing = false)}
+					onclick={closeModal}
 				>
 					Cancel
 				</button>
