@@ -495,7 +495,11 @@
 		<div class="panel p-3.5 sm:p-4">
 			<div class="flex items-center justify-between">
 				<p class="text-xs text-taupe font-mono">
-					{currentPhase === 'pre_midnight' ? 'till midnight (00:00)' : 'till sunrise (06:00)'}
+					{#if currentPhase === 'pre_midnight'}
+						till midnight (00:00)
+					{:else}
+						till <span class="text-amber font-medium">sunrise ({String(dawn.h).padStart(2, '0')}:{String(dawn.m).padStart(2, '0')})</span>
+					{/if}
 				</p>
 				{#if currentPhase === 'session_active'}
 					<button

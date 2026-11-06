@@ -121,11 +121,11 @@
 		>
 			<div class="flex items-start justify-between gap-3">
 				<div class="flex items-center gap-2">
-					<span class="grid h-8 w-8 place-items-center rounded-full bg-lamp/15 text-lamp">
+					<span class="grid h-8 w-8 place-items-center rounded-full bg-amber/15 text-amber">
 						<IconSun size={18} stroke={1.5} />
 					</span>
 					<div>
-						<h2 class="text-lg font-semibold text-cream">Sunrise Ritual</h2>
+						<h2 class="text-lg font-semibold text-cream"><span class="text-amber">Sunrise</span> Ritual</h2>
 						<p class="num text-xs text-faint">{room.title || room.room} · session log</p>
 					</div>
 				</div>
@@ -166,7 +166,7 @@
 			<!-- What the room worked on -->
 			{#if intentions.length > 0}
 				<div class="mt-4 max-h-40 overflow-y-auto rounded-field border border-cream/10 bg-night/40 p-3">
-					<p class="mb-2 text-[11px] font-medium text-faint uppercase tracking-wider">Tonight's Intentions</p>
+					<p class="mb-2 text-[11px] font-medium text-amber font-mono uppercase tracking-wider">Tonight's Intentions</p>
 					<ul class="space-y-1.5 text-xs">
 						{#each intentions as item}
 							<li class="flex items-baseline gap-2">

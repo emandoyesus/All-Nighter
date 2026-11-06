@@ -46,7 +46,7 @@
 			case 'silver':
 				return 'border-teal-500/40 bg-teal-500/10 text-aqua-foam';
 			case 'gold':
-				return 'border-yellow-400/50 bg-yellow-400/10 text-yellow-300';
+				return 'border-amber/50 bg-amber/15 text-amber';
 			case 'neon':
 				return 'border-violet-400/50 bg-violet-400/10 text-violet-300';
 		}
@@ -545,8 +545,8 @@
 							<div>
 								<p class="text-[9px] font-mono uppercase tracking-wider text-faint">Nocturnal Rank</p>
 								<div class="flex items-center gap-1.5 mt-0.5">
-									<span class="text-xs font-bold text-lamp font-mono">{userStats.rank.title}</span>
-									<span class="rounded bg-lamp/10 border border-lamp/25 px-1 py-0.2 text-[9px] font-mono text-lamp">
+									<span class="text-xs font-bold text-amber font-mono">{userStats.rank.title}</span>
+									<span class="rounded bg-amber/10 border border-amber/30 px-1 py-0.2 text-[9px] font-mono text-amber">
 										Lvl {userStats.rank.level}
 									</span>
 								</div>
@@ -590,7 +590,7 @@
 								<IconSun size={11} class="text-amber" />
 								Sunrise Rituals
 							</p>
-							<p class="mt-0.5 text-sm font-bold font-mono text-cream">{userStats.dawnRituals}</p>
+							<p class="mt-0.5 text-sm font-bold font-mono {userStats.dawnRituals > 0 ? 'text-amber' : 'text-cream'}">{userStats.dawnRituals}</p>
 						</div>
 						<div class="rounded-lg border border-cream/10 bg-[#060a0b] p-2">
 							<p class="text-[9px] font-mono uppercase tracking-wider text-faint flex items-center gap-1">
@@ -812,8 +812,8 @@
 								</span>
 								<div>
 									<div class="flex items-center gap-2">
-										<h4 class="font-mono text-lg font-bold text-cream">{userStats.rank.title}</h4>
-										<span class="rounded-full bg-lamp/15 border border-lamp/30 px-2 py-0.5 font-mono text-[10px] font-bold text-lamp">
+										<h4 class="font-mono text-lg font-bold text-amber">{userStats.rank.title}</h4>
+										<span class="rounded-full bg-amber/15 border border-amber/30 px-2 py-0.5 font-mono text-[10px] font-bold text-amber">
 											Level {userStats.rank.level}
 										</span>
 									</div>
@@ -861,7 +861,7 @@
 							<span class="grid h-7 w-7 mx-auto place-items-center rounded-lg bg-amber/10 text-amber mb-1.5">
 								<IconSun size={15} stroke={2} />
 							</span>
-							<p class="text-xl font-bold font-mono text-cream">{userStats.dawnRituals}</p>
+							<p class="text-xl font-bold font-mono {userStats.dawnRituals > 0 ? 'text-amber' : 'text-cream'}">{userStats.dawnRituals}</p>
 							<p class="text-[10px] font-mono uppercase tracking-wider text-faint mt-0.5">Sunrise Rituals</p>
 						</div>
 						<div class="rounded-xl border border-cream/10 bg-[#060a0b] p-3 text-center">

@@ -65,7 +65,7 @@
 				data-split
 				use:splitReveal={{ scroll: false, delay: 0.12, stagger: 0.06, yPercent: 120 }}
 			>
-				Show up.<br />Lock in till <span class="text-lamp">sunrise</span>.
+				Show up.<br />Lock in till <span class="text-amber">sunrise</span>.
 			</h1>
 			<p class="mt-5 max-w-[46ch] text-lg leading-relaxed text-taupe" data-hero>
 				Work alongside each other. The music holds it together. Dawn closes the book.
