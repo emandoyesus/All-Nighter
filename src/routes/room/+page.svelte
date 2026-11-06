@@ -145,11 +145,11 @@
 					<div class="flex items-center gap-1.5">
 						<button class="btn btn-ghost btn-sm text-xs py-1 px-2.5" onclick={copyLink} title="Copy direct room invite link">
 							{#if copied}
-								<IconCheck size={13} stroke={1.5} />
-								Copied
+								<IconCheck size={13} stroke={1.5} class="text-lamp" />
+								<span>Copied!</span>
 							{:else}
 								<IconCopy size={13} stroke={1.5} />
-								Share
+								<span>Invite link</span>
 							{/if}
 						</button>
 						<button class="btn btn-amber btn-sm text-xs py-1 px-2.5" onclick={() => (showDawnModal = true)} title="Log room session">
