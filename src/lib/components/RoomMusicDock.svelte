@@ -150,13 +150,17 @@
 						<span class="shrink-0">·</span>
 						<span class="truncate inline-flex items-center gap-1">
 							<span class="shrink-0">added by</span>
-							<a
-								href="/crew/{track.addedBy}"
-								class="truncate font-medium text-cream/90 transition-colors hover:text-lamp underline decoration-cream/20 underline-offset-2"
-								onclick={(e) => e.stopPropagation()}
+							<button
+								type="button"
+								class="truncate font-medium text-cream/90 transition-colors hover:text-lamp underline decoration-cream/20 underline-offset-2 cursor-pointer text-left"
+								onclick={(e) => {
+									e.stopPropagation();
+									window.dispatchEvent(new CustomEvent('an:inspect-peer', { detail: { name: track.addedBy } }));
+								}}
+								title="View {track.addedBy}'s nocturnal profile"
 							>
 								{track.addedBy}
-							</a>
+							</button>
 						</span>
 					</div>
 				</div>

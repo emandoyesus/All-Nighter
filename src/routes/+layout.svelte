@@ -11,6 +11,7 @@
 	import SiteAudioPlayer from '#lib/components/SiteAudioPlayer.svelte';
 	import RoomMusicDock from '#lib/components/RoomMusicDock.svelte';
 	import DeskHud from '#lib/components/DeskHud.svelte';
+	import PeerProfileModal from '#lib/components/PeerProfileModal.svelte';
 	import type { LayoutProps } from './$types';
 
 	let { children }: LayoutProps = $props();
@@ -50,3 +51,4 @@
 <RoomMusicDock />
 
 <DeskHud bind:open={showDeskHud} />
+<PeerProfileModal />

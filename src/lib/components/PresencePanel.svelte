@@ -58,50 +58,57 @@
 			{@const isPeerHost = peer.name === room.hostName() || (peer.self && room.isHost)}
 			{@const isPeerAdmin = room.isAdmin(peer.id, peer.name)}
 			<li class="flex items-center gap-2 group text-xs">
-				{#if peer.avatar}
-					<img
-						src={peer.avatar}
-						alt={peer.name}
-						class="h-5 w-5 shrink-0 rounded-full object-cover border border-lamp/30 bg-night"
-					/>
-				{:else}
-					<span
-						class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-lamp/15 text-[10px] font-semibold text-lamp"
-					>
-						{initial(peer.name)}
-					</span>
-				{/if}
-				<div class="min-w-0 flex-1">
-					<div class="flex flex-wrap items-center gap-1">
-						<span class="{peer.self ? 'text-cream font-medium' : 'text-taupe'}">{peer.name}</span>
-						{#if isPeerHost}
-							<span class="inline-flex items-center gap-0.5 rounded bg-amber-400/15 px-1 py-0.1 text-[9px] text-amber-300 font-mono border border-amber-400/30" title="Room Host">
-								<IconCrown size={9} stroke={2} />
-								Host
-							</span>
-						{:else if isPeerAdmin}
-							<span class="inline-flex items-center gap-0.5 rounded bg-teal-500/15 px-1 py-0.1 text-[9px] text-aqua-foam font-mono border border-teal-500/30" title="Room Admin (Aux control)">
-								<IconShieldCheck size={9} stroke={2} />
-								Admin
-							</span>
-						{/if}
-						{#if peer.status}
-							<span class="rounded-full bg-cream/8 px-1 py-0.1 text-[10px] text-lamp">{peer.status}</span>
-						{/if}
-						{#if pClock}
-							<span
-								class="num inline-flex items-center gap-0.5 rounded bg-night/80 px-1 py-0.1 text-[9px] text-faint ring-1 ring-cream/10"
-								title={`${pClock.badge} for ${peer.name}`}
-							>
-								<span>{pClock.icon}</span>
-								<span>{pClock.time}</span>
-							</span>
+				<button
+					type="button"
+					class="flex items-center gap-2 min-w-0 flex-1 text-left rounded-lg p-1 -m-1 transition-colors hover:bg-cream/5 cursor-pointer"
+					onclick={() => window.dispatchEvent(new CustomEvent('an:inspect-peer', { detail: { peer } }))}
+					title="View {peer.name}'s nocturnal profile"
+				>
+					{#if peer.avatar}
+						<img
+							src={peer.avatar}
+							alt={peer.name}
+							class="h-5 w-5 shrink-0 rounded-full object-cover border border-lamp/30 bg-night group-hover:scale-105 transition-transform"
+						/>
+					{:else}
+						<span
+							class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-lamp/15 text-[10px] font-semibold text-lamp group-hover:scale-105 transition-transform"
+						>
+							{initial(peer.name)}
+						</span>
+					{/if}
+					<div class="min-w-0 flex-1">
+						<div class="flex flex-wrap items-center gap-1">
+							<span class="truncate {peer.self ? 'text-cream font-medium' : 'text-taupe group-hover:text-cream'}">{peer.name}</span>
+							{#if isPeerHost}
+								<span class="inline-flex items-center gap-0.5 rounded bg-amber-400/15 px-1 py-0.1 text-[9px] text-amber-300 font-mono border border-amber-400/30" title="Room Host">
+									<IconCrown size={9} stroke={2} />
+									Host
+								</span>
+							{:else if isPeerAdmin}
+								<span class="inline-flex items-center gap-0.5 rounded bg-teal-500/15 px-1 py-0.1 text-[9px] text-aqua-foam font-mono border border-teal-500/30" title="Room Admin (Aux control)">
+									<IconShieldCheck size={9} stroke={2} />
+									Admin
+								</span>
+							{/if}
+							{#if peer.status}
+								<span class="rounded-full bg-cream/8 px-1 py-0.1 text-[10px] text-lamp">{peer.status}</span>
+							{/if}
+							{#if pClock}
+								<span
+									class="num inline-flex items-center gap-0.5 rounded bg-night/80 px-1 py-0.1 text-[9px] text-faint ring-1 ring-cream/10"
+									title={`${pClock.badge} for ${peer.name}`}
+								>
+									<span>{pClock.icon}</span>
+									<span>{pClock.time}</span>
+								</span>
+							{/if}
+						</div>
+						{#if peer.intention}
+							<p class="truncate text-[10px] italic text-faint/80">{peer.intention}</p>
 						{/if}
 					</div>
-					{#if peer.intention}
-						<p class="truncate text-[10px] italic text-faint/80">{peer.intention}</p>
-					{/if}
-				</div>
+				</button>
 
 				<!-- Host control to toggle Admin status for peers -->
 				{#if room.isHost && !isPeerHost && !peer.self}

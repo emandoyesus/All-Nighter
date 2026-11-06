@@ -71,7 +71,14 @@
 		{#each messages as msg (msg.id)}
 			<li class="text-sm leading-relaxed">
 				<p class="flex items-baseline gap-2 text-xs">
-					<span class={msg.whoId === room.clientId ? 'text-lamp' : 'text-taupe'}>{msg.who}</span>
+					<button
+						type="button"
+						class="font-medium text-left transition-colors hover:underline cursor-pointer {msg.whoId === room.clientId ? 'text-lamp' : 'text-taupe hover:text-cream'}"
+						onclick={() => window.dispatchEvent(new CustomEvent('an:inspect-peer', { detail: { name: msg.who, id: msg.whoId } }))}
+						title="View {msg.who}'s nocturnal profile"
+					>
+						{msg.who}
+					</button>
 					<span class="num text-[10px] text-faint">{clock(msg.ts)}</span>
 				</p>
 				<p class="break-words text-cream/90">{msg.text}</p>
