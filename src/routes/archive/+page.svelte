@@ -372,7 +372,7 @@
 							<div class="flex items-center gap-3">
 								<span class="inline-flex items-center gap-1">
 									<IconClock size={12} stroke={1.5} class="text-amber" />
-									<span class="text-cream/80">{night.hours}</span>
+									<span class="text-amber/90">{night.hours}</span>
 								</span>
 								<span class="inline-flex items-center gap-1">
 									<IconMusic size={12} stroke={1.5} class="text-lamp" />

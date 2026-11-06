@@ -81,11 +81,11 @@
 			use:reveal={140}
 		>
 			<div class="max-w-[58ch]">
-				<span class="mb-3 inline-flex w-fit items-center gap-1.5 rounded-full border border-cream/15 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-taupe">
+				<span class="mb-3 inline-flex w-fit items-center gap-1.5 rounded-full border border-amber/35 bg-amber/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-amber">
 					<IconSunrise size={11} stroke={2} />
 					Dawn ritual
 				</span>
-				<h3 class="text-xl font-medium">Dawn closes the book.</h3>
+				<h3 class="text-xl font-medium"><span class="text-amber">Dawn</span> closes the book.</h3>
 				<p class="mt-2 text-sm leading-relaxed text-taupe">
 					When the room closes, a page gets written: the tracklist, who was there, what everyone
 					worked on, and the moments that got screenshotted. Kept in the archive, forever.
