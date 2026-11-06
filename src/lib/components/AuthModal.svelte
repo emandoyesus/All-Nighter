@@ -3,6 +3,7 @@
 	import { auth } from '#lib/auth.svelte';
 	import { isSupabaseConfigured } from '#lib/supabase';
 	import { room } from '#lib/room/room.svelte';
+	import { getUserProfileStats, type UserProfileStats, type Achievement } from '#lib/data/profile-stats';
 	import IconX from '@tabler/icons-svelte/icons/x';
 	import IconCheck from '@tabler/icons-svelte/icons/check';
 	import IconDice from '@tabler/icons-svelte/icons/dice';
@@ -13,11 +14,43 @@
 	import IconPencil from '@tabler/icons-svelte/icons/pencil';
 	import IconCamera from '@tabler/icons-svelte/icons/camera';
 	import IconArrowLeft from '@tabler/icons-svelte/icons/arrow-left';
+	import IconTrophy from '@tabler/icons-svelte/icons/trophy';
+	import IconAward from '@tabler/icons-svelte/icons/award';
+	import IconFlame from '@tabler/icons-svelte/icons/flame';
+	import IconSun from '@tabler/icons-svelte/icons/sun';
+	import IconMoon from '@tabler/icons-svelte/icons/moon';
+	import IconDisc from '@tabler/icons-svelte/icons/disc';
+	import IconTarget from '@tabler/icons-svelte/icons/target';
+	import IconCrown from '@tabler/icons-svelte/icons/crown';
+	import IconBolt from '@tabler/icons-svelte/icons/bolt';
+	import IconLock from '@tabler/icons-svelte/icons/lock';
+	import IconClock from '@tabler/icons-svelte/icons/clock';
+	import IconSparkles from '@tabler/icons-svelte/icons/sparkles';
 
 	let open = $state(false);
 	let isEditing = $state(false);
 	let showAuthForm = $state(false);
 	let isSignUp = $state(false);
+	let dropdownTab = $state<'profile' | 'stats'>('profile');
+	let modalTab = $state<'edit' | 'stats'>('edit');
+	let userStats = $state<UserProfileStats>(getUserProfileStats());
+
+	function refreshStats(): void {
+		userStats = getUserProfileStats(currentDisplayName);
+	}
+
+	function getTierBadgeClass(tier: Achievement['tier']): string {
+		switch (tier) {
+			case 'bronze':
+				return 'border-amber/40 bg-amber/10 text-amber';
+			case 'silver':
+				return 'border-teal-500/40 bg-teal-500/10 text-aqua-foam';
+			case 'gold':
+				return 'border-yellow-400/50 bg-yellow-400/10 text-yellow-300';
+			case 'neon':
+				return 'border-violet-400/50 bg-violet-400/10 text-violet-300';
+		}
+	}
 
 	// Profile draft states
 	let editCallsign = $state('');
@@ -285,13 +318,19 @@
 	}
 
 	onMount(() => {
+		refreshStats();
 		const onOpen = (e: Event) => {
 			const custom = e as CustomEvent<{ edit?: boolean }>;
 			openModal(Boolean(custom?.detail?.edit));
 		};
+		const onStats = () => refreshStats();
 		window.addEventListener('an:open-profile-modal', onOpen);
+		window.addEventListener('an:stats-updated', onStats);
+		window.addEventListener('an:profile-updated', onStats);
 		return () => {
 			window.removeEventListener('an:open-profile-modal', onOpen);
+			window.removeEventListener('an:stats-updated', onStats);
+			window.removeEventListener('an:profile-updated', onStats);
 		};
 	});
 
@@ -376,100 +415,255 @@
 				</button>
 			</div>
 
-			<!-- Small text: "Edit your profile to be able to edit all this" -->
-			<p class="mt-2.5 text-xs text-faint leading-tight">
-				Edit your profile to be able to edit all this
-			</p>
-
-			<!-- Profile Preview Card (100% Solid, Non-transparent) -->
-			<div class="mt-3 rounded-xl border border-cream/10 bg-[#060a0b] p-3">
-				<div class="flex items-center gap-3">
-					<!-- Avatar with direct upload trigger -->
-					<div class="relative shrink-0 group">
-						<img
-							src={currentDisplayAvatar}
-							alt={currentDisplayName}
-							class="h-13 w-13 rounded-full object-cover border-2 border-lamp/40 bg-[#0a1012] transition-transform group-hover:scale-[1.03]"
-							onerror={(e) => {
-								(e.currentTarget as HTMLImageElement).src = '/default-avatar.svg';
-							}}
-						/>
-						<span
-							class="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-lamp border-2 border-[#060a0b]"
-							title="Awake now"
-						></span>
-
-						<!-- Clickable camera overlay to upload photo directly -->
-						<button
-							type="button"
-							class="absolute inset-0 flex flex-col items-center justify-center rounded-full bg-[#060a0b]/85 text-lamp opacity-0 group-hover:opacity-100 transition-opacity"
-							onclick={triggerUpload}
-							title="Upload your own photo"
-							aria-label="Upload your own photo"
-						>
-							<IconCamera size={15} stroke={1.7} />
-							<span class="text-[8px] font-mono text-white">Upload</span>
-						</button>
-					</div>
-
-					<!-- Details -->
-					<div class="min-w-0 flex-1">
-						<div class="flex items-center gap-1.5">
-							<span class="font-mono text-sm sm:text-base font-bold text-lamp truncate">
-								{currentDisplayName}
-							</span>
-							{#if room.statusText}
-								<span class="rounded-full bg-cream/10 px-1.5 py-0.5 text-[9px] text-lamp font-medium">
-									{room.statusText}
-								</span>
-							{/if}
-						</div>
-
-						<p class="text-[11px] text-taupe truncate">
-							{#if auth.isAuthenticated}
-								<span class="inline-flex items-center gap-1 text-[10px] text-lamp/90 font-mono">
-									<IconCheck size={10} stroke={2} />
-									{auth.user?.email}
-								</span>
-							{:else}
-								<span class="text-[10px] text-faint font-mono">Guest Session</span>
-							{/if}
-						</p>
-
-						<!-- Quick button to upload own photo directly from device -->
-						<button
-							type="button"
-							class="mt-1.5 inline-flex items-center gap-1 rounded border border-cream/15 px-2 py-0.5 text-[10px] text-taupe transition-colors hover:border-lamp hover:text-lamp"
-							onclick={triggerUpload}
-							title="Upload your own photo"
-						>
-							<IconCamera size={11} stroke={1.7} />
-							<span>Upload photo</span>
-						</button>
-					</div>
-				</div>
-
-				{#if room.intention}
-					<p class="mt-2 text-[11px] text-cream/90 italic truncate border-t border-cream/10 pt-1.5">
-						"{room.intention}"
-					</p>
-				{/if}
-			</div>
-
-			<!-- Main Action Button to enter Full Screen Edit Mode -->
-			<div class="mt-3.5 space-y-2">
+			<!-- Segmented Tabs: Profile vs Stats & Badges -->
+			<div class="mt-2.5 flex rounded-lg bg-[#060a0b] p-0.5 border border-cream/10 text-xs">
 				<button
 					type="button"
-					class="btn btn-primary btn-sm w-full py-2 text-xs flex items-center justify-center gap-1.5"
+					class="flex-1 rounded-md py-1 font-mono text-[11px] font-medium transition-all {dropdownTab === 'profile' ? 'bg-cream/15 text-cream shadow-sm' : 'text-faint hover:text-cream'}"
+					onclick={() => (dropdownTab = 'profile')}
+				>
+					Profile
+				</button>
+				<button
+					type="button"
+					class="flex-1 rounded-md py-1 font-mono text-[11px] font-medium transition-all flex items-center justify-center gap-1.5 {dropdownTab === 'stats' ? 'bg-lamp/15 text-lamp border border-lamp/30 shadow-sm' : 'text-faint hover:text-cream'}"
 					onclick={() => {
-						syncFromCurrentProfile();
-						isEditing = true;
+						refreshStats();
+						dropdownTab = 'stats';
 					}}
 				>
-					<IconPencil size={13} stroke={2} />
-					<span>Edit Profile</span>
+					<IconTrophy size={12} stroke={1.8} />
+					<span>Stats & Badges</span>
+					<span class="rounded bg-lamp/20 px-1 py-0.2 text-[9px] font-bold text-lamp">
+						{userStats.unlockedCount}/{userStats.totalAchievements}
+					</span>
 				</button>
 			</div>
+
+			{#if dropdownTab === 'profile'}
+				<!-- Small text: "Edit your profile to be able to edit all this" -->
+				<p class="mt-2.5 text-xs text-faint leading-tight">
+					Edit your profile to be able to edit all this
+				</p>
+
+				<!-- Profile Preview Card (100% Solid, Non-transparent) -->
+				<div class="mt-3 rounded-xl border border-cream/10 bg-[#060a0b] p-3">
+					<div class="flex items-center gap-3">
+						<!-- Avatar with direct upload trigger -->
+						<div class="relative shrink-0 group">
+							<img
+								src={currentDisplayAvatar}
+								alt={currentDisplayName}
+								class="h-13 w-13 rounded-full object-cover border-2 border-lamp/40 bg-[#0a1012] transition-transform group-hover:scale-[1.03]"
+								onerror={(e) => {
+									(e.currentTarget as HTMLImageElement).src = '/default-avatar.svg';
+								}}
+							/>
+							<span
+								class="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-lamp border-2 border-[#060a0b]"
+								title="Awake now"
+							></span>
+
+							<!-- Clickable camera overlay to upload photo directly -->
+							<button
+								type="button"
+								class="absolute inset-0 flex flex-col items-center justify-center rounded-full bg-[#060a0b]/85 text-lamp opacity-0 group-hover:opacity-100 transition-opacity"
+								onclick={triggerUpload}
+								title="Upload your own photo"
+								aria-label="Upload your own photo"
+							>
+								<IconCamera size={15} stroke={1.7} />
+								<span class="text-[8px] font-mono text-white">Upload</span>
+							</button>
+						</div>
+
+						<!-- Details -->
+						<div class="min-w-0 flex-1">
+							<div class="flex items-center gap-1.5">
+								<span class="font-mono text-sm sm:text-base font-bold text-lamp truncate">
+									{currentDisplayName}
+								</span>
+								{#if room.statusText}
+									<span class="rounded-full bg-cream/10 px-1.5 py-0.5 text-[9px] text-lamp font-medium">
+										{room.statusText}
+									</span>
+								{/if}
+							</div>
+
+							<p class="text-[11px] text-taupe truncate">
+								{#if auth.isAuthenticated}
+									<span class="inline-flex items-center gap-1 text-[10px] text-lamp/90 font-mono">
+										<IconCheck size={10} stroke={2} />
+										{auth.user?.email}
+									</span>
+								{:else}
+									<span class="text-[10px] text-faint font-mono">Guest Session</span>
+								{/if}
+							</p>
+
+							<!-- Quick button to upload own photo directly from device -->
+							<button
+								type="button"
+								class="mt-1.5 inline-flex items-center gap-1 rounded border border-cream/15 px-2 py-0.5 text-[10px] text-taupe transition-colors hover:border-lamp hover:text-lamp"
+								onclick={triggerUpload}
+								title="Upload your own photo"
+							>
+								<IconCamera size={11} stroke={1.7} />
+								<span>Upload photo</span>
+							</button>
+						</div>
+					</div>
+
+					{#if room.intention}
+						<p class="mt-2 text-[11px] text-cream/90 italic truncate border-t border-cream/10 pt-1.5">
+							"{room.intention}"
+						</p>
+					{/if}
+				</div>
+
+				<!-- Main Action Button to enter Full Screen Edit Mode -->
+				<div class="mt-3.5 space-y-2">
+					<button
+						type="button"
+						class="btn btn-primary btn-sm w-full py-2 text-xs flex items-center justify-center gap-1.5"
+						onclick={() => {
+							syncFromCurrentProfile();
+							modalTab = 'edit';
+							isEditing = true;
+						}}
+					>
+						<IconPencil size={13} stroke={2} />
+						<span>Edit Profile</span>
+					</button>
+				</div>
+			{:else}
+				<!-- STATS & BADGES VIEW IN DROPDOWN -->
+				<div class="mt-3 space-y-2.5">
+					<!-- Rank Banner -->
+					<div class="rounded-xl border border-cream/10 bg-[#060a0b] p-3">
+						<div class="flex items-center justify-between">
+							<div>
+								<p class="text-[9px] font-mono uppercase tracking-wider text-faint">Nocturnal Rank</p>
+								<div class="flex items-center gap-1.5 mt-0.5">
+									<span class="text-xs font-bold text-lamp font-mono">{userStats.rank.title}</span>
+									<span class="rounded bg-lamp/10 border border-lamp/25 px-1 py-0.2 text-[9px] font-mono text-lamp">
+										Lvl {userStats.rank.level}
+									</span>
+								</div>
+							</div>
+							<div class="text-right">
+								<p class="text-[9px] font-mono uppercase tracking-wider text-faint">Total Focus</p>
+								<p class="text-xs font-semibold text-cream font-mono">{userStats.totalHoursFormatted}</p>
+							</div>
+						</div>
+						{#if userStats.rank.nextTitle !== 'Max Rank'}
+							<div class="mt-2">
+								<div class="flex items-center justify-between text-[9px] text-faint font-mono mb-1">
+									<span>Next: {userStats.rank.nextTitle}</span>
+									<span>{userStats.rank.progress}%</span>
+								</div>
+								<div class="h-1.5 w-full rounded-full bg-night-3 overflow-hidden border border-cream/10">
+									<div class="h-full rounded-full bg-lamp transition-all duration-500" style="width: {userStats.rank.progress}%"></div>
+								</div>
+							</div>
+						{/if}
+					</div>
+
+					<!-- 4-Grid Metrics -->
+					<div class="grid grid-cols-2 gap-2">
+						<div class="rounded-lg border border-cream/10 bg-[#060a0b] p-2">
+							<p class="text-[9px] font-mono uppercase tracking-wider text-faint flex items-center gap-1">
+								<IconMoon size={11} class="text-lamp" />
+								All-Nighters
+							</p>
+							<p class="mt-0.5 text-sm font-bold font-mono text-cream">{userStats.nightsCount}</p>
+						</div>
+						<div class="rounded-lg border border-cream/10 bg-[#060a0b] p-2">
+							<p class="text-[9px] font-mono uppercase tracking-wider text-faint flex items-center gap-1">
+								<IconDisc size={11} class="text-aqua-foam" />
+								Tracks Queued
+							</p>
+							<p class="mt-0.5 text-sm font-bold font-mono text-cream">{userStats.tracksQueued}</p>
+						</div>
+						<div class="rounded-lg border border-cream/10 bg-[#060a0b] p-2">
+							<p class="text-[9px] font-mono uppercase tracking-wider text-faint flex items-center gap-1">
+								<IconSun size={11} class="text-amber" />
+								Sunrise Rituals
+							</p>
+							<p class="mt-0.5 text-sm font-bold font-mono text-cream">{userStats.dawnRituals}</p>
+						</div>
+						<div class="rounded-lg border border-cream/10 bg-[#060a0b] p-2">
+							<p class="text-[9px] font-mono uppercase tracking-wider text-faint flex items-center gap-1">
+								<IconBolt size={11} class="text-yellow-300" />
+								Focus Time
+							</p>
+							<p class="mt-0.5 text-sm font-bold font-mono text-cream">{userStats.focusMinutes}m</p>
+						</div>
+					</div>
+
+					<!-- Scrollable Badges List -->
+					<div>
+						<div class="flex items-center justify-between mb-1">
+							<span class="text-[9px] font-mono uppercase tracking-wider text-faint">Achievements</span>
+							<span class="text-[9px] font-mono text-lamp">{userStats.unlockedCount}/{userStats.totalAchievements}</span>
+						</div>
+						<div class="space-y-1.5 max-h-[140px] overflow-y-auto pr-0.5">
+							{#each userStats.achievements as a (a.id)}
+								<div class="flex items-center justify-between gap-2 rounded-lg border p-1.5 text-xs transition-colors {a.unlocked ? 'border-cream/15 bg-[#060a0b]' : 'border-cream/5 bg-night-3/30 opacity-55'}">
+									<div class="flex items-center gap-2 min-w-0">
+										<span class="grid h-5 w-5 shrink-0 place-items-center rounded border {getTierBadgeClass(a.tier)}">
+											{#if a.icon === 'sun'}
+												<IconSun size={11} stroke={2} />
+											{:else if a.icon === 'moon'}
+												<IconMoon size={11} stroke={2} />
+											{:else if a.icon === 'disc'}
+												<IconDisc size={11} stroke={2} />
+											{:else if a.icon === 'flame'}
+												<IconFlame size={11} stroke={2} />
+											{:else if a.icon === 'crown'}
+												<IconCrown size={11} stroke={2} />
+											{:else if a.icon === 'target'}
+												<IconTarget size={11} stroke={2} />
+											{:else if a.icon === 'bolt'}
+												<IconBolt size={11} stroke={2} />
+											{:else}
+												<IconAward size={11} stroke={2} />
+											{/if}
+										</span>
+										<div class="min-w-0">
+											<p class="truncate text-[11px] font-medium text-cream">{a.title}</p>
+											<p class="truncate text-[9px] text-faint">{a.description}</p>
+										</div>
+									</div>
+									{#if a.unlocked}
+										<span class="shrink-0 rounded bg-lamp/15 px-1 py-0.2 font-mono text-[8px] uppercase tracking-wider text-lamp border border-lamp/30">
+											✓ Done
+										</span>
+									{:else}
+										<span class="shrink-0 font-mono text-[9px] text-faint">
+											{a.current}/{a.target}
+										</span>
+									{/if}
+								</div>
+							{/each}
+						</div>
+					</div>
+
+					<!-- Button to open full modal on achievements tab -->
+					<button
+						type="button"
+						class="btn btn-ghost btn-sm w-full py-1.5 text-xs flex items-center justify-center gap-1.5 border border-cream/20 hover:border-lamp/40 hover:text-lamp transition-colors"
+						onclick={() => {
+							refreshStats();
+							modalTab = 'stats';
+							isEditing = true;
+						}}
+					>
+						<IconAward size={13} stroke={2} class="text-lamp" />
+						<span>Open Full Dossier</span>
+					</button>
+				</div>
+			{/if}
 
 			<!-- Account / Cloud Sync Card -->
 			<div class="mt-3 rounded-xl border border-cream/10 bg-[#060a0b] p-2.5 text-xs">
@@ -596,7 +790,189 @@
 				</button>
 			</div>
 
-			<!-- Live Preview Hero Card in Edit Mode -->
+			<!-- Modal View Tabs: Profile vs Achievements & Stats -->
+			<div class="mt-4 flex rounded-xl bg-[#060a0b] p-1 border border-cream/10 text-xs font-mono">
+				<button
+					type="button"
+					class="flex-1 rounded-lg py-2 font-medium transition-all flex items-center justify-center gap-2 {modalTab === 'edit' ? 'bg-cream/15 text-cream shadow-sm' : 'text-faint hover:text-cream'}"
+					onclick={() => (modalTab = 'edit')}
+				>
+					<IconPencil size={14} stroke={2} />
+					<span>Profile & Appearance</span>
+				</button>
+				<button
+					type="button"
+					class="flex-1 rounded-lg py-2 font-medium transition-all flex items-center justify-center gap-2 {modalTab === 'stats' ? 'bg-lamp/15 text-lamp border border-lamp/30 shadow-sm' : 'text-faint hover:text-cream'}"
+					onclick={() => {
+						refreshStats();
+						modalTab = 'stats';
+					}}
+				>
+					<IconTrophy size={14} stroke={2} />
+					<span>Achievements & Stats</span>
+					<span class="rounded bg-lamp/20 px-1.5 py-0.5 text-[10px] font-bold text-lamp">
+						{userStats.unlockedCount}/{userStats.totalAchievements}
+					</span>
+				</button>
+			</div>
+
+			{#if modalTab === 'stats'}
+				<div class="mt-4 space-y-4">
+					<!-- Hero Rank & Progression Card -->
+					<div class="rounded-xl border border-cream/10 bg-[#060a0b] p-4 sm:p-5">
+						<div class="flex flex-wrap items-center justify-between gap-3">
+							<div class="flex items-center gap-3">
+								<span class="grid h-12 w-12 place-items-center rounded-xl border border-lamp/35 bg-lamp/10 text-lamp">
+									<IconAward size={26} stroke={1.8} />
+								</span>
+								<div>
+									<div class="flex items-center gap-2">
+										<h4 class="font-mono text-lg font-bold text-cream">{userStats.rank.title}</h4>
+										<span class="rounded-full bg-lamp/15 border border-lamp/30 px-2 py-0.5 font-mono text-[10px] font-bold text-lamp">
+											Level {userStats.rank.level}
+										</span>
+									</div>
+									<p class="text-xs text-taupe mt-0.5">
+										Nocturnal builder standing · {userStats.unlockedCount} of {userStats.totalAchievements} achievements unlocked
+									</p>
+								</div>
+							</div>
+							<div class="text-right">
+								<p class="text-[10px] font-mono uppercase tracking-wider text-faint">Total Focus Logged</p>
+								<p class="text-lg font-bold text-lamp font-mono">{userStats.totalHoursFormatted}</p>
+							</div>
+						</div>
+
+						{#if userStats.rank.nextTitle !== 'Max Rank'}
+							<div class="mt-4 pt-3 border-t border-cream/10">
+								<div class="flex items-center justify-between text-xs text-faint font-mono mb-1.5">
+									<span>Progress to {userStats.rank.nextTitle}</span>
+									<span class="text-cream font-medium">{userStats.rank.progress}%</span>
+								</div>
+								<div class="h-2 w-full rounded-full bg-night-3 overflow-hidden border border-cream/10 p-[1px]">
+									<div class="h-full rounded-full bg-gradient-to-r from-teal-500 to-lamp transition-all duration-700" style="width: {userStats.rank.progress}%"></div>
+								</div>
+							</div>
+						{/if}
+					</div>
+
+					<!-- 4 Key Stats Tiles -->
+					<div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+						<div class="rounded-xl border border-cream/10 bg-[#060a0b] p-3 text-center">
+							<span class="grid h-7 w-7 mx-auto place-items-center rounded-lg bg-lamp/10 text-lamp mb-1.5">
+								<IconMoon size={15} stroke={2} />
+							</span>
+							<p class="text-xl font-bold font-mono text-cream">{userStats.nightsCount}</p>
+							<p class="text-[10px] font-mono uppercase tracking-wider text-faint mt-0.5">All-Nighters</p>
+						</div>
+						<div class="rounded-xl border border-cream/10 bg-[#060a0b] p-3 text-center">
+							<span class="grid h-7 w-7 mx-auto place-items-center rounded-lg bg-aqua-foam/10 text-aqua-foam mb-1.5">
+								<IconDisc size={15} stroke={2} />
+							</span>
+							<p class="text-xl font-bold font-mono text-cream">{userStats.tracksQueued}</p>
+							<p class="text-[10px] font-mono uppercase tracking-wider text-faint mt-0.5">Tracks Queued</p>
+						</div>
+						<div class="rounded-xl border border-cream/10 bg-[#060a0b] p-3 text-center">
+							<span class="grid h-7 w-7 mx-auto place-items-center rounded-lg bg-amber/10 text-amber mb-1.5">
+								<IconSun size={15} stroke={2} />
+							</span>
+							<p class="text-xl font-bold font-mono text-cream">{userStats.dawnRituals}</p>
+							<p class="text-[10px] font-mono uppercase tracking-wider text-faint mt-0.5">Sunrise Rituals</p>
+						</div>
+						<div class="rounded-xl border border-cream/10 bg-[#060a0b] p-3 text-center">
+							<span class="grid h-7 w-7 mx-auto place-items-center rounded-lg bg-yellow-400/10 text-yellow-300 mb-1.5">
+								<IconBolt size={15} stroke={2} />
+							</span>
+							<p class="text-xl font-bold font-mono text-cream">{userStats.focusMinutes}m</p>
+							<p class="text-[10px] font-mono uppercase tracking-wider text-faint mt-0.5">Focus Minutes</p>
+						</div>
+					</div>
+
+					<!-- All 8 Achievements in Responsive Grid -->
+					<div>
+						<div class="flex items-center justify-between mb-2">
+							<h4 class="text-xs font-mono uppercase tracking-wider text-faint">Nocturnal Badges & Milestones</h4>
+							<span class="text-xs font-mono text-lamp">{userStats.unlockedCount} / {userStats.totalAchievements} Unlocked</span>
+						</div>
+						<div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[300px] overflow-y-auto pr-1">
+							{#each userStats.achievements as a (a.id)}
+								<div class="flex flex-col justify-between rounded-xl border p-3 transition-colors {a.unlocked ? 'border-cream/15 bg-[#060a0b]' : 'border-cream/5 bg-night-3/30 opacity-60'}">
+									<div>
+										<div class="flex items-start justify-between gap-2">
+											<div class="flex items-center gap-2.5">
+												<span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg border {getTierBadgeClass(a.tier)}">
+													{#if a.icon === 'sun'}
+														<IconSun size={18} stroke={2} />
+													{:else if a.icon === 'moon'}
+														<IconMoon size={18} stroke={2} />
+													{:else if a.icon === 'disc'}
+														<IconDisc size={18} stroke={2} />
+													{:else if a.icon === 'flame'}
+														<IconFlame size={18} stroke={2} />
+													{:else if a.icon === 'crown'}
+														<IconCrown size={18} stroke={2} />
+													{:else if a.icon === 'target'}
+														<IconTarget size={18} stroke={2} />
+													{:else if a.icon === 'bolt'}
+														<IconBolt size={18} stroke={2} />
+													{:else}
+														<IconAward size={18} stroke={2} />
+													{/if}
+												</span>
+												<div class="min-w-0">
+													<p class="text-sm font-semibold text-cream leading-tight truncate">{a.title}</p>
+													<span class="text-[9px] font-mono uppercase tracking-wider text-faint">{a.category}</span>
+												</div>
+											</div>
+											<span class="shrink-0 rounded px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider border {getTierBadgeClass(a.tier)}">
+												{a.tier}
+											</span>
+										</div>
+										<p class="mt-2 text-xs text-taupe leading-relaxed">{a.description}</p>
+									</div>
+
+									<div class="mt-3 pt-2 border-t border-cream/5">
+										{#if a.unlocked}
+											<div class="flex items-center justify-between text-[11px] font-mono text-lamp">
+												<span class="inline-flex items-center gap-1 font-semibold">
+													<IconCheck size={13} stroke={2.5} />
+													Unlocked
+												</span>
+												<span class="text-[10px] text-faint">Completed</span>
+											</div>
+										{:else}
+											<div>
+												<div class="flex items-center justify-between text-[10px] font-mono text-faint mb-1">
+													<span class="inline-flex items-center gap-1">
+														<IconLock size={10} stroke={2} />
+														Progress
+													</span>
+													<span>{a.current} / {a.target}</span>
+												</div>
+												<div class="h-1.5 w-full rounded-full bg-night-3 overflow-hidden border border-cream/10">
+													<div class="h-full rounded-full bg-cream/40" style="width: {Math.min(100, (a.current / a.target) * 100)}%"></div>
+												</div>
+											</div>
+										{/if}
+									</div>
+								</div>
+							{/each}
+						</div>
+					</div>
+
+					<!-- Navigation Links at bottom of Achievements -->
+					<div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-cream/10">
+						<a href="/archive" class="btn btn-ghost btn-sm text-xs inline-flex items-center gap-1.5" onclick={() => (open = false)}>
+							<IconMoon size={14} stroke={1.5} />
+							<span>Open My Logbook</span>
+						</a>
+						<button type="button" class="btn btn-primary btn-sm text-xs px-4" onclick={() => (isEditing = false)}>
+							Done
+						</button>
+					</div>
+				</div>
+			{:else}
+				<!-- Live Preview Hero Card in Edit Mode -->
 			<div class="mt-4 rounded-xl border border-cream/10 bg-[#060a0b] p-4">
 				<div class="flex items-center gap-4">
 					<!-- Avatar with direct upload trigger -->
@@ -862,6 +1238,7 @@
 					{/if}
 				</button>
 			</div>
+			{/if}
 		</div>
 	</div>
 {/if}

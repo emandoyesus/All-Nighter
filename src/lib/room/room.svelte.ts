@@ -28,6 +28,7 @@ import { auth } from '#lib/auth.svelte';
 import { supabase, isSupabaseConfigured } from '#lib/supabase';
 import { buildNightFromRoom, saveToMyNights } from '#lib/data/local-logbook';
 import type { Night } from '#lib/data/archive';
+import { recordStat } from '#lib/data/profile-stats';
 
 const LS_NAME = 'an.callsign';
 const LS_ID = 'an.client';
@@ -272,6 +273,7 @@ class Room {
 	private offlineSince = 0;
 	private requestTimer = 0;
 	private dirTimer = 0;
+	private focusSeconds = 0;
 	private dbSync: SupabaseRoomSync = new SupabaseRoomSync(
 		(msg) => this.onChat(msg),
 		(queue) => {
@@ -813,6 +815,9 @@ class Room {
 	/** Create a room and step inside as its host. */
 	createRoom(name: string, isPrivate = false, adminOnlyPlayback = false): void {
 		const slug = sanitizeRoom(name);
+		try {
+			recordStat('roomsHosted', 1);
+		} catch {}
 		this.enterApproved(slug, name.trim() || slug, true, true, isPrivate, adminOnlyPlayback);
 	}
 
@@ -1091,6 +1096,9 @@ class Room {
 
 		// 2. Save locally into personal logbook
 		saveToMyNights(night);
+		try {
+			recordStat('dawnRituals', 1);
+		} catch {}
 
 		// 3. Save to Supabase session_archives if enabled
 		if (this.dbSync.isEnabled) {
@@ -1294,6 +1302,12 @@ class Room {
 	}
 
 	setIntention(value: string): void {
+		const trimmed = value.trim();
+		if (trimmed) {
+			try {
+				recordStat('intentionsSet', 1);
+			} catch {}
+		}
 		this.intention = value.slice(0, 80);
 		this.announce();
 	}
@@ -1423,6 +1437,9 @@ class Room {
 			isPlaylist: playlist,
 			playlistId: plistId
 		};
+		try {
+			recordStat('tracksQueued', 1);
+		} catch {}
 		this.mutate((s) => {
 			if (!s.current) {
 				return {
@@ -1474,6 +1491,10 @@ class Room {
 			isPlaylist: t.isPlaylist,
 			playlistId: t.playlistId
 		}));
+
+		try {
+			recordStat('tracksQueued', tracks.length);
+		} catch {}
 
 		this.mutate((s) => {
 			if (!s.current) {
@@ -1678,6 +1699,19 @@ class Room {
 		) {
 			this.dawnArchived = true;
 			void this.archiveRoom();
+		}
+
+		// Track focus sprint minutes
+		if (this.joinState === 'approved' && this.mode === 'focus') {
+			this.focusSeconds++;
+			if (this.focusSeconds >= 60) {
+				this.focusSeconds = 0;
+				try {
+					recordStat('focusMinutes', 1);
+				} catch {}
+			}
+		} else {
+			this.focusSeconds = 0;
 		}
 
 		// Pomodoro automatic cycle transition by host
