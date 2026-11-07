@@ -186,12 +186,23 @@
 				<span class="num text-xs text-taupe">{room.awake.length} awake</span>
 			</div>
 
-			<div class="flex items-center gap-3">
+			<div class="flex items-center gap-2.5">
 				{#if room.mode === 'focus'}
 					<span class="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-400/10 px-3 py-1 font-mono text-xs uppercase tracking-wider text-amber-300">
 						<IconTarget size={13} stroke={2} />
-						Focus {#if room.modeRemaining > 0}· {formatModeTime(room.modeRemaining)}{/if}
+						Focus Sprint {#if room.modeRemaining > 0}· {formatModeTime(room.modeRemaining)}{/if}
 					</span>
+					<button
+						class="btn btn-ghost btn-sm text-xs border border-cream/15 text-taupe hover:text-cream"
+						onclick={() => {
+							room.setMode('normal');
+							open = false;
+						}}
+						title="End focus sprint and return to normal room"
+					>
+						<IconWaveSine size={13} stroke={2} />
+						<span class="hidden sm:inline">Normal Mode</span>
+					</button>
 				{:else}
 					<span class="inline-flex items-center gap-1.5 rounded-full border border-lamp/40 bg-lamp/10 px-3 py-1 font-mono text-xs uppercase tracking-wider text-lamp">
 						<IconWaveSine size={13} stroke={2} />
@@ -202,22 +213,35 @@
 				<button
 					class="btn btn-ghost btn-sm"
 					onclick={() => (open = false)}
-					title="Exit Desk Mode (Esc)"
+					title="Minimize HUD to room view (Esc)"
 				>
 					<IconMinimize size={15} stroke={1.5} />
-					<span class="hidden sm:inline">Exit HUD</span>
+					<span class="hidden sm:inline">{room.mode === 'focus' ? 'Minimize HUD' : 'Exit HUD'}</span>
 				</button>
 			</div>
 		</header>
 
 		<!-- Centerpiece: Dawn countdown & now playing -->
 		<main class="relative z-10 my-auto flex flex-col items-center justify-center text-center">
-			<p class="num text-xs uppercase tracking-[0.2em] text-cream/80 drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
-				{targetLabel}
+			<p class="num text-xs uppercase tracking-[0.2em] text-amber-300 drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)] font-mono">
+				{#if room.mode === 'focus' && room.modeRemaining > 0}
+					Deep Focus Sprint
+				{:else}
+					{targetLabel}
+				{/if}
 			</p>
 			<h1 class="num mt-2 font-mono text-6xl font-semibold tracking-tighter text-cream md:text-8xl lg:text-9xl drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)]">
-				{dawnLeft}
+				{#if room.mode === 'focus' && room.modeRemaining > 0}
+					{formatModeTime(room.modeRemaining)}
+				{:else}
+					{dawnLeft}
+				{/if}
 			</h1>
+			{#if room.mode === 'focus' && room.modeRemaining > 0}
+				<p class="num mt-2 text-xs text-faint font-mono">
+					Sprint in progress · {dawnLeft} until sunrise
+				</p>
+			{/if}
 
 			<!-- Now Playing Card -->
 			<div class="mt-8 flex w-full max-w-xl flex-col items-center rounded-card border border-cream/10 bg-night-2/70 p-6 backdrop-blur-md">
@@ -309,6 +333,21 @@
 
 			<!-- Player controls & local clock -->
 			<div class="flex items-center gap-3">
+				<button
+					class="btn btn-ghost btn-sm"
+					onclick={() => window.dispatchEvent(new CustomEvent('an:player:toggle'))}
+					disabled={!room.state.videoId && !room.state.playing}
+					title={room.state.playing ? 'Pause' : 'Play'}
+				>
+					{#if room.state.playing}
+						<IconPause size={15} stroke={1.5} />
+						<span>Pause</span>
+					{:else}
+						<IconPlay size={15} stroke={1.5} />
+						<span>Play</span>
+					{/if}
+				</button>
+
 				{#if room.canSkip}
 					<button
 						class="btn btn-ghost btn-sm"
@@ -316,7 +355,7 @@
 						disabled={room.state.queue.length === 0 && !room.state.current}
 					>
 						<IconSkip size={15} stroke={1.5} />
-						Skip
+						<span>Skip</span>
 					</button>
 				{/if}
 				<div class="num text-xs text-faint">

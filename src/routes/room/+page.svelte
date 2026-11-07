@@ -14,6 +14,7 @@
 	import ModeToggle from '#lib/components/ModeToggle.svelte';
 	import DawnRitualModal from '#lib/components/DawnRitualModal.svelte';
 	import DeleteRoomModal from '#lib/components/DeleteRoomModal.svelte';
+	import ArchiveRoomModal from '#lib/components/ArchiveRoomModal.svelte';
 	import RoomAuthGate from '#lib/components/RoomAuthGate.svelte';
 	import { auth } from '#lib/auth.svelte';
 	import { isSupabaseConfigured } from '#lib/supabase';
@@ -30,6 +31,7 @@
 	let copied = $state(false);
 	let showDawnModal = $state(false);
 	let showDeleteModal = $state(false);
+	let showArchiveModal = $state(false);
 
 	onMount(() => room.init());
 
@@ -169,7 +171,7 @@
 				</div>
 			</section>
 
-			<!-- Compact Room Workspace -->
+			<!-- Room Workspace -->
 			<section class="mx-auto max-w-[1440px] px-3 sm:px-4 py-3 md:py-4 pb-16">
 				{#if room.status !== 'online'}
 					<div class="mb-3 flex flex-wrap items-center justify-between gap-2 rounded border border-lamp/30 bg-lamp/8 px-3 py-1.5 text-xs text-cream">
@@ -180,50 +182,63 @@
 					</div>
 				{/if}
 
-				<div class="grid gap-3 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]">
-					<div class="min-w-0 flex flex-col gap-3">
-						<Player />
-						<QueuePanel />
-					</div>
-					<aside class="flex min-w-0 flex-col gap-3">
-						<JoinRequests />
-						<div id="crew-roster">
-							<PresencePanel />
+				{#if room.mode === 'focus'}
+					<!-- Focus Mode: Rolling CD on left; Room Mode on right (No music queue) -->
+					<div class="grid gap-3 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)] animate-in fade-in duration-200">
+						<!-- Left: Music Space (Rolling CD only, queue hidden) -->
+						<div class="min-w-0 flex flex-col gap-3">
+							<Player />
 						</div>
-						<ModeToggle />
-						<Countdown />
-						<ChatPanel />
 
-						{#if room.isHost}
-							<div class="pt-1">
-								{#if room.isDawn}
-									<button
-										class="btn btn-ghost text-amber hover:bg-amber/10 w-full text-[11px] font-mono tracking-wider py-1.5 border border-amber/30 transition-all flex items-center justify-center gap-1.5"
-										onclick={() => {
-											if (confirm('Archive this room session to the logbook?')) {
-												room.archiveRoom();
-											}
-										}}
-										title="Archive room session to logbook"
-									>
-										<IconSun size={13} stroke={2} class="text-amber" />
-										Archive room session (Dawn reached)
-									</button>
-								{:else}
-									<button
-										class="btn btn-ghost text-ruby hover:bg-ruby/10 w-full text-[11px] font-mono tracking-wider py-1.5 border border-ruby/20 transition-all flex items-center justify-center gap-1.5"
-										onclick={() => (showDeleteModal = true)}
-										title="Close and delete the room session"
-									>
-										<span class="soft-blink h-1.5 w-1.5 rounded-full bg-ruby"></span>
-										Delete room session
-									</button>
-								{/if}
+						<!-- Right: Room Mode -->
+						<aside class="flex min-w-0 flex-col gap-3">
+							<ModeToggle />
+						</aside>
+					</div>
+				{:else}
+					<!-- Normal Collaborative Workspace -->
+					<div class="grid gap-3 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]">
+						<div class="min-w-0 flex flex-col gap-3">
+							<Player />
+							<QueuePanel />
+						</div>
+						<aside class="flex min-w-0 flex-col gap-3">
+							<JoinRequests />
+							<div id="crew-roster">
+								<PresencePanel />
 							</div>
-						{/if}
-					</aside>
-				</div>
+							<ModeToggle />
+							<Countdown />
+							<ChatPanel />
+
+							{#if room.isHost}
+								<div class="pt-1">
+									{#if room.isDawn}
+										<button
+											class="btn btn-ghost text-amber hover:bg-amber/10 w-full text-[11px] font-mono tracking-wider py-1.5 border border-amber/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+											onclick={() => (showArchiveModal = true)}
+											title="Archive room session to logbook"
+										>
+											<IconSun size={13} stroke={2} class="text-amber" />
+											Archive room session (Dawn reached)
+										</button>
+									{:else}
+										<button
+											class="btn btn-ghost text-ruby hover:bg-ruby/10 w-full text-[11px] font-mono tracking-wider py-1.5 border border-ruby/20 hover:border-ruby transition-all flex items-center justify-center gap-1.5 group cursor-pointer"
+											onclick={() => (showDeleteModal = true)}
+											title="Close and delete the room session"
+										>
+											<span class="soft-blink h-1.5 w-1.5 rounded-full bg-ruby"></span>
+											Delete room session
+										</button>
+									{/if}
+								</div>
+							{/if}
+						</aside>
+					</div>
+				{/if}
 				<DawnRitualModal bind:open={showDawnModal} />
+				<ArchiveRoomModal bind:open={showArchiveModal} />
 				<DeleteRoomModal bind:open={showDeleteModal} />
 			</section>
 		{:else if gated}

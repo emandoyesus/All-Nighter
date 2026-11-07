@@ -16,6 +16,15 @@
 
 	let { children }: LayoutProps = $props();
 	let showDeskHud = $state(false);
+	let prevMode = $state<string | undefined>(undefined);
+
+	$effect(() => {
+		const currentMode = room.mode;
+		if (prevMode !== undefined && prevMode !== 'focus' && currentMode === 'focus' && room.joinState === 'approved') {
+			showDeskHud = true;
+		}
+		prevMode = currentMode;
+	});
 
 	onMount(() => {
 		room.init();

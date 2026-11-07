@@ -94,6 +94,11 @@
 							{#if peer.status}
 								<span class="rounded-full bg-cream/8 px-1 py-0.1 text-[10px] text-lamp">{peer.status}</span>
 							{/if}
+							{#if room.mode === 'focus'}
+								<span class="inline-flex items-center gap-0.5 rounded bg-amber-400/15 px-1 py-0.1 text-[9px] text-amber-300 font-mono border border-amber-400/30" title="Active Focus Sprint">
+									⚡ Locked in
+								</span>
+							{/if}
 							{#if pClock}
 								<span
 									class="num inline-flex items-center gap-0.5 rounded bg-night/80 px-1 py-0.1 text-[9px] text-faint ring-1 ring-cream/10"

@@ -241,8 +241,9 @@
 
 		// If inactive, no video, or any full-screen modal dialog is open (e.g. Dawn Ritual, Edit Profile, HUD), hide from viewport
 		const modalOpen = !!document.querySelector('[aria-modal="true"]');
+		const isMinimized = viewport?.getAttribute('data-minimized') === 'true';
 
-		if (!viewport || !inActiveRoom || !hasVideo || modalOpen) {
+		if (!viewport || !inActiveRoom || !hasVideo || modalOpen || isMinimized) {
 			// Persistent audio mode: keep iframe playing in background with safe dimensions
 			containerEl.style.position = 'fixed';
 			containerEl.style.top = '-9999px';
@@ -256,6 +257,17 @@
 		}
 
 		const rect = viewport.getBoundingClientRect();
+		if (rect.width < 20 || rect.height < 20) {
+			containerEl.style.position = 'fixed';
+			containerEl.style.top = '-9999px';
+			containerEl.style.left = '-9999px';
+			containerEl.style.width = '320px';
+			containerEl.style.height = '180px';
+			containerEl.style.opacity = '0.001';
+			containerEl.style.pointerEvents = 'none';
+			containerEl.style.zIndex = '-1';
+			return;
+		}
 		const scrollY = window.scrollY;
 		const scrollX = window.scrollX;
 
@@ -283,7 +295,7 @@
 		}
 		if (!mo && document.body) {
 			mo = new MutationObserver(() => syncViewportPosition());
-			mo.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['aria-modal'] });
+			mo.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['aria-modal', 'data-minimized'] });
 		}
 		syncViewportPosition();
 	}
