@@ -8,6 +8,7 @@
 	import IconLockOpen from '@tabler/icons-svelte/icons/lock-open';
 	import IconWorld from '@tabler/icons-svelte/icons/world';
 	import IconShield from '@tabler/icons-svelte/icons/shield';
+	import IconMaximize from '@tabler/icons-svelte/icons/maximize';
 
 	type RoomMode = 'normal' | 'focus' | 'break';
 
@@ -17,6 +18,7 @@
 	function setMode(next: RoomMode) {
 		if (next === 'focus') {
 			playFocusChime();
+			window.dispatchEvent(new CustomEvent('an:open-desk-hud'));
 		} else {
 			playBreakChime();
 		}
@@ -80,11 +82,23 @@
 		>
 			<span class="flex items-center gap-1 font-medium">
 				<IconTarget size={13} stroke={2} />
-				Focus (50m)
+				Focus HUD (50m)
 			</span>
-			<span class="text-[10px] leading-tight opacity-75">Sprint · lock in</span>
+			<span class="text-[10px] leading-tight opacity-75">Sprint · HUD Mode</span>
 		</button>
 	</div>
+
+	{#if mode === 'focus'}
+		<button
+			type="button"
+			class="btn btn-amber btn-sm w-full mt-2.5 text-xs py-1.5 flex items-center justify-center gap-1.5 shadow-sm font-mono tracking-wider uppercase text-[11px]"
+			onclick={() => window.dispatchEvent(new CustomEvent('an:open-desk-hud'))}
+			title="Open Fullscreen Focus HUD"
+		>
+			<IconMaximize size={13} stroke={1.5} />
+			<span>Open Focus HUD</span>
+		</button>
+	{/if}
 
 	{#if room.isHost}
 		<div class="mt-2.5 flex flex-wrap items-center justify-between gap-1.5 border-t border-cream/10 pt-2">

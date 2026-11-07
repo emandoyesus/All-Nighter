@@ -13,16 +13,14 @@
 
 	let draft = $state('');
 	let dedicationDraft = $state('');
-	let tagDraft = $state<'focus' | 'hangout'>('focus');
-	let filterTag = $state<'all' | 'focus' | 'hangout'>('all');
 	let busy = $state(false);
 	let busyStatus = $state('Checking…');
 	let error = $state('');
 
 	const QUICK_PRESETS = [
-		{ label: 'Alone', title: 'Alan Walker - Alone', channel: 'Alan Walker', videoId: '1-xGerv5FOk', tag: 'focus' as const },
-		{ label: 'Blinding Lights', title: 'The Weeknd - Blinding Lights', channel: 'The Weeknd', videoId: '4NRXx6U8ABQ', tag: 'hangout' as const },
-		{ label: 'Midnight City', title: 'M83 - Midnight City', channel: 'M83', videoId: 'dX3k_QDnzHE', tag: 'focus' as const }
+		{ label: 'Alone', title: 'Alan Walker - Alone', channel: 'Alan Walker', videoId: '1-xGerv5FOk' },
+		{ label: 'Blinding Lights', title: 'The Weeknd - Blinding Lights', channel: 'The Weeknd', videoId: '4NRXx6U8ABQ' },
+		{ label: 'Midnight City', title: 'M83 - Midnight City', channel: 'M83', videoId: 'dX3k_QDnzHE' }
 	];
 
 	function addPreset(preset: typeof QUICK_PRESETS[number]) {
@@ -32,9 +30,7 @@
 			preset.channel,
 			room.name,
 			'youtube',
-			`https://www.youtube.com/watch?v=${preset.videoId}`,
-			undefined,
-			preset.tag
+			`https://www.youtube.com/watch?v=${preset.videoId}`
 		);
 	}
 
@@ -43,7 +39,6 @@
 		error = '';
 		const parsed = parseTrackUrl(draft);
 		const ded = dedicationDraft.trim() || undefined;
-		const tag = tagDraft;
 
 		// YouTube Playlist
 		if (parsed.source === 'youtube' && (parsed.isPlaylist || parsed.playlistId)) {
@@ -62,18 +57,17 @@
 						channel: t.channel,
 						source: 'youtube',
 						url: `https://www.youtube.com/watch?v=${t.videoId}&list=${plistId}`,
-						dedication: ded,
-						tag
+						dedication: ded
 					})),
 					room.name,
-					tag,
+					undefined,
 					meta?.title ?? 'YouTube Playlist'
 				);
 			} else {
 				const title = meta?.title ?? `YouTube Playlist (${plistId || parsed.id})`;
 				const channel = meta?.channel ?? 'YouTube';
 				const videoId = meta?.firstVideoId || parsed.id || null;
-				room.add(videoId, title, channel, room.name, 'youtube', draft.trim(), ded, tag, true, plistId);
+				room.add(videoId, title, channel, room.name, 'youtube', draft.trim(), ded, undefined, true, plistId);
 			}
 			draft = '';
 			dedicationDraft = '';
@@ -87,7 +81,7 @@
 			busy = false;
 			const title = meta?.title ?? `YouTube track (${parsed.id})`;
 			const channel = meta?.channel ?? 'YouTube';
-			room.add(parsed.id, title, channel, room.name, 'youtube', draft.trim(), ded, tag);
+			room.add(parsed.id, title, channel, room.name, 'youtube', draft.trim(), ded);
 			draft = '';
 			dedicationDraft = '';
 			return;
@@ -109,7 +103,7 @@
 						'spotify',
 						draft.trim(),
 						ded,
-						tag,
+						undefined,
 						isList,
 						parsed.playlistId || parsed.id || undefined
 					);
@@ -128,7 +122,7 @@
 			const isList = parsed.isPlaylist || draft.includes('/sets/');
 			const title = isList ? `SoundCloud Playlist (${parsed.id})` : `SoundCloud (${parsed.id})`;
 			const channel = 'SoundCloud';
-			room.add(null, title, channel, room.name, 'soundcloud', draft.trim(), ded, tag, isList, parsed.playlistId || undefined);
+			room.add(null, title, channel, room.name, 'soundcloud', draft.trim(), ded, undefined, isList, parsed.playlistId || undefined);
 			draft = '';
 			dedicationDraft = '';
 			return;
@@ -141,7 +135,7 @@
 			busy = false;
 			const title = meta?.title ?? `YouTube track (${id})`;
 			const channel = meta?.channel ?? 'YouTube';
-			room.add(id, title, channel, room.name, 'youtube', draft.trim(), ded, tag);
+			room.add(id, title, channel, room.name, 'youtube', draft.trim(), ded);
 			draft = '';
 			dedicationDraft = '';
 			return;
@@ -149,14 +143,6 @@
 
 		error = 'Paste a YouTube, Spotify, or SoundCloud track or playlist link.';
 	}
-
-	const filteredQueue = $derived(
-		room.state.queue.filter((t) => {
-			if (filterTag === 'all') return true;
-			if (filterTag === 'focus') return t.tag === 'focus' || !t.tag;
-			return t.tag === 'hangout';
-		})
-	);
 </script>
 
 <div class="panel">
@@ -201,32 +187,15 @@
 			</button>
 		</div>
 
-		<div class="mt-2.5 flex flex-wrap items-center gap-2">
+		<div class="mt-2.5">
 			<input
 				type="text"
 				maxlength="80"
 				autocomplete="off"
 				placeholder="Optional dedication / shoutout..."
-				class="min-w-0 flex-1 rounded-field border border-cream/10 bg-night/50 px-2.5 py-1 text-xs text-cream outline-none transition-colors placeholder:text-faint/60 focus:border-lamp/60"
+				class="w-full rounded-field border border-cream/10 bg-night/50 px-2.5 py-1 text-xs text-cream outline-none transition-colors placeholder:text-faint/60 focus:border-lamp/60"
 				bind:value={dedicationDraft}
 			/>
-			<div class="flex rounded-full border border-cream/10 bg-night/50 p-0.5 text-[11px]">
-				<button
-					type="button"
-					class="rounded-full px-2 py-0.5 transition-colors {tagDraft === 'focus' ? 'bg-lamp/20 text-lamp font-medium' : 'text-taupe hover:text-cream'}"
-					onclick={() => (tagDraft = 'focus')}
-				>
-					Focus
-				</button>
-				<button
-					type="button"
-					class="rounded-full px-2 py-0.5 transition-colors {tagDraft === 'hangout' ? 'bg-amber-400/20 text-amber-300 font-medium' : 'text-taupe hover:text-cream'}"
-					style={tagDraft === 'hangout' ? 'color: var(--color-amber); background: color-mix(in srgb, var(--color-amber) 20%, transparent)' : ''}
-					onclick={() => (tagDraft = 'hangout')}
-				>
-					Hangout
-				</button>
-			</div>
 		</div>
 
 		{#if error}
@@ -239,51 +208,24 @@
 
 	{#if room.state.queue.length > 0}
 		<div class="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-cream/10 px-4 pt-3">
-			<div class="flex items-center gap-3">
-				<div class="flex items-center gap-2">
-					<h3 class="text-sm font-medium">Up next</h3>
-					<span class="num text-xs text-faint">{room.state.queue.length} in queue</span>
-				</div>
-				<button
-					type="button"
-					class="inline-flex items-center gap-1.5 rounded-field border border-cream/15 bg-night/60 px-2 py-0.5 text-xs text-taupe transition-colors hover:border-lamp/40 hover:text-cream disabled:opacity-30 disabled:pointer-events-none"
-					onclick={() => room.shuffleQueue()}
-					disabled={room.state.queue.length <= 1 || !room.canControlPlayback}
-					title={!room.canControlPlayback ? 'Aux is set to Admin only' : (room.state.queue.length <= 1 ? 'Need at least 2 tracks to shuffle' : 'Shuffle queue')}
-				>
-					<IconArrowsShuffle size={13} stroke={1.8} class="text-lamp" />
-					<span>Shuffle</span>
-				</button>
+			<div class="flex items-center gap-2">
+				<h3 class="text-sm font-medium">Up next</h3>
+				<span class="num text-xs text-faint">{room.state.queue.length} in queue</span>
 			</div>
-			<!-- Queue filter tabs -->
-			<div class="flex rounded-full border border-cream/10 bg-night/60 p-0.5 text-xs">
-				<button
-					type="button"
-					class="rounded-full px-2.5 py-0.5 transition-colors {filterTag === 'all' ? 'bg-cream/10 text-cream font-medium' : 'text-faint hover:text-taupe'}"
-					onclick={() => (filterTag = 'all')}
-				>
-					All
-				</button>
-				<button
-					type="button"
-					class="rounded-full px-2.5 py-0.5 transition-colors {filterTag === 'focus' ? 'bg-lamp/20 text-lamp font-medium' : 'text-faint hover:text-taupe'}"
-					onclick={() => (filterTag = 'focus')}
-				>
-					Focus queue
-				</button>
-				<button
-					type="button"
-					class="rounded-full px-2.5 py-0.5 transition-colors {filterTag === 'hangout' ? 'bg-amber-400/20 text-amber-300 font-medium' : 'text-faint hover:text-taupe'}"
-					style={filterTag === 'hangout' ? 'color: var(--color-amber); background: color-mix(in srgb, var(--color-amber) 20%, transparent)' : ''}
-					onclick={() => (filterTag = 'hangout')}
-				>
-					Break queue
-				</button>
-			</div>
+			<button
+				type="button"
+				class="inline-flex items-center gap-1.5 rounded-field border border-cream/15 bg-night/60 px-2.5 py-1 text-xs text-taupe transition-colors hover:border-lamp/40 hover:text-cream disabled:opacity-30 disabled:pointer-events-none"
+				onclick={() => room.shuffleQueue()}
+				disabled={room.state.queue.length <= 1 || !room.canControlPlayback}
+				title={!room.canControlPlayback ? 'Aux is set to Admin only' : (room.state.queue.length <= 1 ? 'Need at least 2 tracks to shuffle' : 'Shuffle queue')}
+			>
+				<IconArrowsShuffle size={13} stroke={1.8} class="text-lamp" />
+				<span>Shuffle</span>
+			</button>
 		</div>
 
 		<ul class="divide-y divide-cream/8 max-h-[340px] overflow-y-auto">
-			{#each filteredQueue as track, i (track.uid)}
+			{#each room.state.queue as track, i (track.uid)}
 				<li class="flex items-center gap-3 px-4 py-2.5">
 					<span class="num w-4 shrink-0 text-xs text-faint">{i + 1}</span>
 					{#if track.source === 'youtube' && track.videoId}
@@ -306,15 +248,6 @@
 							{#if track.isPlaylist}
 								<span class="shrink-0 rounded bg-cyan/15 px-1.5 py-0.2 text-[9px] font-mono uppercase text-cyan font-semibold tracking-wider">
 									Playlist
-								</span>
-							{/if}
-							{#if track.tag === 'hangout'}
-								<span class="shrink-0 rounded-full px-1.5 py-0.2 text-[10px] font-mono uppercase text-lamp bg-lamp/15">
-									Normal
-								</span>
-							{:else}
-								<span class="shrink-0 rounded-full bg-amber-400/15 px-1.5 py-0.2 text-[10px] font-mono uppercase text-amber-300">
-									Focus
 								</span>
 							{/if}
 						</div>
@@ -365,7 +298,7 @@
 						<button
 							class="icon-btn text-faint hover:text-cream disabled:opacity-20"
 							onclick={() => room.moveQueue(i, i + 1)}
-							disabled={i === filteredQueue.length - 1}
+							disabled={i === room.state.queue.length - 1}
 							title="Move down"
 							aria-label="Move {track.title} down"
 						>

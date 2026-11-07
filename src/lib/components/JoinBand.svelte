@@ -31,7 +31,7 @@
 			We post the link in Telegram first. Bring a track. Bring something to work on.
 		</p>
 		<div class="mt-8 flex flex-wrap gap-3" data-reveal use:reveal={120}>
-			<a href="/room" class="btn btn-primary" use:magnetic={0.2}>Open the door</a>
+			<a href="/room" class="btn btn-amber" use:magnetic={0.2}>Create a room</a>
 			<a
 				href={TELEGRAM_URL}
 				class="btn btn-ghost text-sm"

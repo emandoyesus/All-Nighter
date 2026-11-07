@@ -214,7 +214,7 @@
 					<IconPlus size={18} stroke={1.5} />
 				</span>
 				<div>
-					<h2 class="text-base font-medium">Open the door</h2>
+					<h2 class="text-base font-medium">Create a room</h2>
 					<p class="num text-xs text-faint">you become the host</p>
 				</div>
 			</div>
@@ -346,9 +346,9 @@
 				bind:value={nightPlan}
 			/>
 
-			<button type="submit" class="btn btn-primary w-full">
-				<IconDoorEnter size={16} stroke={1.5} />
-				{isPrivate ? 'Create Private Room' : 'Open the door'}
+			<button type="submit" class="btn btn-amber w-full font-medium">
+				<IconPlus size={16} stroke={1.5} />
+				{isPrivate ? 'Create Private Room' : 'Create a room'}
 			</button>
 		</form>
 

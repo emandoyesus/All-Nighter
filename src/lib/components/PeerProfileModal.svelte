@@ -373,7 +373,9 @@
 							{#each roomTracks as track}
 								<li class="flex items-center justify-between gap-2 text-taupe">
 									<span class="truncate text-cream/90">{track.title}</span>
-									<span class="font-mono text-[10px] text-faint uppercase shrink-0">{track.tag}</span>
+									{#if track.channel}
+										<span class="font-mono text-[10px] text-faint uppercase shrink-0">{track.channel}</span>
+									{/if}
 								</li>
 							{/each}
 						</ul>

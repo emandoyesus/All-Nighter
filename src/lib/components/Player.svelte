@@ -13,6 +13,8 @@
 	import IconExternal from '@tabler/icons-svelte/icons/external-link';
 	import IconDisc from '@tabler/icons-svelte/icons/disc';
 	import IconMaximize from '@tabler/icons-svelte/icons/maximize';
+	import IconMinimize from '@tabler/icons-svelte/icons/minimize';
+	import IconTarget from '@tabler/icons-svelte/icons/target';
 	import IconArrowsShuffle from '@tabler/icons-svelte/icons/arrows-shuffle';
 	import IconShield from '@tabler/icons-svelte/icons/shield';
 
@@ -38,6 +40,20 @@
 	let volume = $state(80);
 	let muted = $state(false);
 	let apiError = $state(false);
+	let isMinimized = $state(false);
+	let lastMode = $state<string | undefined>(undefined);
+
+	$effect(() => {
+		const currentMode = room.mode;
+		if (currentMode !== lastMode) {
+			lastMode = currentMode;
+			if (currentMode === 'focus') {
+				isMinimized = true;
+			} else {
+				isMinimized = false;
+			}
+		}
+	});
 
 	const hasVideo = $derived(
 		!!room.state.videoId ||
@@ -145,57 +161,227 @@
 <svelte:window onkeydown={handleKeydown} />
 
 <div class="panel overflow-hidden">
-	<div class="flex items-center justify-between gap-3 border-b border-cream/10 px-4 py-3">
-		<div class="min-w-0 flex-1">
-			{#if room.state.current}
-				<p class="truncate text-sm font-medium" title={room.state.current.title}>{room.state.current.title}</p>
-				<p class="truncate text-xs text-faint flex items-center gap-1.5">
-					<span class="truncate">{room.state.current.channel ?? 'YouTube'}</span>
-					<span class="text-faint/70 shrink-0">·</span>
-					<span class="inline-flex items-center gap-1 truncate">
-						<span class="text-faint shrink-0">added by</span>
+	{#if room.mode === 'focus'}
+		<!-- Focus Mode: Rolling CD View -->
+		<div class="p-6 sm:p-8 flex flex-col items-center justify-center text-center relative overflow-hidden bg-gradient-to-b from-night-2/80 via-night-3/60 to-night/90">
+			<!-- Rolling CD Artwork -->
+			<div class="relative my-2 sm:my-3 flex items-center justify-center">
+				<!-- Outer Vinyl / CD Grooves -->
+				<div
+					class="relative h-44 w-44 sm:h-52 sm:w-52 rounded-full bg-[#0d0d0d] p-3 shadow-[0_15px_50px_rgba(0,0,0,0.85),inset_0_0_0_2px_rgba(255,255,255,0.08),inset_0_0_0_10px_rgba(20,20,20,0.9),inset_0_0_0_14px_rgba(255,255,255,0.04),inset_0_0_0_24px_rgba(10,10,10,0.95)] {playing ? 'animate-spin' : ''}"
+					style="animation-duration: 7s; animation-timing-function: linear;"
+				>
+					<!-- Vinyl Sheen / Reflection lines -->
+					<div class="absolute inset-0 rounded-full bg-[conic-gradient(from_0deg,transparent_0deg,rgba(255,255,255,0.08)_45deg,transparent_90deg,transparent_180deg,rgba(255,255,255,0.08)_225deg,transparent_270deg)] pointer-events-none"></div>
+
+					<!-- Center Label with Album Art / Thumbnail -->
+					<div class="relative h-full w-full rounded-full overflow-hidden border border-cream/20 bg-night-2 flex items-center justify-center">
+						{#if room.state.videoId}
+							<img
+								src="https://img.youtube.com/vi/{room.state.videoId}/hqdefault.jpg"
+								alt=""
+								class="h-full w-full object-cover"
+							/>
+						{:else}
+							<div class="grid h-full w-full place-items-center bg-night-3 text-lamp">
+								<IconDisc size={40} stroke={1.5} />
+							</div>
+						{/if}
+						<!-- Center Spindle Hole -->
+						<div class="absolute inset-0 m-auto h-8 w-8 rounded-full border border-cream/30 bg-[#060a0b] shadow-inner flex items-center justify-center">
+							<div class="h-2.5 w-2.5 rounded-full bg-cream/30"></div>
+						</div>
+					</div>
+				</div>
+
+				{#if playing && hasVideo}
+					<div class="absolute -bottom-1 right-2">
+						<AudioVisualizer active={playing} bars={4} size="sm" />
+					</div>
+				{/if}
+			</div>
+
+			<!-- Track Title & Artist -->
+			<div class="mt-4 max-w-md w-full px-2">
+				<span class="inline-flex items-center gap-1.5 rounded-full border border-amber-400/35 bg-amber-400/10 px-2.5 py-0.5 text-[10px] font-mono uppercase tracking-wider text-amber-300 mb-2">
+					<IconTarget size={11} stroke={2} />
+					Deep Focus Soundtrack
+				</span>
+
+				{#if room.state.current}
+					<h2 class="text-base sm:text-lg font-semibold text-cream truncate" title={room.state.current.title}>
+						{room.state.current.title}
+					</h2>
+					<p class="text-xs text-taupe truncate mt-1 flex items-center justify-center gap-1.5">
+						<span>{room.state.current.channel ?? 'YouTube'}</span>
+						<span class="text-faint/60">·</span>
+						<span class="text-faint">added by</span>
 						<button
 							type="button"
-							class="truncate font-medium text-cream/90 transition-colors hover:text-lamp underline decoration-cream/20 underline-offset-2 cursor-pointer text-left"
+							class="text-cream/90 hover:text-lamp transition-colors underline decoration-cream/20 underline-offset-2 cursor-pointer"
 							onclick={() => room.state.current?.addedBy && window.dispatchEvent(new CustomEvent('an:inspect-peer', { detail: { name: room.state.current.addedBy } }))}
-							title="View {room.state.current.addedBy}'s nocturnal profile"
 						>
 							{room.state.current.addedBy}
 						</button>
+					</p>
+				{:else}
+					<p class="text-sm text-taupe font-mono">The night is quiet.</p>
+				{/if}
+
+				<button
+					type="button"
+					class="btn btn-ghost btn-sm text-xs mt-3.5 text-amber-300 hover:text-cream border border-amber-400/30 hover:border-amber-400/60 inline-flex items-center gap-1.5 transition-colors"
+					onclick={() => window.dispatchEvent(new CustomEvent('an:open-desk-hud'))}
+					title="Open Fullscreen Focus HUD"
+				>
+					<IconMaximize size={13} stroke={1.5} />
+					<span>Fullscreen Focus HUD</span>
+				</button>
+			</div>
+
+			{#if ready && !unlocked}
+				<div class="mt-4 flex items-center gap-2">
+					<button class="btn btn-primary btn-sm text-xs py-1.5 px-4" onclick={unlock}>
+						<IconVolume size={15} stroke={1.5} />
+						Turn on audio
+					</button>
+				</div>
+			{/if}
+		</div>
+	{:else if isMinimized}
+		<!-- Minimal HUD-Style Now Playing Bar -->
+		<div class="flex items-center justify-between gap-3 px-4 py-3 bg-gradient-to-r from-night-2 via-night-3 to-night-2 border-b border-cream/10">
+			<div class="flex items-center gap-3.5 min-w-0 flex-1">
+				<div class="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg border border-cream/15 bg-night flex items-center justify-center shadow-md">
+					{#if room.state.videoId}
+						<img
+							src="https://img.youtube.com/vi/{room.state.videoId}/hqdefault.jpg"
+							alt=""
+							class="h-full w-full object-cover"
+						/>
+					{:else}
+						<div class="grid h-full w-full place-items-center text-lamp">
+							<IconDisc size={22} stroke={1.5} class={playing ? 'animate-spin' : ''} style="animation-duration: 6s;" />
+						</div>
+					{/if}
+					{#if playing && hasVideo}
+						<div class="absolute inset-0 bg-night/60 flex items-center justify-center backdrop-blur-[1px]">
+							<AudioVisualizer active={playing} bars={3} size="sm" />
+						</div>
+					{/if}
+				</div>
+
+				<div class="min-w-0 flex-1">
+					<div class="flex items-center gap-2 mb-0.5">
+						<span class="text-[10px] font-mono text-faint uppercase tracking-wider">Now Playing</span>
+					</div>
+					{#if room.state.current}
+						<p class="truncate text-sm font-semibold text-cream" title={room.state.current.title}>
+							{room.state.current.title}
+						</p>
+						<p class="truncate text-xs text-taupe flex items-center gap-1.5 mt-0.5">
+							<span>{room.state.current.channel ?? 'YouTube'}</span>
+							<span class="text-faint/60">·</span>
+							<span class="text-faint">added by</span>
+							<button
+								type="button"
+								class="text-cream/90 hover:text-lamp transition-colors underline decoration-cream/20 underline-offset-2 cursor-pointer"
+								onclick={() => room.state.current?.addedBy && window.dispatchEvent(new CustomEvent('an:inspect-peer', { detail: { name: room.state.current.addedBy } }))}
+							>
+								{room.state.current.addedBy}
+							</button>
+						</p>
+					{:else}
+						<p class="text-xs text-taupe">The room is quiet. Add a track to queue.</p>
+					{/if}
+				</div>
+			</div>
+
+			<div class="flex items-center gap-2 shrink-0">
+				{#if ready && !unlocked}
+					<button class="btn btn-primary btn-sm text-xs py-1 px-3" onclick={unlock}>
+						<IconVolume size={14} stroke={1.5} />
+						Turn on
+					</button>
+				{/if}
+				<button
+					type="button"
+					class="btn btn-ghost btn-sm text-xs py-1 px-2.5 text-taupe hover:text-cream flex items-center gap-1.5 border border-cream/10 hover:border-cream/25 transition-colors"
+					onclick={() => (isMinimized = false)}
+					title="Expand full video player"
+				>
+					<IconMaximize size={13} stroke={1.5} />
+					<span class="hidden sm:inline">Expand video</span>
+				</button>
+			</div>
+		</div>
+	{:else}
+		<!-- Full Video Player Header -->
+		<div class="flex items-center justify-between gap-3 border-b border-cream/10 px-4 py-3">
+			<div class="min-w-0 flex-1">
+				{#if room.state.current}
+					<p class="truncate text-sm font-medium" title={room.state.current.title}>{room.state.current.title}</p>
+					<p class="truncate text-xs text-faint flex items-center gap-1.5">
+						<span class="truncate">{room.state.current.channel ?? 'YouTube'}</span>
+						<span class="text-faint/70 shrink-0">·</span>
+						<span class="inline-flex items-center gap-1 truncate">
+							<span class="text-faint shrink-0">added by</span>
+							<button
+								type="button"
+								class="truncate font-medium text-cream/90 transition-colors hover:text-lamp underline decoration-cream/20 underline-offset-2 cursor-pointer text-left"
+								onclick={() => room.state.current?.addedBy && window.dispatchEvent(new CustomEvent('an:inspect-peer', { detail: { name: room.state.current.addedBy } }))}
+								title="View {room.state.current.addedBy}'s nocturnal profile"
+							>
+								{room.state.current.addedBy}
+							</button>
+						</span>
+					</p>
+				{:else}
+					<p class="text-sm text-taupe">Nothing on right now</p>
+				{/if}
+			</div>
+			<div class="flex items-center gap-2 shrink-0">
+				{#if room.state.adminOnlyPlayback}
+					<span class="inline-flex items-center gap-1 rounded bg-teal-500/10 px-1.5 py-0.5 text-[10px] text-aqua-foam font-mono border border-teal-500/30" title="Aux controls restricted to room admins">
+						<IconShield size={10} stroke={2} />
+						Aux: Admin
 					</span>
-				</p>
-			{:else}
-				<p class="text-sm text-taupe">Nothing on right now</p>
-			{/if}
+				{:else}
+					<span class="inline-flex items-center gap-1 rounded bg-cream/8 px-1.5 py-0.5 text-[10px] text-taupe font-mono border border-cream/15" title="Aux is open to everyone (No Admin)">
+						Aux: No Admin
+					</span>
+				{/if}
+				{#if room.state.isPrivate}
+					<span class="inline-flex items-center gap-1 rounded bg-amber-400/10 px-1.5 py-0.5 text-[10px] text-amber-300 font-mono border border-amber-400/30">
+						Private
+					</span>
+				{:else}
+					<span class="inline-flex items-center gap-1 rounded bg-lamp/10 px-1.5 py-0.5 text-[10px] text-lamp font-mono border border-lamp/30">
+						Public
+					</span>
+				{/if}
+				{#if playing && hasVideo}
+					<AudioVisualizer active={playing} bars={5} size="sm" class="shrink-0" />
+				{/if}
+				<button
+					type="button"
+					class="icon-btn text-taupe hover:text-cream transition-colors ml-0.5"
+					onclick={() => (isMinimized = true)}
+					title="Minimize video player"
+					aria-label="Minimize video player"
+				>
+					<IconMinimize size={15} stroke={1.5} />
+				</button>
+			</div>
 		</div>
-		<div class="flex items-center gap-2 shrink-0">
-			{#if room.state.adminOnlyPlayback}
-				<span class="inline-flex items-center gap-1 rounded bg-teal-500/10 px-1.5 py-0.5 text-[10px] text-aqua-foam font-mono border border-teal-500/30" title="Aux controls restricted to room admins">
-					<IconShield size={10} stroke={2} />
-					Aux: Admin
-				</span>
-			{:else}
-				<span class="inline-flex items-center gap-1 rounded bg-cream/8 px-1.5 py-0.5 text-[10px] text-taupe font-mono border border-cream/15" title="Aux is open to everyone (No Admin)">
-					Aux: No Admin
-				</span>
-			{/if}
-			{#if room.state.isPrivate}
-				<span class="inline-flex items-center gap-1 rounded bg-amber-400/10 px-1.5 py-0.5 text-[10px] text-amber-300 font-mono border border-amber-400/30">
-					Private
-				</span>
-			{:else}
-				<span class="inline-flex items-center gap-1 rounded bg-lamp/10 px-1.5 py-0.5 text-[10px] text-lamp font-mono border border-lamp/30">
-					Public
-				</span>
-			{/if}
-			{#if playing && hasVideo}
-				<AudioVisualizer active={playing} bars={5} size="sm" class="shrink-0" />
-			{/if}
-		</div>
-	</div>
+	{/if}
 
 	<!-- Video mount target for persistent GlobalPlayer -->
-	<div id="room-video-viewport" class="relative aspect-video bg-night overflow-hidden">
+	<div
+		id="room-video-viewport"
+		data-minimized={isMinimized || room.mode === 'focus'}
+		class="relative bg-night overflow-hidden transition-all duration-300 {isMinimized || room.mode === 'focus' ? 'h-0 opacity-0 pointer-events-none' : 'aspect-video'}"
+	>
 		{#if apiError}
 			<div class="absolute inset-0 grid place-items-center bg-night-3 px-8 text-center z-10">
 				<p class="max-w-[36ch] text-sm text-taupe">
