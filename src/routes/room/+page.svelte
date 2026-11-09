@@ -5,7 +5,6 @@
 	import Player from '#lib/components/Player.svelte';
 	import QueuePanel from '#lib/components/QueuePanel.svelte';
 	import Countdown from '#lib/components/Countdown.svelte';
-	import NowPlayingBar from '#lib/components/NowPlayingBar.svelte';
 	import ChatPanel from '#lib/components/ChatPanel.svelte';
 	import PresencePanel from '#lib/components/PresencePanel.svelte';
 	import RoomLobby from '#lib/components/RoomLobby.svelte';

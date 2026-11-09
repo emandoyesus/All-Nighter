@@ -42,15 +42,6 @@ export type Night = {
 	chatMoments: ChatMoment[];
 };
 
-export type UpcomingSession = {
-	slug: string;
-	title: string;
-	theme: string;
-	date: string;
-	iso: string;
-	blurb: string;
-};
-
 export const nights: Night[] = [
 	{
 		slug: 'entoto-sunrise-addis-lock-in',
@@ -87,8 +78,6 @@ export const nights: Night[] = [
 		]
 	}
 ];
-
-export const upcoming: UpcomingSession[] = [];
 
 export function nightBySlug(slug: string): Night | undefined {
 	return nights.find((night) => night.slug === slug);

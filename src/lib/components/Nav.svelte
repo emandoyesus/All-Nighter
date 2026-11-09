@@ -4,7 +4,6 @@
 	import { room } from '#lib/room/room.svelte';
 	import { siteAudio } from '#lib/audio/site-audio.svelte';
 	import { gsap, prefersReducedMotion, setupGsap } from '#lib/motion';
-	import { ambientMusic } from '#lib/audio/ambient-music.svelte';
 	import IconVolumeOff from '@tabler/icons-svelte/icons/volume-off';
 	import AuthModal from './AuthModal.svelte';
 
@@ -22,9 +21,6 @@
 	let hidden = false;
 
 	onMount(() => {
-		// Stop any legacy procedural audio
-		ambientMusic.pause();
-
 		if (prefersReducedMotion()) return;
 
 		setupGsap();
