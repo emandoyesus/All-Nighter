@@ -13,13 +13,14 @@
 	import IconDice from '@tabler/icons-svelte/icons/dice';
 
 	let creating = $state(false);
-	let draft = $state('late-night-shift');
+	let draft = $state('');
 	let isPrivate = $state(false);
 	let roomKeyDraft = $state(generateRoomKey());
 	let adminOnly = $state(false);
 	let nightPlan = $state('');
 	let copiedSlug = $state<string | null>(null);
 	let joinPrivateInput = $state('');
+	let nameError = $state('');
 
 	async function copyInvite(slug: string): Promise<void> {
 		try {
@@ -37,11 +38,17 @@
 		[...room.directory].sort((a, b) => b.members - a.members || b.ts - a.ts)
 	);
 
-	const slug = $derived(sanitizeRoom(draft) || 'late-night-shift');
+	const slug = $derived(sanitizeRoom(draft));
 
 	function create(event: SubmitEvent): void {
 		event.preventDefault();
-		const name = draft.trim() || 'late-night-shift';
+		const name = draft.trim();
+		const cleanSlug = sanitizeRoom(name);
+		if (!name || !cleanSlug) {
+			nameError = 'Please enter your room name';
+			return;
+		}
+		nameError = '';
 		if (nightPlan.trim()) {
 			// Store the intention before creating the room so announce() picks it up
 			room.setIntention(nightPlan.trim());
@@ -291,16 +298,28 @@
 				</div>
 			</div>
 
-			<label for="room-name" class="text-xs text-faint">Room name</label>
-			<input
-				id="room-name"
-				type="text"
-				maxlength="24"
-				autocomplete="off"
-				placeholder="late-night-shift"
-				class="w-full rounded-field border border-cream/10 bg-night/60 px-3 py-2 text-sm text-cream outline-none transition-colors focus:border-lamp/60"
-				bind:value={draft}
-			/>
+			<div>
+				<label for="room-name" class="text-xs text-faint flex items-center justify-between mb-1.5">
+					<span>Room name <span class="text-amber">*</span></span>
+					{#if slug}
+						<span class="font-mono text-[10px] text-taupe">slug: ?room={slug}</span>
+					{/if}
+				</label>
+				<input
+					id="room-name"
+					type="text"
+					maxlength="24"
+					required
+					autocomplete="off"
+					placeholder="Enter your room name (e.g. entoto-haven)..."
+					class="w-full rounded-field border bg-night/60 px-3 py-2 text-sm text-cream outline-none transition-colors focus:border-lamp/60 {nameError ? 'border-ruby/70 focus:border-ruby' : 'border-cream/10'}"
+					bind:value={draft}
+					oninput={() => { if (nameError) nameError = ''; }}
+				/>
+				{#if nameError}
+					<p class="mt-1 text-[11px] font-mono text-ruby">{nameError}</p>
+				{/if}
+			</div>
 
 			{#if isPrivate}
 				<div class="rounded-xl border border-amber-400/25 bg-amber-400/5 p-3">
@@ -328,11 +347,17 @@
 						class="w-full rounded-lg border border-amber-400/30 bg-night/80 px-2.5 py-1.5 text-xs text-amber-200 font-mono outline-none focus:border-amber-400"
 					/>
 					<p class="mt-1 text-[10px] text-faint font-mono">
-						Direct link: <span class="text-taupe">?room={slug}&key={roomKeyDraft}</span>
+						Direct link: <span class="text-taupe">{slug ? `?room=${slug}&key=${roomKeyDraft}` : 'enter room name first'}</span>
 					</p>
 				</div>
 			{:else}
-				<p class="num text-[11px] text-faint">link → ?room={slug}</p>
+				<p class="num text-[11px] text-faint">
+					{#if slug}
+						link → ?room={slug}
+					{:else}
+						link → enter your room name above
+					{/if}
+				</p>
 			{/if}
 
 			<label for="night-plan" class="text-xs text-faint">What's the plan tonight?</label>
@@ -346,7 +371,11 @@
 				bind:value={nightPlan}
 			/>
 
-			<button type="submit" class="btn btn-amber w-full font-medium">
+			<button
+				type="submit"
+				class="btn btn-amber w-full font-medium disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+				disabled={!slug}
+			>
 				<IconPlus size={16} stroke={1.5} />
 				{isPrivate ? 'Create Private Room' : 'Create a room'}
 			</button>

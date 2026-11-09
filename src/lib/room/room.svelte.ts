@@ -150,7 +150,7 @@ export function sanitizeRoom(raw: string | null | undefined): string {
 		.replace(/[^a-z0-9-]+/g, '-')
 		.replace(/^-+|-+$/g, '')
 		.slice(0, 24);
-	return value || DEFAULT_ROOM;
+	return value;
 }
 
 function emptyState(): RoomState {
@@ -388,7 +388,7 @@ class Room {
 			if (!auth.isAuthenticated) {
 				return;
 			}
-			const slug = sanitizeRoom(param);
+			const slug = sanitizeRoom(param) || DEFAULT_ROOM;
 			let wasHost = false;
 			try {
 				wasHost = localStorage.getItem('an.host.' + slug) === '1';
@@ -883,6 +883,10 @@ class Room {
 	/** Create a room and step inside as its host. */
 	async createRoom(name: string, isPrivate = false, adminOnlyPlayback = false, customKey?: string): Promise<void> {
 		const slug = sanitizeRoom(name);
+		if (!slug) {
+			console.warn('[room] Cannot create room without a valid room name');
+			return;
+		}
 		try {
 			recordStat('roomsHosted', 1);
 		} catch {}
