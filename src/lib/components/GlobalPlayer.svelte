@@ -4,6 +4,8 @@
 	import { room } from '#lib/room/room.svelte';
 	import { DRIFT_TOLERANCE, HEARTBEAT_TICK } from '#lib/config';
 	import { loadYouTubeApi } from '#lib/room/youtube';
+	import IconVolume from '@tabler/icons-svelte/icons/volume';
+	import IconVolumeOff from '@tabler/icons-svelte/icons/volume-off';
 
 	const ENDED = 0;
 	const PLAYING = 1;
@@ -40,7 +42,12 @@
 	function targetTime(): number {
 		const s = room.state;
 		if (!s.playing) return s.position;
-		return s.position + (Date.now() + room.offset - s.clock) / 1000;
+		// If we are the director who published this state, s.clock was generated locally: no network offset
+		const isSelf = s.by === room.clientId;
+		const elapsed = isSelf
+			? (Date.now() - s.clock) / 1000
+			: (Date.now() + room.offset - s.clock) / 1000;
+		return s.position + Math.max(0, elapsed);
 	}
 
 	function applyToPlayer(): void {
@@ -74,6 +81,17 @@
 			loadedVideoId = s.videoId ?? null;
 			loadedPlaylistId = targetPlaylist;
 
+			if (!unlocked) {
+				try {
+					player.mute?.();
+				} catch {}
+			} else {
+				try {
+					player.unMute?.();
+					player.setVolume?.(volume);
+				} catch {}
+			}
+
 			if (targetPlaylist && !s.videoId) {
 				try {
 					if (s.playing) {
@@ -98,6 +116,7 @@
 				try {
 					if (s.playing) {
 						player.loadVideoById?.({ videoId: s.videoId, startSeconds: Math.max(0, targetTime()) });
+						player.playVideo?.();
 					} else {
 						player.cueVideoById?.({ videoId: s.videoId, startSeconds: Math.max(0, targetTime()) });
 					}
@@ -105,29 +124,22 @@
 					/* fallback */
 				}
 			}
-
-			if (!unlocked) {
-				try {
-					player.mute?.();
-				} catch {}
-			} else {
-				try {
-					player.setVolume?.(volume);
-				} catch {}
-			}
 			return;
 		}
 
 		// Same video already loaded
 		if (s.playing) {
-			const target = targetTime();
-			const actual = player.getCurrentTime?.() ?? 0;
-			const curDrift = target - actual;
-			drift = curDrift;
-			if (Math.abs(curDrift) > DRIFT_TOLERANCE) {
-				try {
-					player.seekTo?.(target, true);
-				} catch {}
+			// If we are the director, our player is the source of truth for the room: never seek or nudge ourselves
+			if (!room.isDirector()) {
+				const target = targetTime();
+				const actual = player.getCurrentTime?.() ?? 0;
+				const curDrift = target - actual;
+				drift = curDrift;
+				if (Math.abs(curDrift) > DRIFT_TOLERANCE) {
+					try {
+						player.seekTo?.(target, true);
+					} catch {}
+				}
 			}
 			if (playerState !== PLAYING) {
 				try {
@@ -145,6 +157,24 @@
 		}
 	}
 
+	function broadcastStatus(): void {
+		if (typeof window === 'undefined') return;
+		window.dispatchEvent(
+			new CustomEvent('an:player:status', {
+				detail: {
+					localTime,
+					duration,
+					volume,
+					muted,
+					ready,
+					unlocked,
+					apiError,
+					drift
+				}
+			})
+		);
+	}
+
 	function unlock(): void {
 		unlocked = true;
 		muted = false;
@@ -158,6 +188,7 @@
 			/* settling */
 		}
 		applyToPlayer();
+		broadcastStatus();
 	}
 
 	function setVolume(val: number): void {
@@ -177,9 +208,14 @@
 				unlocked = true;
 			}
 		} catch {}
+		broadcastStatus();
 	}
 
 	function toggleMute(): void {
+		if (!unlocked) {
+			unlock();
+			return;
+		}
 		if (!ready || !player) return;
 		if (muted || volume === 0) {
 			const restore = volume > 0 ? volume : 80;
@@ -191,9 +227,13 @@
 			player.mute();
 			muted = true;
 		}
+		broadcastStatus();
 	}
 
 	function togglePlay(): void {
+		if (!unlocked) {
+			unlock();
+		}
 		if (!room.canControlPlayback) return;
 		const curPos = ready && player?.getCurrentTime ? (player.getCurrentTime() ?? room.state.position) : room.state.position;
 		const nextPlaying = !room.state.playing;
@@ -244,28 +284,33 @@
 		const isMinimized = viewport?.getAttribute('data-minimized') === 'true';
 
 		if (!viewport || !inActiveRoom || !hasVideo || modalOpen || isMinimized) {
-			// Persistent audio mode: keep iframe playing in background with safe dimensions
+			// Persistent background audio: keep within viewport boundary with safe hidden styling
+			// Avoid top: -9999px as modern Chromium/Firefox throttle or pause offscreen iframes
 			containerEl.style.position = 'fixed';
-			containerEl.style.top = '-9999px';
-			containerEl.style.left = '-9999px';
-			containerEl.style.width = '320px';
-			containerEl.style.height = '180px';
-			containerEl.style.opacity = '0.001';
+			containerEl.style.bottom = '0px';
+			containerEl.style.right = '0px';
+			containerEl.style.top = 'auto';
+			containerEl.style.left = 'auto';
+			containerEl.style.width = '200px';
+			containerEl.style.height = '120px';
+			containerEl.style.opacity = '0.01';
 			containerEl.style.pointerEvents = 'none';
-			containerEl.style.zIndex = '-1';
+			containerEl.style.zIndex = '-9999';
 			return;
 		}
 
 		const rect = viewport.getBoundingClientRect();
 		if (rect.width < 20 || rect.height < 20) {
 			containerEl.style.position = 'fixed';
-			containerEl.style.top = '-9999px';
-			containerEl.style.left = '-9999px';
-			containerEl.style.width = '320px';
-			containerEl.style.height = '180px';
-			containerEl.style.opacity = '0.001';
+			containerEl.style.bottom = '0px';
+			containerEl.style.right = '0px';
+			containerEl.style.top = 'auto';
+			containerEl.style.left = 'auto';
+			containerEl.style.width = '200px';
+			containerEl.style.height = '120px';
+			containerEl.style.opacity = '0.01';
 			containerEl.style.pointerEvents = 'none';
-			containerEl.style.zIndex = '-1';
+			containerEl.style.zIndex = '-9999';
 			return;
 		}
 		const scrollY = window.scrollY;
@@ -310,9 +355,11 @@
 					width: '100%',
 					height: '100%',
 					playerVars: {
+						autoplay: 1,
 						controls: 0,
 						rel: 0,
 						playsinline: 1,
+						enablejsapi: 1,
 						modestbranding: 1,
 						disablekb: 1,
 						iv_load_policy: 3,
@@ -337,14 +384,26 @@
 								room.ended(room.state.videoId);
 							}
 						},
-						onError: () => {
+						onError: (err: any) => {
 							if (!alive) return;
 							apiError = true;
-							// If a video cannot be played (e.g. embedding restricted or deleted), auto-advance queue
+							console.warn('[GlobalPlayer] YouTube playback error code:', err?.data);
+							// If a video cannot be played (e.g. embedding restricted or deleted), auto-advance queue or load fallback
 							if (room.state.playing) {
 								setTimeout(() => {
 									if (alive && room.state.playing) {
-										room.skip();
+										if (room.state.queue.length > 0) {
+											room.skip();
+										} else {
+											// Switch to a guaranteed embeddable lofi stream so the room never falls dead silent
+											room.add(
+												'4xDzrJKXOOY',
+												'Lofi Girl - Synthwave Radio',
+												'Lofi Girl',
+												'All Nighter',
+												'youtube'
+											);
+										}
 									}
 								}, 1500);
 							}
@@ -398,13 +457,7 @@
 			const custom = e as CustomEvent<number>;
 			if (typeof custom.detail === 'number') setVolume(custom.detail);
 		};
-		const onMuteToggleEvent = () => {
-			if (!unlocked) {
-				unlock();
-			} else {
-				toggleMute();
-			}
-		};
+		const onMuteToggleEvent = () => toggleMute();
 		const onSkipEvent = () => skip();
 		const onToggleEvent = () => togglePlay();
 		const onSeekEvent = (e: Event) => {
@@ -414,6 +467,22 @@
 		const onUnlockEvent = () => unlock();
 		const onWindowResize = () => syncViewportPosition();
 		const onWindowScroll = () => syncViewportPosition();
+
+		// Any user interaction anywhere in the window unlocks and enables audio immediately
+		const onUserInteraction = (e: Event) => {
+			if (!unlocked) {
+				const target = e.target as HTMLElement | null;
+				// If clicking directly on the video mute overlay, toggleMute will handle unlocking/unmuting
+				if (target?.closest?.('.video-mute-overlay') || target?.closest?.('[data-video-overlay]')) {
+					return;
+				}
+				unlock();
+			}
+		};
+
+		window.addEventListener('click', onUserInteraction, { capture: true, passive: true });
+		window.addEventListener('keydown', onUserInteraction, { capture: true, passive: true });
+		window.addEventListener('touchstart', onUserInteraction, { capture: true, passive: true });
 
 		window.addEventListener('an:player:set-volume', onVolumeEvent);
 		window.addEventListener('an:player:toggle-mute', onMuteToggleEvent);
@@ -436,6 +505,9 @@
 			window.clearInterval(beat);
 			if (ro) ro.disconnect();
 			if (mo) mo.disconnect();
+			window.removeEventListener('click', onUserInteraction, { capture: true });
+			window.removeEventListener('keydown', onUserInteraction, { capture: true });
+			window.removeEventListener('touchstart', onUserInteraction, { capture: true });
 			window.removeEventListener('an:player:set-volume', onVolumeEvent);
 			window.removeEventListener('an:player:toggle-mute', onMuteToggleEvent);
 			window.removeEventListener('an:player:skip', onSkipEvent);
@@ -480,36 +552,32 @@
 	>
 		<div bind:this={frameEl}></div>
 
-		<!-- Interactive button overlay right on the video itself -->
+		<!-- Interactive button overlay right on the video itself: clicking mutes/unmutes locally for everyone -->
 		<button
 			type="button"
-			class="absolute inset-0 z-10 flex items-center justify-center bg-black/25 opacity-0 group-hover:opacity-100 transition-all {room.canControlPlayback ? 'cursor-pointer' : 'cursor-not-allowed'} border-0 {room.state.playing ? '' : '!opacity-100 !bg-black/50'}"
+			data-video-overlay
+			class="video-mute-overlay absolute inset-0 z-10 flex items-center justify-center bg-black/25 opacity-0 group-hover:opacity-100 transition-all cursor-pointer border-0"
 			onclick={(e) => {
 				e.stopPropagation();
-				if (room.canControlPlayback) {
-					togglePlay();
-				}
+				toggleMute();
 			}}
-			aria-label={!room.canControlPlayback ? 'Aux is locked to admins' : (room.state.playing ? 'Pause video' : 'Play video')}
-			title={!room.canControlPlayback ? 'Aux is locked to admins' : (room.state.playing ? 'Pause (Space)' : 'Play (Space)')}
+			aria-label={muted || volume === 0 ? 'Unmute video audio' : 'Mute video audio'}
+			title={muted || volume === 0 ? 'Click to unmute' : 'Click to mute'}
 		>
 			<span class="flex h-14 w-14 items-center justify-center rounded-full bg-night/85 text-cream border border-cream/25 shadow-2xl backdrop-blur-md transition-transform group-hover:scale-110 active:scale-95">
-				{#if !room.canControlPlayback}
-					<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-taupe">
-						<rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-						<path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-					</svg>
-				{:else if room.state.playing}
-					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="text-aqua-foam">
-						<rect x="6" y="4" width="4" height="16" rx="1"></rect>
-						<rect x="14" y="4" width="4" height="16" rx="1"></rect>
-					</svg>
+				{#if muted || volume === 0}
+					<IconVolumeOff size={26} stroke={2} class="text-taupe" />
 				{:else}
-					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="text-lamp ml-0.5">
-						<polygon points="5 3 19 12 5 21 5 3"></polygon>
-					</svg>
+					<IconVolume size={26} stroke={2} class="text-aqua-foam" />
 				{/if}
 			</span>
 		</button>
+
+		{#if muted || volume === 0}
+			<div class="pointer-events-none absolute bottom-3 right-3 z-10 flex items-center gap-1.5 rounded-full bg-night/85 px-3 py-1 text-xs font-medium text-cream border border-cream/15 backdrop-blur-md shadow-lg group-hover:opacity-0 transition-opacity">
+				<IconVolumeOff size={14} stroke={2} class="text-taupe" />
+				<span>Muted · click to unmute</span>
+			</div>
+		{/if}
 	</div>
 </div>

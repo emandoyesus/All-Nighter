@@ -66,7 +66,7 @@ export const PRESENCE_TICK = 5_000;
 export const HEARTBEAT_TICK = 10_000;
 
 /** Drift (seconds) tolerated before we nudge the player back into line. */
-export const DRIFT_TOLERANCE = 1.5;
+export const DRIFT_TOLERANCE = 3.0;
 
 /** Directory ads older than this stop being listed (rooms heartbeat every DIR_TICK). */
 export const DIR_TTL = 45_000;

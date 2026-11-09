@@ -287,18 +287,10 @@ class Room {
 		(this.state.admins?.includes(this.clientId) ?? false) ||
 		(this.state.admins?.includes(this.name) ?? false)
 	);
-	/** Whether host, admin, or solo listener can skip directly. */
-	canSkip = $derived(
-		!this.state.adminOnlyPlayback ||
-		this.isAdminUser ||
-		this.awake.length <= 1
-	);
-	/** Whether this user is allowed to Play / Pause / Seek / Shuffle. */
-	canControlPlayback = $derived(
-		!this.state.adminOnlyPlayback ||
-		this.isAdminUser ||
-		this.awake.length <= 1
-	);
+	/** Whether host or admin can skip directly. */
+	canSkip = $derived(this.isAdminUser);
+	/** Whether this user is allowed to Play / Pause / Seek / Shuffle (Admins only). */
+	canControlPlayback = $derived(this.isAdminUser);
 	/** This user's one-line intention for the night. */
 	intention = $state('');
 	/** Rooms advertised on the broker right now. */
@@ -838,12 +830,20 @@ class Room {
 
 		// If mutation did not explicitly change playback position, advance position by elapsed playback time
 		let position = base.position;
-		if (base.position === this.state.position && this.state.playing && this.state.clock) {
-			const elapsed = Math.max(0, (now + this.offset - this.state.clock) / 1000);
-			position = this.state.position + elapsed;
+		let clock = now;
+		const isPlaybackChange =
+			base.position !== this.state.position ||
+			base.playing !== this.state.playing ||
+			base.videoId !== this.state.videoId;
+
+		if (!isPlaybackChange && this.state.playing && this.state.clock) {
+			// If playback parameters did not change (e.g. mode switch, admin toggle), preserve the clock anchor
+			// so that playback remains completely continuous without any micro-seeking.
+			position = this.state.position;
+			clock = this.state.clock;
 		}
 
-		this.state = { ...base, position, seq, by: this.clientId, clock: now };
+		this.state = { ...base, position, seq, by: this.clientId, clock };
 		this.publishState();
 		if (logText) this.writeLog(logText);
 
@@ -1076,7 +1076,31 @@ class Room {
 		this.syncUrl(slug);
 		this.subscribeActive();
 		this.announce();
-		this.publishState();
+		if (isNew) {
+			this.publishState();
+		} else if (host) {
+			// On reload as host: give MQTT/peers 2.5s to hydrate live state.
+			// Only if room is truly empty and no state arrived do we seed starter track.
+			setTimeout(() => {
+				if (this.room === slug && this.joinState === 'approved' && !this.state.current && !this.state.videoId) {
+					const starter: Track = {
+						...DEFAULT_STARTER_TRACK,
+						uid: `starter-${Date.now()}`
+					};
+					this.state = {
+						...this.state,
+						current: starter,
+						videoId: starter.videoId,
+						source: 'youtube',
+						playing: true,
+						position: 0,
+						clock: Date.now(),
+						by: this.name || 'host'
+					};
+					this.publishState();
+				}
+			}, 2500);
+		}
 		this.startDirectory();
 		void this.dbSync.attachRoom(slug, title, this.clientId, this.name);
 		if (isNew && this.state.current) {
