@@ -97,6 +97,19 @@
 	}
 
 	const hasFilters = $derived(!!(query || contributor || genre || month));
+
+	const chronologicalNights = $derived.by(() => {
+		return [...baseNights].sort(
+			(a, b) => new Date(a.iso).getTime() - new Date(b.iso).getTime()
+		);
+	});
+
+	function getLogNumber(targetNight: Night): number {
+		const idx = chronologicalNights.findIndex(
+			(n) => n.slug === targetNight.slug || n.iso === targetNight.iso
+		);
+		return idx !== -1 ? idx + 1 : 1;
+	}
 </script>
 
 <svelte:head>
@@ -320,7 +333,7 @@
 
 					<!-- Watermark Serial Index Number -->
 					<span class="pointer-events-none absolute right-4 top-2 font-mono text-4xl font-extrabold text-cream/[0.04] select-none group-hover:text-lamp/[0.08] transition-colors">
-						{String(i + 1).padStart(2, '0')}
+						{String(getLogNumber(night)).padStart(2, '0')}
 					</span>
 
 					<div>
@@ -332,7 +345,7 @@
 									{night.tag}
 								</span>
 								<span class="font-mono text-[10px] uppercase tracking-wider text-faint">
-									LOG #{String(i + 1).padStart(3, '0')}
+									LOG #{String(getLogNumber(night)).padStart(3, '0')}
 								</span>
 							</div>
 							<span class="font-mono text-xs text-taupe">{night.date}</span>

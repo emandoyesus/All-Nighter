@@ -26,6 +26,21 @@
 		}
 		return combined.sort((a, b) => new Date(b.iso).getTime() - new Date(a.iso).getTime());
 	});
+
+	const chronologicalAllNights = $derived.by(() => {
+		const combined = [...nights];
+		for (const mn of myNights) {
+			if (!combined.some((n) => n.slug === mn.slug)) {
+				combined.push(mn);
+			}
+		}
+		return combined.sort((a, b) => new Date(a.iso).getTime() - new Date(b.iso).getTime());
+	});
+
+	function getLogNumber(targetNight: Night): number {
+		const idx = chronologicalAllNights.findIndex((n) => n.slug === targetNight.slug || n.iso === targetNight.iso);
+		return idx !== -1 ? idx + 1 : 1;
+	}
 </script>
 
 <section id="archive" class="relative border-t border-cream/10 bg-[#060a0b] py-16 md:py-24 overflow-hidden">
@@ -60,7 +75,7 @@
 
 						<!-- Watermark Serial Index Number -->
 						<span class="pointer-events-none absolute right-5 top-3 font-mono text-5xl font-extrabold text-cream/[0.04] select-none group-hover:text-lamp/[0.08] transition-colors">
-							01
+							{String(getLogNumber(night)).padStart(2, '0')}
 						</span>
 
 						<div>
@@ -72,7 +87,7 @@
 										{night.tag}
 									</span>
 									<span class="font-mono text-[10px] uppercase tracking-wider text-faint">
-										FEATURED LOG #001
+										FEATURED LOG #{String(getLogNumber(night)).padStart(3, '0')}
 									</span>
 								</div>
 								<span class="font-mono text-xs text-taupe">{night.date}</span>
@@ -194,7 +209,7 @@
 
 						<!-- Watermark Serial Index Number -->
 						<span class="pointer-events-none absolute right-5 top-3 font-mono text-5xl font-extrabold text-cream/[0.04] select-none group-hover:text-lamp/[0.08] transition-colors">
-							{String(i + 1).padStart(2, '0')}
+							{String(getLogNumber(night)).padStart(2, '0')}
 						</span>
 
 						<div>
@@ -206,7 +221,7 @@
 										{night.tag}
 									</span>
 									<span class="font-mono text-[10px] uppercase tracking-wider text-faint">
-										LOG #{String(i + 1).padStart(3, '0')}
+										LOG #{String(getLogNumber(night)).padStart(3, '0')}
 									</span>
 								</div>
 								<span class="font-mono text-xs text-taupe">{night.date}</span>
