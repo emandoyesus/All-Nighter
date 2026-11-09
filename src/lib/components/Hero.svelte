@@ -68,10 +68,10 @@
 				Show up.<br />Lock in till <span class="text-amber">sunrise</span>.
 			</h1>
 			<p class="mt-5 max-w-[46ch] text-lg leading-relaxed text-taupe" data-hero>
-				Work alongside each other. The music holds it together. Dawn closes the book.
+				A shared focus room with synchronized music, chat, and a countdown.
 			</p>
 			<div class="mt-8 flex flex-wrap gap-3" data-hero>
-				<a href={room.room ? `/room?room=${room.room}` : '/room'} class="btn btn-primary" use:magnetic={0.18}>Step in</a>
+				<a href={room.room ? `/room?room=${room.room}` : '/room'} class="btn btn-primary" use:magnetic={0.18}>Join a room</a>
 				<a href="/archive" class="btn btn-ghost hover:border-lamp/40 hover:text-lamp transition-colors" use:magnetic={0.18}>Browse past nights</a>
 			</div>
 			<div class="mt-6" data-hero>

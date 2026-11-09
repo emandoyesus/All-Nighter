@@ -165,7 +165,7 @@
 									onclick={() => room.joinRoom(ad.room, ad.title)}
 								>
 									<IconDoorEnter size={14} stroke={1.5} />
-									Step in
+									Join room
 								</button>
 							{/if}
 						</div>
