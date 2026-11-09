@@ -86,7 +86,8 @@
 	}
 
 	function toggle(): void {
-		window.dispatchEvent(new CustomEvent('an:player:toggle'));
+		if (!unlocked) unlock();
+		toggleMute();
 	}
 
 	function skip(): void {
@@ -115,7 +116,7 @@
 
 		if (e.code === 'Space') {
 			e.preventDefault();
-			toggle();
+			toggleMute();
 		} else if (e.key === 'm' || e.key === 'M') {
 			e.preventDefault();
 			toggleMute();
@@ -450,14 +451,14 @@
 		<button
 			class="icon-btn"
 			onclick={toggle}
-			disabled={(!hasVideo && !playing) || !room.canControlPlayback}
-			aria-label={playing ? 'Pause for everyone' : 'Resume for everyone'}
-			title={!room.canControlPlayback ? 'Aux is set to Admin only' : (playing ? 'Pause for everyone' : 'Resume for everyone')}
+			disabled={!hasVideo && !playing}
+			aria-label={muted || volume === 0 ? 'Unmute audio' : 'Mute audio'}
+			title={muted || volume === 0 ? 'Click to unmute (Space)' : 'Click to mute (Space)'}
 		>
-			{#if playing}
-				<IconPause size={18} stroke={1.5} />
+			{#if muted || volume === 0}
+				<IconVolumeOff size={18} stroke={1.5} />
 			{:else}
-				<IconPlay size={18} stroke={1.5} />
+				<IconVolume size={18} stroke={1.5} class="text-lamp" />
 			{/if}
 		</button>
 
@@ -480,6 +481,22 @@
 		>
 			<IconArrowsShuffle size={17} stroke={1.5} />
 		</button>
+
+		<!-- Admin Global Pause / Resume -->
+		{#if room.canControlPlayback}
+			<button
+				class="icon-btn {room.state.playing ? 'text-taupe hover:text-amber' : 'text-amber bg-amber/15 border border-amber/30 animate-pulse'}"
+				onclick={() => window.dispatchEvent(new CustomEvent('an:open-global-pause-modal'))}
+				aria-label={room.state.playing ? 'Pause for everyone' : 'Resume for everyone'}
+				title={room.state.playing ? 'Pause music for everyone (Admin confirmation)' : 'Resume music for everyone (Admin)'}
+			>
+				{#if room.state.playing}
+					<IconPause size={17} stroke={1.5} />
+				{:else}
+					<IconPlay size={17} stroke={1.5} />
+				{/if}
+			</button>
+		{/if}
 
 		<span class="num w-11 shrink-0 text-right text-xs text-taupe">{formatTime(localTime)}</span>
 

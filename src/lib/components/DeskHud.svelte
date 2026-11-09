@@ -14,6 +14,7 @@
 	import IconSun from '@tabler/icons-svelte/icons/sun';
 	import IconMoon from '@tabler/icons-svelte/icons/moon';
 	import IconTarget from '@tabler/icons-svelte/icons/target';
+	import IconVolume from '@tabler/icons-svelte/icons/volume';
 
 	let { open = $bindable(false) }: { open: boolean } = $props();
 
@@ -208,16 +209,15 @@
 						<IconWaveSine size={13} stroke={2} />
 						Normal {#if room.modeRemaining > 0}· {formatModeTime(room.modeRemaining)}{/if}
 					</span>
+					<button
+						class="btn btn-ghost btn-sm"
+						onclick={() => (open = false)}
+						title="Exit HUD (Esc)"
+					>
+						<IconMinimize size={15} stroke={1.5} />
+						<span class="hidden sm:inline">Exit HUD</span>
+					</button>
 				{/if}
-
-				<button
-					class="btn btn-ghost btn-sm"
-					onclick={() => (open = false)}
-					title="Minimize HUD to room view (Esc)"
-				>
-					<IconMinimize size={15} stroke={1.5} />
-					<span class="hidden sm:inline">{room.mode === 'focus' ? 'Minimize HUD' : 'Exit HUD'}</span>
-				</button>
 			</div>
 		</header>
 
@@ -335,24 +335,35 @@
 			<div class="flex items-center gap-3">
 				<button
 					class="btn btn-ghost btn-sm"
-					onclick={() => window.dispatchEvent(new CustomEvent('an:player:toggle'))}
-					disabled={!room.state.videoId && !room.state.playing}
-					title={room.state.playing ? 'Pause' : 'Play'}
+					onclick={() => window.dispatchEvent(new CustomEvent('an:player:toggle-mute'))}
+					title="Mute / unmute audio for yourself"
 				>
-					{#if room.state.playing}
-						<IconPause size={15} stroke={1.5} />
-						<span>Pause</span>
-					{:else}
-						<IconPlay size={15} stroke={1.5} />
-						<span>Play</span>
-					{/if}
+					<IconVolume size={15} stroke={1.5} />
+					<span>Mute</span>
 				</button>
+
+				{#if room.canControlPlayback}
+					<button
+						class="btn btn-ghost btn-sm {room.state.playing ? 'text-taupe hover:text-amber' : 'text-amber bg-amber/15 border border-amber/30 animate-pulse'}"
+						onclick={() => window.dispatchEvent(new CustomEvent('an:open-global-pause-modal'))}
+						title={room.state.playing ? 'Pause music for everyone (Admin confirmation)' : 'Resume music for everyone (Admin)'}
+					>
+						{#if room.state.playing}
+							<IconPause size={15} stroke={1.5} />
+							<span>Pause Room</span>
+						{:else}
+							<IconPlay size={15} stroke={1.5} />
+							<span>Resume Room</span>
+						{/if}
+					</button>
+				{/if}
 
 				{#if room.canSkip}
 					<button
 						class="btn btn-ghost btn-sm"
 						onclick={() => room.skip()}
 						disabled={room.state.queue.length === 0 && !room.state.current}
+						title="Skip track"
 					>
 						<IconSkip size={15} stroke={1.5} />
 						<span>Skip</span>

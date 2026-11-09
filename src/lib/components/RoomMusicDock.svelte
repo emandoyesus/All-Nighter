@@ -61,7 +61,7 @@
 	});
 
 	function togglePlay(): void {
-		window.dispatchEvent(new CustomEvent('an:player:toggle'));
+		toggleMute();
 	}
 
 	function skipTrack(): void {
@@ -108,22 +108,38 @@
 		{#if track}
 			<!-- LEFT: Track Metadata & Audio Visualizer -->
 			<div class="flex min-w-0 items-center gap-3 max-w-[42%] sm:max-w-[48%] md:w-[320px] lg:w-[360px]">
-				<!-- Thumbnail / Disc Art -->
+				<!-- Thumbnail / Video Art: clicking directly mutes/unmutes locally -->
 				<button
-					class="group relative h-10 w-10 sm:h-11 sm:w-11 shrink-0 overflow-hidden rounded-lg border border-cream/15 bg-night-3 transition-transform hover:scale-105"
-					onclick={scrollToPlayer}
-					title="Scroll to full video"
-					aria-label="Scroll to full video"
+					class="group relative h-10 w-10 sm:h-11 sm:w-11 shrink-0 overflow-hidden rounded-lg border border-cream/15 bg-night-3 transition-transform hover:scale-105 cursor-pointer"
+					onclick={toggleMute}
+					title={muted || volume === 0 ? 'Click to unmute audio' : 'Click to mute audio'}
+					aria-label={muted || volume === 0 ? 'Unmute audio' : 'Mute audio'}
 				>
 					{#if track.source === 'youtube' && track.videoId}
 						<img
 							src={thumbnailFor(track.videoId)}
 							alt=""
-							class="h-full w-full object-cover"
+							class="h-full w-full object-cover transition-opacity {muted || volume === 0 ? 'opacity-70' : ''}"
 						/>
 					{:else}
 						<div class="grid h-full w-full place-items-center text-lamp">
 							<IconDisc size={20} stroke={1.5} class={playing ? 'animate-spin' : ''} style="animation-duration: 4s;" />
+						</div>
+					{/if}
+
+					<!-- Hover overlay with volume/mute indicator -->
+					<div class="absolute inset-0 flex items-center justify-center bg-black/45 opacity-0 group-hover:opacity-100 transition-opacity">
+						{#if muted || volume === 0}
+							<IconVolumeOff size={18} stroke={2} class="text-taupe" />
+						{:else}
+							<IconVolume size={18} stroke={2} class="text-aqua-foam" />
+						{/if}
+					</div>
+
+					<!-- Muted badge when audio is muted -->
+					{#if muted || volume === 0}
+						<div class="pointer-events-none absolute bottom-0.5 right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-night/90 text-taupe border border-cream/20 shadow group-hover:opacity-0 transition-opacity">
+							<IconVolumeOff size={10} stroke={2.5} />
 						</div>
 					{/if}
 				</button>
@@ -169,20 +185,19 @@
 			<!-- CENTER: Transport Controls & Scrub Progress -->
 			<div class="flex flex-1 flex-col items-center justify-center max-w-[540px]">
 				<div class="flex items-center gap-3 sm:gap-4">
-					<!-- Play / Pause Button -->
+					<!-- Center Mute Button: toggles mute/unmute locally for everyone -->
 					<button
-						class="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full transition-transform active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed {playing
-							? 'bg-cyber-teal text-aqua-foam ring-1 ring-aqua-foam/40'
-							: 'bg-cream text-night hover:bg-cream/90'}"
+						class="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full transition-transform active:scale-95 {muted || volume === 0
+							? 'bg-night border border-cream/20 text-taupe hover:text-cream hover:border-cream/40'
+							: 'bg-cyber-teal text-aqua-foam ring-1 ring-aqua-foam/40'}"
 						onclick={togglePlay}
-						disabled={!room.canControlPlayback}
-						title={!room.canControlPlayback ? 'Aux is set to Admin only' : (playing ? 'Pause (Space)' : 'Play (Space)')}
-						aria-label={!room.canControlPlayback ? 'Aux locked' : (playing ? 'Pause' : 'Play')}
+						title={muted || volume === 0 ? 'Click to unmute (Space)' : 'Click to mute (Space)'}
+						aria-label={muted || volume === 0 ? 'Unmute audio' : 'Mute audio'}
 					>
-						{#if playing}
-							<IconPause size={16} stroke={2.5} />
+						{#if muted || volume === 0}
+							<IconVolumeOff size={16} stroke={2} />
 						{:else}
-							<IconPlay size={16} stroke={2.5} class="ml-0.5" />
+							<IconVolume size={16} stroke={2} />
 						{/if}
 					</button>
 
@@ -207,6 +222,22 @@
 					>
 						<IconArrowsShuffle size={15} stroke={1.5} />
 					</button>
+
+					<!-- Admin Global Room Playback Toggle (with confirmation warning) -->
+					{#if room.canControlPlayback}
+						<button
+							class="flex h-7 w-7 items-center justify-center rounded-full transition-colors {room.state.playing ? 'text-taupe hover:text-amber hover:bg-amber/10' : 'bg-amber/20 text-amber border border-amber/35 shadow-[0_0_10px_rgba(245,158,11,0.25)] animate-pulse'}"
+							onclick={() => window.dispatchEvent(new CustomEvent('an:open-global-pause-modal'))}
+							title={room.state.playing ? 'Pause music for everyone (Admin confirmation)' : 'Resume music for everyone (Admin)'}
+							aria-label={room.state.playing ? 'Pause for everyone' : 'Resume for everyone'}
+						>
+							{#if room.state.playing}
+								<IconPause size={15} stroke={2} />
+							{:else}
+								<IconPlay size={15} stroke={2} class="ml-0.5" />
+							{/if}
+						</button>
+					{/if}
 				</div>
 
 				<!-- Track Time & Progress bar -->
