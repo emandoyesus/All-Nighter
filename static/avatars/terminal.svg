@@ -1,23 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="100%" height="100%">
 	<defs>
 		<linearGradient id="bg-term" x1="0%" y1="0%" x2="100%" y2="100%">
-			<stop offset="0%" stop-color="#0e1719" />
-			<stop offset="100%" stop-color="#060c0d" />
+			<stop offset="0%" stop-color="#071c0d" />
+			<stop offset="100%" stop-color="#020a04" />
 		</linearGradient>
 	</defs>
 	<circle cx="64" cy="64" r="64" fill="url(#bg-term)" />
-	<circle cx="64" cy="64" r="62.5" fill="none" stroke="#17616d" stroke-width="1.5" stroke-opacity="0.6" />
+	<circle cx="64" cy="64" r="62.5" fill="none" stroke="#10b981" stroke-width="1.5" stroke-opacity="0.5" />
 	<!-- Terminal window -->
-	<rect x="22" y="30" width="84" height="68" rx="6" fill="#091b1e" stroke="#17616d" stroke-width="2" />
+	<rect x="22" y="30" width="84" height="68" rx="6" fill="#03160a" stroke="#059669" stroke-width="1.8" />
 	<!-- Window title bar -->
-	<line x1="22" y1="44" x2="106" y2="44" stroke="#17616d" stroke-width="1.5" />
-	<circle cx="30" cy="37" r="2.5" fill="#e06c75" />
-	<circle cx="38" cy="37" r="2.5" fill="#e5c07b" />
-	<circle cx="46" cy="37" r="2.5" fill="#83f9d6" />
-	<!-- Shell prompt '> _' -->
-	<path d="M34 56 L44 64 L34 72" stroke="#83f9d6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
-	<rect x="49" y="70" width="10" height="2.5" fill="#83f9d6" />
-	<!-- Code line -->
-	<line x1="34" y1="82" x2="68" y2="82" stroke="#17616d" stroke-width="2" stroke-linecap="round" />
-	<line x1="72" y1="82" x2="88" y2="82" stroke="#83f9d6" stroke-width="2" stroke-linecap="round" opacity="0.6" />
+	<line x1="22" y1="44" x2="106" y2="44" stroke="#047857" stroke-width="1.5" />
+	<circle cx="30" cy="37" r="2.5" fill="#f87171" />
+	<circle cx="38" cy="37" r="2.5" fill="#fbbf24" />
+	<circle cx="46" cy="37" r="2.5" fill="#34d399" />
+	<!-- Shell prompt '> _' (Vivid phosphor emerald) -->
+	<path d="M34 56 L44 64 L34 72" stroke="#34d399" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+	<rect x="49" y="70" width="10" height="2.5" fill="#34d399" />
+	<!-- Code lines -->
+	<line x1="34" y1="82" x2="68" y2="82" stroke="#059669" stroke-width="2" stroke-linecap="round" />
+	<line x1="72" y1="82" x2="88" y2="82" stroke="#34d399" stroke-width="2" stroke-linecap="round" opacity="0.75" />
 </svg>

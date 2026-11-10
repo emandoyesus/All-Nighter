@@ -40,6 +40,25 @@
 			return null;
 		}
 	}
+
+	function peerColor(name: string): { bg: string; text: string; border: string } {
+		const palettes = [
+			{ bg: 'bg-amber-400/15', text: 'text-amber-300', border: 'border-amber-400/40' },
+			{ bg: 'bg-teal-400/15', text: 'text-aqua-foam', border: 'border-teal-400/40' },
+			{ bg: 'bg-rose-400/15', text: 'text-rose-300', border: 'border-rose-400/40' },
+			{ bg: 'bg-violet-400/15', text: 'text-violet-300', border: 'border-violet-400/40' },
+			{ bg: 'bg-sky-400/15', text: 'text-sky-300', border: 'border-sky-400/40' },
+			{ bg: 'bg-emerald-400/15', text: 'text-emerald-300', border: 'border-emerald-400/40' },
+			{ bg: 'bg-orange-400/15', text: 'text-orange-300', border: 'border-orange-400/40' },
+			{ bg: 'bg-fuchsia-400/15', text: 'text-fuchsia-300', border: 'border-fuchsia-400/40' }
+		];
+		let hash = 0;
+		for (let i = 0; i < name.length; i++) {
+			hash = (hash << 5) - hash + name.charCodeAt(i);
+			hash |= 0;
+		}
+		return palettes[Math.abs(hash) % palettes.length];
+	}
 </script>
 
 <div class="panel p-3.5 sm:p-4 overflow-hidden">
@@ -68,11 +87,12 @@
 						<img
 							src={peer.avatar}
 							alt={peer.name}
-							class="h-5 w-5 shrink-0 rounded-full object-cover border border-lamp/30 bg-night group-hover:scale-105 transition-transform"
+							class="h-5 w-5 shrink-0 rounded-full object-cover border border-cream/20 bg-night group-hover:scale-105 transition-transform"
 						/>
 					{:else}
+						{@const pColor = peerColor(peer.name)}
 						<span
-							class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-lamp/15 text-[10px] font-semibold text-lamp group-hover:scale-105 transition-transform"
+							class="grid h-5 w-5 shrink-0 place-items-center rounded-full {pColor.bg} {pColor.text} {pColor.border} border text-[10px] font-semibold group-hover:scale-105 transition-transform"
 						>
 							{initial(peer.name)}
 						</span>

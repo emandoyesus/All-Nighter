@@ -1,25 +1,30 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="100%" height="100%">
 	<defs>
 		<linearGradient id="bg-vinyl" x1="0%" y1="0%" x2="100%" y2="100%">
-			<stop offset="0%" stop-color="#0e1719" />
-			<stop offset="100%" stop-color="#060c0d" />
+			<stop offset="0%" stop-color="#1c0d12" />
+			<stop offset="100%" stop-color="#080305" />
+		</linearGradient>
+		<linearGradient id="label-ruby" x1="0%" y1="0%" x2="100%" y2="100%">
+			<stop offset="0%" stop-color="#f43f5e" />
+			<stop offset="100%" stop-color="#9f1239" />
 		</linearGradient>
 	</defs>
 	<circle cx="64" cy="64" r="64" fill="url(#bg-vinyl)" />
-	<circle cx="64" cy="64" r="62.5" fill="none" stroke="#17616d" stroke-width="1.5" stroke-opacity="0.6" />
+	<circle cx="64" cy="64" r="62.5" fill="none" stroke="#f43f5e" stroke-width="1.5" stroke-opacity="0.45" />
 	<!-- Vinyl Disc Body -->
-	<circle cx="64" cy="64" r="46" fill="#091b1e" stroke="#17616d" stroke-width="2" />
-	<!-- Grooves -->
-	<circle cx="64" cy="64" r="41" fill="none" stroke="#17616d" stroke-width="0.8" opacity="0.6" />
-	<circle cx="64" cy="64" r="35" fill="none" stroke="#17616d" stroke-width="0.8" opacity="0.5" />
-	<circle cx="64" cy="64" r="29" fill="none" stroke="#17616d" stroke-width="0.8" opacity="0.6" />
-	<circle cx="64" cy="64" r="23" fill="none" stroke="#17616d" stroke-width="0.8" opacity="0.4" />
-	<!-- Center Label -->
-	<circle cx="64" cy="64" r="17" fill="#83f9d6" />
-	<circle cx="64" cy="64" r="13" fill="#114d57" />
+	<circle cx="64" cy="64" r="46" fill="#141416" stroke="#27272a" stroke-width="2" />
+	<!-- Grooves (Delicate specular sheen) -->
+	<circle cx="64" cy="64" r="41" fill="none" stroke="#3f3f46" stroke-width="0.8" opacity="0.6" />
+	<circle cx="64" cy="64" r="35" fill="none" stroke="#3f3f46" stroke-width="0.8" opacity="0.5" />
+	<circle cx="64" cy="64" r="29" fill="none" stroke="#3f3f46" stroke-width="0.8" opacity="0.6" />
+	<circle cx="64" cy="64" r="23" fill="none" stroke="#3f3f46" stroke-width="0.8" opacity="0.4" />
+	<!-- Center Label (Ruby Red Sunset) -->
+	<circle cx="64" cy="64" r="17" fill="url(#label-ruby)" />
+	<circle cx="64" cy="64" r="13" fill="#be123c" />
+	<circle cx="64" cy="64" r="6" fill="#ffe4e6" opacity="0.9" />
 	<!-- Spindle hole -->
-	<circle cx="64" cy="64" r="3" fill="#060c0d" />
+	<circle cx="64" cy="64" r="2.5" fill="#09090b" />
 	<!-- Sheen reflection -->
-	<path d="M42 34 L64 64 L50 24 Z" fill="#ffffff" opacity="0.08" />
-	<path d="M86 94 L64 64 L78 104 Z" fill="#ffffff" opacity="0.08" />
+	<path d="M42 34 L64 64 L50 24 Z" fill="#ffffff" opacity="0.12" />
+	<path d="M86 94 L64 64 L78 104 Z" fill="#ffffff" opacity="0.12" />
 </svg>

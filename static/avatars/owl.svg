@@ -1,32 +1,36 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="100%" height="100%">
 	<defs>
 		<linearGradient id="bg-owl" x1="0%" y1="0%" x2="100%" y2="100%">
-			<stop offset="0%" stop-color="#0e1719" />
-			<stop offset="100%" stop-color="#060c0d" />
+			<stop offset="0%" stop-color="#0a1f1b" />
+			<stop offset="100%" stop-color="#020d0a" />
 		</linearGradient>
 		<linearGradient id="owl-body" x1="0%" y1="0%" x2="0%" y2="100%">
-			<stop offset="0%" stop-color="#17616d" />
-			<stop offset="100%" stop-color="#0e3c43" />
+			<stop offset="0%" stop-color="#047857" />
+			<stop offset="100%" stop-color="#064e3b" />
 		</linearGradient>
 	</defs>
 	<circle cx="64" cy="64" r="64" fill="url(#bg-owl)" />
-	<circle cx="64" cy="64" r="62.5" fill="none" stroke="#17616d" stroke-width="1.5" stroke-opacity="0.6" />
+	<circle cx="64" cy="64" r="62.5" fill="none" stroke="#10b981" stroke-width="1.5" stroke-opacity="0.45" />
 	<!-- Owl Ear Tufts / Body -->
 	<path
 		d="M34 38 L44 54 C50 50 78 50 84 54 L94 38 C90 62 94 92 84 106 C76 112 52 112 44 106 C34 92 38 62 34 38 Z"
 		fill="url(#owl-body)"
 	/>
 	<!-- Belly pattern -->
-	<ellipse cx="64" cy="88" rx="16" ry="18" fill="#0d2b30" />
-	<path d="M56 82 Q64 86 72 82 M54 90 Q64 94 74 90 M56 98 Q64 102 72 98" stroke="#83f9d6" stroke-width="1.5" stroke-linecap="round" opacity="0.6" fill="none" />
+	<ellipse cx="64" cy="88" rx="16" ry="18" fill="#022c22" />
+	<path d="M56 82 Q64 86 72 82 M54 90 Q64 94 74 90 M56 98 Q64 102 72 98" stroke="#34d399" stroke-width="1.5" stroke-linecap="round" opacity="0.7" fill="none" />
 	<!-- Eyes outer -->
-	<circle cx="50" cy="64" r="14" fill="#091b1e" stroke="#17616d" stroke-width="2" />
-	<circle cx="78" cy="64" r="14" fill="#091b1e" stroke="#17616d" stroke-width="2" />
-	<!-- Eyes glow -->
-	<circle cx="50" cy="64" r="7" fill="#83f9d6" />
-	<circle cx="78" cy="64" r="7" fill="#83f9d6" />
-	<circle cx="50" cy="64" r="3" fill="#060c0d" />
-	<circle cx="78" cy="64" r="3" fill="#060c0d" />
+	<circle cx="50" cy="64" r="14" fill="#021f18" stroke="#059669" stroke-width="2" />
+	<circle cx="78" cy="64" r="14" fill="#021f18" stroke="#059669" stroke-width="2" />
+	<!-- Eyes glow (Vivid Golden Eagle Glow) -->
+	<circle cx="50" cy="64" r="7.5" fill="#f59e0b" />
+	<circle cx="78" cy="64" r="7.5" fill="#f59e0b" />
+	<circle cx="50" cy="64" r="6" fill="#fde047" />
+	<circle cx="78" cy="64" r="6" fill="#fde047" />
+	<circle cx="50" cy="64" r="3" fill="#02100c" />
+	<circle cx="78" cy="64" r="3" fill="#02100c" />
+	<circle cx="49" cy="62.5" r="1" fill="#ffffff" />
+	<circle cx="77" cy="62.5" r="1" fill="#ffffff" />
 	<!-- Beak -->
-	<polygon points="64,68 59,77 69,77" fill="#f3ece1" />
+	<polygon points="64,68 59,77 69,77" fill="#f59e0b" />
 </svg>

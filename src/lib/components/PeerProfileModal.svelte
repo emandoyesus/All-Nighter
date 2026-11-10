@@ -62,6 +62,25 @@
 		}
 	}
 
+	function peerColor(name: string): { bg: string; text: string; border: string } {
+		const palettes = [
+			{ bg: 'bg-amber-400/15', text: 'text-amber-300', border: 'border-amber-400/40' },
+			{ bg: 'bg-teal-400/15', text: 'text-aqua-foam', border: 'border-teal-400/40' },
+			{ bg: 'bg-rose-400/15', text: 'text-rose-300', border: 'border-rose-400/40' },
+			{ bg: 'bg-violet-400/15', text: 'text-violet-300', border: 'border-violet-400/40' },
+			{ bg: 'bg-sky-400/15', text: 'text-sky-300', border: 'border-sky-400/40' },
+			{ bg: 'bg-emerald-400/15', text: 'text-emerald-300', border: 'border-emerald-400/40' },
+			{ bg: 'bg-orange-400/15', text: 'text-orange-300', border: 'border-orange-400/40' },
+			{ bg: 'bg-fuchsia-400/15', text: 'text-fuchsia-300', border: 'border-fuchsia-400/40' }
+		];
+		let hash = 0;
+		for (let i = 0; i < name.length; i++) {
+			hash = (hash << 5) - hash + name.charCodeAt(i);
+			hash |= 0;
+		}
+		return palettes[Math.abs(hash) % palettes.length];
+	}
+
 	function getTierBadgeClass(tier: Achievement['tier']): string {
 		switch (tier) {
 			case 'bronze':
@@ -174,8 +193,9 @@
 									class="h-16 w-16 sm:h-20 sm:w-20 rounded-full object-cover border-2 border-lamp/40 bg-night shadow-md"
 								/>
 							{:else}
+								{@const pColor = peerColor(peerName)}
 								<span
-									class="grid h-16 w-16 sm:h-20 sm:w-20 place-items-center rounded-full bg-lamp/15 text-2xl font-bold font-mono text-lamp border-2 border-lamp/30 shadow-md"
+									class="grid h-16 w-16 sm:h-20 sm:w-20 place-items-center rounded-full {pColor.bg} {pColor.text} {pColor.border} text-2xl font-bold font-mono border-2 shadow-md"
 								>
 									{peerName.charAt(0).toUpperCase()}
 								</span>

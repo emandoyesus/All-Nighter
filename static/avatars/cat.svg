@@ -1,32 +1,38 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="100%" height="100%">
 	<defs>
 		<linearGradient id="bg-cat" x1="0%" y1="0%" x2="100%" y2="100%">
-			<stop offset="0%" stop-color="#0e1719" />
-			<stop offset="100%" stop-color="#060c0d" />
+			<stop offset="0%" stop-color="#1b0e2f" />
+			<stop offset="100%" stop-color="#070211" />
+		</linearGradient>
+		<linearGradient id="cat-body" x1="0%" y1="0%" x2="0%" y2="100%">
+			<stop offset="0%" stop-color="#3b1766" />
+			<stop offset="100%" stop-color="#1e0938" />
 		</linearGradient>
 	</defs>
 	<circle cx="64" cy="64" r="64" fill="url(#bg-cat)" />
-	<circle cx="64" cy="64" r="62.5" fill="none" stroke="#17616d" stroke-width="1.5" stroke-opacity="0.6" />
+	<circle cx="64" cy="64" r="62.5" fill="none" stroke="#8b5cf6" stroke-width="1.5" stroke-opacity="0.5" />
 	<!-- Cat Head & Ears -->
 	<path
 		d="M36 40 L50 60 C58 58 70 58 78 60 L92 40 L88 74 C90 84 84 96 64 96 C44 96 38 84 40 74 Z"
-		fill="#114d57"
-		stroke="#17616d"
-		stroke-width="1.5"
+		fill="url(#cat-body)"
+		stroke="#7c3aed"
+		stroke-width="1.8"
 	/>
 	<!-- Inner Ears -->
-	<polygon points="40,46 48,58 43,62" fill="#0d3b42" />
-	<polygon points="88,46 80,58 85,62" fill="#0d3b42" />
-	<!-- Eyes -->
-	<ellipse cx="52" cy="72" rx="6" ry="7" fill="#83f9d6" />
-	<ellipse cx="76" cy="72" rx="6" ry="7" fill="#83f9d6" />
+	<polygon points="40,46 48,58 43,62" fill="#581c87" />
+	<polygon points="88,46 80,58 85,62" fill="#581c87" />
+	<!-- Eyes (Glowing neon magenta/violet) -->
+	<ellipse cx="52" cy="72" rx="6" ry="7" fill="#d946ef" />
+	<ellipse cx="76" cy="72" rx="6" ry="7" fill="#d946ef" />
+	<ellipse cx="52" cy="71" rx="4.5" ry="5.5" fill="#f0abfc" />
+	<ellipse cx="76" cy="71" rx="4.5" ry="5.5" fill="#f0abfc" />
 	<!-- Slit Pupils -->
-	<ellipse cx="52" cy="72" rx="1.5" ry="6" fill="#060c0d" />
-	<ellipse cx="76" cy="72" rx="1.5" ry="6" fill="#060c0d" />
+	<ellipse cx="52" cy="72" rx="1.5" ry="6" fill="#1e0838" />
+	<ellipse cx="76" cy="72" rx="1.5" ry="6" fill="#1e0838" />
 	<!-- Nose & Whiskers -->
-	<polygon points="64,80 61,84 67,84" fill="#f3ece1" opacity="0.8" />
-	<line x1="36" y1="80" x2="22" y2="76" stroke="#83f9d6" stroke-width="1.5" stroke-linecap="round" opacity="0.7" />
-	<line x1="36" y1="84" x2="20" y2="86" stroke="#83f9d6" stroke-width="1.5" stroke-linecap="round" opacity="0.7" />
-	<line x1="92" y1="80" x2="106" y2="76" stroke="#83f9d6" stroke-width="1.5" stroke-linecap="round" opacity="0.7" />
-	<line x1="92" y1="84" x2="108" y2="86" stroke="#83f9d6" stroke-width="1.5" stroke-linecap="round" opacity="0.7" />
+	<polygon points="64,80 61,84 67,84" fill="#f472b6" opacity="0.9" />
+	<line x1="36" y1="80" x2="22" y2="76" stroke="#c084fc" stroke-width="1.5" stroke-linecap="round" opacity="0.8" />
+	<line x1="36" y1="84" x2="20" y2="86" stroke="#c084fc" stroke-width="1.5" stroke-linecap="round" opacity="0.8" />
+	<line x1="92" y1="80" x2="106" y2="76" stroke="#c084fc" stroke-width="1.5" stroke-linecap="round" opacity="0.8" />
+	<line x1="92" y1="84" x2="108" y2="86" stroke="#c084fc" stroke-width="1.5" stroke-linecap="round" opacity="0.8" />
 </svg>
