@@ -26,11 +26,12 @@
 	import IconLock from '@tabler/icons-svelte/icons/lock';
 	import IconClock from '@tabler/icons-svelte/icons/clock';
 	import IconSparkles from '@tabler/icons-svelte/icons/sparkles';
+	import AuthDialog from './AuthDialog.svelte';
 
 	let open = $state(false);
 	let isEditing = $state(false);
-	let showAuthForm = $state(false);
-	let isSignUp = $state(false);
+	let authDialogOpen = $state(false);
+	let authDialogMode = $state<'signin' | 'signup'>('signin');
 	let dropdownTab = $state<'profile' | 'stats'>('profile');
 	let modalTab = $state<'edit' | 'stats'>('edit');
 	let userStats = $state<UserProfileStats>(getUserProfileStats());
@@ -67,13 +68,6 @@
 	let saveSuccess = $state(false);
 	let errorMessage = $state('');
 	let imgPreviewError = $state(false);
-
-	// Auth form states
-	let authEmail = $state('');
-	let authPassword = $state('');
-	let authLoading = $state(false);
-	let authError = $state('');
-	let authSuccess = $state('');
 
 	// Hidden file input reference
 	let fileInput: HTMLInputElement | undefined = $state();
@@ -240,47 +234,6 @@
 		}
 	}
 
-	async function handleAuthSubmit(e: SubmitEvent) {
-		e.preventDefault();
-		authError = '';
-		authSuccess = '';
-		authLoading = true;
-
-		try {
-			if (isSignUp) {
-				const { data, error: err } = await auth.signUpWithEmail(
-					authEmail,
-					authPassword,
-					editCallsign || room.name
-				);
-				if (err) throw err;
-				if (data.session) {
-					authSuccess = 'Account created & synced!';
-					showAuthForm = false;
-					syncFromCurrentProfile();
-				} else {
-					authSuccess = 'Verification email sent! Check your inbox.';
-				}
-			} else {
-				const { data, error: err } = await auth.signInWithEmail(authEmail, authPassword);
-				if (err) throw err;
-				if (data.user?.user_metadata?.callsign) {
-					room.setName(data.user.user_metadata.callsign);
-				}
-				if (data.user?.user_metadata?.avatar_url) {
-					room.setAvatar(data.user.user_metadata.avatar_url);
-				}
-				authSuccess = 'Signed in!';
-				showAuthForm = false;
-				syncFromCurrentProfile();
-			}
-		} catch (err: any) {
-			authError = err?.message || 'Authentication failed';
-		} finally {
-			authLoading = false;
-		}
-	}
-
 	async function handleSignOut() {
 		await auth.signOut();
 		syncFromCurrentProfile();
@@ -329,12 +282,20 @@
 			const custom = e as CustomEvent<{ edit?: boolean }>;
 			openModal(Boolean(custom?.detail?.edit));
 		};
+		const onAuth = (e: Event) => {
+			const custom = e as CustomEvent<{ mode?: 'signin' | 'signup' }>;
+			authDialogMode = custom?.detail?.mode || 'signin';
+			authDialogOpen = true;
+			open = false;
+		};
 		const onStats = () => refreshStats();
 		window.addEventListener('an:open-profile-modal', onOpen);
+		window.addEventListener('an:open-auth-modal', onAuth);
 		window.addEventListener('an:stats-updated', onStats);
 		window.addEventListener('an:profile-updated', onStats);
 		return () => {
 			window.removeEventListener('an:open-profile-modal', onOpen);
+			window.removeEventListener('an:open-auth-modal', onAuth);
 			window.removeEventListener('an:stats-updated', onStats);
 			window.removeEventListener('an:profile-updated', onStats);
 		};
@@ -654,93 +615,72 @@
 			{/if}
 
 			<!-- Account / Cloud Sync Card -->
-			<div class="mt-3 rounded-xl border border-cream/10 bg-[#060a0b] p-2.5 text-xs">
-				{#if auth.isAuthenticated}
-					<div class="flex items-center justify-between">
+			<div class="mt-3 rounded-xl border border-cream/10 bg-[#060a0b] p-3 text-xs">
+				{#if auth.isCloudUser}
+					<div class="flex items-center justify-between gap-2">
 						<div class="min-w-0">
-							<p class="text-[9px] font-mono uppercase tracking-wider text-faint">Connected Account</p>
-							<p class="truncate text-[11px] font-medium text-cream">{auth.user?.email}</p>
+							<div class="flex items-center gap-1.5">
+								<span class="h-1.5 w-1.5 rounded-full bg-lamp"></span>
+								<p class="text-[9px] font-mono uppercase tracking-wider text-lamp font-semibold">Cloud Synced</p>
+							</div>
+							<p class="truncate text-[11px] font-medium text-cream mt-0.5">{auth.user?.email}</p>
 						</div>
 						<button
 							type="button"
-							class="inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] text-rose-300 hover:bg-rose-500/10 transition-colors"
+							class="inline-flex items-center gap-1 rounded-lg border border-ruby/30 bg-ruby/10 px-2.5 py-1 text-[11px] text-rose-300 hover:bg-ruby/20 transition-colors cursor-pointer"
 							onclick={handleSignOut}
 						>
 							<IconLogout size={12} stroke={1.5} />
-							Sign Out
+							<span>Sign Out</span>
 						</button>
 					</div>
 				{:else}
 					<div>
-						<div class="flex items-center justify-between">
-							<div>
-								<p class="text-[11px] font-medium text-cream">Cloud Sync</p>
-								<p class="text-[10px] text-faint">Keep profile across devices</p>
+						<div class="flex items-center gap-2 mb-1.5">
+							<span class="grid h-6 w-6 place-items-center rounded-lg bg-lamp/15 text-lamp shrink-0">
+								<IconSparkles size={13} stroke={2} />
+							</span>
+							<div class="min-w-0">
+								<p class="text-[11px] font-semibold text-cream leading-tight">Save Your Night Progress</p>
+								<p class="text-[10px] text-faint">Sync badges, rank & history</p>
 							</div>
+						</div>
+						<p class="text-[11px] text-taupe leading-relaxed mt-1">
+							Currently playing as guest. Sign in or create an account to preserve your nocturnal history across all devices.
+						</p>
+						<div class="mt-3 flex items-center gap-2">
 							<button
 								type="button"
-								class="text-[11px] text-lamp hover:underline font-mono"
-								onclick={() => (showAuthForm = !showAuthForm)}
+								class="btn btn-primary btn-sm flex-1 text-xs py-1.5 font-mono cursor-pointer flex items-center justify-center gap-1"
+								onclick={() => {
+									open = false;
+									authDialogMode = 'signin';
+									authDialogOpen = true;
+								}}
 							>
-								{showAuthForm ? 'Close' : 'Sign In'}
+								Sign In
+							</button>
+							<button
+								type="button"
+								class="btn btn-ghost btn-sm flex-1 text-xs py-1.5 font-mono border border-cream/15 text-cream hover:border-amber/50 hover:text-amber cursor-pointer flex items-center justify-center gap-1"
+								onclick={() => {
+									open = false;
+									authDialogMode = 'signup';
+									authDialogOpen = true;
+								}}
+							>
+								Sign Up
 							</button>
 						</div>
-
-						{#if showAuthForm}
-							<form class="mt-2 space-y-2 pt-2 border-t border-cream/10" onsubmit={handleAuthSubmit}>
-								{#if authError}
-									<div class="rounded p-1.5 text-[11px] text-rose-300 bg-ruby/10 border border-ruby/30">
-										{authError}
-									</div>
-								{/if}
-								{#if authSuccess}
-									<div class="rounded p-1.5 text-[11px] text-lamp bg-lamp/10 border border-lamp/30">
-										{authSuccess}
-									</div>
-								{/if}
-								<div>
-									<input
-										type="email"
-										required
-										class="w-full rounded border border-cream/15 bg-night px-2 py-1 text-xs text-cream outline-none focus:border-lamp font-mono"
-										placeholder="Email address"
-										bind:value={authEmail}
-									/>
-								</div>
-								<div>
-									<input
-										type="password"
-										required
-										minlength="6"
-										class="w-full rounded border border-cream/15 bg-night px-2 py-1 text-xs text-cream outline-none focus:border-lamp font-mono"
-										placeholder="Password"
-										bind:value={authPassword}
-									/>
-								</div>
-								<div class="flex items-center justify-between pt-0.5">
-									<button
-										type="button"
-										class="text-[10px] text-faint hover:text-cream underline"
-										onclick={() => (isSignUp = !isSignUp)}
-									>
-										{isSignUp ? 'Sign In' : 'Create account'}
-									</button>
-									<button
-										type="submit"
-										class="btn btn-primary btn-sm text-[11px] px-2.5 py-0.5"
-										disabled={authLoading}
-									>
-										{authLoading ? '...' : isSignUp ? 'Sign Up' : 'Sign In'}
-									</button>
-								</div>
-							</form>
-						{/if}
 					</div>
 				{/if}
 			</div>
 		</div>
 	{/if}
 </div>
+
+<!-- Dedicated Global Auth Dialog (Sign In / Sign Up) -->
+<AuthDialog bind:open={authDialogOpen} initialMode={authDialogMode} onSuccess={syncFromCurrentProfile} />
 
 <!-- 2. FULL SCREEN EDIT PROFILE MODAL (opens when user clicks "Edit Profile" or chooses to edit) -->
 {#if open && isEditing}

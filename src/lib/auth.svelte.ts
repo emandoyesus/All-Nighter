@@ -5,7 +5,9 @@ class AuthService {
 	user = $state<User | null>(null);
 	session = $state<Session | null>(null);
 	loading = $state<boolean>(true);
-	isAuthenticated = $derived(Boolean(this.user));
+	isGuest = $state<boolean>(false);
+	isAuthenticated = $derived(Boolean(this.user || this.isGuest));
+	isCloudUser = $derived(Boolean(this.user));
 	displayName = $derived.by(() => {
 		if (!this.user) return null;
 		return (
@@ -26,10 +28,19 @@ class AuthService {
 	});
 
 	constructor() {
+		if (typeof window !== 'undefined') {
+			try {
+				this.isGuest = localStorage.getItem('an.is_guest') === '1';
+			} catch {}
+		}
+
 		if (typeof window !== 'undefined' && isSupabaseConfigured && supabase) {
 			supabase.auth.getSession().then(({ data: { session } }) => {
 				this.session = session;
 				this.user = session?.user ?? null;
+				if (this.user) {
+					this.isGuest = false;
+				}
 				this.loading = false;
 			}).catch(() => {
 				this.loading = false;
@@ -38,6 +49,12 @@ class AuthService {
 			supabase.auth.onAuthStateChange((_event, session) => {
 				this.session = session;
 				this.user = session?.user ?? null;
+				if (this.user) {
+					this.isGuest = false;
+					try {
+						localStorage.removeItem('an.is_guest');
+					} catch {}
+				}
 				this.loading = false;
 			});
 		} else {
@@ -45,10 +62,17 @@ class AuthService {
 		}
 	}
 
+	continueAsGuest(callsign?: string) {
+		this.isGuest = true;
+		try {
+			localStorage.setItem('an.is_guest', '1');
+		} catch {}
+	}
+
 	async signUpWithEmail(email: string, password: string, callsign: string) {
 		if (!supabase) throw new Error('Supabase is not configured');
 		const emailRedirectTo = typeof window !== 'undefined' ? `${window.location.origin}/room` : undefined;
-		return supabase.auth.signUp({
+		const res = await supabase.auth.signUp({
 			email,
 			password,
 			options: {
@@ -56,17 +80,35 @@ class AuthService {
 				emailRedirectTo
 			}
 		});
+		if (res.data?.session) {
+			this.isGuest = false;
+			try {
+				localStorage.removeItem('an.is_guest');
+			} catch {}
+		}
+		return res;
 	}
 
 	async signInWithEmail(email: string, password: string) {
 		if (!supabase) throw new Error('Supabase is not configured');
-		return supabase.auth.signInWithPassword({
+		const res = await supabase.auth.signInWithPassword({
 			email,
 			password
 		});
+		if (res.data?.session) {
+			this.isGuest = false;
+			try {
+				localStorage.removeItem('an.is_guest');
+			} catch {}
+		}
+		return res;
 	}
 
 	async signOut() {
+		this.isGuest = false;
+		try {
+			localStorage.removeItem('an.is_guest');
+		} catch {}
 		if (!supabase) return;
 		return supabase.auth.signOut();
 	}
