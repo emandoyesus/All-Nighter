@@ -882,6 +882,13 @@ class Room {
 
 	/** Create a room and step inside as its host. */
 	async createRoom(name: string, isPrivate = false, adminOnlyPlayback = false, customKey?: string): Promise<void> {
+		if (!auth.isCloudUser && !auth.user) {
+			console.warn('[room] Must be signed in with an account to create a room');
+			if (typeof window !== 'undefined') {
+				window.dispatchEvent(new CustomEvent('an:open-auth-modal', { detail: { mode: 'signin' } }));
+			}
+			return;
+		}
 		const slug = sanitizeRoom(name);
 		if (!slug) {
 			console.warn('[room] Cannot create room without a valid room name');
@@ -906,6 +913,13 @@ class Room {
 
 	/** Claim an unhosted or deserted room and step inside as host. */
 	claimRoom(slug: string, title?: string): void {
+		if (!auth.isCloudUser && !auth.user) {
+			console.warn('[room] Must be signed in with an account to claim a room');
+			if (typeof window !== 'undefined') {
+				window.dispatchEvent(new CustomEvent('an:open-auth-modal', { detail: { mode: 'signin' } }));
+			}
+			return;
+		}
 		const clean = sanitizeRoom(slug);
 		this.enterApproved(clean, title?.trim() || clean, true);
 	}

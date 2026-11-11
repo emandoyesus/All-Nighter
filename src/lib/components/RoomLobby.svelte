@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { room, sanitizeRoom, generateRoomKey } from '#lib/room/room.svelte';
+	import { auth } from '#lib/auth.svelte';
 	import IconPlus from '@tabler/icons-svelte/icons/plus';
 	import IconDoorEnter from '@tabler/icons-svelte/icons/door-enter';
 	import IconUsers from '@tabler/icons-svelte/icons/users';
@@ -42,6 +43,11 @@
 
 	function create(event: SubmitEvent): void {
 		event.preventDefault();
+		if (!auth.isCloudUser && !auth.user) {
+			nameError = 'Sign in required to create and host a room.';
+			window.dispatchEvent(new CustomEvent('an:open-auth-modal', { detail: { mode: 'signin' } }));
+			return;
+		}
 		const name = draft.trim();
 		const cleanSlug = sanitizeRoom(name);
 		if (!name || !cleanSlug) {
@@ -230,156 +236,186 @@
 			</p>
 		</div>
 
-		<form class="flex flex-col gap-3" onsubmit={create}>
-			<!-- Room Privacy Mode -->
-			<div>
-				<span class="mb-1.5 block text-xs text-faint">Room Privacy</span>
-				<div class="grid grid-cols-2 gap-2">
-					<button
-						type="button"
-						class="flex flex-col items-start gap-1 rounded-field border px-3 py-2 text-left text-xs transition-colors {!isPrivate
-							? 'border-lamp/50 bg-lamp/10 text-lamp'
-							: 'border-cream/10 bg-night/50 text-taupe hover:border-cream/20 hover:text-cream'}"
-						onclick={() => (isPrivate = false)}
-					>
-						<span class="flex items-center gap-1.5 font-medium">
-							<IconWorld size={14} stroke={2} />
-							Public Room
-						</span>
-						<span class="text-[11px] leading-snug opacity-75">Listed · Anyone can join</span>
-					</button>
-
-					<button
-						type="button"
-						class="flex flex-col items-start gap-1 rounded-field border px-3 py-2 text-left text-xs transition-colors {isPrivate
-							? 'border-amber-400/50 bg-amber-400/10 text-amber-300'
-							: 'border-cream/10 bg-night/50 text-taupe hover:border-cream/20 hover:text-cream'}"
-						onclick={() => (isPrivate = true)}
-					>
-						<span class="flex items-center gap-1.5 font-medium">
-							<IconLock size={14} stroke={2} />
-							Private Room
-						</span>
-						<span class="text-[11px] leading-snug opacity-75">Knock required · Direct with invite</span>
-					</button>
+		{#if !auth.isCloudUser}
+			<div class="my-auto flex flex-col items-center gap-4 rounded-2xl border border-cream/15 bg-night/80 p-6 text-center">
+				<div class="grid h-12 w-12 place-items-center rounded-full bg-lamp/15 text-lamp">
+					<IconLock size={22} stroke={1.75} />
 				</div>
-			</div>
-
-			<!-- Aux Permissions Mode -->
-			<div>
-				<span class="mb-1.5 block text-xs text-faint">Aux Permissions</span>
-				<div class="grid grid-cols-2 gap-2">
-					<button
-						type="button"
-						class="flex flex-col items-start gap-1 rounded-field border px-3 py-2 text-left text-xs transition-colors {!adminOnly
-							? 'border-lamp/50 bg-lamp/10 text-lamp'
-							: 'border-cream/10 bg-night/50 text-taupe hover:border-cream/20 hover:text-cream'}"
-						onclick={() => (adminOnly = false)}
-					>
-						<span class="flex items-center gap-1.5 font-medium">
-							Aux: No Admin
-						</span>
-						<span class="text-[11px] leading-snug opacity-75">Anyone can play, pause, seek, skip</span>
-					</button>
-
-					<button
-						type="button"
-						class="flex flex-col items-start gap-1 rounded-field border px-3 py-2 text-left text-xs transition-colors {adminOnly
-							? 'border-teal-500/50 bg-teal-500/15 text-aqua-foam'
-							: 'border-cream/10 bg-night/50 text-taupe hover:border-cream/20 hover:text-cream'}"
-						onclick={() => (adminOnly = true)}
-					>
-						<span class="flex items-center gap-1.5 font-medium">
-							<IconShield size={14} stroke={2} />
-							Aux: Admin
-						</span>
-						<span class="text-[11px] leading-snug opacity-75">Only host & admins control playback</span>
-					</button>
-				</div>
-			</div>
-
-			<div>
-				<label for="room-name" class="text-xs text-faint flex items-center justify-between mb-1.5">
-					<span>Room name <span class="text-amber">*</span></span>
-					{#if slug}
-						<span class="font-mono text-[10px] text-taupe">slug: ?room={slug}</span>
-					{/if}
-				</label>
-				<input
-					id="room-name"
-					type="text"
-					maxlength="24"
-					required
-					autocomplete="off"
-					placeholder="Enter your room name (e.g. entoto-haven)..."
-					class="w-full rounded-field border bg-night/60 px-3 py-2 text-sm text-cream outline-none transition-colors focus:border-lamp/60 {nameError ? 'border-ruby/70 focus:border-ruby' : 'border-cream/10'}"
-					bind:value={draft}
-					oninput={() => { if (nameError) nameError = ''; }}
-				/>
-				{#if nameError}
-					<p class="mt-1 text-[11px] font-mono text-ruby">{nameError}</p>
-				{/if}
-			</div>
-
-			{#if isPrivate}
-				<div class="rounded-xl border border-amber-400/25 bg-amber-400/5 p-3">
-					<div class="flex items-center justify-between mb-1">
-						<label for="private-key" class="text-xs font-mono text-amber-300 flex items-center gap-1.5">
-							<IconKey size={13} stroke={2} />
-							<span>Secret Invite Key</span>
-						</label>
-						<button
-							type="button"
-							class="text-[10px] font-mono text-faint hover:text-cream flex items-center gap-1 transition-colors cursor-pointer"
-							onclick={() => (roomKeyDraft = generateRoomKey())}
-							title="Generate new secure key"
-						>
-							<IconDice size={12} stroke={1.5} />
-							<span>Randomize</span>
-						</button>
-					</div>
-					<input
-						id="private-key"
-						type="text"
-						maxlength="32"
-						bind:value={roomKeyDraft}
-						placeholder="e.g. m4K7pW9xN2bQ"
-						class="w-full rounded-lg border border-amber-400/30 bg-night/80 px-2.5 py-1.5 text-xs text-amber-200 font-mono outline-none focus:border-amber-400"
-					/>
-					<p class="mt-1 text-[10px] text-faint font-mono">
-						Direct link: <span class="text-taupe">{slug ? `?room=${slug}&key=${roomKeyDraft}` : 'enter room name first'}</span>
+				<div class="space-y-1.5">
+					<h3 class="text-base font-medium text-cream">Sign in to host a room</h3>
+					<p class="text-xs leading-relaxed text-taupe max-w-[34ch]">
+						Guests can explore and join existing rooms, but creating and hosting a room requires an account.
 					</p>
 				</div>
-			{:else}
-				<p class="num text-[11px] text-faint">
-					{#if slug}
-						link → ?room={slug}
-					{:else}
-						link → enter your room name above
+				<div class="flex flex-col sm:flex-row gap-2.5 w-full pt-1">
+					<button
+						type="button"
+						class="btn btn-primary flex-1 text-xs py-2.5 font-medium cursor-pointer"
+						onclick={() => window.dispatchEvent(new CustomEvent('an:open-auth-modal', { detail: { mode: 'signin' } }))}
+					>
+						Sign In to Host
+					</button>
+					<button
+						type="button"
+						class="btn btn-ghost flex-1 text-xs py-2.5 font-medium border-cream/15 hover:border-lamp/40 cursor-pointer"
+						onclick={() => window.dispatchEvent(new CustomEvent('an:open-auth-modal', { detail: { mode: 'signup' } }))}
+					>
+						Create Account
+					</button>
+				</div>
+			</div>
+		{:else}
+			<form class="flex flex-col gap-3" onsubmit={create}>
+				<!-- Room Privacy Mode -->
+				<div>
+					<span class="mb-1.5 block text-xs text-faint">Room Privacy</span>
+					<div class="grid grid-cols-2 gap-2">
+						<button
+							type="button"
+							class="flex flex-col items-start gap-1 rounded-field border px-3 py-2 text-left text-xs transition-colors {!isPrivate
+								? 'border-lamp/50 bg-lamp/10 text-lamp'
+								: 'border-cream/10 bg-night/50 text-taupe hover:border-cream/20 hover:text-cream'}"
+							onclick={() => (isPrivate = false)}
+						>
+							<span class="flex items-center gap-1.5 font-medium">
+								<IconWorld size={14} stroke={2} />
+								Public Room
+							</span>
+							<span class="text-[11px] leading-snug opacity-75">Listed · Anyone can join</span>
+						</button>
+
+						<button
+							type="button"
+							class="flex flex-col items-start gap-1 rounded-field border px-3 py-2 text-left text-xs transition-colors {isPrivate
+								? 'border-amber-400/50 bg-amber-400/10 text-amber-300'
+								: 'border-cream/10 bg-night/50 text-taupe hover:border-cream/20 hover:text-cream'}"
+							onclick={() => (isPrivate = true)}
+						>
+							<span class="flex items-center gap-1.5 font-medium">
+								<IconLock size={14} stroke={2} />
+								Private Room
+							</span>
+							<span class="text-[11px] leading-snug opacity-75">Knock required · Direct with invite</span>
+						</button>
+					</div>
+				</div>
+
+				<!-- Aux Permissions Mode -->
+				<div>
+					<span class="mb-1.5 block text-xs text-faint">Aux Permissions</span>
+					<div class="grid grid-cols-2 gap-2">
+						<button
+							type="button"
+							class="flex flex-col items-start gap-1 rounded-field border px-3 py-2 text-left text-xs transition-colors {!adminOnly
+								? 'border-lamp/50 bg-lamp/10 text-lamp'
+								: 'border-cream/10 bg-night/50 text-taupe hover:border-cream/20 hover:text-cream'}"
+							onclick={() => (adminOnly = false)}
+						>
+							<span class="flex items-center gap-1.5 font-medium">
+								Aux: No Admin
+							</span>
+							<span class="text-[11px] leading-snug opacity-75">Anyone can play, pause, seek, skip</span>
+						</button>
+
+						<button
+							type="button"
+							class="flex flex-col items-start gap-1 rounded-field border px-3 py-2 text-left text-xs transition-colors {adminOnly
+								? 'border-teal-500/50 bg-teal-500/15 text-aqua-foam'
+								: 'border-cream/10 bg-night/50 text-taupe hover:border-cream/20 hover:text-cream'}"
+							onclick={() => (adminOnly = true)}
+						>
+							<span class="flex items-center gap-1.5 font-medium">
+								<IconShield size={14} stroke={2} />
+								Aux: Admin
+							</span>
+							<span class="text-[11px] leading-snug opacity-75">Only host & admins control playback</span>
+						</button>
+					</div>
+				</div>
+
+				<div>
+					<label for="room-name" class="text-xs text-faint flex items-center justify-between mb-1.5">
+						<span>Room name <span class="text-amber">*</span></span>
+						{#if slug}
+							<span class="font-mono text-[10px] text-taupe">slug: ?room={slug}</span>
+						{/if}
+					</label>
+					<input
+						id="room-name"
+						type="text"
+						maxlength="24"
+						required
+						autocomplete="off"
+						placeholder="Enter your room name (e.g. entoto-haven)..."
+						class="w-full rounded-field border bg-night/60 px-3 py-2 text-sm text-cream outline-none transition-colors focus:border-lamp/60 {nameError ? 'border-ruby/70 focus:border-ruby' : 'border-cream/10'}"
+						bind:value={draft}
+						oninput={() => { if (nameError) nameError = ''; }}
+					/>
+					{#if nameError}
+						<p class="mt-1 text-[11px] font-mono text-ruby">{nameError}</p>
 					{/if}
-				</p>
-			{/if}
+				</div>
 
-			<label for="night-plan" class="text-xs text-faint">What's the plan tonight?</label>
-			<input
-				id="night-plan"
-				type="text"
-				maxlength="80"
-				autocomplete="off"
-				placeholder="one line is enough"
-				class="w-full rounded-field border border-cream/10 bg-night/60 px-3 py-2 text-sm text-cream outline-none transition-colors placeholder:text-faint/60 focus:border-lamp/60"
-				bind:value={nightPlan}
-			/>
+				{#if isPrivate}
+					<div class="rounded-xl border border-amber-400/25 bg-amber-400/5 p-3">
+						<div class="flex items-center justify-between mb-1">
+							<label for="private-key" class="text-xs font-mono text-amber-300 flex items-center gap-1.5">
+								<IconKey size={13} stroke={2} />
+								<span>Secret Invite Key</span>
+							</label>
+							<button
+								type="button"
+								class="text-[10px] font-mono text-faint hover:text-cream flex items-center gap-1 transition-colors cursor-pointer"
+								onclick={() => (roomKeyDraft = generateRoomKey())}
+								title="Generate new secure key"
+							>
+								<IconDice size={12} stroke={1.5} />
+								<span>Randomize</span>
+							</button>
+						</div>
+						<input
+							id="private-key"
+							type="text"
+							maxlength="32"
+							bind:value={roomKeyDraft}
+							placeholder="e.g. m4K7pW9xN2bQ"
+							class="w-full rounded-lg border border-amber-400/30 bg-night/80 px-2.5 py-1.5 text-xs text-amber-200 font-mono outline-none focus:border-amber-400"
+						/>
+						<p class="mt-1 text-[10px] text-faint font-mono">
+							Direct link: <span class="text-taupe">{slug ? `?room=${slug}&key=${roomKeyDraft}` : 'enter room name first'}</span>
+						</p>
+					</div>
+				{:else}
+					<p class="num text-[11px] text-faint">
+						{#if slug}
+							link → ?room={slug}
+						{:else}
+							link → enter your room name above
+						{/if}
+					</p>
+				{/if}
 
-			<button
-				type="submit"
-				class="btn btn-amber w-full font-medium disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
-				disabled={!slug}
-			>
-				<IconPlus size={16} stroke={1.5} />
-				{isPrivate ? 'Create Private Room' : 'Create a room'}
-			</button>
-		</form>
+				<label for="night-plan" class="text-xs text-faint">What's the plan tonight?</label>
+				<input
+					id="night-plan"
+					type="text"
+					maxlength="80"
+					autocomplete="off"
+					placeholder="one line is enough"
+					class="w-full rounded-field border border-cream/10 bg-night/60 px-3 py-2 text-sm text-cream outline-none transition-colors placeholder:text-faint/60 focus:border-lamp/60"
+					bind:value={nightPlan}
+				/>
+
+				<button
+					type="submit"
+					class="btn btn-amber w-full font-medium disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+					disabled={!slug}
+				>
+					<IconPlus size={16} stroke={1.5} />
+					{isPrivate ? 'Create Private Room' : 'Create a room'}
+				</button>
+			</form>
+		{/if}
 
 		<div class="mt-auto border-t border-cream/10 pt-4">
 			<label for="lobby-callsign" class="mb-1.5 block text-xs text-faint">Your callsign</label>
