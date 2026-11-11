@@ -2163,21 +2163,16 @@ class Room {
 		this.now = now;
 
 		// Auto-archive when dawn is reached during an active overnight session
-		// Public rooms are always auto-archived at dawn; private rooms host decides at the end.
+		// Every room must be archived after sunrise (none should stay active)
 		if (
 			this.isHost &&
 			this.joinState === 'approved' &&
 			this.room &&
-			this.startedBeforeDawn &&
 			this.isDawn &&
 			!this.dawnArchived
 		) {
 			this.dawnArchived = true;
-			if (!this.state.isPrivate) {
-				void this.archiveRoom();
-			} else {
-				console.log('[Room] Dawn reached: private room waiting for host decision');
-			}
+			void this.archiveRoom();
 		}
 
 		// Track focus sprint minutes

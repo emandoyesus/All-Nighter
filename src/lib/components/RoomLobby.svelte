@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { room, sanitizeRoom, generateRoomKey } from '#lib/room/room.svelte';
 	import type { RoomAd } from '#lib/room/types';
+	import { isDawnReached } from '#lib/config';
 	import { auth } from '#lib/auth.svelte';
 	import { supabase } from '#lib/supabase';
 	import IconPlus from '@tabler/icons-svelte/icons/plus';
@@ -28,6 +29,37 @@
 	let dbRooms = $state<RoomAd[]>([]);
 	let loadingMyRooms = $state(false);
 
+	async function cleanupPastSunrise(rooms: any[]): Promise<any[]> {
+		if (!supabase || !rooms || rooms.length === 0) return [];
+		const now = new Date();
+		const unarchived: any[] = [];
+		for (const r of rooms) {
+			if (isDawnReached(now)) {
+				// Room has passed sunrise: archive it immediately
+				try {
+					await supabase.from('session_archives').insert({
+						slug: r.slug,
+						title: r.title || r.slug,
+						started_at: r.created_at,
+						ended_at: now.toISOString(),
+						attendees: [r.host_name || 'Crew'],
+						playlist: r.playback_state?.queue || [],
+						summary: 'Overnight lock-in session archived at sunrise'
+					});
+				} catch {}
+				try {
+					await supabase
+						.from('rooms')
+						.update({ status: 'archived', closed_at: now.toISOString() })
+						.eq('slug', r.slug);
+				} catch {}
+			} else {
+				unarchived.push(r);
+			}
+		}
+		return unarchived;
+	}
+
 	async function loadAllDbRooms(): Promise<void> {
 		if (!supabase) return;
 		try {
@@ -42,7 +74,8 @@
 				.limit(30);
 
 			if (data && data.length > 0) {
-				dbRooms = data.map((r: any) => ({
+				const activeRooms = await cleanupPastSunrise(data);
+				dbRooms = activeRooms.map((r: any) => ({
 					room: r.slug,
 					title: r.title || r.slug,
 					host: r.host_name || 'host',
@@ -51,6 +84,8 @@
 					isPrivate: !!r.playback_state?.isPrivate,
 					adminOnlyPlayback: !!r.playback_state?.adminOnlyPlayback
 				}));
+			} else {
+				dbRooms = [];
 			}
 		} catch (err) {
 			console.warn('[RoomLobby] Failed to load all db rooms:', err);
@@ -66,7 +101,7 @@
 
 			let query = supabase
 				.from('rooms')
-				.select('slug, title, created_at, host_name, host_id')
+				.select('slug, title, created_at, host_name, host_id, playback_state')
 				.eq('status', 'active');
 
 			if (userId && userName && userName !== 'night-owl' && !userName.startsWith('guest-')) {
@@ -81,8 +116,11 @@
 				.order('created_at', { ascending: false })
 				.limit(10);
 
-			if (data) {
-				myRooms = data;
+			if (data && data.length > 0) {
+				const activeRooms = await cleanupPastSunrise(data);
+				myRooms = activeRooms;
+			} else {
+				myRooms = [];
 			}
 		} catch (err) {
 			console.warn('[RoomLobby] Failed to load my rooms:', err);

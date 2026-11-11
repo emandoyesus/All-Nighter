@@ -258,7 +258,7 @@ export class SupabaseRoomSync {
 	}): Promise<void> {
 		if (!this.isEnabled || !supabase) return;
 		try {
-			await supabase.from('session_archives').upsert(
+			await supabase.from('session_archives').insert(
 				{
 					slug: summaryData.slug,
 					title: summaryData.title,
@@ -267,8 +267,7 @@ export class SupabaseRoomSync {
 					attendees: summaryData.attendees,
 					playlist: summaryData.playlist,
 					summary: summaryData.summary || ''
-				},
-				{ onConflict: 'slug' }
+				}
 			);
 
 			// Mark room status as archived
