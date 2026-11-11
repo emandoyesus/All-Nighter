@@ -156,7 +156,7 @@
 
 {#if open}
 	<div
-		class="fixed inset-0 z-50 flex flex-col justify-between bg-night p-6 md:p-12 text-cream selection:bg-aqua-foam selection:text-cyber-teal overflow-hidden"
+		class="fixed inset-0 z-50 flex flex-col justify-between bg-night p-4 sm:p-6 md:p-12 text-cream selection:bg-aqua-foam selection:text-cyber-teal overflow-y-auto"
 		role="dialog"
 		aria-modal="true"
 	>
@@ -230,7 +230,7 @@
 					{targetLabel}
 				{/if}
 			</p>
-			<h1 class="num mt-2 font-mono text-6xl font-semibold tracking-tighter text-cream md:text-8xl lg:text-9xl drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)]">
+			<h1 class="num mt-2 font-mono text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-semibold tracking-tighter text-cream drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)]">
 				{#if room.mode === 'focus' && room.modeRemaining > 0}
 					{formatModeTime(room.modeRemaining)}
 				{:else}
@@ -244,7 +244,7 @@
 			{/if}
 
 			<!-- Now Playing Card -->
-			<div class="mt-8 flex w-full max-w-xl flex-col items-center rounded-card border border-cream/10 bg-night-2/70 p-6 backdrop-blur-md">
+			<div class="mt-4 sm:mt-8 flex w-full max-w-xl flex-col items-center rounded-card border border-cream/10 bg-night-2/70 p-4 sm:p-6 backdrop-blur-md">
 				{#if room.state.current}
 					<div class="relative flex w-full min-w-0 items-center gap-5 text-left">
 						<!-- Spinning disc animation -->

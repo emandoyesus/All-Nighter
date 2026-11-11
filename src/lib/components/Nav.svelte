@@ -60,11 +60,11 @@
 	bind:this={header}
 	class="sticky top-0 z-50 border-b border-cream/10 bg-[#060a0b]/90 backdrop-blur-md transition-colors"
 >
-	<div class="mx-auto flex h-16 max-w-[1400px] items-center justify-between gap-3 px-4 sm:px-6 md:h-[68px]">
+	<div class="mx-auto flex h-16 max-w-[1400px] items-center justify-between gap-1.5 sm:gap-3 px-3 sm:px-6 md:h-[68px]">
 		<!-- Left: Brand Logo & Title -->
 		<a
 			href="/"
-			class="group flex shrink-0 items-center gap-2.5 transition-opacity hover:opacity-95"
+			class="group flex shrink-0 items-center gap-2 sm:gap-2.5 transition-opacity hover:opacity-95"
 			aria-label="All Nighter Home"
 		>
 			<!-- Standalone Moon Crescent Icon matching favicon (flat matte, no glow) -->
@@ -81,7 +81,7 @@
 				</svg>
 			</div>
 			<div class="flex items-baseline gap-2">
-				<span class="text-base font-semibold tracking-tight text-cream transition-colors group-hover:text-white">
+				<span class="text-sm sm:text-base font-semibold tracking-tight text-cream transition-colors group-hover:text-white">
 					All Nighter
 				</span>
 				<span class="hidden font-mono text-[9px] uppercase tracking-[0.16em] text-lamp/80 lg:inline-block">
@@ -92,12 +92,12 @@
 
 		<!-- Center: Segmented Navigation Capsule (no glows, crisp borders) -->
 		<nav
-			class="flex items-center rounded-full border border-cream/10 bg-night-2 p-1"
+			class="flex items-center rounded-full border border-cream/10 bg-night-2 p-0.5 sm:p-1"
 			aria-label="Main navigation"
 		>
 			<a
 				href="/"
-				class="relative inline-flex items-center gap-1.5 rounded-full px-2.5 sm:px-3.5 py-1 text-xs font-medium transition-colors {isHome
+				class="relative inline-flex items-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-3.5 py-1 text-xs font-medium transition-colors {isHome
 					? 'bg-lamp/15 text-lamp border border-lamp/35'
 					: 'text-taupe hover:bg-cream/5 hover:text-cream'}"
 				aria-current={isHome ? 'page' : undefined}
@@ -110,17 +110,17 @@
 
 			<a
 				href={roomLink}
-				class="relative inline-flex items-center gap-1.5 rounded-full px-2.5 sm:px-3.5 py-1 text-xs font-medium transition-colors {isRoom
+				class="relative inline-flex items-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-3.5 py-1 text-xs font-medium transition-colors {isRoom
 					? 'bg-lamp/15 text-lamp border border-lamp/35'
 					: 'text-taupe hover:bg-cream/5 hover:text-cream'}"
 				aria-current={isRoom ? 'page' : undefined}
 			>
 				{#if inRoom}
 					<span class="soft-blink h-1.5 w-1.5 rounded-full bg-amber"></span>
-					<span class="truncate max-w-[90px] sm:max-w-[130px]">{room.title || 'In Room'}</span>
+					<span class="truncate max-w-[65px] xs:max-w-[100px] sm:max-w-[140px]">{room.title || 'In Room'}</span>
 				{:else if live}
 					<span class="soft-blink h-1.5 w-1.5 rounded-full bg-lamp"></span>
-					<span>The Room</span>
+					<span><span class="hidden xs:inline">The </span>Room</span>
 					<span class="hidden sm:inline-block rounded bg-lamp/20 px-1 py-0.2 font-mono text-[9px] uppercase tracking-wider text-lamp border border-lamp/30">
 						LIVE
 					</span>
@@ -128,13 +128,13 @@
 					{#if isRoom}
 						<span class="h-1.5 w-1.5 rounded-full bg-lamp"></span>
 					{/if}
-					The Room
+					<span><span class="hidden xs:inline">The </span>Room</span>
 				{/if}
 			</a>
 
 			<a
 				href="/archive"
-				class="relative inline-flex items-center gap-1.5 rounded-full px-2.5 sm:px-3.5 py-1 text-xs font-medium transition-colors {isArchive
+				class="relative inline-flex items-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-3.5 py-1 text-xs font-medium transition-colors {isArchive
 					? 'bg-lamp/15 text-lamp border border-lamp/35'
 					: 'text-taupe hover:bg-cream/5 hover:text-cream'}"
 				aria-current={isArchive ? 'page' : undefined}
@@ -142,7 +142,7 @@
 				{#if isArchive}
 					<span class="h-1.5 w-1.5 rounded-full bg-lamp"></span>
 				{/if}
-				The Archive
+				<span><span class="hidden xs:inline">The </span>Archive</span>
 			</a>
 		</nav>
 

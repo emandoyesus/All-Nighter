@@ -2,13 +2,13 @@
   "name": "All Nighter",
   "short_name": "All Nighter",
   "description": "Show up. Lock in till sunrise. A shared room for our all-nighters.",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#030607",
   "theme_color": "#030607",
   "icons": [
     {
-      "src": "/favicon.svg",
+      "src": "favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml"
     }

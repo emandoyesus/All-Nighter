@@ -302,7 +302,7 @@
 							<IconThumbUp size={15} stroke={1.5} />
 						</button>
 						<button
-							class="icon-btn text-faint hover:text-cream disabled:opacity-20"
+							class="icon-btn text-faint hover:text-cream disabled:opacity-20 hidden sm:inline-flex"
 							onclick={() => room.moveQueue(i, i - 1)}
 							disabled={i === 0}
 							title="Move up"
@@ -311,7 +311,7 @@
 							<IconChevronUp size={15} stroke={1.5} />
 						</button>
 						<button
-							class="icon-btn text-faint hover:text-cream disabled:opacity-20"
+							class="icon-btn text-faint hover:text-cream disabled:opacity-20 hidden sm:inline-flex"
 							onclick={() => room.moveQueue(i, i + 1)}
 							disabled={i === room.state.queue.length - 1}
 							title="Move down"

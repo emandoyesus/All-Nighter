@@ -459,102 +459,110 @@
 		{/if}
 	</div>
 
-	<div class="flex items-center gap-3 border-t border-cream/10 px-4 py-3 relative z-30">
-		<button
-			class="icon-btn"
-			onclick={toggle}
-			disabled={!hasVideo && !playing}
-			aria-label={muted || volume === 0 ? 'Unmute audio' : 'Mute audio'}
-			title={muted || volume === 0 ? 'Click to unmute (Space)' : 'Click to mute (Space)'}
-		>
-			{#if muted || volume === 0}
-				<IconVolumeOff size={18} stroke={1.5} />
-			{:else}
-				<IconVolume size={18} stroke={1.5} class="text-lamp" />
-			{/if}
-		</button>
-
-		<button
-			class="icon-btn"
-			onclick={skip}
-			disabled={queued === 0 || !room.canSkip}
-			aria-label="Skip to the next track"
-			title={!room.canSkip ? 'Aux is set to Admin only' : (room.isHost ? 'Host skip' : (room.isAdminUser ? 'Admin skip' : 'Skip track'))}
-		>
-			<IconSkip size={18} stroke={1.5} />
-		</button>
-
-		<button
-			class="icon-btn"
-			onclick={() => room.shuffleQueue()}
-			disabled={queued <= 1 || !room.canControlPlayback}
-			aria-label="Shuffle queue"
-			title={!room.canControlPlayback ? 'Aux is set to Admin only' : (queued <= 1 ? 'Need at least 2 tracks to shuffle' : 'Shuffle queue')}
-		>
-			<IconArrowsShuffle size={17} stroke={1.5} />
-		</button>
-
-		<!-- Admin Global Pause / Resume -->
-		{#if room.canControlPlayback}
-			<button
-				class="icon-btn {room.state.playing ? 'text-taupe hover:text-amber' : 'text-amber bg-amber/15 border border-amber/30 animate-pulse'}"
-				onclick={() => window.dispatchEvent(new CustomEvent('an:open-global-pause-modal'))}
-				aria-label={room.state.playing ? 'Pause for everyone' : 'Resume for everyone'}
-				title={room.state.playing ? 'Pause music for everyone (Admin confirmation)' : 'Resume music for everyone (Admin)'}
-			>
-				{#if room.state.playing}
-					<IconPause size={17} stroke={1.5} />
-				{:else}
-					<IconPlay size={17} stroke={1.5} />
-				{/if}
-			</button>
-		{/if}
-
-		<span class="num w-11 shrink-0 text-right text-xs text-taupe">{formatTime(localTime)}</span>
-
-		<input
-			type="range"
-			class="seek min-w-0 flex-1 {room.canControlPlayback ? '' : 'opacity-40 cursor-not-allowed'}"
-			min="0"
-			max={duration > 0 ? duration : 100}
-			step="1"
-			value={duration > 0 ? Math.min(localTime, duration) : 0}
-			oninput={scrub}
-			disabled={!hasVideo || duration <= 0 || !room.canControlPlayback}
-			aria-label="Seek within the track"
-			title={!room.canControlPlayback ? 'Aux is locked to room admins' : 'Seek track'}
-		/>
-
-		<span class="num w-11 shrink-0 text-xs text-faint">
-			{duration > 0 ? formatTime(duration) : 'live'}
-		</span>
-
-		{#if hasVideo && playing && Math.abs(drift) > 0.1}
-			<span class="num hidden shrink-0 text-[11px] text-faint sm:inline">
-				sync {Math.abs(drift).toFixed(1)}s
-			</span>
-		{/if}
-
-		<div class="flex items-center gap-1.5">
-			<button class="icon-btn" onclick={toggleMute} aria-label={muted ? 'Unmute' : 'Mute'}>
-				{#if muted || volume === 0}
-					<IconVolumeOff size={17} stroke={1.5} />
-				{:else}
-					<IconVolume size={17} stroke={1.5} />
-				{/if}
-			</button>
+	<div class="border-t border-cream/10 px-3.5 sm:px-4 py-2.5 sm:py-3 relative z-30 flex flex-col gap-2">
+		<!-- Seek slider and track times row (full width on mobile and desktop) -->
+		<div class="flex items-center gap-2 sm:gap-2.5 w-full">
+			<span class="num w-10 shrink-0 text-right text-xs text-taupe font-mono">{formatTime(localTime)}</span>
 
 			<input
 				type="range"
-				class="seek hidden w-16 sm:inline-block cursor-pointer"
+				class="seek min-w-0 flex-1 {room.canControlPlayback ? '' : 'opacity-40 cursor-not-allowed'}"
 				min="0"
-				max="100"
+				max={duration > 0 ? duration : 100}
 				step="1"
-				value={muted ? 0 : volume}
-				oninput={(e) => setVolume(Number(e.currentTarget.value))}
-				aria-label="Volume"
-				title="Volume: {muted ? 0 : volume}%"
+				value={duration > 0 ? Math.min(localTime, duration) : 0}
+				oninput={scrub}
+				disabled={!hasVideo || duration <= 0 || !room.canControlPlayback}
+				aria-label="Seek within the track"
+				title={!room.canControlPlayback ? 'Aux is locked to room admins' : 'Seek track'}
 			/>
+
+			<span class="num w-10 shrink-0 text-xs text-faint font-mono">
+				{duration > 0 ? formatTime(duration) : 'live'}
+			</span>
+		</div>
+
+		<!-- Playback buttons row -->
+		<div class="flex items-center justify-between gap-2">
+			<div class="flex items-center gap-1.5 sm:gap-3">
+				<button
+					class="icon-btn"
+					onclick={toggle}
+					disabled={!hasVideo && !playing}
+					aria-label={muted || volume === 0 ? 'Unmute audio' : 'Mute audio'}
+					title={muted || volume === 0 ? 'Click to unmute (Space)' : 'Click to mute (Space)'}
+				>
+					{#if muted || volume === 0}
+						<IconVolumeOff size={18} stroke={1.5} />
+					{:else}
+						<IconVolume size={18} stroke={1.5} class="text-lamp" />
+					{/if}
+				</button>
+
+				<button
+					class="icon-btn"
+					onclick={skip}
+					disabled={queued === 0 || !room.canSkip}
+					aria-label="Skip to the next track"
+					title={!room.canSkip ? 'Aux is set to Admin only' : (room.isHost ? 'Host skip' : (room.isAdminUser ? 'Admin skip' : 'Skip track'))}
+				>
+					<IconSkip size={18} stroke={1.5} />
+				</button>
+
+				<button
+					class="icon-btn"
+					onclick={() => room.shuffleQueue()}
+					disabled={queued <= 1 || !room.canControlPlayback}
+					aria-label="Shuffle queue"
+					title={!room.canControlPlayback ? 'Aux is set to Admin only' : (queued <= 1 ? 'Need at least 2 tracks to shuffle' : 'Shuffle queue')}
+				>
+					<IconArrowsShuffle size={17} stroke={1.5} />
+				</button>
+
+				<!-- Admin Global Pause / Resume -->
+				{#if room.canControlPlayback}
+					<button
+						class="icon-btn {room.state.playing ? 'text-taupe hover:text-amber' : 'text-amber bg-amber/15 border border-amber/30 animate-pulse'}"
+						onclick={() => window.dispatchEvent(new CustomEvent('an:open-global-pause-modal'))}
+						aria-label={room.state.playing ? 'Pause for everyone' : 'Resume for everyone'}
+						title={room.state.playing ? 'Pause music for everyone (Admin confirmation)' : 'Resume music for everyone (Admin)'}
+					>
+						{#if room.state.playing}
+							<IconPause size={17} stroke={1.5} />
+						{:else}
+							<IconPlay size={17} stroke={1.5} />
+						{/if}
+					</button>
+				{/if}
+			</div>
+
+			<div class="flex items-center gap-2">
+				{#if hasVideo && playing && Math.abs(drift) > 0.1}
+					<span class="num hidden shrink-0 text-[11px] text-faint sm:inline font-mono">
+						sync {Math.abs(drift).toFixed(1)}s
+					</span>
+				{/if}
+
+				<button class="icon-btn" onclick={toggleMute} aria-label={muted ? 'Unmute' : 'Mute'}>
+					{#if muted || volume === 0}
+						<IconVolumeOff size={17} stroke={1.5} />
+					{:else}
+						<IconVolume size={17} stroke={1.5} />
+					{/if}
+				</button>
+
+				<input
+					type="range"
+					class="seek hidden w-16 sm:inline-block cursor-pointer"
+					min="0"
+					max="100"
+					step="1"
+					value={muted ? 0 : volume}
+					oninput={(e) => setVolume(Number(e.currentTarget.value))}
+					aria-label="Volume"
+					title="Volume: {muted ? 0 : volume}%"
+				/>
+			</div>
 		</div>
 	</div>
 

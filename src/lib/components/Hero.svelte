@@ -61,7 +61,7 @@
 				<p class="eyebrow">Something's on tonight.</p>
 			</div>
 			<h1
-				class="mt-5 text-5xl font-semibold leading-[1.03] tracking-tight md:text-6xl"
+				class="mt-5 text-4xl sm:text-5xl font-semibold leading-[1.03] tracking-tight md:text-6xl"
 				data-split
 				use:splitReveal={{ scroll: false, delay: 0.12, stagger: 0.06, yPercent: 120 }}
 			>

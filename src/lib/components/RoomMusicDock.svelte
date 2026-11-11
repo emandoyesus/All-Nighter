@@ -101,13 +101,22 @@
 {#if room.joinState === 'approved'}
 <aside
 	class="fixed bottom-0 inset-x-0 z-40 border-t border-lamp/20 bg-night-2/95 shadow-[0_-10px_35px_rgba(0,0,0,0.7)] backdrop-blur-xl transition-all select-none"
+	style="padding-bottom: env(safe-area-inset-bottom, 0px);"
 	aria-label="Room music dock"
 >
+	<!-- Top 2px Real-Time Playback Progress Bar -->
+	<div class="absolute top-0 inset-x-0 h-[2px] bg-cream/10 overflow-hidden" aria-hidden="true">
+		<div
+			class="h-full bg-gradient-to-r from-lamp via-lamp to-amber transition-all duration-300"
+			style="width: {duration > 0 ? (localTime / duration) * 100 : 0}%"
+		></div>
+	</div>
+
 	<!-- Main Dock Bar -->
-	<div class="mx-auto flex h-16 sm:h-[72px] max-w-[1400px] items-center justify-between gap-3 px-4 md:px-6">
+	<div class="mx-auto flex h-16 sm:h-[72px] max-w-[1400px] items-center justify-between gap-2.5 sm:gap-3 px-3 sm:px-4 md:px-6">
 		{#if track}
 			<!-- LEFT: Track Metadata & Audio Visualizer -->
-			<div class="flex min-w-0 items-center gap-3 max-w-[42%] sm:max-w-[48%] md:w-[320px] lg:w-[360px]">
+			<div class="flex min-w-0 items-center gap-2.5 sm:gap-3 max-w-[50%] xs:max-w-[55%] sm:max-w-[48%] md:w-[320px] lg:w-[360px]">
 				<!-- Thumbnail / Video Art: clicking directly mutes/unmutes locally -->
 				<button
 					class="group relative h-10 w-10 sm:h-11 sm:w-11 shrink-0 overflow-hidden rounded-lg border border-cream/15 bg-night-3 transition-transform hover:scale-105 cursor-pointer"
@@ -146,7 +155,7 @@
 
 				<!-- Title, Artist & Visualizer -->
 				<div class="min-w-0 flex-1">
-					<div class="flex min-w-0 items-center gap-2">
+					<div class="flex min-w-0 items-center gap-1.5 sm:gap-2">
 						<button
 							class="min-w-0 flex-1 truncate text-left text-xs sm:text-sm font-medium text-cream hover:text-lamp transition-colors"
 							onclick={scrollToPlayer}
@@ -155,17 +164,17 @@
 							{track.title}
 						</button>
 						{#if track.isPlaylist}
-							<span class="shrink-0 rounded bg-cyan/15 px-1.5 py-0.2 text-[9px] font-mono uppercase text-cyan font-semibold tracking-wider">
+							<span class="shrink-0 rounded bg-cyan/15 px-1.5 py-0.2 text-[9px] font-mono uppercase text-cyan font-semibold tracking-wider hidden xs:inline-block">
 								Playlist
 							</span>
 						{/if}
 						<AudioVisualizer active={playing} size="sm" class="shrink-0 hidden xs:inline-flex" />
 					</div>
-					<div class="flex min-w-0 items-center gap-1.5 truncate text-[11px] text-faint">
+					<div class="flex min-w-0 items-center gap-1 truncate text-[11px] text-faint">
 						<span class="truncate text-taupe">{track.channel ?? track.source}</span>
 						<span class="shrink-0">·</span>
 						<span class="truncate inline-flex items-center gap-1">
-							<span class="shrink-0">added by</span>
+							<span class="shrink-0 hidden xs:inline">added by</span>
 							<button
 								type="button"
 								class="truncate font-medium text-cream/90 transition-colors hover:text-lamp underline decoration-cream/20 underline-offset-2 cursor-pointer text-left"
@@ -184,7 +193,7 @@
 
 			<!-- CENTER: Transport Controls & Scrub Progress -->
 			<div class="flex flex-1 flex-col items-center justify-center max-w-[540px]">
-				<div class="flex items-center gap-3 sm:gap-4">
+				<div class="flex items-center gap-2 sm:gap-4">
 					<!-- Center Mute Button: toggles mute/unmute locally for everyone -->
 					<button
 						class="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full transition-transform active:scale-95 {muted || volume === 0
@@ -214,7 +223,7 @@
 
 					<!-- Shuffle Button -->
 					<button
-						class="flex h-7 w-7 items-center justify-center rounded-full text-taupe transition-colors hover:text-cream disabled:opacity-30 disabled:hover:text-taupe"
+						class="flex h-7 w-7 items-center justify-center rounded-full text-taupe transition-colors hover:text-cream disabled:opacity-30 disabled:hover:text-taupe hidden xs:flex"
 						onclick={() => room.shuffleQueue()}
 						disabled={queued <= 1 || !room.canControlPlayback}
 						title={!room.canControlPlayback ? 'Aux is set to Admin only' : (queued <= 1 ? 'Need at least 2 tracks to shuffle' : 'Shuffle queue')}
@@ -240,8 +249,8 @@
 					{/if}
 				</div>
 
-				<!-- Track Time & Progress bar -->
-				<div class="mt-1 flex w-full items-center gap-2 text-[10px] font-mono text-faint">
+				<!-- Track Time & Progress bar (visible on tablet/desktop, mobile uses continuous top 2px bar) -->
+				<div class="mt-1 hidden sm:flex w-full items-center gap-2 text-[10px] font-mono text-faint">
 					<span class="w-9 text-right">{formatTime(localTime)}</span>
 					<div class="relative h-1 w-full rounded-full bg-cream/15 overflow-hidden">
 						<div
@@ -254,7 +263,7 @@
 			</div>
 
 			<!-- RIGHT: Reactions, Volume, Desk HUD -->
-			<div class="flex items-center justify-end gap-2 sm:gap-3 md:w-[320px] lg:w-[360px]">
+			<div class="flex items-center justify-end gap-1.5 sm:gap-3 md:w-[320px] lg:w-[360px]">
 				<!-- Quick Reactions -->
 				<div class="hidden lg:flex items-center gap-1 border-r border-cream/10 pr-2">
 					<button
@@ -298,7 +307,7 @@
 						type="range"
 						min="0"
 						max="100"
-						class="h-1 w-14 sm:w-20 cursor-pointer appearance-none rounded-full bg-cream/15 accent-lamp"
+						class="hidden sm:inline-block h-1 w-14 sm:w-20 cursor-pointer appearance-none rounded-full bg-cream/15 accent-lamp"
 						value={muted ? 0 : volume}
 						oninput={handleVolumeInput}
 						aria-label="Room playback volume"

@@ -28,12 +28,28 @@
 	import IconWaveSine from '@tabler/icons-svelte/icons/wave-sine';
 	import IconSun from '@tabler/icons-svelte/icons/sun';
 	import IconX from '@tabler/icons-svelte/icons/x';
+	import IconMusic from '@tabler/icons-svelte/icons/music';
+	import IconMessages from '@tabler/icons-svelte/icons/messages';
+	import IconUsers from '@tabler/icons-svelte/icons/users';
 
 	let copied = $state(false);
 	let showDawnModal = $state(false);
 	let showDeleteModal = $state(false);
 	let showArchiveModal = $state(false);
 	let showShareModal = $state(false);
+	let mobileTab = $state<'queue' | 'chat' | 'crew'>('queue');
+	let unreadChat = $state(false);
+	let lastChatCount = 0;
+
+	$effect(() => {
+		const currentCount = room.state.chat?.length ?? 0;
+		if (currentCount > lastChatCount) {
+			if (mobileTab !== 'chat') {
+				unreadChat = true;
+			}
+		}
+		lastChatCount = currentCount;
+	});
 
 	onMount(() => {
 		room.init();
@@ -195,7 +211,7 @@
 			</section>
 
 			<!-- Room Workspace -->
-			<section class="mx-auto max-w-[1440px] px-3 sm:px-4 py-3 md:py-4 pb-16">
+			<section class="mx-auto max-w-[1440px] px-3 sm:px-4 py-3 md:py-4 pb-24 sm:pb-28">
 				{#if room.status !== 'online'}
 					<div class="mb-3 flex flex-wrap items-center justify-between gap-2 rounded border border-lamp/30 bg-lamp/8 px-3 py-1.5 text-xs text-cream">
 						<p>
@@ -222,8 +238,95 @@
 						</aside>
 					</div>
 				{:else}
-					<!-- Normal Collaborative Workspace -->
-					<div class="grid gap-3 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]">
+					<!-- Mobile View (< 1024px): Player on top, with Instant Tab Switcher below -->
+					<div class="flex flex-col gap-3 lg:hidden">
+						<Player />
+
+						<!-- Segmented Mobile Control Bar -->
+						<div class="flex items-center justify-between gap-1 p-1 rounded-xl bg-night-2 border border-cream/10 select-none">
+							<button
+								type="button"
+								class="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-mono font-medium transition-all cursor-pointer {mobileTab === 'queue' ? 'bg-lamp/15 text-lamp border border-lamp/35 shadow-sm' : 'text-taupe hover:text-cream'}"
+								onclick={() => (mobileTab = 'queue')}
+							>
+								<IconMusic size={14} stroke={1.8} />
+								<span>Queue</span>
+								{#if room.state.queue.length > 0}
+									<span class="rounded-full bg-lamp/20 px-1.5 py-0.2 text-[10px] text-lamp font-bold">{room.state.queue.length}</span>
+								{/if}
+							</button>
+
+							<button
+								type="button"
+								class="relative flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-mono font-medium transition-all cursor-pointer {mobileTab === 'chat' ? 'bg-lamp/15 text-lamp border border-lamp/35 shadow-sm' : 'text-taupe hover:text-cream'}"
+								onclick={() => { mobileTab = 'chat'; unreadChat = false; }}
+							>
+								<IconMessages size={14} stroke={1.8} />
+								<span>Chat</span>
+								{#if unreadChat && mobileTab !== 'chat'}
+									<span class="h-2 w-2 rounded-full bg-lamp animate-pulse"></span>
+								{:else if (room.state.chat?.length ?? 0) > 0}
+									<span class="rounded-full bg-cream/10 px-1.5 py-0.2 text-[10px] text-taupe font-bold">{room.state.chat?.length}</span>
+								{/if}
+							</button>
+
+							<button
+								type="button"
+								class="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-mono font-medium transition-all cursor-pointer {mobileTab === 'crew' ? 'bg-lamp/15 text-lamp border border-lamp/35 shadow-sm' : 'text-taupe hover:text-cream'}"
+								onclick={() => (mobileTab = 'crew')}
+							>
+								<IconUsers size={14} stroke={1.8} />
+								<span>Crew</span>
+								<span class="rounded-full bg-lamp/20 px-1.5 py-0.2 text-[10px] text-lamp font-bold">{room.awake.length}</span>
+							</button>
+						</div>
+
+						<!-- Tab Content on Mobile -->
+						{#if mobileTab === 'queue'}
+							<div class="animate-in fade-in duration-150">
+								<QueuePanel />
+							</div>
+						{:else if mobileTab === 'chat'}
+							<div class="animate-in fade-in duration-150">
+								<ChatPanel />
+							</div>
+						{:else if mobileTab === 'crew'}
+							<div class="flex flex-col gap-3 animate-in fade-in duration-150">
+								<JoinRequests />
+								<ModeToggle />
+								<Countdown />
+								<div id="crew-roster">
+									<PresencePanel />
+								</div>
+								{#if room.isHost}
+									<div class="pt-1 flex flex-col gap-2">
+										{#if room.isDawn}
+											<button
+												class="btn btn-ghost text-amber hover:bg-amber/10 w-full text-[11px] font-mono tracking-wider py-1.5 border border-amber/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+												onclick={() => (showArchiveModal = true)}
+												title="Archive room session to logbook"
+											>
+												<IconSun size={13} stroke={2} class="text-amber" />
+												Archive room session (Dawn reached)
+											</button>
+										{:else}
+											<button
+												class="btn btn-ghost text-ruby hover:bg-ruby/10 w-full text-[11px] font-mono tracking-wider py-1.5 border border-ruby/20 hover:border-ruby transition-all flex items-center justify-center gap-1.5 group cursor-pointer"
+												onclick={() => (showDeleteModal = true)}
+												title="Close and delete the room session"
+											>
+												<span class="soft-blink h-1.5 w-1.5 rounded-full bg-ruby"></span>
+												Delete room session
+											</button>
+										{/if}
+									</div>
+								{/if}
+							</div>
+						{/if}
+					</div>
+
+					<!-- Desktop Collaborative Workspace (>= 1024px): 2 Columns side-by-side -->
+					<div class="hidden lg:grid gap-3 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]">
 						<div class="min-w-0 flex flex-col gap-3">
 							<Player />
 							<QueuePanel />
