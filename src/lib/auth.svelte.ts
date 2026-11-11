@@ -10,6 +10,22 @@ class AuthService {
 	isCloudUser = $derived(Boolean(this.user));
 	displayName = $derived.by(() => {
 		if (!this.user) return null;
+		const isGoogle =
+			this.user.app_metadata?.provider === 'google' ||
+			this.user.identities?.some((id) => id.provider === 'google') ||
+			Boolean(this.user.user_metadata?.iss?.includes('accounts.google.com'));
+
+		if (isGoogle) {
+			return (
+				this.user.user_metadata?.callsign ||
+				this.user.user_metadata?.full_name ||
+				this.user.user_metadata?.name ||
+				this.user.user_metadata?.user_name ||
+				this.user.email?.split('@')[0] ||
+				null
+			);
+		}
+
 		return (
 			this.user.user_metadata?.callsign ||
 			this.user.user_metadata?.full_name ||
@@ -40,6 +56,7 @@ class AuthService {
 				this.user = session?.user ?? null;
 				if (this.user) {
 					this.isGuest = false;
+					this.syncUserProfile(this.user);
 				}
 				this.loading = false;
 			}).catch(() => {
@@ -54,11 +71,46 @@ class AuthService {
 					try {
 						localStorage.removeItem('an.is_guest');
 					} catch {}
+					this.syncUserProfile(this.user);
 				}
 				this.loading = false;
 			});
 		} else {
 			this.loading = false;
+		}
+	}
+
+	syncUserProfile(user: User | null) {
+		if (!user || typeof window === 'undefined') return;
+		const isGoogle =
+			user.app_metadata?.provider === 'google' ||
+			user.identities?.some((id) => id.provider === 'google') ||
+			Boolean(user.user_metadata?.iss?.includes('accounts.google.com'));
+
+		const googleName =
+			user.user_metadata?.full_name ||
+			user.user_metadata?.name ||
+			user.user_metadata?.user_name ||
+			user.email?.split('@')[0];
+
+		const resolvedName = isGoogle && googleName
+			? googleName
+			: (user.user_metadata?.callsign || googleName);
+
+		if (resolvedName) {
+			const cleaned = resolvedName.slice(0, 24).trim();
+			try {
+				localStorage.setItem('an.callsign', cleaned);
+			} catch {}
+			window.dispatchEvent(new CustomEvent('an:update-callsign', { detail: { name: cleaned } }));
+		}
+
+		const avatar = user.user_metadata?.avatar_url || user.user_metadata?.picture;
+		if (avatar) {
+			try {
+				localStorage.setItem('an.avatar', avatar);
+			} catch {}
+			window.dispatchEvent(new CustomEvent('an:update-avatar', { detail: { avatar } }));
 		}
 	}
 

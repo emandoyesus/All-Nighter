@@ -354,6 +354,50 @@ class Room {
 		this.name = loadOrMake(LS_NAME, () => `guest-${Math.floor(Math.random() * 900 + 100)}`);
 		this.avatar = loadOrMake(LS_AVATAR, () => auth.avatarUrl || '/default-avatar.svg');
 
+		// Sync name/avatar if user authenticated with Google or has cloud profile
+		if (auth.user) {
+			const isGoogle =
+				auth.user.app_metadata?.provider === 'google' ||
+				auth.user.identities?.some((id) => id.provider === 'google') ||
+				Boolean(auth.user.user_metadata?.iss?.includes('accounts.google.com'));
+
+			const googleName =
+				auth.user.user_metadata?.full_name ||
+				auth.user.user_metadata?.name ||
+				auth.user.user_metadata?.user_name ||
+				auth.user.email?.split('@')[0];
+
+			if (isGoogle && googleName) {
+				const cleaned = googleName.slice(0, 24).trim();
+				this.name = cleaned;
+				try {
+					localStorage.setItem(LS_NAME, cleaned);
+				} catch {}
+			}
+
+			const googleAvatar = auth.user.user_metadata?.avatar_url || auth.user.user_metadata?.picture;
+			if (googleAvatar) {
+				this.avatar = googleAvatar;
+				try {
+					localStorage.setItem(LS_AVATAR, googleAvatar);
+				} catch {}
+			}
+		}
+
+		window.addEventListener('an:update-callsign', (e: Event) => {
+			const ce = e as CustomEvent<{ name: string }>;
+			if (ce.detail?.name) {
+				this.setName(ce.detail.name);
+			}
+		});
+
+		window.addEventListener('an:update-avatar', (e: Event) => {
+			const ce = e as CustomEvent<{ avatar: string }>;
+			if (ce.detail?.avatar) {
+				this.setAvatar(ce.detail.avatar);
+			}
+		});
+
 		this.peers.set(this.clientId, {
 			id: this.clientId,
 			name: this.name,
@@ -773,7 +817,14 @@ class Room {
 	sendChat(text: string): void {
 		const trimmed = text.trim().slice(0, 280);
 		if (!trimmed || this.joinState !== 'approved') return;
-		const msg: ChatMessage = { id: randomId(), who: this.name, whoId: this.clientId, text: trimmed, ts: Date.now() };
+		const msg: ChatMessage = {
+			id: randomId(),
+			who: this.name,
+			whoId: this.clientId,
+			avatar: this.avatar,
+			text: trimmed,
+			ts: Date.now()
+		};
 		this.pub(this.t('chat'), JSON.stringify(msg));
 		this.onChat(msg);
 		void this.dbSync.saveMessage(msg);

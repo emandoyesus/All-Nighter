@@ -3,6 +3,7 @@
 	import { room } from '#lib/room/room.svelte';
 	import IconSend from '@tabler/icons-svelte/icons/send-2';
 	import IconNotes from '@tabler/icons-svelte/icons/notes';
+	import IconMessages from '@tabler/icons-svelte/icons/messages';
 
 	let draft = $state('');
 	let list: HTMLUListElement | undefined = $state();
@@ -23,6 +24,14 @@
 	}
 
 	const messages = $derived(room.state.chat ?? []);
+
+	$effect(() => {
+		if (messages.length && list) {
+			queueMicrotask(() => {
+				if (list) list.scrollTop = list.scrollHeight;
+			});
+		}
+	});
 
 	function send(e: Event): void {
 		e.preventDefault();
@@ -111,24 +120,65 @@
 			></textarea>
 		</div>
 	{:else}
-		<ul bind:this={list} class="mt-3 max-h-[260px] flex-1 space-y-2.5 overflow-y-auto pr-1">
+		<ul bind:this={list} class="mt-3 max-h-[300px] flex-1 space-y-3 overflow-y-auto pr-1 scroll-smooth">
 			{#each messages as msg (msg.id)}
-				<li class="text-sm leading-relaxed">
-					<p class="flex items-baseline gap-2 text-xs">
+				{@const isSelf = msg.whoId === room.clientId}
+				{#if isSelf}
+					<!-- Self Chatbox (Right-aligned) -->
+					<li class="flex flex-col items-end gap-1">
+						<div class="max-w-[85%] rounded-2xl rounded-tr-xs border border-lamp/30 bg-lamp/15 px-3.5 py-2 text-cream shadow-sm">
+							<p class="break-words text-xs leading-relaxed selection:bg-lamp/30">{msg.text}</p>
+						</div>
+						<div class="flex items-center gap-1.5 px-1 text-[10px] font-mono text-faint">
+							<span>{clock(msg.ts)}</span>
+							<span class="text-lamp font-medium">· you</span>
+						</div>
+					</li>
+				{:else}
+					<!-- Peer Chatbox (Left-aligned) -->
+					<li class="flex items-start gap-2 max-w-[90%]">
+						<!-- Peer Avatar or Initial -->
 						<button
 							type="button"
-							class="font-medium text-left transition-colors hover:underline cursor-pointer {msg.whoId === room.clientId ? 'text-lamp' : 'text-taupe hover:text-cream'}"
+							class="shrink-0 rounded-full border border-cream/15 hover:border-cream/40 transition-colors cursor-pointer mt-0.5 overflow-hidden"
 							onclick={() => window.dispatchEvent(new CustomEvent('an:inspect-peer', { detail: { name: msg.who, id: msg.whoId } }))}
-							title="View {msg.who}'s nocturnal profile"
+							title="Inspect {msg.who}'s profile"
 						>
-							{msg.who}
+							{#if msg.avatar && (msg.avatar.startsWith('http') || msg.avatar.startsWith('/'))}
+								<img src={msg.avatar} alt={msg.who} class="h-6 w-6 rounded-full object-cover" />
+							{:else}
+								<div class="h-6 w-6 rounded-full bg-cream/10 text-[10px] font-mono font-bold text-taupe grid place-items-center">
+									{msg.who.slice(0, 1).toUpperCase()}
+								</div>
+							{/if}
 						</button>
-						<span class="num text-[10px] text-faint">{clock(msg.ts)}</span>
-					</p>
-					<p class="break-words text-cream/90">{msg.text}</p>
-				</li>
+
+						<!-- Peer Chatbox Bubble -->
+						<div class="flex flex-col items-start gap-1 min-w-0">
+							<div class="rounded-2xl rounded-tl-xs border border-cream/15 bg-[#0b1214] px-3.5 py-2 shadow-sm text-cream/90">
+								<div class="flex items-baseline gap-2 mb-1">
+									<button
+										type="button"
+										class="font-medium text-[11px] text-lamp hover:underline cursor-pointer truncate max-w-[140px]"
+										onclick={() => window.dispatchEvent(new CustomEvent('an:inspect-peer', { detail: { name: msg.who, id: msg.whoId } }))}
+									>
+										{msg.who}
+									</button>
+									<span class="text-[10px] text-faint font-mono">{clock(msg.ts)}</span>
+								</div>
+								<p class="break-words text-xs leading-relaxed text-cream/90">{msg.text}</p>
+							</div>
+						</div>
+					</li>
+				{/if}
 			{:else}
-				<li class="num text-xs leading-relaxed text-faint">quiet in here. say something.</li>
+				<li class="flex flex-col items-center justify-center py-7 text-center">
+					<span class="grid h-8 w-8 place-items-center rounded-xl border border-cream/10 bg-cream/5 text-taupe mb-2">
+						<IconMessages size={16} stroke={1.5} />
+					</span>
+					<p class="text-xs font-mono text-taupe">Quiet night floor</p>
+					<p class="text-[11px] text-faint mt-0.5">Send a message to break the silence.</p>
+				</li>
 			{/each}
 		</ul>
 	{/if}
@@ -145,12 +195,12 @@
 			aria-label="Chat message"
 		/>
 		<button
-			class="btn btn-ghost btn-sm"
+			class="btn btn-sm px-3 flex items-center justify-center transition-all {draft.trim() && room.mode !== 'focus' ? 'bg-lamp text-night hover:bg-lamp/90 font-medium' : 'btn-ghost text-faint disabled:opacity-40'}"
 			type="submit"
 			disabled={room.mode === 'focus' || !draft.trim()}
 			aria-label="Send message"
 		>
-			<IconSend size={15} stroke={1.5} />
+			<IconSend size={15} stroke={1.8} />
 		</button>
 	</form>
 </div>
