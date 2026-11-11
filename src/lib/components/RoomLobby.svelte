@@ -31,10 +31,13 @@
 	async function loadAllDbRooms(): Promise<void> {
 		if (!supabase) return;
 		try {
+			// Only show rooms from the current night cycle (last 24 hours)
+			const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 			const { data } = await supabase
 				.from('rooms')
 				.select('*')
 				.eq('status', 'active')
+				.gte('created_at', since)
 				.order('created_at', { ascending: false })
 				.limit(30);
 
@@ -103,10 +106,15 @@
 		if (!confirm(`Are you sure you want to close and delete room "${slug}"?`)) return;
 		if (!supabase) return;
 		try {
-			await supabase.from('rooms').delete().eq('slug', slug);
+			await supabase
+				.from('rooms')
+				.update({ status: 'closed', closed_at: new Date().toISOString() })
+				.eq('slug', slug);
 			myRooms = myRooms.filter((r) => r.slug !== slug);
 			dbRooms = dbRooms.filter((r) => r.room !== slug);
-		} catch {}
+		} catch (err) {
+			console.warn('[RoomLobby] Failed to delete room:', err);
+		}
 	}
 
 	let creating = $state(false);
