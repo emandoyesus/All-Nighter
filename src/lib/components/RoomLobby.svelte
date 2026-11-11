@@ -196,7 +196,7 @@
 	});
 
 	const slug = $derived(sanitizeRoom(draft));
-	const hasReachedLimit = $derived(myRooms.length >= 2);
+	const hasReachedLimit = $derived(myRooms.length >= 1);
 
 	function create(event: SubmitEvent): void {
 		event.preventDefault();
@@ -206,7 +206,7 @@
 			return;
 		}
 		if (hasReachedLimit) {
-			nameError = 'Room limit reached: You can only host a maximum of 2 active rooms at a time.';
+			nameError = 'Room limit reached: You can only host 1 active room at a time.';
 			return;
 		}
 		const name = draft.trim();
@@ -263,7 +263,7 @@
 						<h3 class="text-xs sm:text-sm font-semibold tracking-wide text-cream">Your Active Rooms</h3>
 					</div>
 					<span class="rounded-full bg-lamp/15 px-2 py-0.5 font-mono text-[10px] text-lamp font-medium">
-						{myRooms.length} / 2 active
+						{myRooms.length} / 1 active
 					</span>
 				</div>
 				<p class="text-xs text-taupe mb-3">
@@ -496,10 +496,10 @@
 			{#if hasReachedLimit}
 				<div class="rounded-xl border border-amber/30 bg-amber/10 p-3 sm:p-3.5 text-xs text-cream space-y-1 animate-in fade-in duration-150">
 					<p class="font-semibold text-amber flex items-center gap-1.5">
-						<span>⚠️ Active room limit reached (2 / 2)</span>
+						<span>⚠️ Active room limit reached (1 / 1)</span>
 					</p>
 					<p class="text-taupe leading-relaxed text-[11px]">
-						Each host can run a maximum of 2 active rooms at once. Please delete or close one of your active rooms on the left to start a new one.
+						Each host can run a maximum of 1 active room at a time. Please delete or close your current active room on the left to start a new one.
 					</p>
 				</div>
 			{/if}
@@ -651,7 +651,7 @@
 					disabled={!slug || hasReachedLimit}
 				>
 					<IconPlus size={16} stroke={1.5} />
-					{hasReachedLimit ? 'Limit reached (max 2 rooms)' : (isPrivate ? 'Create Private Room' : 'Create a room')}
+					{hasReachedLimit ? 'Limit reached (max 1 room)' : (isPrivate ? 'Create Private Room' : 'Create a room')}
 				</button>
 			</form>
 		{/if}

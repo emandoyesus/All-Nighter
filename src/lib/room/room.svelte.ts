@@ -1076,7 +1076,7 @@ class Room {
 			return;
 		}
 
-		// Enforce maximum 2 active rooms per user
+		// Enforce maximum 1 active room per user
 		if (this.dbSync.isEnabled && supabase) {
 			try {
 				const userId = auth.user?.id;
@@ -1088,10 +1088,10 @@ class Room {
 					q = q.eq('host_id', userId);
 				}
 				const { data: existingRooms } = await q;
-				if (existingRooms && existingRooms.length >= 2 && !existingRooms.some((r) => r.slug === slug)) {
+				if (existingRooms && existingRooms.length >= 1 && !existingRooms.some((r) => r.slug === slug)) {
 					this.roomAlert = {
 						type: 'error',
-						message: 'Room limit reached: You can only host up to 2 active rooms at a time. Please close an existing room first.'
+						message: 'Room limit reached: You can only host 1 active room at a time. Please close your existing room first.'
 					};
 					return;
 				}
