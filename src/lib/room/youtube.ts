@@ -825,220 +825,283 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 	},
 	{
 		videoId: '4NRXx6U8ABQ',
-		title: 'The Weeknd - The Weeknd - Blinding Lights (Official Video)',
+		title: 'The Weeknd - Blinding Lights',
 		channel: 'The Weeknd',
 		language: 'english',
-		tags: ['the weeknd', 'english', 'music']
+		tags: ['the weeknd', 'blinding lights', 'r&b', 'synth-pop', 'english', 'music']
 	},
 	{
-		videoId: '2Vv-BfVoq4g',
-		title: 'Ed Sheeran - Ed Sheeran - Perfect (Official Music Video)',
+		videoId: 'nSDgHBxUbVQ',
+		title: 'Ed Sheeran - Photograph',
 		channel: 'Ed Sheeran',
 		language: 'english',
-		tags: ['ed sheeran', 'english', 'music']
-	},
-	{
-		videoId: 'mw3kSNIxjqo',
-		title: 'Taylor Swift - Taylor Swift - Patient Zero (Official Music V',
-		channel: 'Taylor Swift',
-		language: 'english',
-		tags: ['taylor swift', 'english', 'music']
-	},
-	{
-		videoId: 'lY5V4hSLWY8',
-		title: 'Bruno Mars - Bruno Mars - Risk It All [Official Music Vide',
-		channel: 'Bruno Mars',
-		language: 'english',
-		tags: ['bruno mars', 'english', 'music']
-	},
-	{
-		videoId: 'hLQl3WQQoQ0',
-		title: 'Adele - Adele - Someone Like You (Official Music Vide',
-		channel: 'Adele',
-		language: 'english',
-		tags: ['adele', 'english', 'music']
-	},
-	{
-		videoId: 'k2qgadSvNyU',
-		title: 'Dua Lipa - Dua Lipa - New Rules (Official Music Video)',
-		channel: 'Dua Lipa',
-		language: 'english',
-		tags: ['dua lipa', 'english', 'music']
-	},
-	{
-		videoId: 'wXhTHyIgQ_U',
-		title: 'Post Malone - Post Malone - Circles',
-		channel: 'Post Malone',
-		language: 'english',
-		tags: ['post malone', 'english', 'music']
-	},
-	{
-		videoId: 'RB-RcX5DS5A',
-		title: 'Coldplay - Coldplay - The Scientist (Official 4K Video)',
-		channel: 'Coldplay',
-		language: 'english',
-		tags: ['coldplay', 'english', 'music']
-	},
-	{
-		videoId: 'fJ9rUzIMcZQ',
-		title: 'Queen - Queen – Bohemian Rhapsody (Official Video Rem',
-		channel: 'Queen',
-		language: 'english',
-		tags: ['queen', 'english', 'music']
-	},
-	{
-		videoId: 'oRdxUFDoQe0',
-		title: 'Michael Jackson - Michael Jackson - Beat It (Official 4K Video)',
-		channel: 'Michael Jackson',
-		language: 'english',
-		tags: ['michael jackson', 'english', 'music']
-	},
-	{
-		videoId: 'CvBfHwUxHIk',
-		title: 'Rihanna - Rihanna - Umbrella (Orange Version) (Official',
-		channel: 'Rihanna',
-		language: 'english',
-		tags: ['rihanna', 'english', 'music']
-	},
-	{
-		videoId: 'nCkpzqqog4k',
-		title: 'Sam Smith - Sam Smith - I\'m Not The Only One (Official Mu',
-		channel: 'Sam Smith',
-		language: 'english',
-		tags: ['sam smith', 'english', 'music']
-	},
-	{
-		videoId: 'uuwfgXD8qV8',
-		title: 'Katy Perry - Katy Perry - Part Of Me (Official)',
-		channel: 'Katy Perry',
-		language: 'english',
-		tags: ['katy perry', 'english', 'music']
-	},
-	{
-		videoId: '09R8_2nJtjg',
-		title: 'Maroon 5 - Maroon 5 - Sugar (Official Music Video)',
-		channel: 'Maroon 5',
-		language: 'english',
-		tags: ['maroon 5', 'english', 'music']
-	},
-	{
-		videoId: '7wtfhZwyrcc',
-		title: 'Imagine Dragons - Imagine Dragons - Believer (Official Music Vi',
-		channel: 'Imagine Dragons',
-		language: 'english',
-		tags: ['imagine dragons', 'english', 'music']
-	},
-	{
-		videoId: 'VbfpW0pbvaU',
-		title: 'Shawn Mendes - Shawn Mendes - Stitches (Official Music Video',
-		channel: 'Shawn Mendes',
-		language: 'english',
-		tags: ['shawn mendes', 'english', 'music']
-	},
-	{
-		videoId: 'nfs8NYg7yQM',
-		title: 'Charlie Puth - Charlie Puth - Attention [Official Video]',
-		channel: 'Charlie Puth',
-		language: 'english',
-		tags: ['charlie puth', 'english', 'music']
-	},
-	{
-		videoId: 'M4qX5wzx-wY',
-		title: 'Harry Styles - Harry Styles - Coming Up Roses (Official Vide',
-		channel: 'Harry Styles',
-		language: 'english',
-		tags: ['harry styles', 'english', 'music']
-	},
-	{
-		videoId: 'qrO4YZeyl0I',
-		title: 'Lady Gaga - Lady Gaga - Bad Romance (Official Music Video',
-		channel: 'Lady Gaga',
-		language: 'english',
-		tags: ['lady gaga', 'english', 'music']
-	},
-	{
-		videoId: 'KWZGAExj-es',
-		title: 'Sia - Sia - Elastic Heart feat. Shia LaBeouf & Madd',
-		channel: 'Sia',
-		language: 'english',
-		tags: ['sia', 'english', 'music']
+		tags: ['ed sheeran', 'photograph', 'pop', 'acoustic', 'english', 'music']
 	},
 	{
 		videoId: '60ItHLz5WEA',
-		title: 'Alan Walker - Alan Walker - Faded',
+		title: 'Alan Walker - Faded',
 		channel: 'Alan Walker',
 		language: 'english',
-		tags: ['alan walker', 'english', 'music']
+		tags: ['alan walker', 'faded', 'edm', 'electronic', 'english', 'music']
 	},
 	{
-		videoId: 'IcrbM1l_BoI',
-		title: 'Avicii - Avicii - Wake Me Up (Official Video)',
-		channel: 'Avicii',
+		videoId: 'hLQl3WQQoQ0',
+		title: 'Adele - Someone Like You',
+		channel: 'Adele',
 		language: 'english',
-		tags: ['avicii', 'english', 'music']
+		tags: ['adele', 'someone like you', 'soul', 'pop', 'english', 'music']
 	},
 	{
-		videoId: 'YVkUvmDQ3HY',
-		title: 'Eminem - Eminem - Without Me (Official Music Video)',
+		videoId: 'lWA2pjMjpBs',
+		title: 'Rihanna - Diamonds',
+		channel: 'Rihanna',
+		language: 'english',
+		tags: ['rihanna', 'diamonds', 'pop', 'r&b', 'english', 'music']
+	},
+	{
+		videoId: 'mWRsgZuwf_8',
+		title: 'Imagine Dragons - Demons',
+		channel: 'Imagine Dragons',
+		language: 'english',
+		tags: ['imagine dragons', 'demons', 'alternative rock', 'english', 'music']
+	},
+	{
+		videoId: 'lY2yjAdbvdQ',
+		title: 'Shawn Mendes - Treat You Better',
+		channel: 'Shawn Mendes',
+		language: 'english',
+		tags: ['shawn mendes', 'treat you better', 'pop', 'acoustic', 'english', 'music']
+	},
+	{
+		videoId: 'TdrL3QxjyVw',
+		title: 'Lana Del Rey - Summertime Sadness',
+		channel: 'Lana Del Rey',
+		language: 'english',
+		tags: ['lana del rey', 'summertime sadness', 'indie', 'dream pop', 'english', 'music']
+	},
+	{
+		videoId: 'S9bCLPwzSC0',
+		title: 'Eminem - Mockingbird',
 		channel: 'Eminem',
 		language: 'english',
-		tags: ['eminem', 'english', 'music']
+		tags: ['eminem', 'mockingbird', 'hip-hop', 'rap', 'english', 'music']
 	},
 	{
-		videoId: 'H58vbez_m4E',
-		title: 'Kendrick Lamar - Kendrick Lamar - Not Like Us',
-		channel: 'Kendrick Lamar',
+		videoId: 'cxjvTXo9WWM',
+		title: 'Sia - Unstoppable',
+		channel: 'Sia',
 		language: 'english',
-		tags: ['kendrick lamar', 'english', 'music']
+		tags: ['sia', 'unstoppable', 'pop', 'english', 'music']
 	},
 	{
-		videoId: 'K0HSD_i2DvA',
-		title: 'Daft Punk - Daft Punk - Around The World (Official Music ',
-		channel: 'Daft Punk',
+		videoId: 'oyEuk8j8imI',
+		title: 'Justin Bieber - Love Yourself',
+		channel: 'Justin Bieber',
 		language: 'english',
-		tags: ['daft punk', 'english', 'music']
+		tags: ['justin bieber', 'love yourself', 'pop', 'r&b', 'english', 'music']
+	},
+	{
+		videoId: 'K-a8s8OLBSE',
+		title: 'Taylor Swift - Cardigan',
+		channel: 'Taylor Swift',
+		language: 'english',
+		tags: ['taylor swift', 'cardigan', 'folk', 'pop', 'english', 'music']
+	},
+	{
+		videoId: '50VNCymT-Cs',
+		title: 'Alec Benjamin - Let Me Down Slowly',
+		channel: 'Alec Benjamin',
+		language: 'english',
+		tags: ['alec benjamin', 'let me down slowly', 'indie pop', 'storytelling', 'english', 'music']
+	},
+	{
+		videoId: 'SlPhMPnQ58k',
+		title: 'Maroon 5 - Memories',
+		channel: 'Maroon 5',
+		language: 'english',
+		tags: ['maroon 5', 'memories', 'pop rock', 'english', 'music']
+	},
+	{
+		videoId: 'Ahha3Cqe_fk',
+		title: 'Katy Perry - The One That Got Away',
+		channel: 'Katy Perry',
+		language: 'english',
+		tags: ['katy perry', 'the one that got away', 'dance pop', 'english', 'music']
+	},
+	{
+		videoId: 'MwpMEbgC7DA',
+		title: 'Tom Odell - Another Love',
+		channel: 'Tom Odell',
+		language: 'english',
+		tags: ['tom odell', 'another love', 'piano pop', 'indie', 'english', 'music']
+	},
+	{
+		videoId: 'DW3tI9HCslo',
+		title: 'XXXTentacion - SAD!',
+		channel: 'XXXTentacion',
+		language: 'english',
+		tags: ['xxxtentacion', 'sad', 'emo rap', 'alternative', 'english', 'music']
+	},
+	{
+		videoId: 'L3wKzyIN1yk',
+		title: 'Rag\'n\'Bone Man - Human',
+		channel: 'Rag\'n\'Bone Man',
+		language: 'english',
+		tags: ['rag\'n\'bone man', 'human', 'soul', 'blues', 'english', 'music']
+	},
+	{
+		videoId: 'pRpeEdMmmQ0',
+		title: 'Shakira - Waka Waka (This Time for Africa)',
+		channel: 'Shakira',
+		language: 'english',
+		tags: ['shakira', 'waka waka', 'latin pop', 'dance', 'english', 'music']
+	},
+	{
+		videoId: 'VPRjCeoBqrI',
+		title: 'Coldplay - A Sky Full of Stars',
+		channel: 'Coldplay',
+		language: 'english',
+		tags: ['coldplay', 'a sky full of stars', 'alternative rock', 'pop', 'english', 'music']
+	},
+	{
+		videoId: 'V1Pl8CzNzCw',
+		title: 'Billie Eilish, Khalid - Lovely',
+		channel: 'Billie Eilish',
+		language: 'english',
+		tags: ['billie eilish', 'lovely', 'dark pop', 'alternative', 'english', 'music']
+	},
+	{
+		videoId: 'zABLecsR5UE',
+		title: 'Lewis Capaldi - Someone You Loved',
+		channel: 'Lewis Capaldi',
+		language: 'english',
+		tags: ['lewis capaldi', 'someone you loved', 'emotional pop', 'english', 'music']
+	},
+	{
+		videoId: 'UtF6Jej8yb4',
+		title: 'Avicii - The Nights',
+		channel: 'Avicii',
+		language: 'english',
+		tags: ['avicii', 'the nights', 'edm', 'progressive house', 'english', 'music']
 	},
 	{
 		videoId: 'hT_nvWreIhg',
-		title: 'OneRepublic - OneRepublic - Counting Stars',
+		title: 'OneRepublic - Counting Stars',
 		channel: 'OneRepublic',
 		language: 'english',
-		tags: ['onerepublic', 'english', 'music']
+		tags: ['onerepublic', 'counting stars', 'pop rock', 'english', 'music']
 	},
 	{
-		videoId: 'fRh_vgS2dFE',
-		title: 'Justin Bieber - Sorry',
-		channel: 'Justin Bieber',
+		videoId: '0yW7w8F2TVA',
+		title: 'James Arthur - Say You Won\'t Let Go',
+		channel: 'James Arthur',
 		language: 'english',
-		tags: ['justin bieber', 'sorry', 'pop', 'english']
+		tags: ['james arthur', 'say you wont let go', 'pop', 'soul', 'english', 'music']
 	},
 	{
-		videoId: 'gl1aHhXnN1k',
-		title: 'Ariana Grande - thank u, next',
-		channel: 'Ariana Grande',
+		videoId: 'JRfuAukYTKg',
+		title: 'David Guetta - Titanium (feat. Sia)',
+		channel: 'David Guetta',
 		language: 'english',
-		tags: ['ariana grande', 'pop', 'english']
+		tags: ['david guetta', 'titanium', 'edm', 'dance pop', 'english', 'music']
 	},
 	{
-		videoId: '4m1EFMoRFvY',
-		title: 'Beyonce - Single Ladies',
-		channel: 'Beyonce',
+		videoId: 'TUVcZfQe-Kw',
+		title: 'Dua Lipa - Levitating',
+		channel: 'Dua Lipa',
 		language: 'english',
-		tags: ['beyonce', 'pop', 'english']
+		tags: ['dua lipa', 'levitating', 'dance pop', 'disco', 'english', 'music']
 	},
 	{
-		videoId: 'uxpDa-c-4Mc',
-		title: 'Drake - Hotline Bling',
-		channel: 'Drake',
+		videoId: 'IPfJnp1guPc',
+		title: 'Khalid - Young Dumb & Broke',
+		channel: 'Khalid',
 		language: 'english',
-		tags: ['drake', 'hip hop', 'english']
+		tags: ['khalid', 'young dumb & broke', 'r&b', 'chill pop', 'english', 'music']
 	},
 	{
-		videoId: 'HUHC9tYz8ik',
-		title: 'Billie Eilish - bury a friend',
-		channel: 'Billie Eilish',
+		videoId: '3AtDnEC4zak',
+		title: 'Charlie Puth - We Don\'t Talk Anymore (feat. Selena Gomez)',
+		channel: 'Charlie Puth',
 		language: 'english',
-		tags: ['billie eilish', 'alt pop', 'english']
+		tags: ['charlie puth', 'we dont talk anymore', 'pop', 'r&b', 'english', 'music']
+	},
+	{
+		videoId: 'BcqxLCWn-CE',
+		title: 'Lauv - I Like Me Better',
+		channel: 'Lauv',
+		language: 'english',
+		tags: ['lauv', 'i like me better', 'indie pop', 'emotional', 'english', 'music']
+	},
+	{
+		videoId: 'I0czvJ_jikg',
+		title: 'Dean Lewis - Be Alright',
+		channel: 'Dean Lewis',
+		language: 'english',
+		tags: ['dean lewis', 'be alright', 'pop', 'acoustic', 'english', 'music']
+	},
+	{
+		videoId: 'Oa_RSwwpPaA',
+		title: 'Benson Boone - Beautiful Things',
+		channel: 'Benson Boone',
+		language: 'english',
+		tags: ['benson boone', 'beautiful things', 'pop rock', 'english', 'music']
+	},
+	{
+		videoId: '51u5fnyrGj4',
+		title: 'Duncan Laurence - Arcade',
+		channel: 'Duncan Laurence',
+		language: 'english',
+		tags: ['duncan laurence', 'arcade', 'pop', 'emotional', 'english', 'music']
+	},
+	{
+		videoId: 'fbHbTBP_u7U',
+		title: 'NF - Let You Down',
+		channel: 'NF',
+		language: 'english',
+		tags: ['nf', 'let you down', 'hip-hop', 'rap', 'english', 'music']
+	},
+	{
+		videoId: 'PVjiKRfKpPI',
+		title: 'Hozier - Take Me to Church',
+		channel: 'Hozier',
+		language: 'english',
+		tags: ['hozier', 'take me to church', 'indie rock', 'soul', 'english', 'music']
+	},
+	{
+		videoId: 'RBumgq5yVrA',
+		title: 'Passenger - Let Her Go',
+		channel: 'Passenger',
+		language: 'english',
+		tags: ['passenger', 'let her go', 'folk pop', 'acoustic', 'english', 'music']
+	},
+	{
+		videoId: 'u2ah9tWTkmk',
+		title: 'Alex Warren - Ordinary',
+		channel: 'Alex Warren',
+		language: 'english',
+		tags: ['alex warren', 'ordinary', 'pop', 'storytelling', 'english', 'music']
+	},
+	{
+		videoId: 'eVTXPUF4Oz4',
+		title: 'Linkin Park - In the End',
+		channel: 'Linkin Park',
+		language: 'english',
+		tags: ['linkin park', 'in the end', 'alternative rock', 'nu metal', 'english', 'music']
+	},
+	{
+		videoId: 'GCdwKhTtNNw',
+		title: 'The Neighbourhood - Sweater Weather',
+		channel: 'The Neighbourhood',
+		language: 'english',
+		tags: ['the neighbourhood', 'sweater weather', 'indie rock', 'alternative', 'english', 'music']
+	},
+	{
+		videoId: 'e2vBLd5Egnk',
+		title: 'Martin Garrix & Dua Lipa - Scared to Be Lonely',
+		channel: 'Martin Garrix',
+		language: 'english',
+		tags: ['martin garrix', 'scared to be lonely', 'future bass', 'edm', 'english', 'music']
 	}
 ];
 
@@ -1055,8 +1118,10 @@ export function extractSinger(track?: { channel?: string; title?: string } | nul
 		'abraham gebremedhin',
 		'adele',
 		'alan walker',
+		'alec benjamin',
 		'alemayehu eshete',
 		'alex olympia',
+		'alex warren',
 		'alula mampa',
 		'amanuel yemane',
 		'amir dawud',
@@ -1064,6 +1129,7 @@ export function extractSinger(track?: { channel?: string; title?: string } | nul
 		'ariana grande',
 		'aster aweke',
 		'avicii',
+		'benson boone',
 		'betty g',
 		'beyonce',
 		'billie eilish',
@@ -1074,12 +1140,15 @@ export function extractSinger(track?: { channel?: string; title?: string } | nul
 		'coldplay',
 		'daft punk',
 		'dagi dagne',
+		'david guetta',
 		'dawit alemayehu',
 		'dawit nega',
 		'dawit tsige',
+		'dean lewis',
 		'dereje dubale',
 		'drake',
 		'dua lipa',
+		'duncan laurence',
 		'ed sheeran',
 		'eden gebreselassie',
 		'eminem',
@@ -1097,15 +1166,23 @@ export function extractSinger(track?: { channel?: string; title?: string } | nul
 		'helen berhe',
 		'hermon baraki',
 		'hirut bekele',
+		'hozier',
 		'imagine dragons',
+		'james arthur',
 		'justin bieber',
 		'katy perry',
 		'kendrick lamar',
+		'khalid',
 		'kiros alemayehu',
 		'lady gaga',
+		'lana del rey',
+		'lauv',
+		'lewis capaldi',
 		'lij michael',
+		'linkin park',
 		'mahmoud ahmed',
 		'maroon 5',
+		'martin garrix',
 		'merkeb bonitua',
 		'mesfin berhanu',
 		'michael belayneh',
@@ -1113,14 +1190,19 @@ export function extractSinger(track?: { channel?: string; title?: string } | nul
 		'muluken melesse',
 		'nahom yohannes',
 		'neguse abadi',
+		'nf',
 		'onerepublic',
+		'passenger',
 		'post malone',
 		'queen',
+		'rag\'n\'bone man',
+		'rag n bone man',
 		'rahel haile',
 		'rihanna',
 		'robel michael',
 		'rophnan',
 		'sam smith',
+		'shakira',
 		'shawn mendes',
 		'shewit mezgebo',
 		'sia',
@@ -1129,13 +1211,17 @@ export function extractSinger(track?: { channel?: string; title?: string } | nul
 		'tamrat desta',
 		'taylor swift',
 		'teddy afro',
+		'the neighbourhood',
+		'the neighborhood',
 		'the weeknd',
 		'tibebu workiye',
 		'tilahun gessesse',
 		'timnit welday',
+		'tom odell',
 		'tsedenia gebremarkos',
 		'tsegaye eshetu',
 		'tsehaye yohannes',
+		'xxxtentacion',
 		'zemen alemseged'
 	];
 
@@ -1143,6 +1229,8 @@ export function extractSinger(track?: { channel?: string; title?: string } | nul
 		if (combined.includes(s)) {
 			if (s.includes('abraham') || s.includes('abreham')) return 'abraham gebremedhin';
 			if (s.includes('eden')) return 'eden gebreselassie';
+			if (s.includes('the neighbourhood') || s.includes('the neighborhood')) return 'the neighbourhood';
+			if (s.includes('rag\'n\'bone') || s.includes('rag n bone')) return 'rag\'n\'bone man';
 			if (s.includes('daft punk')) return 'the weeknd';
 			if (s.includes('bruno mars')) return 'bruno mars';
 			return s;
