@@ -5,6 +5,7 @@
 	import IconShieldCheck from '@tabler/icons-svelte/icons/shield-check';
 	import IconChevronDown from '@tabler/icons-svelte/icons/chevron-down';
 	import IconChevronUp from '@tabler/icons-svelte/icons/chevron-up';
+	import IconUserPlus from '@tabler/icons-svelte/icons/user-plus';
 
 	let showEdit = $state(false);
 
@@ -63,7 +64,18 @@
 
 <div class="panel p-3.5 sm:p-4 overflow-hidden">
 	<div class="flex items-center justify-between">
-		<h3 class="text-xs sm:text-sm font-medium">Awake now</h3>
+		<div class="flex items-center gap-2">
+			<h3 class="text-xs sm:text-sm font-medium">Awake now</h3>
+			<button
+				type="button"
+				class="inline-flex items-center gap-1 rounded-full border border-lamp/30 bg-lamp/10 px-2 py-0.5 text-[10px] font-mono text-lamp hover:bg-lamp/20 hover:border-lamp/50 transition-colors cursor-pointer"
+				onclick={() => window.dispatchEvent(new CustomEvent('an:open-share-modal'))}
+				title="Share room and invite friends"
+			>
+				<IconUserPlus size={11} stroke={2} />
+				<span>Invite</span>
+			</button>
+		</div>
 		<span class="inline-flex items-center gap-1.5 rounded-full border border-lamp/40 bg-lamp/10 px-2 py-0.5 font-mono text-[10px] text-lamp font-medium">
 			<span class="h-1.5 w-1.5 rounded-full bg-lamp animate-pulse"></span>
 			{room.awake.length} awake
@@ -156,6 +168,21 @@
 			</li>
 		{/each}
 	</ul>
+
+	{#if room.awake.length === 1}
+		<div class="mt-2.5 rounded-xl border border-dashed border-cream/15 bg-cream/3 p-3 text-center">
+			<p class="text-xs text-cream/90 font-medium">You're the only one here right now</p>
+			<p class="text-[11px] text-taupe mt-0.5">Share your room link so your crew can join you.</p>
+			<button
+				type="button"
+				class="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-lamp/15 border border-lamp/35 px-3 py-1 text-xs font-mono text-lamp hover:bg-lamp/25 transition-colors cursor-pointer shadow-sm"
+				onclick={() => window.dispatchEvent(new CustomEvent('an:open-share-modal'))}
+			>
+				<IconUserPlus size={13} stroke={1.8} />
+				<span>Invite friends</span>
+			</button>
+		</div>
+	{/if}
 
 	<!-- Who was here earlier (joined and left without ending the whole night) -->
 	{#if room.leftPeers.length > 0}

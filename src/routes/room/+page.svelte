@@ -14,10 +14,12 @@
 	import DawnRitualModal from '#lib/components/DawnRitualModal.svelte';
 	import DeleteRoomModal from '#lib/components/DeleteRoomModal.svelte';
 	import ArchiveRoomModal from '#lib/components/ArchiveRoomModal.svelte';
+	import ShareRoomModal from '#lib/components/ShareRoomModal.svelte';
 	import RoomAuthGate from '#lib/components/RoomAuthGate.svelte';
 	import { auth } from '#lib/auth.svelte';
 	import { isSupabaseConfigured } from '#lib/supabase';
 	import { TELEGRAM_URL } from '#lib/config';
+	import IconShare from '@tabler/icons-svelte/icons/share';
 	import IconCopy from '@tabler/icons-svelte/icons/copy';
 	import IconCheck from '@tabler/icons-svelte/icons/check';
 	import IconArrowLeft from '@tabler/icons-svelte/icons/arrow-left';
@@ -31,8 +33,18 @@
 	let showDawnModal = $state(false);
 	let showDeleteModal = $state(false);
 	let showArchiveModal = $state(false);
+	let showShareModal = $state(false);
 
-	onMount(() => room.init());
+	onMount(() => {
+		room.init();
+
+		const handleOpenShare = () => (showShareModal = true);
+		window.addEventListener('an:open-share-modal', handleOpenShare);
+
+		return () => {
+			window.removeEventListener('an:open-share-modal', handleOpenShare);
+		};
+	});
 
 	const inRoom = $derived(room.joinState === 'approved');
 	const gated = $derived(room.joinState === 'waiting' || room.joinState === 'rejected');
@@ -146,14 +158,13 @@
 					</div>
 
 					<div class="flex items-center gap-1.5">
-						<button class="btn btn-ghost btn-sm text-xs py-1 px-2.5" onclick={copyLink} title="Copy direct room invite link">
-							{#if copied}
-								<IconCheck size={13} stroke={1.5} class="text-lamp" />
-								<span>Copied!</span>
-							{:else}
-								<IconCopy size={13} stroke={1.5} />
-								<span>Invite link</span>
-							{/if}
+						<button
+							class="btn btn-secondary btn-sm text-xs py-1 px-3 flex items-center gap-1.5 cursor-pointer shadow-sm hover:border-lamp/40 transition-all font-medium"
+							onclick={() => (showShareModal = true)}
+							title="Share room and invite friends"
+						>
+							<IconShare size={13} stroke={1.8} class="text-lamp" />
+							<span>Share Room</span>
 						</button>
 						<button class="btn btn-amber btn-sm text-xs py-1 px-2.5" onclick={() => (showDawnModal = true)} title="Log room session">
 							<IconSun size={13} stroke={2} />
@@ -239,6 +250,7 @@
 				<DawnRitualModal bind:open={showDawnModal} />
 				<ArchiveRoomModal bind:open={showArchiveModal} />
 				<DeleteRoomModal bind:open={showDeleteModal} />
+				<ShareRoomModal bind:open={showShareModal} />
 			</section>
 		{:else if gated}
 			<section class="border-b border-cream/10 bg-night-2">

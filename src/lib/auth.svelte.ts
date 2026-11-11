@@ -57,6 +57,7 @@ class AuthService {
 				if (this.user) {
 					this.isGuest = false;
 					this.syncUserProfile(this.user);
+					window.dispatchEvent(new CustomEvent('an:auth-changed'));
 				}
 				this.loading = false;
 			}).catch(() => {
@@ -72,6 +73,7 @@ class AuthService {
 						localStorage.removeItem('an.is_guest');
 					} catch {}
 					this.syncUserProfile(this.user);
+					window.dispatchEvent(new CustomEvent('an:auth-changed'));
 				}
 				this.loading = false;
 			});
@@ -156,9 +158,15 @@ class AuthService {
 		return res;
 	}
 
-	async signInWithGoogle() {
+	async signInWithGoogle(customRedirectTo?: string) {
 		if (!supabase) throw new Error('Supabase is not configured');
-		const redirectTo = typeof window !== 'undefined' ? `${window.location.origin}/room` : undefined;
+		const currentUrl =
+			typeof window !== 'undefined'
+				? window.location.search
+					? `${window.location.origin}${window.location.pathname}${window.location.search}`
+					: `${window.location.origin}/room`
+				: undefined;
+		const redirectTo = customRedirectTo || currentUrl;
 		const res = await supabase.auth.signInWithOAuth({
 			provider: 'google',
 			options: {

@@ -478,6 +478,10 @@ class Room {
 			}
 		});
 
+		window.addEventListener('an:auth-changed', () => {
+			this.checkAndJoinActiveRoom();
+		});
+
 		this.peers.set(this.clientId, {
 			id: this.clientId,
 			name: this.name,
@@ -492,8 +496,14 @@ class Room {
 		window.setInterval(() => this.tick(), 1000);
 		window.addEventListener('beforeunload', this.bye);
 
-		let param =
-			typeof location !== 'undefined' ? new URLSearchParams(location.search).get('room') : null;
+		this.checkAndJoinActiveRoom();
+	}
+
+	checkAndJoinActiveRoom(): void {
+		if (typeof location === 'undefined') return;
+		if (!auth.isAuthenticated || this.joinState === 'approved') return;
+
+		let param = new URLSearchParams(location.search).get('room');
 		let title = '';
 		if (!param && typeof localStorage !== 'undefined') {
 			try {
@@ -508,10 +518,6 @@ class Room {
 		}
 
 		if (param) {
-			// If user has not signed in yet, hold until authentication
-			if (!auth.isAuthenticated) {
-				return;
-			}
 			const slug = sanitizeRoom(param) || DEFAULT_ROOM;
 			let wasHost = false;
 			try {
