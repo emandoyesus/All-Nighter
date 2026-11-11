@@ -253,7 +253,7 @@ export class SupabaseRoomSync {
 		title: string;
 		startedAt: string;
 		attendees: string[];
-		playlist: Track[];
+		playlist: any[];
 		summary?: string;
 	}): Promise<void> {
 		if (!this.isEnabled || !supabase) return;

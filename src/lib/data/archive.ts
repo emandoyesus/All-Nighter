@@ -71,11 +71,7 @@ export const nights: Night[] = [
 			{ title: 'Resonance', artist: 'HOME', addedBy: 'natnael', genre: 'synthwave', reactions: 14 },
 			{ title: 'Blinding Lights', artist: 'The Weeknd', addedBy: 'yared', genre: 'pop', source: 'youtube', videoId: '4NRXx6U8ABQ', reactions: 10 }
 		],
-		chatMoments: [
-			{ who: 'selam', text: 'the coffee here in addis hits completely different at 3am', at: '03:15' },
-			{ who: 'solomon', text: 'pull request approved and merged cleanly', at: '05:22' },
-			{ who: 'dawit', text: 'sunrise over the mountains right now is unreal', at: '06:05' }
-		]
+		chatMoments: []
 	}
 ];
 

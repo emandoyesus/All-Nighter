@@ -49,7 +49,8 @@
 			room.awake,
 			room.state.current,
 			room.state.queue,
-			room.getAllAttendees()
+			room.getAllAttendees(),
+			room.getAllSessionTracks()
 		);
 	}
 
@@ -77,7 +78,7 @@
 		// Automatically save to Supabase session_archives if configured
 		if (isSupabaseConfigured && supabase) {
 			try {
-				await supabase.from('session_archives').upsert({
+				await supabase.from('session_archives').insert({
 					slug: night.slug,
 					title: night.title,
 					started_at: new Date(Date.now() - 6 * 3600 * 1000).toISOString(),

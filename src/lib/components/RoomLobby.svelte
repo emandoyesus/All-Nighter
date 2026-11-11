@@ -43,7 +43,7 @@
 						started_at: r.created_at,
 						ended_at: now.toISOString(),
 						attendees: [r.host_name || 'Crew'],
-						playlist: r.playback_state?.queue || [],
+						playlist: r.playback_state?.history || r.playback_state?.queue || [],
 						summary: 'Overnight lock-in session archived at sunrise'
 					});
 				} catch {}

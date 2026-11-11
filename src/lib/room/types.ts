@@ -40,6 +40,7 @@ export type RoomState = {
 	position: number;
 	clock: number;
 	queue: Track[];
+	history?: Track[];
 	chat?: ChatMessage[];
 	mode?: 'normal' | 'focus' | 'break';
 	modeExpiresAt?: number;

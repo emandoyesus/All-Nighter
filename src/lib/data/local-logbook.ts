@@ -29,13 +29,29 @@ export function buildNightFromRoom(
 	awake: Array<{ name: string; intention?: string }>,
 	currentTrack: { title: string; channel?: string; addedBy: string; videoId?: string | null; url?: string } | null,
 	queue: Array<{ title: string; channel?: string; addedBy: string; videoId?: string | null; url?: string }>,
-	allAttendees?: Array<{ name: string; intention?: string }>
+	allAttendees?: Array<{ name: string; intention?: string }>,
+	history?: Array<{ title: string; channel?: string; addedBy: string; videoId?: string | null; url?: string }>
 ): Night {
 	const now = new Date();
 	const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 	const cleanSlug = `${roomName}-${now.toISOString().slice(0, 10)}`;
 
-	const allTracks = [...(currentTrack ? [currentTrack] : []), ...queue];
+	// Combine all sources of tracks throughout the night: history, currently playing, and remaining queue
+	const trackMap = new Map<string, { title: string; channel?: string; addedBy: string; videoId?: string | null; url?: string }>();
+	for (const t of history || []) {
+		const key = (t.videoId || t.title || '').trim();
+		if (key) trackMap.set(key, t);
+	}
+	if (currentTrack) {
+		const key = (currentTrack.videoId || currentTrack.title || '').trim();
+		if (key) trackMap.set(key, currentTrack);
+	}
+	for (const t of queue || []) {
+		const key = (t.videoId || t.title || '').trim();
+		if (key) trackMap.set(key, t);
+	}
+	const allTracks = Array.from(trackMap.values());
+
 	const tracklist: ArchiveTrack[] = allTracks.map((t) => ({
 		title: t.title,
 		artist: t.channel ?? 'YouTube',

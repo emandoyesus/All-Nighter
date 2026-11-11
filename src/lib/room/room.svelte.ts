@@ -355,6 +355,42 @@ class Room {
 			}
 		}
 	}
+
+	sessionTracks = $state<Track[]>([]);
+
+	recordTrack(track: Track | null | undefined): void {
+		if (!track || !track.title) return;
+		const key = (track.videoId || track.title).trim();
+		if (!key) return;
+		const exists = this.sessionTracks.some(
+			(t) => (t.videoId && track.videoId && t.videoId === track.videoId) || t.title.trim().toLowerCase() === track.title.trim().toLowerCase()
+		);
+		if (!exists) {
+			this.sessionTracks = [...this.sessionTracks, track];
+			if (this.room) {
+				try {
+					localStorage.setItem('an.tracks.' + this.room, JSON.stringify(this.sessionTracks));
+				} catch {}
+			}
+		}
+	}
+
+	getAllSessionTracks(): Track[] {
+		const map = new Map<string, Track>();
+		for (const t of this.sessionTracks) {
+			const key = (t.videoId || t.title || '').trim();
+			if (key) map.set(key, t);
+		}
+		if (this.state.current) {
+			const key = (this.state.current.videoId || this.state.current.title || '').trim();
+			if (key) map.set(key, this.state.current);
+		}
+		for (const t of this.state.queue) {
+			const key = (t.videoId || t.title || '').trim();
+			if (key) map.set(key, t);
+		}
+		return Array.from(map.values());
+	}
 	/** Current room mode: 'normal' (chat open, shared floor) or 'focus' (quiet sprint). */
 	mode = $state<'normal' | 'focus' | 'break'>('normal');
 	/** Seconds remaining in current mode cycle. */
@@ -1007,6 +1043,11 @@ class Room {
 			base.queue = base.queue.filter((t) => !isBannedMusic(t.videoId, t.title));
 		}
 
+		if (base.current) this.recordTrack(base.current);
+		if (base.queue) {
+			for (const t of base.queue) this.recordTrack(t);
+		}
+
 		const seq = options?.keepSeq ? this.state.seq || now : now;
 
 		// If mutation did not explicitly change playback position, advance position by elapsed playback time
@@ -1041,7 +1082,8 @@ class Room {
 				current: this.state.current,
 				videoId: this.state.videoId,
 				mode: this.mode,
-				doorLocked: this.state.doorLocked
+				doorLocked: this.state.doorLocked,
+				history: this.getAllSessionTracks()
 			});
 		}
 	}
@@ -1324,6 +1366,7 @@ class Room {
 				...DEFAULT_STARTER_TRACK,
 				uid: `starter-${Date.now()}`
 			};
+			this.recordTrack(starter);
 			this.state = {
 				...this.state,
 				current: starter,
@@ -1345,6 +1388,14 @@ class Room {
 				autoArchive: initialAutoArchive
 			};
 		}
+
+		try {
+			const savedTracks = localStorage.getItem('an.tracks.' + slug);
+			if (savedTracks) {
+				const parsed = JSON.parse(savedTracks);
+				if (Array.isArray(parsed)) this.sessionTracks = parsed;
+			}
+		} catch {}
 
 		try {
 			localStorage.setItem(LS_ACTIVE_ROOM, slug);
@@ -1498,13 +1549,15 @@ class Room {
 
 		// 1. Build night archive record (including everyone who joined and left)
 		const allAttendees = this.getAllAttendees();
+		const sessionTracks = this.getAllSessionTracks();
 		const night = buildNightFromRoom(
 			roomSlug,
 			roomTitle,
 			this.awake,
 			this.state.current,
 			this.state.queue,
-			allAttendees
+			allAttendees,
+			sessionTracks
 		);
 
 		// 2. Save locally into personal logbook
@@ -1521,7 +1574,7 @@ class Room {
 					title: night.title,
 					startedAt: new Date(this.roomStartedAt || Date.now() - 6 * 3600 * 1000).toISOString(),
 					attendees: night.joined,
-					playlist: this.state.queue,
+					playlist: night.tracklist,
 					summary: night.note
 				});
 			} catch (err) {
