@@ -76,10 +76,51 @@
 			mode = initialMode;
 			errorMessage = '';
 			emailSent = false;
+			isGoogleLoading = false;
+			isEmailLoading = false;
 			if (!callsign && room.name && room.name !== 'night-owl' && !room.name.startsWith('guest-')) {
 				callsign = room.name;
 			}
+		} else {
+			isGoogleLoading = false;
+			isEmailLoading = false;
 		}
+	});
+
+	$effect(() => {
+		if (typeof window === 'undefined') return;
+
+		const handleResetLoading = () => {
+			isGoogleLoading = false;
+			isEmailLoading = false;
+		};
+
+		// Reset state if browser restores from bfcache or window regains focus
+		window.addEventListener('pageshow', handleResetLoading);
+		window.addEventListener('focus', handleResetLoading);
+		const onVisibility = () => {
+			if (document.visibilityState === 'visible') handleResetLoading();
+		};
+		document.addEventListener('visibilitychange', onVisibility);
+
+		// Read any OAuth error description passed in URL params or hash
+		try {
+			const hash = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : '';
+			const search = window.location.search.startsWith('?') ? window.location.search.slice(1) : '';
+			const params = new URLSearchParams(hash || search);
+			const errDesc = params.get('error_description') || params.get('error');
+			if (errDesc) {
+				errorMessage = decodeURIComponent(errDesc.replace(/\+/g, ' '));
+				isGoogleLoading = false;
+				isEmailLoading = false;
+			}
+		} catch {}
+
+		return () => {
+			window.removeEventListener('pageshow', handleResetLoading);
+			window.removeEventListener('focus', handleResetLoading);
+			document.removeEventListener('visibilitychange', onVisibility);
+		};
 	});
 
 	function handleRandomCallsign() {
@@ -91,15 +132,24 @@
 		mode = newMode;
 		errorMessage = '';
 		emailSent = false;
+		isGoogleLoading = false;
+		isEmailLoading = false;
 	}
 
 	async function handleGoogleSignIn() {
 		if (loading) return;
 		errorMessage = '';
 		isGoogleLoading = true;
+
+		// Safety timeout so user is never frozen if navigation is aborted or returned
+		const timer = setTimeout(() => {
+			isGoogleLoading = false;
+		}, 7000);
+
 		try {
 			await auth.signInWithGoogle();
 		} catch (err: any) {
+			clearTimeout(timer);
 			errorMessage = err?.message || 'Google sign-in failed. Please verify provider settings or use email.';
 			isGoogleLoading = false;
 		}
