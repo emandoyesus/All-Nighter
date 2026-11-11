@@ -2,14 +2,33 @@ import type { Night, ArchiveTrack } from './archive';
 
 const LS_MY_NIGHTS = 'an.my_nights';
 
+/** Slug filter to exclude developer test sessions and keep only canonical archives like Log #001 */
+export function isTestArchiveSlug(slug: string): boolean {
+	const s = (slug || '').trim().toLowerCase();
+	return (
+		s === 'k' ||
+		s.startsWith('k-') ||
+		s === 'skubidu' ||
+		s.startsWith('skubidu-') ||
+		s === 'sunshine' ||
+		s.startsWith('sunshine-') ||
+		s === 'first-night' ||
+		s.startsWith('first-night-') ||
+		s === 'triumph' ||
+		s.startsWith('triumph-') ||
+		s === 'trial' ||
+		s.startsWith('trial-') ||
+		s === 'test' ||
+		s.startsWith('test-')
+	);
+}
+
 export function loadMyNights(): Night[] {
-	if (typeof window === 'undefined') return [];
-	try {
-		const raw = localStorage.getItem(LS_MY_NIGHTS);
-		if (!raw) return [];
-		const parsed = JSON.parse(raw);
-		if (Array.isArray(parsed)) return parsed;
-	} catch {}
+	if (typeof window !== 'undefined') {
+		try {
+			localStorage.removeItem(LS_MY_NIGHTS);
+		} catch {}
+	}
 	return [];
 }
 

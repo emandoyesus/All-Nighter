@@ -46,11 +46,11 @@
 		const hour = parseInt(parts.find((p) => p.type === 'hour')?.value ?? '0', 10);
 		const minute = parts.find((p) => p.type === 'minute')?.value ?? '00';
 
-		// Night starts at 19:00 (sunset) through sunrise (06:00/07:00)
+		// Night starts at 18:00 (sunset) through sunrise (06:00/07:00)
 		const isDeepNight = hour >= 23 || hour < 5;
-		const isNightEvening = hour >= 19 && hour < 23;
+		const isNightEvening = hour >= 18 && hour < 23;
 		const isDawn = hour >= 5 && hour < 7;
-		const isNight = hour >= 19 || hour < 6;
+		const isNight = hour >= 18 || hour < 6;
 
 		let phase: 'deep night' | 'night' | 'dawn' | 'daylight' = 'daylight';
 		if (isDeepNight) {

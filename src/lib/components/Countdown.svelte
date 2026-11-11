@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { DAWN } from '#lib/config';
+	import { DAWN, SUNSET, areDoorsOpen } from '#lib/config';
 	import IconSun from '@tabler/icons-svelte/icons/sun';
 	import IconPencil from '@tabler/icons-svelte/icons/pencil';
 	import IconCheck from '@tabler/icons-svelte/icons/check';
@@ -8,8 +8,8 @@
 	import IconFlame from '@tabler/icons-svelte/icons/flame';
 	import IconBolt from '@tabler/icons-svelte/icons/bolt';
 
-	type CountdownPhase = 'pre_midnight' | 'session_active' | 'sunrise';
-	type PhaseMode = 'auto' | 'pre_midnight' | 'session_active';
+	type CountdownPhase = 'pre_sunset' | 'session_active' | 'sunrise';
+	type PhaseMode = 'auto' | 'pre_sunset' | 'session_active';
 
 	interface Props {
 		size?: 'compact' | 'big';
@@ -40,8 +40,8 @@
 			if (typeof window !== 'undefined') {
 				const params = new URLSearchParams(window.location.search);
 				const p = params.get('phase');
-				if (p === 'pre_midnight' || p === 'session_active') {
-					return p;
+				if (p === 'pre_sunset' || p === 'session_active' || p === 'pre_midnight') {
+					return p === 'pre_midnight' ? 'pre_sunset' : (p as PhaseMode);
 				}
 			}
 		} catch {}
@@ -50,7 +50,7 @@
 
 	let dawn = $state(loadDawn());
 	let phaseMode = $state<PhaseMode>(loadPhaseMode());
-	let currentPhase = $state<CountdownPhase>('pre_midnight');
+	let currentPhase = $state<CountdownPhase>('pre_sunset');
 
 	let editing = $state(false);
 	let editH = $state(0);
@@ -94,37 +94,43 @@
 
 		isSunrise = false;
 
-		// Session hours are from 00:00 to Dawn (e.g. 06:00)
-		const isSessionHours =
-			now.getHours() >= 0 &&
-			(now.getHours() < dawn.h || (now.getHours() === dawn.h && now.getMinutes() < dawn.m));
+		// Doors open at sunset (18:00) until morning dawn (default 06:00)
+		const isSessionHours = areDoorsOpen(now);
 
-		const autoPhase: CountdownPhase = isSessionHours ? 'session_active' : 'pre_midnight';
+		const autoPhase: CountdownPhase = isSessionHours ? 'session_active' : 'pre_sunset';
 		currentPhase = phaseMode === 'auto' ? autoPhase : phaseMode;
 
-		if (currentPhase === 'pre_midnight') {
-			// COUNTDOWN 1: WAITING FOR MIDNIGHT (Session Start)
-			const midnight = new Date(now);
-			midnight.setHours(24, 0, 0, 0); // 00:00:00 of next day
-			const remainingMs = Math.max(0, midnight.getTime() - now.getTime());
+		if (currentPhase === 'pre_sunset') {
+			// COUNTDOWN 1: WAITING FOR SUNSET (18:00 Doors Open)
+			const sunset = new Date(now);
+			sunset.setHours(SUNSET.h, SUNSET.m, 0, 0);
+			if (now.getTime() >= sunset.getTime()) {
+				sunset.setDate(sunset.getDate() + 1);
+			}
+			const remainingMs = Math.max(0, sunset.getTime() - now.getTime());
 			left = format(remainingMs);
 
-			// Full daytime inter-session window from Dawn (06:00) to Midnight (24:00)
-			const totalPrepMs = Math.max(1000, midnight.getTime() - todayDawn.getTime());
-			const elapsedMs = Math.max(0, now.getTime() - todayDawn.getTime());
+			// Daytime window from morning Dawn (06:00) to Sunset (18:00) - 12 hours
+			const dayStart = new Date(todayDawn);
+			if (now.getTime() < dayStart.getTime()) {
+				dayStart.setDate(dayStart.getDate() - 1);
+			}
+			const totalPrepMs = Math.max(1000, sunset.getTime() - dayStart.getTime());
+			const elapsedMs = Math.max(0, now.getTime() - dayStart.getTime());
 			progress = Math.min(100, Math.max(0, (elapsedMs / totalPrepMs) * 100));
 		} else {
 			// COUNTDOWN 2: ACTIVE SESSION TILL DAWN (Session Finish)
 			const nextDawn = new Date(todayDawn);
-			if (now.getTime() >= todayDawn.getTime() && now.getHours() >= dawn.h) {
+			if (now.getTime() >= todayDawn.getTime()) {
 				nextDawn.setDate(nextDawn.getDate() + 1);
 			}
 			const remainingMs = Math.max(0, nextDawn.getTime() - now.getTime());
 			left = format(remainingMs);
 
-			// 6-hour night session from 00:00 to Dawn
+			// Night window from Sunset (18:00) to Dawn (06:00) - 12 hours
 			const nightStart = new Date(nextDawn);
-			nightStart.setHours(0, 0, 0, 0);
+			nightStart.setDate(nightStart.getDate() - 1);
+			nightStart.setHours(SUNSET.h, SUNSET.m, 0, 0);
 			const totalNightMs = Math.max(1000, nextDawn.getTime() - nightStart.getTime());
 			const elapsedMs = Math.max(0, now.getTime() - nightStart.getTime());
 			progress = Math.min(100, Math.max(0, (elapsedMs / totalNightMs) * 100));
@@ -138,9 +144,9 @@
 	let remainingText = $derived.by(() => {
 		const h = parseInt(hStr, 10) || 0;
 		const m = parseInt(mStr, 10) || 0;
-		if (currentPhase === 'pre_midnight') {
-			if (h === 0) return `${m}m to midnight`;
-			return `${h}h ${m}m to midnight`;
+		if (currentPhase === 'pre_sunset') {
+			if (h === 0) return `${m}m to sunset`;
+			return `${h}h ${m}m to sunset`;
 		} else {
 			if (h === 0) return `${m}m till dawn`;
 			return `${h}h ${m}m till dawn`;
@@ -197,8 +203,8 @@
 					<span class="h-2 w-2 rounded-full bg-lamp"></span>
 					<div>
 						<div class="flex items-center gap-1.5">
-							{#if currentPhase === 'pre_midnight'}
-								<p class="num text-[10px] font-mono uppercase tracking-[0.22em] text-lamp font-semibold">Doors open at midnight</p>
+							{#if currentPhase === 'pre_sunset'}
+								<p class="num text-[10px] font-mono uppercase tracking-[0.22em] text-lamp font-semibold">Doors open at sunset (18:00)</p>
 								<span class="text-faint/60">·</span>
 								<p class="text-xs font-medium text-cream">Countdown to session</p>
 							{:else}
@@ -213,10 +219,10 @@
 				<div class="flex flex-wrap items-center gap-2">
 					<!-- Target Pill -->
 					{#if !editing}
-						{#if currentPhase === 'pre_midnight'}
+						{#if currentPhase === 'pre_sunset'}
 							<span class="inline-flex items-center gap-1 rounded-full border border-lamp/25 bg-lamp/10 px-2.5 py-1 text-xs text-lamp font-mono">
-								<span>00:00</span>
-								<span class="text-[10px] uppercase tracking-wider text-lamp/80">midnight</span>
+								<span>18:00</span>
+								<span class="text-[10px] uppercase tracking-wider text-lamp/80">sunset</span>
 							</span>
 						{:else}
 							<button
@@ -240,10 +246,10 @@
 
 			<!-- Dynamic Phase Alert Banner (Transforms when session starts) -->
 			<div class="flex items-center">
-				{#if currentPhase === 'pre_midnight'}
+				{#if currentPhase === 'pre_sunset'}
 					<div class="inline-flex items-center gap-2 rounded-full border border-lamp/25 bg-lamp/10 px-3 py-1 text-xs text-cream">
 						<IconFlame size={13} stroke={2} class="text-lamp" />
-						<span>Pre-session countdown: doors unlock tonight at <strong class="text-lamp font-mono font-medium">00:00 midnight</strong></span>
+						<span>Pre-session countdown: doors unlock tonight at <strong class="text-lamp font-mono font-medium">18:00 sunset</strong></span>
 					</div>
 				{:else}
 					<div class="inline-flex items-center gap-2 rounded-full border border-amber/30 bg-amber/10 px-3 py-1 text-xs text-cream">
@@ -385,7 +391,7 @@
 
 					<!-- Milestones -->
 					<div class="mt-3 flex justify-between font-mono text-[10px] uppercase tracking-wider text-faint">
-						{#if currentPhase === 'pre_midnight'}
+						{#if currentPhase === 'pre_sunset'}
 							<div class="flex flex-col items-start gap-0.5">
 								<span class="flex items-center gap-1.5 {progress >= 0 ? 'text-lamp font-medium' : ''}">
 									<span class="h-1.5 w-1.5 rounded-full {progress >= 0 ? 'bg-lamp' : 'bg-cream/20'}"></span>
@@ -396,45 +402,45 @@
 							<div class="flex flex-col items-center gap-0.5">
 								<span class="flex items-center gap-1.5 {progress >= 33 ? 'text-lamp font-medium' : ''}">
 									<span class="h-1.5 w-1.5 rounded-full {progress >= 33 ? 'bg-lamp' : 'bg-cream/20'}"></span>
-									<span>12:00</span>
+									<span>10:00</span>
 								</span>
-								<span class="text-[9px] text-faint/80">Midday</span>
+								<span class="text-[9px] text-faint/80">Morning</span>
 							</div>
 							<div class="flex flex-col items-center gap-0.5">
 								<span class="flex items-center gap-1.5 {progress >= 66 ? 'text-lamp font-medium' : ''}">
 									<span class="h-1.5 w-1.5 rounded-full {progress >= 66 ? 'bg-lamp' : 'bg-cream/20'}"></span>
-									<span>18:00</span>
+									<span>14:00</span>
 								</span>
-								<span class="text-[9px] text-faint/80">Sunset</span>
+								<span class="text-[9px] text-faint/80">Afternoon</span>
 							</div>
 							<div class="flex flex-col items-end gap-0.5">
 								<span class="flex items-center gap-1.5 {progress >= 95 ? 'text-amber font-semibold' : ''}">
 									<span class="h-1.5 w-1.5 rounded-full {progress >= 95 ? 'bg-amber soft-blink' : 'bg-cream/20'}"></span>
-									<span>00:00</span>
+									<span>18:00</span>
 								</span>
-								<span class="text-[9px] text-faint/80 pr-3">Midnight</span>
+								<span class="text-[9px] text-faint/80 pr-3">Sunset</span>
 							</div>
 						{:else}
 							<div class="flex flex-col items-start gap-0.5">
 								<span class="flex items-center gap-1.5 {progress >= 0 ? 'text-lamp font-medium' : ''}">
 									<span class="h-1.5 w-1.5 rounded-full {progress >= 0 ? 'bg-lamp' : 'bg-cream/20'}"></span>
-									<span>00:00</span>
+									<span>18:00</span>
 								</span>
 								<span class="text-[9px] text-faint/80 pl-3">Doors Open</span>
 							</div>
 							<div class="flex flex-col items-center gap-0.5">
 								<span class="flex items-center gap-1.5 {progress >= 33 ? 'text-lamp font-medium' : ''}">
 									<span class="h-1.5 w-1.5 rounded-full {progress >= 33 ? 'bg-lamp' : 'bg-cream/20'}"></span>
-									<span>02:00</span>
+									<span>22:00</span>
 								</span>
-								<span class="text-[9px] text-faint/80">Deep Night</span>
+								<span class="text-[9px] text-faint/80">Nightfall</span>
 							</div>
 							<div class="flex flex-col items-center gap-0.5">
 								<span class="flex items-center gap-1.5 {progress >= 66 ? 'text-lamp font-medium' : ''}">
 									<span class="h-1.5 w-1.5 rounded-full {progress >= 66 ? 'bg-lamp' : 'bg-cream/20'}"></span>
-									<span>04:00</span>
+									<span>02:00</span>
 								</span>
-								<span class="text-[9px] text-faint/80">Witching Hour</span>
+								<span class="text-[9px] text-faint/80">Deep Night</span>
 							</div>
 							<div class="flex flex-col items-end gap-0.5">
 								<span class="flex items-center gap-1.5 {progress >= 95 ? 'text-amber font-semibold' : ''}">
@@ -455,7 +461,7 @@
 							{Math.round(progress)}% complete
 						</span>
 						<span class="text-faint text-[11px] hidden sm:inline">
-							{currentPhase === 'pre_midnight' ? 'daytime prep' : 'night session'}
+							{currentPhase === 'pre_sunset' ? 'daytime prep' : 'night session'}
 						</span>
 					</div>
 					<div class="flex items-center gap-2 text-taupe text-[11px]">
@@ -495,8 +501,8 @@
 		<div class="panel p-3.5 sm:p-4">
 			<div class="flex items-center justify-between">
 				<p class="text-xs text-taupe font-mono">
-					{#if currentPhase === 'pre_midnight'}
-						till midnight (00:00)
+					{#if currentPhase === 'pre_sunset'}
+						till sunset (18:00)
 					{:else}
 						till <span class="text-amber font-medium">sunrise ({String(dawn.h).padStart(2, '0')}:{String(dawn.m).padStart(2, '0')})</span>
 					{/if}
@@ -549,7 +555,7 @@
 				<div class="mb-1 flex items-center justify-between font-mono text-[10px]">
 					<span class="inline-flex items-center gap-1 text-faint">
 						<span class="h-1.5 w-1.5 rounded-full bg-lamp {currentPhase === 'session_active' ? 'soft-blink' : ''}"></span>
-						<span>{currentPhase === 'pre_midnight' ? 'Daytime prep' : 'Night timeline'}</span>
+						<span>{currentPhase === 'pre_sunset' ? 'Daytime prep' : 'Night timeline'}</span>
 					</span>
 					<span class="text-cream font-medium">
 						{Math.round(progress)}% · {remainingText}

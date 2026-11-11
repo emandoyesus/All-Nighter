@@ -1,11 +1,9 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import Nav from '#lib/components/Nav.svelte';
 	import PlaylistExport from '#lib/components/PlaylistExport.svelte';
 	import { reveal } from '#lib/reveal';
 	import { splitReveal } from '#lib/split-reveal';
-	import { nights, type Night } from '#lib/data/archive';
-	import { loadMyNights } from '#lib/data/local-logbook';
+	import type { Night } from '#lib/data/archive';
 	import type { PageData } from './$types';
 	import IconArrowLeft from '@tabler/icons-svelte/icons/arrow-left';
 	import IconClock from '@tabler/icons-svelte/icons/clock';
@@ -22,20 +20,7 @@
 	let { data }: { data: PageData } = $props();
 	const night = $derived(data.night);
 
-	let myNights = $state<Night[]>([]);
-	onMount(() => {
-		myNights = loadMyNights();
-	});
-
-	const logNumber = $derived.by(() => {
-		const combined = [...nights];
-		for (const mn of myNights) {
-			if (!combined.some((n) => n.slug === mn.slug)) combined.push(mn);
-		}
-		combined.sort((a, b) => new Date(a.iso).getTime() - new Date(b.iso).getTime());
-		const idx = combined.findIndex((n) => n.slug === night.slug || n.iso === night.iso);
-		return idx !== -1 ? idx + 1 : 1;
-	});
+	const logNumber = 1;
 
 	const genre = $derived.by(() => {
 		const counts = new Map<string, number>();

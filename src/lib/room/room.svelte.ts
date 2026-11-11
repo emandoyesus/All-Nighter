@@ -7,6 +7,7 @@ import {
 	PRESENCE_TTL,
 	REQUEST_TICK,
 	REQUEST_TTL,
+	areDoorsOpen,
 	isDawnReached,
 	isRoomPastDawn
 } from '#lib/config';
@@ -1114,6 +1115,14 @@ class Room {
 		customKey?: string,
 		autoArchive = true
 	): Promise<void> {
+		if (!areDoorsOpen()) {
+			this.roomAlert = {
+				type: 'error',
+				message: 'Doors unlock at sunset (18:00). Rooms cannot be created during daytime.'
+			};
+			return;
+		}
+
 		if (!auth.isCloudUser && !auth.user) {
 			console.warn('[room] Must be signed in with an account to create a room');
 			if (typeof window !== 'undefined') {
@@ -1191,6 +1200,14 @@ class Room {
 
 	/** Claim an unhosted or deserted room and step inside as host. */
 	claimRoom(slug: string, title?: string): void {
+		if (!areDoorsOpen()) {
+			this.roomAlert = {
+				type: 'error',
+				message: 'Doors unlock at sunset (18:00). Rooms cannot be claimed during daytime.'
+			};
+			return;
+		}
+
 		if (!auth.isCloudUser && !auth.user) {
 			console.warn('[room] Must be signed in with an account to claim a room');
 			if (typeof window !== 'undefined') {

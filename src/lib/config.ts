@@ -15,7 +15,7 @@ export const DEFAULT_ROOM = 'cafe-404';
 export const DAWN = { h: 6, m: 0 };
 export const MIDDAY = { h: 12, m: 0 };
 export const SUNSET = { h: 18, m: 0 };
-export const NIGHT_START = { h: 0, m: 0 }; // Midnight lock-in start
+export const NIGHT_START = { h: 18, m: 0 }; // Sunset doors open: 18:00
 
 export const LS_DAWN = 'an.dawn_time';
 
@@ -39,17 +39,58 @@ export function getDawnTarget(): { h: number; m: number } {
 }
 
 /**
+ * Returns true if doors are open (night session active from sunset 18:00 until morning dawn/sunrise).
+ * During daytime (between dawn 06:00 and sunset 18:00), doors are closed and rooms cannot be created.
+ */
+export function areDoorsOpen(now = new Date()): boolean {
+	const dawn = getDawnTarget();
+	const h = now.getHours();
+	const m = now.getMinutes();
+
+	// Evening: from sunset (18:00) until 23:59:59
+	if (h > SUNSET.h || (h === SUNSET.h && m >= SUNSET.m)) {
+		return true;
+	}
+	// Deep night: from midnight (00:00) until morning dawn (default 06:00)
+	if (h < dawn.h || (h === dawn.h && m < dawn.m)) {
+		return true;
+	}
+	// Daytime: between dawn and sunset (doors closed)
+	return false;
+}
+
+/**
  * Returns true if dawn has been reached for the night session
- * (i.e. daytime post-dawn: from dawn until midnight).
- * Between 00:00 (midnight) and dawn (default 06:00), the session is active night.
+ * (i.e. daytime post-dawn: from dawn until sunset 18:00).
+ * Once sunset (18:00) arrives, doors open and the new night session begins.
  */
 export function isDawnReached(now = new Date()): boolean {
-	const dawn = getDawnTarget();
-	const isNightLockIn =
-		now.getHours() >= 0 &&
-		(now.getHours() < dawn.h || (now.getHours() === dawn.h && now.getMinutes() < dawn.m));
+	return !areDoorsOpen(now);
+}
 
-	return !isNightLockIn;
+/**
+ * Returns the Date of the upcoming sunset (18:00).
+ */
+export function getNextSunset(now = new Date()): Date {
+	const sunset = new Date(now);
+	sunset.setHours(SUNSET.h, SUNSET.m, 0, 0);
+	if (now.getTime() >= sunset.getTime()) {
+		sunset.setDate(sunset.getDate() + 1);
+	}
+	return sunset;
+}
+
+/**
+ * Returns the Date of the upcoming dawn/sunrise.
+ */
+export function getNextDawn(now = new Date()): Date {
+	const dawn = getDawnTarget();
+	const nextDawn = new Date(now);
+	nextDawn.setHours(dawn.h, dawn.m, 0, 0);
+	if (now.getTime() >= nextDawn.getTime()) {
+		nextDawn.setDate(nextDawn.getDate() + 1);
+	}
+	return nextDawn;
 }
 
 /**

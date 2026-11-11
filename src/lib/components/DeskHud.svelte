@@ -3,7 +3,7 @@
 	import { asset } from '$app/paths';
 	import { room } from '#lib/room/room.svelte';
 	import { siteAudio } from '#lib/audio/site-audio.svelte';
-	import { DAWN } from '#lib/config';
+	import { DAWN, SUNSET, areDoorsOpen } from '#lib/config';
 	import { thumbnailFor } from '#lib/room/youtube';
 	import IconMinimize from '@tabler/icons-svelte/icons/minimize';
 	import IconPlay from '@tabler/icons-svelte/icons/player-play';
@@ -48,8 +48,8 @@
 
 	let dawnLeft = $state('--:--:--');
 	let localClock = $state('');
-	let phase = $state<'pre_midnight' | 'session_active'>('pre_midnight');
-	let targetLabel = $state('countdown to midnight doors open');
+	let phase = $state<'pre_sunset' | 'session_active'>('pre_sunset');
+	let targetLabel = $state('countdown to sunset doors open');
 	let pushedHistory = false;
 
 	function onPopState(): void {
@@ -78,16 +78,17 @@
 		localClock = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
 		const dawn = getDawn();
-		const isSessionHours =
-			now.getHours() >= 0 &&
-			(now.getHours() < dawn.h || (now.getHours() === dawn.h && now.getMinutes() < dawn.m));
+		const isSessionHours = areDoorsOpen(now);
 
 		if (!isSessionHours) {
-			phase = 'pre_midnight';
-			targetLabel = 'countdown to midnight doors open (00:00)';
-			const midnight = new Date(now);
-			midnight.setHours(24, 0, 0, 0);
-			const diff = Math.max(0, midnight.getTime() - now.getTime());
+			phase = 'pre_sunset';
+			targetLabel = 'countdown to sunset doors open (18:00)';
+			const sunset = new Date(now);
+			sunset.setHours(SUNSET.h, SUNSET.m, 0, 0);
+			if (now.getTime() >= sunset.getTime()) {
+				sunset.setDate(sunset.getDate() + 1);
+			}
+			const diff = Math.max(0, sunset.getTime() - now.getTime());
 			const total = Math.floor(diff / 1000);
 			const h = Math.floor(total / 3600);
 			const m = Math.floor((total % 3600) / 60);
@@ -95,9 +96,12 @@
 			dawnLeft = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 		} else {
 			phase = 'session_active';
-			targetLabel = `countdown to sunrise (${String(dawn.h).padStart(2, '0')}:${String(dawn.m).padStart(2, '0')})`;
+			targetLabel = `countdown to sunrise (${String(dawn.h).padStart(2, '0')}:{String(dawn.m).padStart(2, '0')})`;
 			const todayDawn = new Date(now);
 			todayDawn.setHours(dawn.h, dawn.m, 0, 0);
+			if (now.getTime() >= todayDawn.getTime()) {
+				todayDawn.setDate(todayDawn.getDate() + 1);
+			}
 			const diff = Math.max(0, todayDawn.getTime() - now.getTime());
 			const total = Math.floor(diff / 1000);
 			const h = Math.floor(total / 3600);

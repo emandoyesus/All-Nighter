@@ -2,13 +2,14 @@
 	import { onMount } from 'svelte';
 	import { room, sanitizeRoom, generateRoomKey } from '#lib/room/room.svelte';
 	import type { RoomAd } from '#lib/room/types';
-	import { isRoomPastDawn } from '#lib/config';
+	import { isRoomPastDawn, areDoorsOpen, getNextSunset } from '#lib/config';
 	import { auth } from '#lib/auth.svelte';
 	import { supabase } from '#lib/supabase';
 	import IconPlus from '@tabler/icons-svelte/icons/plus';
 	import IconDoorEnter from '@tabler/icons-svelte/icons/door-enter';
 	import IconUsers from '@tabler/icons-svelte/icons/users';
 	import IconMoon from '@tabler/icons-svelte/icons/moon';
+	import IconSunset from '@tabler/icons-svelte/icons/sunset';
 	import IconCopy from '@tabler/icons-svelte/icons/copy';
 	import IconCheck from '@tabler/icons-svelte/icons/check';
 	import IconWorld from '@tabler/icons-svelte/icons/world';
@@ -130,9 +131,30 @@
 		}
 	}
 
+	let nowTime = $state(new Date());
+	let doorsOpen = $derived(areDoorsOpen(nowTime));
+
+	function formatRemaining(ms: number): string {
+		const total = Math.max(0, Math.floor(ms / 1000));
+		const h = Math.floor(total / 3600);
+		const m = Math.floor((total % 3600) / 60);
+		const s = total % 60;
+		return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+	}
+
+	let sunsetCountdown = $derived.by(() => {
+		const nextSunset = getNextSunset(nowTime);
+		const diff = Math.max(0, nextSunset.getTime() - nowTime.getTime());
+		return formatRemaining(diff);
+	});
+
 	onMount(() => {
 		void loadAllDbRooms();
 		void loadMyRooms();
+		const timer = setInterval(() => {
+			nowTime = new Date();
+		}, 1000);
+		return () => clearInterval(timer);
 	});
 
 	$effect(() => {
@@ -214,6 +236,10 @@
 
 	function create(event: SubmitEvent): void {
 		event.preventDefault();
+		if (!doorsOpen) {
+			nameError = `Doors unlock at sunset (18:00). Rooms cannot be created during daytime (${sunsetCountdown} remaining).`;
+			return;
+		}
 		if (!auth.isCloudUser && !auth.user) {
 			nameError = 'Sign in required to create and host a room.';
 			window.dispatchEvent(new CustomEvent('an:open-auth-modal', { detail: { mode: 'signin' } }));
@@ -432,11 +458,25 @@
 		{:else}
 			<div class="mt-6 flex flex-1 flex-col items-center justify-center rounded-field border border-dashed border-cream/15 px-6 py-12 text-center">
 				<span class="grid h-11 w-11 place-items-center rounded-full bg-night/70 text-faint">
-					<IconMoon size={20} stroke={1.5} />
+					{#if !doorsOpen}
+						<IconSunset size={20} stroke={1.5} class="text-amber/80" />
+					{:else}
+						<IconMoon size={20} stroke={1.5} />
+					{/if}
 				</span>
-				<p class="mt-4 text-sm text-cream">Nobody's lit up yet.</p>
+				<p class="mt-4 text-sm text-cream">
+					{#if !doorsOpen}
+						Doors open at sunset (18:00).
+					{:else}
+						Nobody's lit up yet.
+					{/if}
+				</p>
 				<p class="mt-1.5 max-w-[34ch] text-xs leading-relaxed text-faint">
-					Open a room and the night starts with you.
+					{#if !doorsOpen}
+						The lock-in sanctuary unlocks when the sun goes down. Check back at 18:00 to step inside.
+					{:else}
+						Open a room and the night starts with you.
+					{/if}
 				</p>
 			</div>
 		{/if}
@@ -509,6 +549,30 @@
 				</div>
 			</div>
 		{:else}
+			{#if !doorsOpen}
+				<div class="rounded-xl border border-amber/35 bg-gradient-to-b from-amber/15 via-[#111618] to-night-2 p-4 text-center flex flex-col items-center gap-2.5 animate-in fade-in duration-200">
+					<span class="grid h-10 w-10 place-items-center rounded-xl border border-amber/40 bg-amber/20 text-amber shadow-sm">
+						<IconSunset size={20} stroke={1.8} />
+					</span>
+					<div>
+						<div class="inline-flex items-center gap-1.5 rounded-full border border-amber/30 bg-amber/10 px-2 py-0.5 text-[10px] font-mono text-amber mb-1">
+							<span class="h-1.5 w-1.5 rounded-full bg-amber soft-blink"></span>
+							Doors unlock at 18:00 sunset
+						</div>
+						<h3 class="text-sm font-semibold text-cream">Rooms open when the sun goes down</h3>
+						<p class="mt-0.5 text-[11px] text-taupe max-w-[32ch] leading-relaxed">
+							Daylight hours are for preparation — new room creation unlocks promptly at sunset (18:00).
+						</p>
+					</div>
+
+					<div class="w-full max-w-[240px] rounded-lg border border-cream/10 bg-night-3/90 p-2 font-mono text-center shadow-inner">
+						<p class="text-[9px] text-faint uppercase tracking-wider">Countdown to sunset</p>
+						<p class="num text-xl font-bold tracking-tight text-amber mt-0.5">{sunsetCountdown}</p>
+						<p class="text-[9px] text-faint mt-0.5">18:00 local time</p>
+					</div>
+				</div>
+			{/if}
+
 			{#if limitAttempted && hasReachedLimit}
 				<div class="rounded-xl border border-amber/30 bg-amber/10 p-3 sm:p-3.5 text-xs text-cream space-y-1 animate-in fade-in duration-150">
 					<p class="font-semibold text-amber flex items-center gap-1.5">
@@ -664,10 +728,16 @@
 				<button
 					type="submit"
 					class="btn btn-amber w-full font-medium disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
-					disabled={!slug}
+					disabled={!slug || !doorsOpen}
+					title={!doorsOpen ? 'Doors unlock at sunset (18:00)' : undefined}
 				>
-					<IconPlus size={16} stroke={1.5} />
-					{isPrivate ? 'Create Private Room' : 'Create a room'}
+					{#if !doorsOpen}
+						<IconSunset size={16} stroke={1.8} />
+						<span>Doors Open at 18:00 Sunset ({sunsetCountdown})</span>
+					{:else}
+						<IconPlus size={16} stroke={1.5} />
+						<span>{isPrivate ? 'Create Private Room' : 'Create a room'}</span>
+					{/if}
 				</button>
 			</form>
 		{/if}

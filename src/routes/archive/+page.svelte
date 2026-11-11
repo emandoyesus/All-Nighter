@@ -4,9 +4,6 @@
 	import ArchiveStats from '#lib/components/ArchiveStats.svelte';
 	import { nights, genres, contributors } from '#lib/data/archive';
 	import type { Night } from '#lib/data/archive';
-	import { loadMyNights, dbArchiveToNight } from '#lib/data/local-logbook';
-	import { supabase } from '#lib/supabase';
-	import { auth } from '#lib/auth.svelte';
 	import { reveal } from '#lib/reveal';
 	import { splitReveal } from '#lib/split-reveal';
 	import IconArrowLeft from '@tabler/icons-svelte/icons/arrow-left';
@@ -32,106 +29,29 @@
 	let dbNights = $state<Night[]>([]);
 
 	async function loadDbArchives(): Promise<void> {
-		if (!supabase) return;
-		try {
-			// 1. Fetch from session_archives
-			const { data: archives } = await supabase
-				.from('session_archives')
-				.select('*')
-				.order('ended_at', { ascending: false });
-
-			const loaded: Night[] = [];
-			const seenSlugs = new Set<string>();
-
-			if (archives && archives.length > 0) {
-				for (const a of archives) {
-					seenSlugs.add(a.slug);
-					loaded.push(dbArchiveToNight(a));
-				}
-			}
-
-			// 2. Also fetch any rooms marked 'archived' in rooms table that might not be in session_archives yet
-			const { data: archivedRooms } = await supabase
-				.from('rooms')
-				.select('*')
-				.eq('status', 'archived')
-				.order('created_at', { ascending: false });
-
-			if (archivedRooms && archivedRooms.length > 0) {
-				for (const r of archivedRooms) {
-					if (!seenSlugs.has(r.slug)) {
-						seenSlugs.add(r.slug);
-						loaded.push(
-							dbArchiveToNight({
-								slug: r.slug,
-								title: r.title || r.slug,
-								started_at: r.created_at,
-								ended_at: r.closed_at || new Date().toISOString(),
-								attendees: [r.host_name || 'Host'],
-								playlist: r.playback_state?.queue || [],
-								summary: 'Overnight lock-in session archived at sunrise'
-							})
-						);
-					}
-				}
-			}
-
-			dbNights = loaded;
-		} catch (err) {
-			console.warn('[Archive] Failed to load db archives:', err);
-		}
+		dbNights = [];
 	}
 
 	onMount(() => {
-		myLocalNights = loadMyNights();
-		void loadDbArchives();
+		if (typeof localStorage !== 'undefined') {
+			try {
+				localStorage.removeItem('an.my_nights');
+			} catch {}
+		}
+		myLocalNights = [];
+		dbNights = [];
 	});
 
 	const myNights = $derived.by(() => {
-		const currentName = (auth.displayName || '').trim().toLowerCase();
-		const seen = new Set<string>();
-		const result: Night[] = [];
-
-		for (const n of myLocalNights) {
-			if (!seen.has(n.slug)) {
-				seen.add(n.slug);
-				result.push(n);
-			}
-		}
-
-		if (currentName) {
-			for (const dn of dbNights) {
-				if (!seen.has(dn.slug)) {
-					const isParticipant =
-						dn.joined.some((name) => name.trim().toLowerCase() === currentName) ||
-						dn.tracklist.some((t) => t.addedBy.trim().toLowerCase() === currentName);
-					if (isParticipant) {
-						seen.add(dn.slug);
-						result.push(dn);
-					}
-				}
-			}
-		}
-
-		return result;
+		return [...nights];
 	});
 
 	const allNights = $derived.by(() => {
-		const seen = new Set<string>();
-		const result: Night[] = [];
-		for (const item of [...dbNights, ...myLocalNights, ...nights]) {
-			if (!seen.has(item.slug)) {
-				seen.add(item.slug);
-				result.push(item);
-			}
-		}
-		return result;
+		return [...nights];
 	});
 
 	const baseNights = $derived.by(() => {
-		if (sourceTab === 'my') return myNights;
-		if (sourceTab === 'curated') return nights;
-		return allNights;
+		return [...nights];
 	});
 
 	const months = $derived(

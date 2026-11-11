@@ -84,7 +84,8 @@ npm run preview
 
 Core defaults can be adjusted in [`src/lib/config.ts`](src/lib/config.ts):
 - `DEFAULT_ROOM`: Default room name when none is provided in the URL.
-- `DAWN`: Target sunrise hour and minute (defaults to 06:00).
+- `SUNSET`: Doors open hour and minute (defaults to 18:00 sunset, when rooms unlock and lock-in begins).
+- `DAWN`: Target sunrise hour and minute (defaults to 06:00, when sessions conclude and archive).
 - `MQTT_BROKERS`: List of WebSocket MQTT brokers for peer state broadcast.
 - `DRIFT_TOLERANCE`: Playhead drift tolerance (in seconds) before synchronization adjustments occur.
 - `TELEGRAM_URL`: Telegram community invite link.

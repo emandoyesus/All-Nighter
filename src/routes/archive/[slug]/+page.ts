@@ -1,48 +1,11 @@
 import { nights } from '#lib/data/archive';
-import { loadMyNights, dbArchiveToNight } from '#lib/data/local-logbook';
-import { supabase } from '#lib/supabase';
 import { error } from '@sveltejs/kit';
 import type { EntryGenerator, PageLoad } from './$types';
 
 export const entries: EntryGenerator = () => nights.map((night) => ({ slug: night.slug }));
 
 export const load: PageLoad = async ({ params }) => {
-	let night = nights.find((item) => item.slug === params.slug);
-	if (!night && typeof window !== 'undefined') {
-		const myNights = loadMyNights();
-		night = myNights.find((item) => item.slug === params.slug);
-	}
-	if (!night && supabase && typeof window !== 'undefined') {
-		try {
-			const { data } = await supabase
-				.from('session_archives')
-				.select('*')
-				.eq('slug', params.slug)
-				.maybeSingle();
-			if (data) {
-				night = dbArchiveToNight(data);
-			} else {
-				const { data: roomData } = await supabase
-					.from('rooms')
-					.select('*')
-					.eq('slug', params.slug)
-					.maybeSingle();
-				if (roomData) {
-					night = dbArchiveToNight({
-						slug: roomData.slug,
-						title: roomData.title || roomData.slug,
-						started_at: roomData.created_at,
-						ended_at: roomData.closed_at || new Date().toISOString(),
-						attendees: [roomData.host_name || 'Host'],
-						playlist: roomData.playback_state?.queue || [],
-						summary: 'Overnight lock-in session archived at sunrise'
-					});
-				}
-			}
-		} catch (err) {
-			console.warn('[ArchiveDetail] Failed to load from Supabase:', err);
-		}
-	}
+	const night = nights.find((item) => item.slug === params.slug);
 	if (!night) error(404, 'That night is not in the logbook.');
 	return { night };
 };
