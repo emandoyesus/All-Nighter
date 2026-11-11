@@ -1,6 +1,22 @@
 import { supabase, isSupabaseConfigured } from '#lib/supabase';
 import type { User, Session } from '@supabase/supabase-js';
 
+export function extractGoogleFirstName(metadata: any, email?: string | null): string {
+	if (!metadata && !email) return '';
+	if (metadata?.given_name && typeof metadata.given_name === 'string') {
+		const given = metadata.given_name.trim();
+		if (given) return given.split(/\s+/)[0];
+	}
+	const raw =
+		metadata?.full_name ||
+		metadata?.name ||
+		metadata?.user_name ||
+		(email ? email.split('@')[0] : '');
+	if (!raw || typeof raw !== 'string') return '';
+	const trimmed = raw.trim();
+	return trimmed.split(/\s+/)[0] || trimmed;
+}
+
 class AuthService {
 	user = $state<User | null>(null);
 	session = $state<Session | null>(null);
@@ -16,11 +32,10 @@ class AuthService {
 			Boolean(this.user.user_metadata?.iss?.includes('accounts.google.com'));
 
 		if (isGoogle) {
+			const googleFirst = extractGoogleFirstName(this.user.user_metadata, this.user.email);
 			return (
+				googleFirst ||
 				this.user.user_metadata?.callsign ||
-				this.user.user_metadata?.full_name ||
-				this.user.user_metadata?.name ||
-				this.user.user_metadata?.user_name ||
 				this.user.email?.split('@')[0] ||
 				null
 			);
@@ -89,15 +104,11 @@ class AuthService {
 			user.identities?.some((id) => id.provider === 'google') ||
 			Boolean(user.user_metadata?.iss?.includes('accounts.google.com'));
 
-		const googleName =
-			user.user_metadata?.full_name ||
-			user.user_metadata?.name ||
-			user.user_metadata?.user_name ||
-			user.email?.split('@')[0];
+		const googleFirstName = extractGoogleFirstName(user.user_metadata, user.email);
 
-		const resolvedName = isGoogle && googleName
-			? googleName
-			: (user.user_metadata?.callsign || googleName);
+		const resolvedName = isGoogle && googleFirstName
+			? googleFirstName
+			: (user.user_metadata?.callsign || googleFirstName || user.email?.split('@')[0]);
 
 		if (resolvedName) {
 			const cleaned = resolvedName.slice(0, 24).trim();

@@ -25,7 +25,7 @@ import type {
 import { playFocusChime, playBreakChime, playDawnChime } from '#lib/audio/chime';
 import { goto } from '$app/navigation';
 import { SupabaseRoomSync } from './supabase-sync';
-import { auth } from '#lib/auth.svelte';
+import { auth, extractGoogleFirstName } from '#lib/auth.svelte';
 import { supabase, isSupabaseConfigured } from '#lib/supabase';
 import { buildNightFromRoom, saveToMyNights } from '#lib/data/local-logbook';
 import type { Night } from '#lib/data/archive';
@@ -498,14 +498,10 @@ class Room {
 				auth.user.identities?.some((id) => id.provider === 'google') ||
 				Boolean(auth.user.user_metadata?.iss?.includes('accounts.google.com'));
 
-			const googleName =
-				auth.user.user_metadata?.full_name ||
-				auth.user.user_metadata?.name ||
-				auth.user.user_metadata?.user_name ||
-				auth.user.email?.split('@')[0];
+			const googleFirstName = extractGoogleFirstName(auth.user.user_metadata, auth.user.email);
 
-			if (isGoogle && googleName) {
-				const cleaned = googleName.slice(0, 24).trim();
+			if (isGoogle && googleFirstName) {
+				const cleaned = googleFirstName.slice(0, 24).trim();
 				this.name = cleaned;
 				try {
 					localStorage.setItem(LS_NAME, cleaned);
