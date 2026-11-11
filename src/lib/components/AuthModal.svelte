@@ -270,7 +270,10 @@
 		};
 	}
 
+	let mounted = $state(false);
+
 	onMount(() => {
+		mounted = true;
 		refreshStats();
 		const onOpen = (e: Event) => {
 			const custom = e as CustomEvent<{ edit?: boolean }>;
@@ -296,10 +299,10 @@
 	});
 
 	const currentDisplayAvatar = $derived(
-		auth.avatarUrl || room.avatar || '/default-avatar.svg'
+		mounted ? (auth.avatarUrl || room.avatar || '/default-avatar.svg') : '/default-avatar.svg'
 	);
 	const currentDisplayName = $derived(
-		auth.displayName || room.name || 'night-owl'
+		mounted ? (auth.displayName || room.name || 'night-owl') : 'night-owl'
 	);
 </script>
 

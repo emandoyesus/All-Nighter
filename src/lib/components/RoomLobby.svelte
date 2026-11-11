@@ -1,5 +1,7 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { room, sanitizeRoom, generateRoomKey } from '#lib/room/room.svelte';
+	import type { RoomAd } from '#lib/room/types';
 	import { auth } from '#lib/auth.svelte';
 	import { supabase } from '#lib/supabase';
 	import IconPlus from '@tabler/icons-svelte/icons/plus';
@@ -23,24 +25,61 @@
 	}
 
 	let myRooms = $state<MyRoomItem[]>([]);
+	let dbRooms = $state<RoomAd[]>([]);
 	let loadingMyRooms = $state(false);
+
+	async function loadAllDbRooms(): Promise<void> {
+		if (!supabase) return;
+		try {
+			const { data } = await supabase
+				.from('rooms')
+				.select('*')
+				.eq('status', 'active')
+				.order('created_at', { ascending: false })
+				.limit(30);
+
+			if (data && data.length > 0) {
+				dbRooms = data.map((r: any) => ({
+					room: r.slug,
+					title: r.title || r.slug,
+					host: r.host_name || 'host',
+					members: 0,
+					ts: new Date(r.created_at).getTime(),
+					isPrivate: !!r.playback_state?.isPrivate,
+					adminOnlyPlayback: !!r.playback_state?.adminOnlyPlayback
+				}));
+			}
+		} catch (err) {
+			console.warn('[RoomLobby] Failed to load all db rooms:', err);
+		}
+	}
 
 	async function loadMyRooms(): Promise<void> {
 		if (!supabase) return;
 		loadingMyRooms = true;
 		try {
 			const userId = auth.user?.id;
-			if (userId) {
-				const { data } = await supabase
-					.from('rooms')
-					.select('slug, title, created_at')
-					.eq('host_id', userId)
-					.eq('status', 'active')
-					.order('created_at', { ascending: false })
-					.limit(8);
-				if (data) {
-					myRooms = data;
-				}
+			const userName = (auth.displayName || room.name || '').trim();
+
+			let query = supabase
+				.from('rooms')
+				.select('slug, title, created_at, host_name, host_id')
+				.eq('status', 'active');
+
+			if (userId && userName && userName !== 'night-owl' && !userName.startsWith('guest-')) {
+				query = query.or(`host_id.eq.${userId},host_name.eq."${userName}"`);
+			} else if (userId) {
+				query = query.eq('host_id', userId);
+			} else if (userName && userName !== 'night-owl' && !userName.startsWith('guest-')) {
+				query = query.eq('host_name', userName);
+			}
+
+			const { data } = await query
+				.order('created_at', { ascending: false })
+				.limit(10);
+
+			if (data) {
+				myRooms = data;
 			}
 		} catch (err) {
 			console.warn('[RoomLobby] Failed to load my rooms:', err);
@@ -49,11 +88,14 @@
 		}
 	}
 
+	onMount(() => {
+		void loadAllDbRooms();
+		void loadMyRooms();
+	});
+
 	$effect(() => {
-		if (auth.isAuthenticated) {
-			loadMyRooms();
-		} else {
-			myRooms = [];
+		if (auth.isAuthenticated || auth.displayName || room.name) {
+			void loadMyRooms();
 		}
 	});
 
@@ -63,6 +105,7 @@
 		try {
 			await supabase.from('rooms').delete().eq('slug', slug);
 			myRooms = myRooms.filter((r) => r.slug !== slug);
+			dbRooms = dbRooms.filter((r) => r.room !== slug);
 		} catch {}
 	}
 
@@ -88,9 +131,23 @@
 		}
 	}
 
-	const listings = $derived(
-		[...room.directory].sort((a, b) => b.members - a.members || b.ts - a.ts)
-	);
+	const listings = $derived.by(() => {
+		const map = new Map<string, RoomAd>();
+		// 1. First add rooms from persistent database
+		for (const d of dbRooms) {
+			map.set(d.room, d);
+		}
+		// 2. Overlay live rooms from MQTT directory (which have active member counts)
+		for (const ad of room.directory) {
+			const existing = map.get(ad.room);
+			map.set(ad.room, {
+				...ad,
+				title: ad.title || existing?.title || ad.room,
+				host: ad.host || existing?.host || 'host'
+			});
+		}
+		return Array.from(map.values()).sort((a, b) => b.members - a.members || b.ts - a.ts);
+	});
 
 	const slug = $derived(sanitizeRoom(draft));
 
