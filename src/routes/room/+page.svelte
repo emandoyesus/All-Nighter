@@ -59,7 +59,20 @@
 </script>
 
 <svelte:head>
-	<title>The Room · All Nighter</title>
+	<title>{room.title ? `${room.title} · All Nighter` : 'The Room · All Nighter'}</title>
+	<meta property="og:type" content="music.radio_station" />
+	<meta property="og:site_name" content="All Nighter" />
+	<meta property="og:title" content="{room.title || 'The Room'} · All Nighter" />
+	<meta property="og:description" content="One synchronized room. One shared track queue. Everyone awake and building till dawn." />
+	<meta property="og:image" content="https://all-nighter.pro.et/og-image.png" />
+	<meta property="og:image:secure_url" content="https://all-nighter.pro.et/og-image.png" />
+	<meta property="og:image:type" content="image/png" />
+	<meta property="og:image:width" content="1200" />
+	<meta property="og:image:height" content="630" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:title" content="{room.title || 'The Room'} · All Nighter" />
+	<meta name="twitter:description" content="One synchronized room. One shared track queue. Everyone awake and building till dawn." />
+	<meta name="twitter:image" content="https://all-nighter.pro.et/og-image.png" />
 </svelte:head>
 
 <Nav />
