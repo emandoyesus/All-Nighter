@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { room, sanitizeRoom, generateRoomKey } from '#lib/room/room.svelte';
 	import { auth } from '#lib/auth.svelte';
+	import { supabase } from '#lib/supabase';
 	import IconPlus from '@tabler/icons-svelte/icons/plus';
 	import IconDoorEnter from '@tabler/icons-svelte/icons/door-enter';
 	import IconUsers from '@tabler/icons-svelte/icons/users';
@@ -12,6 +13,58 @@
 	import IconShield from '@tabler/icons-svelte/icons/shield';
 	import IconKey from '@tabler/icons-svelte/icons/key';
 	import IconDice from '@tabler/icons-svelte/icons/dice';
+	import IconSparkles from '@tabler/icons-svelte/icons/sparkles';
+	import IconTrash from '@tabler/icons-svelte/icons/trash';
+
+	interface MyRoomItem {
+		slug: string;
+		title: string;
+		created_at: string;
+	}
+
+	let myRooms = $state<MyRoomItem[]>([]);
+	let loadingMyRooms = $state(false);
+
+	async function loadMyRooms(): Promise<void> {
+		if (!supabase) return;
+		loadingMyRooms = true;
+		try {
+			const userId = auth.user?.id;
+			if (userId) {
+				const { data } = await supabase
+					.from('rooms')
+					.select('slug, title, created_at')
+					.eq('host_id', userId)
+					.eq('status', 'active')
+					.order('created_at', { ascending: false })
+					.limit(8);
+				if (data) {
+					myRooms = data;
+				}
+			}
+		} catch (err) {
+			console.warn('[RoomLobby] Failed to load my rooms:', err);
+		} finally {
+			loadingMyRooms = false;
+		}
+	}
+
+	$effect(() => {
+		if (auth.isAuthenticated) {
+			loadMyRooms();
+		} else {
+			myRooms = [];
+		}
+	});
+
+	async function deleteMyRoom(slug: string): Promise<void> {
+		if (!confirm(`Are you sure you want to close and delete room "${slug}"?`)) return;
+		if (!supabase) return;
+		try {
+			await supabase.from('rooms').delete().eq('slug', slug);
+			myRooms = myRooms.filter((r) => r.slug !== slug);
+		} catch {}
+	}
 
 	let creating = $state(false);
 	let draft = $state('');
@@ -91,6 +144,73 @@
 <div class="grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
 	<!-- Rooms tonight panel -->
 	<div class="panel flex flex-col p-5 md:p-7">
+		{#if myRooms.length > 0}
+			<!-- Your Active Rooms (Rooms you hosted that are still running) -->
+			<div class="mb-6 rounded-2xl border border-lamp/30 bg-lamp/5 p-4 sm:p-5">
+				<div class="flex items-center justify-between mb-2">
+					<div class="flex items-center gap-2">
+						<span class="grid h-6 w-6 place-items-center rounded-lg bg-lamp/20 text-lamp">
+							<IconSparkles size={14} stroke={2} />
+						</span>
+						<h3 class="text-xs sm:text-sm font-semibold tracking-wide text-cream">Your Active Rooms</h3>
+					</div>
+					<span class="rounded-full bg-lamp/15 px-2 py-0.5 font-mono text-[10px] text-lamp font-medium">
+						{myRooms.length} active
+					</span>
+				</div>
+				<p class="text-xs text-taupe mb-3">
+					You left these rooms open. Click to jump right back in or share the link with your crew.
+				</p>
+				<ul class="space-y-2">
+					{#each myRooms as r (r.slug)}
+						<li class="flex items-center justify-between gap-3 rounded-xl border border-cream/15 bg-night/85 p-3 hover:border-lamp/40 transition-colors">
+							<div class="min-w-0">
+								<div class="flex items-center gap-2 flex-wrap">
+									<p class="truncate text-sm font-medium text-cream">{r.title || r.slug}</p>
+									<span class="rounded bg-lamp/10 px-1.5 py-0.2 font-mono text-[9px] uppercase tracking-wider text-lamp border border-lamp/25">
+										Host
+									</span>
+								</div>
+								<p class="num mt-0.5 truncate text-[11px] text-faint">
+									slug: <span class="font-mono text-cream/80">{r.slug}</span>
+								</p>
+							</div>
+							<div class="flex items-center gap-1.5 shrink-0">
+								<button
+									type="button"
+									class="icon-btn text-faint hover:text-cream cursor-pointer"
+									onclick={() => copyInvite(r.slug)}
+									title={copiedSlug === r.slug ? 'Link copied!' : 'Copy invite link'}
+								>
+									{#if copiedSlug === r.slug}
+										<IconCheck size={14} stroke={2} class="text-lamp" />
+									{:else}
+										<IconCopy size={14} stroke={1.5} />
+									{/if}
+								</button>
+								<button
+									type="button"
+									class="btn btn-primary btn-sm text-xs py-1.5 px-3 flex items-center gap-1.5 cursor-pointer shadow-sm font-medium"
+									onclick={() => room.joinRoom(r.slug, r.title)}
+								>
+									<IconDoorEnter size={14} stroke={1.8} />
+									<span>Re-enter</span>
+								</button>
+								<button
+									type="button"
+									class="icon-btn text-faint hover:text-ruby cursor-pointer p-1.5"
+									onclick={() => deleteMyRoom(r.slug)}
+									title="Delete and close room"
+								>
+									<IconTrash size={14} stroke={1.5} />
+								</button>
+							</div>
+						</li>
+					{/each}
+				</ul>
+			</div>
+		{/if}
+
 		<div class="flex items-center justify-between gap-3">
 			<div class="flex items-center gap-2.5">
 				<span class="grid h-9 w-9 place-items-center rounded-full bg-lamp/15 text-lamp">

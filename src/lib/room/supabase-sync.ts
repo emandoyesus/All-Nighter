@@ -46,7 +46,8 @@ export class SupabaseRoomSync {
 	constructor(
 		private onRemoteMessage: (msg: ChatMessage) => void,
 		private onRemoteQueue: (queue: Track[]) => void,
-		private onRemoteState?: (state: Partial<RoomState>) => void
+		private onRemoteState?: (state: Partial<RoomState>) => void,
+		private onHostConfirmed?: (isHost: boolean) => void
 	) {}
 
 	/** Check if database connection is configured */
@@ -61,16 +62,28 @@ export class SupabaseRoomSync {
 
 		// 1. Ensure room record exists in database
 		try {
-			await supabase.from('rooms').upsert(
-				{
-					slug,
-					title: title || slug,
-					host_id: hostId,
-					host_name: hostName,
-					status: 'active'
-				},
-				{ onConflict: 'slug' }
-			);
+			const { data: existing } = await supabase
+				.from('rooms')
+				.select('*')
+				.eq('slug', slug)
+				.maybeSingle();
+
+			if (existing) {
+				if (hostId && existing.host_id === hostId) {
+					this.onHostConfirmed?.(true);
+				}
+			} else {
+				await supabase.from('rooms').upsert(
+					{
+						slug,
+						title: title || slug,
+						host_id: hostId,
+						host_name: hostName,
+						status: 'active'
+					},
+					{ onConflict: 'slug' }
+				);
+			}
 		} catch (err) {
 			console.warn('[Supabase] Failed to upsert room:', err);
 		}

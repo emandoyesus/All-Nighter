@@ -410,6 +410,11 @@ class Room {
 				}
 				this.state = s;
 			}
+		},
+		(isHost) => {
+			if (isHost) {
+				this.isHost = true;
+			}
 		}
 	);
 
@@ -1242,7 +1247,7 @@ class Room {
 
 		this.publishState();
 		this.startDirectory();
-		void this.dbSync.attachRoom(this.room, this.title, this.clientId, this.name);
+		void this.dbSync.attachRoom(this.room, this.title, auth.user?.id || this.clientId, this.name);
 	}
 
 	private enterApproved(
@@ -1348,7 +1353,7 @@ class Room {
 			}, 2500);
 		}
 		this.startDirectory();
-		void this.dbSync.attachRoom(slug, title, this.clientId, this.name);
+		void this.dbSync.attachRoom(slug, title, auth.user?.id || this.clientId, this.name);
 		if (isNew && this.state.current) {
 			void this.dbSync.savePlayback(this.state);
 		}
@@ -1375,11 +1380,9 @@ class Room {
 		this.dbSync.unsubscribe();
 		if (this.room && this.joinState === 'approved') {
 			this.pub(this.presenceTopic(this.room, this.clientId), '', true);
-			if (this.isHost) this.pub(this.dirTopic(this.room), '', true);
 		}
 		if (this.room) {
 			try {
-				localStorage.removeItem('an.host.' + this.room);
 				localStorage.removeItem(LS_ACTIVE_ROOM);
 				localStorage.removeItem(LS_ACTIVE_TITLE);
 			} catch {
