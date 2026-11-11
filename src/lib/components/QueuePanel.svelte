@@ -267,14 +267,18 @@
 							<span class="text-faint/70 shrink-0">·</span>
 							<span class="inline-flex items-center gap-1 truncate">
 								<span class="text-faint shrink-0">added by</span>
-								<button
-									type="button"
-									class="truncate font-medium text-cream/90 transition-colors hover:text-lamp underline decoration-cream/20 underline-offset-2 cursor-pointer text-left"
-									onclick={() => window.dispatchEvent(new CustomEvent('an:inspect-peer', { detail: { name: track.addedBy } }))}
-									title="View {track.addedBy}'s nocturnal profile"
-								>
-									{track.addedBy}
-								</button>
+								{#if track.addedBy === 'Autoplay' || track.addedBy === 'YouTube Autoplay'}
+									<span class="truncate font-medium text-amber-300">Autoplay</span>
+								{:else}
+									<button
+										type="button"
+										class="truncate font-medium text-cream/90 transition-colors hover:text-lamp underline decoration-cream/20 underline-offset-2 cursor-pointer text-left"
+										onclick={() => window.dispatchEvent(new CustomEvent('an:inspect-peer', { detail: { name: track.addedBy } }))}
+										title="View {track.addedBy}'s nocturnal profile"
+									>
+										{track.addedBy}
+									</button>
+								{/if}
 							</span>
 							{#if (track.votes || 0) > 0}
 								<span class="text-faint/70 shrink-0">·</span>
@@ -344,8 +348,8 @@
 			</div>
 			<h3 class="text-sm font-semibold text-cream">Queue finished · Autoplay active</h3>
 
-			{#if room.nextAutoplayTrack || (suggestions.length > 0 && room.state.current)}
-				{@const upNext = room.nextAutoplayTrack || {
+			{#if suggestions.length > 0 && room.state.current}
+				{@const upNext = {
 					videoId: suggestions[0]?.videoId,
 					title: suggestions[0]?.title,
 					channel: suggestions[0]?.channel

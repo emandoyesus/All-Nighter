@@ -18,7 +18,6 @@
 	let ready = $state(false);
 	let loadedVideoId: string | null = null;
 	let loadedPlaylistId: string | null = null;
-	let endedTimer: any = null;
 
 	const LS_VOLUME = 'an.volume';
 	function loadSavedVolume(): number {
@@ -133,38 +132,11 @@
 				}
 			} else if (s.videoId) {
 				try {
-					const useMix = room.isDirector() && room.state.queue.length === 0 && !targetPlaylist;
 					if (s.playing) {
-						if (useMix && player.loadPlaylist) {
-							try {
-								player.loadPlaylist({
-									list: 'RD' + s.videoId,
-									listType: 'playlist',
-									index: 0,
-									startSeconds: Math.max(0, targetTime())
-								});
-							} catch {
-								player.loadVideoById?.({ videoId: s.videoId, startSeconds: Math.max(0, targetTime()) });
-							}
-						} else {
-							player.loadVideoById?.({ videoId: s.videoId, startSeconds: Math.max(0, targetTime()) });
-						}
+						player.loadVideoById?.({ videoId: s.videoId, startSeconds: Math.max(0, targetTime()) });
 						player.playVideo?.();
 					} else {
-						if (useMix && player.cuePlaylist) {
-							try {
-								player.cuePlaylist({
-									list: 'RD' + s.videoId,
-									listType: 'playlist',
-									index: 0,
-									startSeconds: Math.max(0, targetTime())
-								});
-							} catch {
-								player.cueVideoById?.({ videoId: s.videoId, startSeconds: Math.max(0, targetTime()) });
-							}
-						} else {
-							player.cueVideoById?.({ videoId: s.videoId, startSeconds: Math.max(0, targetTime()) });
-						}
+						player.cueVideoById?.({ videoId: s.videoId, startSeconds: Math.max(0, targetTime()) });
 					}
 				} catch {
 					/* fallback */
@@ -438,10 +410,6 @@
 						onStateChange: (e: { data: number }) => {
 							playerState = e.data;
 							if (e.data === PLAYING) {
-								if (endedTimer) {
-									clearTimeout(endedTimer);
-									endedTimer = null;
-								}
 								duration = player.getDuration?.() ?? 0;
 								if (muted) {
 									try { player.mute?.(); } catch {}
@@ -451,36 +419,9 @@
 										player.setVolume?.(volume);
 									} catch {}
 								}
-
-								// Check if YouTube native Mix auto-advanced to a new track
-								const videoData = player.getVideoData?.();
-								if (
-									videoData?.video_id &&
-									room.isDirector() &&
-									room.state.queue.length === 0 &&
-									videoData.video_id !== room.state.videoId
-								) {
-									loadedVideoId = videoData.video_id;
-									room.onAutoplayTransition({
-										videoId: videoData.video_id,
-										title: videoData.title || 'Related Track',
-										channel: videoData.author || 'YouTube'
-									});
-								}
 							}
 							if (e.data === ENDED && room.state.playing) {
-								if (endedTimer) clearTimeout(endedTimer);
-								if (room.state.queue.length > 0) {
-									room.ended(room.state.videoId);
-								} else {
-									// Give YouTube Mix a brief moment (800ms) to auto-advance to next track
-									endedTimer = setTimeout(() => {
-										if (room.state.playing && room.state.queue.length === 0) {
-											room.ended(room.state.videoId);
-										}
-										endedTimer = null;
-									}, 800);
-								}
+								room.ended(room.state.videoId);
 							}
 						},
 						onError: (err: any) => {
@@ -594,7 +535,6 @@
 
 		return () => {
 			alive = false;
-			if (endedTimer) clearTimeout(endedTimer);
 			window.clearInterval(tickInterval);
 			window.clearInterval(beat);
 			if (ro) ro.disconnect();

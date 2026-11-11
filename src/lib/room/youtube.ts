@@ -716,30 +716,38 @@ export async function getRelatedYouTubeTrack(
 		return suggestions[0];
 	}
 
-	// 3. Fallback based strictly on the detected language
-	if (targetLang === 'amharic') {
-		return {
-			videoId: 'WD_IDsP3sbY',
-			title: 'Ephrem Tamiru - Demamaye',
-			channel: 'Ephrem Tamiru',
-			language: 'amharic'
-		};
-	}
+	// 3. Fallback based strictly on the detected language (cycling candidates to prevent repeats)
+	const fallbacks: Record<MusicLanguage, Array<{ videoId: string; title: string; channel: string }>> = {
+		amharic: [
+			{ videoId: 'WD_IDsP3sbY', title: 'Ephrem Tamiru - Demamaye', channel: 'Ephrem Tamiru' },
+			{ videoId: 'vgybg--StKc', title: 'Tamrat Desta - Hakime Nesh', channel: 'Tamrat Desta' },
+			{ videoId: 'ULgwcno7gZs', title: 'Aster Aweke - Nafkot', channel: 'Aster Aweke' },
+			{ videoId: '1geU0Xo4sns', title: 'Tilahun Gessesse - Kulun Manqualesh', channel: 'Tilahun Gessesse' },
+			{ videoId: '-RfFt4nkl5g', title: 'Michael Belayneh - Teneta', channel: 'Michael Belayneh' },
+			{ videoId: 'VsrL9Rz-A5A', title: 'Teddy Afro - ETHIOPIA', channel: 'Teddy Afro' }
+		],
+		tigrinya: [
+			{ videoId: 'mMUzrTXQPJg', title: 'Dawit Nega - Ajoki Tigray', channel: 'Dawit Nega' },
+			{ videoId: '4wadY4IbRa4', title: 'Dawit Nega - Wezamey', channel: 'Dawit Nega' },
+			{ videoId: 'AQzD-j8017g', title: 'Abreham G/Medhin – Hamelmalo', channel: 'Abraham Gebremedhin' }
+		],
+		english: [
+			{ videoId: '4NRXx6U8ABQ', title: 'The Weeknd - Blinding Lights', channel: 'The Weeknd' },
+			{ videoId: '1-xGerv5FOk', title: 'Daft Punk - Get Lucky', channel: 'Daft Punk' },
+			{ videoId: '60ItHLz5WEA', title: 'Alan Walker - Faded', channel: 'Alan Walker' },
+			{ videoId: '34Na4j8AVgA', title: 'The Weeknd - Starboy', channel: 'The Weeknd' }
+		]
+	};
 
-	if (targetLang === 'tigrinya') {
-		return {
-			videoId: 'mMUzrTXQPJg',
-			title: 'Dawit Nega - Ajoki Tigray',
-			channel: 'Dawit Nega',
-			language: 'tigrinya'
-		};
-	}
+	const list = fallbacks[targetLang] || fallbacks.english;
+	const picked =
+		list.find((c) => c.videoId !== currentVid && !playedVideoIds.has(c.videoId)) ||
+		list.find((c) => c.videoId !== currentVid) ||
+		list[0];
 
 	return {
-		videoId: '4NRXx6U8ABQ',
-		title: 'The Weeknd - Blinding Lights',
-		channel: 'The Weeknd',
-		language: 'english'
+		...picked,
+		language: targetLang
 	};
 }
 

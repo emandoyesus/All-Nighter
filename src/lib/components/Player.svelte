@@ -217,13 +217,17 @@
 						<span>{room.state.current.channel ?? 'YouTube'}</span>
 						<span class="text-faint/60">·</span>
 						<span class="text-faint">added by</span>
-						<button
-							type="button"
-							class="text-cream/90 hover:text-lamp transition-colors underline decoration-cream/20 underline-offset-2 cursor-pointer"
-							onclick={() => room.state.current?.addedBy && window.dispatchEvent(new CustomEvent('an:inspect-peer', { detail: { name: room.state.current.addedBy } }))}
-						>
-							{room.state.current.addedBy}
-						</button>
+						{#if room.state.current.addedBy === 'Autoplay' || room.state.current.addedBy === 'YouTube Autoplay'}
+							<span class="text-amber-300 font-medium">Autoplay</span>
+						{:else}
+							<button
+								type="button"
+								class="text-cream/90 hover:text-lamp transition-colors underline decoration-cream/20 underline-offset-2 cursor-pointer"
+								onclick={() => room.state.current?.addedBy && window.dispatchEvent(new CustomEvent('an:inspect-peer', { detail: { name: room.state.current.addedBy } }))}
+							>
+								{room.state.current.addedBy}
+							</button>
+						{/if}
 					</p>
 				{:else}
 					<p class="text-sm text-taupe font-mono">The night is quiet.</p>
@@ -284,13 +288,17 @@
 							<span>{room.state.current.channel ?? 'YouTube'}</span>
 							<span class="text-faint/60">·</span>
 							<span class="text-faint">added by</span>
-							<button
-								type="button"
-								class="text-cream/90 hover:text-lamp transition-colors underline decoration-cream/20 underline-offset-2 cursor-pointer"
-								onclick={() => room.state.current?.addedBy && window.dispatchEvent(new CustomEvent('an:inspect-peer', { detail: { name: room.state.current.addedBy } }))}
-							>
-								{room.state.current.addedBy}
-							</button>
+							{#if room.state.current.addedBy === 'Autoplay' || room.state.current.addedBy === 'YouTube Autoplay'}
+								<span class="text-amber-300 font-medium">Autoplay</span>
+							{:else}
+								<button
+									type="button"
+									class="text-cream/90 hover:text-lamp transition-colors underline decoration-cream/20 underline-offset-2 cursor-pointer"
+									onclick={() => room.state.current?.addedBy && window.dispatchEvent(new CustomEvent('an:inspect-peer', { detail: { name: room.state.current.addedBy } }))}
+								>
+									{room.state.current.addedBy}
+								</button>
+							{/if}
 						</p>
 					{:else}
 						<p class="text-xs text-taupe">The room is quiet. Add a track to queue.</p>
@@ -327,14 +335,18 @@
 						<span class="text-faint/70 shrink-0">·</span>
 						<span class="inline-flex items-center gap-1 truncate">
 							<span class="text-faint shrink-0">added by</span>
-							<button
-								type="button"
-								class="truncate font-medium text-cream/90 transition-colors hover:text-lamp underline decoration-cream/20 underline-offset-2 cursor-pointer text-left"
-								onclick={() => room.state.current?.addedBy && window.dispatchEvent(new CustomEvent('an:inspect-peer', { detail: { name: room.state.current.addedBy } }))}
-								title="View {room.state.current.addedBy}'s nocturnal profile"
-							>
-								{room.state.current.addedBy}
-							</button>
+							{#if room.state.current.addedBy === 'Autoplay' || room.state.current.addedBy === 'YouTube Autoplay'}
+								<span class="truncate font-medium text-amber-300">Autoplay</span>
+							{:else}
+								<button
+									type="button"
+									class="truncate font-medium text-cream/90 transition-colors hover:text-lamp underline decoration-cream/20 underline-offset-2 cursor-pointer text-left"
+									onclick={() => room.state.current?.addedBy && window.dispatchEvent(new CustomEvent('an:inspect-peer', { detail: { name: room.state.current.addedBy } }))}
+									title="View {room.state.current.addedBy}'s nocturnal profile"
+								>
+									{room.state.current.addedBy}
+								</button>
+							{/if}
 						</span>
 					</p>
 				{:else}

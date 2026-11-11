@@ -286,9 +286,7 @@ class Room {
 	sessionAttendees = $state<Array<{ name: string; avatar?: string; intention?: string; firstSeen: number; leftAt?: number }>>([]);
 	/** Track played video IDs to avoid immediate repeats when continuing with related music. */
 	private playedVideoIds = new Set<string>();
-	private isContinuingRelated = false;
-	/** Pre-resolved related track waiting in memory for instant 0ms transition when queue finishes */
-	nextAutoplayTrack = $state<Track | null>(null);
+	private isQueuingAutoplay = false;
 	/** Timestamp when uninterrupted autoplay started. Caps autoplay at 30 minutes. */
 	autoplayStartedAt = $state<number | null>(null);
 
@@ -1428,7 +1426,7 @@ class Room {
 		this.announce();
 		if (isNew) {
 			this.publishState();
-			void this.prefetchNextRelatedTrack(this.state.current);
+			void this.ensureAutoplayQueued(this.state.current);
 		} else if (host) {
 			// On reload as host: give MQTT/peers 2.5s to hydrate live state.
 			// Only if room is truly empty and no state arrived do we seed starter track.
@@ -1948,9 +1946,13 @@ class Room {
 					position: 0
 				};
 			}
-			const queue = [...s.queue, track];
+			const humanQueue = s.queue.filter((t) => t.addedBy !== 'Autoplay');
+			const queue = [...humanQueue, track];
 			return { ...s, queue };
 		}, `added “${title}”` + (playlist ? ' (playlist)' : '') + (track.dedication ? ` (dedicated: “${track.dedication}”)` : ''));
+		if (!this.state.current || this.state.current.uid === track.uid) {
+			void this.ensureAutoplayQueued(track);
+		}
 	}
 
 	addMany(
@@ -2005,14 +2007,18 @@ class Room {
 					source: first.source,
 					playing: true,
 					position: 0,
-					queue: [...s.queue, ...rest]
+					queue: [...rest]
 				};
 			}
+			const humanQueue = s.queue.filter((t) => t.addedBy !== 'Autoplay');
 			return {
 				...s,
-				queue: [...s.queue, ...newTracks]
+				queue: [...humanQueue, ...newTracks]
 			};
 		}, `queued playlist “${playlistTitle || 'Playlist'}” (${newTracks.length} tracks)`);
+		if (this.state.queue.length === 0 && this.state.current) {
+			void this.ensureAutoplayQueued(this.state.current);
+		}
 	}
 
 	vote(uid: string): void {
@@ -2086,8 +2092,8 @@ class Room {
 		this.autoplayStartedAt = null;
 		this.mutate(
 			(s) => {
-				const queue = s.queue.filter((item) => item.uid !== track.uid);
-				queue.sort((a, b) => (b.votes || 0) - (a.votes || 0));
+				const humanQueue = s.queue.filter((item) => item.uid !== track.uid && item.addedBy !== 'Autoplay');
+				humanQueue.sort((a, b) => (b.votes || 0) - (a.votes || 0));
 				return {
 					...s,
 					current: track,
@@ -2095,12 +2101,12 @@ class Room {
 					source: track.source,
 					playing: true,
 					position: 0,
-					queue
+					queue: humanQueue
 				};
 			},
 			`put “${track.title}” on`
 		);
-		void this.prefetchNextRelatedTrack(track);
+		void this.ensureAutoplayQueued(track);
 	}
 
 	toggle(position: number): void {
@@ -2113,32 +2119,71 @@ class Room {
 		this.mutate((s) => ({ ...s, position }));
 	}
 
-	/** Prefetches the next related track in memory so transition happens with 0ms delay. */
-	async prefetchNextRelatedTrack(currentTrack?: Track | null): Promise<void> {
-		const track = currentTrack || this.state.current;
-		if (!track) return;
+	/**
+	 * Automatically ensures the next related track is always queued in the room queue.
+	 * Only the director executes this to ensure rock-solid determinism across all peers.
+	 */
+	async ensureAutoplayQueued(forTrack?: Track | null): Promise<void> {
+		if (!this.canControlPlayback || !this.isDirector()) return;
+		if (this.isQueuingAutoplay) return;
+
+		const current = forTrack || this.state.current;
+		if (!current?.videoId) return;
+
+		// 30-minute uninterrupted autoplay limit
+		if (this.autoplayStartedAt === null) {
+			this.autoplayStartedAt = Date.now();
+		} else if (Date.now() - this.autoplayStartedAt >= 30 * 60 * 1000) {
+			return; // 30 minutes reached: let current queue finish and pause naturally
+		}
+
+		// If queue already has tracks waiting, do not add another
+		if (this.state.queue.length > 0) return;
+
+		this.isQueuingAutoplay = true;
 		try {
-			const related = await getRelatedYouTubeTrack(track, this.playedVideoIds);
-			if (related?.videoId && related.videoId !== track.videoId && !this.playedVideoIds.has(related.videoId)) {
-				this.nextAutoplayTrack = {
-					uid: `rel-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-					videoId: related.videoId,
-					title: related.title,
-					channel: related.channel,
-					addedBy: 'YouTube Autoplay',
-					source: 'youtube',
-					url: `https://www.youtube.com/watch?v=${related.videoId}`,
-					reactions: {}
-				};
-			}
+			this.playedVideoIds.add(current.videoId);
+
+			const related = await getRelatedYouTubeTrack(current, this.playedVideoIds);
+			if (!related?.videoId) return;
+
+			// Double check: if queue changed or received human tracks while fetching, abort
+			if (this.state.queue.length > 0) return;
+			if (related.videoId === current.videoId) return;
+
+			this.playedVideoIds.add(related.videoId);
+
+			const autoTrack: Track = {
+				uid: `auto-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+				videoId: related.videoId,
+				title: related.title,
+				channel: related.channel,
+				addedBy: 'Autoplay',
+				source: 'youtube',
+				url: `https://www.youtube.com/watch?v=${related.videoId}`,
+				reactions: {}
+			};
+
+			this.mutate(
+				(s) => {
+					if (s.queue.length > 0) return s;
+					return {
+						...s,
+						queue: [...s.queue, autoTrack]
+					};
+				},
+				`Suggested next · “${autoTrack.title}”`
+			);
 		} catch (err) {
-			console.warn('[Room] Failed to prefetch related track:', err);
+			console.warn('[Room] Failed to queue next autoplay track:', err);
+		} finally {
+			this.isQueuingAutoplay = false;
 		}
 	}
 
 	async continueWithRelated(lastTrack?: Track | null): Promise<void> {
-		if (this.isContinuingRelated) return;
-		this.isContinuingRelated = true;
+		if (this.isQueuingAutoplay) return;
+		this.isQueuingAutoplay = true;
 
 		try {
 			// Enforce 30-minute maximum autoplay limit
@@ -2157,37 +2202,27 @@ class Room {
 				this.playedVideoIds.add(finishedTrack.videoId);
 			}
 
-			// 1. If we have a prefetched track ready that doesn't match the finished track, use it instantly (0ms delay)!
-			let nextTrack = this.nextAutoplayTrack;
-			if (nextTrack && finishedTrack?.videoId && nextTrack.videoId === finishedTrack.videoId) {
-				nextTrack = null;
-			}
+			const related = await getRelatedYouTubeTrack(finishedTrack, this.playedVideoIds);
+			if (!related?.videoId || related.videoId === finishedTrack?.videoId) return;
 
-			// 2. If not prefetched yet, resolve immediately using similarity matching
-			if (!nextTrack) {
-				const related = await getRelatedYouTubeTrack(finishedTrack, this.playedVideoIds);
-				nextTrack = {
-					uid: `rel-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-					videoId: related.videoId,
-					title: related.title,
-					channel: related.channel,
-					addedBy: 'YouTube Autoplay',
-					source: 'youtube',
-					url: `https://www.youtube.com/watch?v=${related.videoId}`,
-					reactions: {}
-				};
-			}
+			this.playedVideoIds.add(related.videoId);
 
-			if (nextTrack.videoId) {
-				this.playedVideoIds.add(nextTrack.videoId);
-			}
-			this.nextAutoplayTrack = null;
+			const nextTrack: Track = {
+				uid: `auto-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+				videoId: related.videoId,
+				title: related.title,
+				channel: related.channel,
+				addedBy: 'Autoplay',
+				source: 'youtube',
+				url: `https://www.youtube.com/watch?v=${related.videoId}`,
+				reactions: {}
+			};
 
 			this.mutate(
 				(s) => ({
 					...s,
 					current: nextTrack,
-					videoId: nextTrack!.videoId,
+					videoId: nextTrack.videoId,
 					playlistId: null,
 					source: 'youtube',
 					playing: true,
@@ -2196,72 +2231,12 @@ class Room {
 				`Queue finished · Autoplaying related: “${nextTrack.title}”`
 			);
 
-			// 3. Immediately prefetch the NEXT track in background so future transitions are also instant
-			void this.prefetchNextRelatedTrack(nextTrack);
+			void this.ensureAutoplayQueued(nextTrack);
 		} catch (err) {
 			console.warn('[Room] Failed to continue with related track:', err);
 		} finally {
-			this.isContinuingRelated = false;
+			this.isQueuingAutoplay = false;
 		}
-	}
-
-	/**
-	 * Called when YouTube native Mix auto-advances to the next video.
-	 * Checks 30-minute uninterrupted autoplay limit and filters out banned / wrong-language music.
-	 */
-	onAutoplayTransition(track: { videoId: string; title: string; channel?: string }): void {
-		if (!this.canControlPlayback) return;
-
-		// 30-minute limit
-		if (this.autoplayStartedAt === null) {
-			this.autoplayStartedAt = Date.now();
-		} else if (Date.now() - this.autoplayStartedAt >= 30 * 60 * 1000) {
-			this.mutate(
-				(s) => ({ ...s, playing: false }),
-				'Autoplay paused after 30 minutes · Add tracks to resume'
-			);
-			return;
-		}
-
-		// Language & banned content filter
-		const currentLang = detectMusicLanguage(this.state.current);
-		const candidateLang = detectMusicLanguage(track);
-		if (isBannedMusic(track.videoId, track.title) || (currentLang && candidateLang !== currentLang)) {
-			// YouTube autoplay picked something outside our constraints (e.g. cultural, wrong language, >10min).
-			// Immediately override with our curated related track!
-			void this.continueWithRelated(this.state.current);
-			return;
-		}
-
-		if (track.videoId) {
-			this.playedVideoIds.add(track.videoId);
-		}
-
-		const newTrack: Track = {
-			uid: `yt-auto-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-			videoId: track.videoId,
-			title: track.title || 'Related Track',
-			channel: track.channel || 'YouTube',
-			addedBy: 'YouTube Autoplay',
-			source: 'youtube',
-			url: `https://www.youtube.com/watch?v=${track.videoId}`,
-			reactions: {}
-		};
-
-		this.mutate(
-			(s) => ({
-				...s,
-				current: newTrack,
-				videoId: track.videoId,
-				playlistId: null,
-				source: 'youtube',
-				playing: true,
-				position: 0
-			}),
-			`YouTube Autoplay · “${newTrack.title}”`
-		);
-
-		void this.prefetchNextRelatedTrack(newTrack);
 	}
 
 	skip(): void {
@@ -2269,11 +2244,17 @@ class Room {
 		const finished = this.state.current?.title;
 		const lastTrack = this.state.current;
 
+		if (lastTrack?.videoId) {
+			this.playedVideoIds.add(lastTrack.videoId);
+		}
+
 		if (this.state.queue.length > 0) {
-			this.autoplayStartedAt = null;
+			const [next, ...rest] = this.state.queue;
+			if (next?.addedBy !== 'Autoplay') {
+				this.autoplayStartedAt = null;
+			}
 			this.mutate(
 				(s) => {
-					const [next, ...rest] = s.queue;
 					return {
 						...s,
 						queue: rest,
@@ -2287,8 +2268,8 @@ class Room {
 				},
 				finished ? `skipped “${finished}”` : 'skipped ahead'
 			);
-			if (this.state.queue.length <= 1) {
-				void this.prefetchNextRelatedTrack(this.state.current);
+			if (next) {
+				void this.ensureAutoplayQueued(next);
 			}
 		} else {
 			// When queue is empty, continue with related music
@@ -2303,24 +2284,28 @@ class Room {
 		const finished = this.state.current?.title;
 		const lastTrack = this.state.current;
 
+		if (lastTrack?.videoId) {
+			this.playedVideoIds.add(lastTrack.videoId);
+		}
+
 		if (this.state.queue.length > 0) {
-			this.autoplayStartedAt = null;
-			this.mutate((s) => {
-				const [next, ...rest] = s.queue;
-				return {
-					...s,
-					queue: rest,
-					current: next ?? null,
-					videoId: next?.videoId ?? null,
-					playlistId: next?.playlistId ?? null,
-					source: next?.source,
-					playing: !!next,
-					position: 0
-				};
-			});
+			const [next, ...rest] = this.state.queue;
+			if (next?.addedBy !== 'Autoplay') {
+				this.autoplayStartedAt = null;
+			}
+			this.mutate((s) => ({
+				...s,
+				queue: rest,
+				current: next ?? null,
+				videoId: next?.videoId ?? null,
+				playlistId: next?.playlistId ?? null,
+				source: next?.source,
+				playing: !!next,
+				position: 0
+			}));
 			if (finished) this.writeLog(`finished “${finished}”`);
-			if (this.state.queue.length <= 1) {
-				void this.prefetchNextRelatedTrack(this.state.current);
+			if (next) {
+				void this.ensureAutoplayQueued(next);
 			}
 		} else {
 			if (finished) this.writeLog(`finished “${finished}” · queue finished`);
@@ -2331,6 +2316,9 @@ class Room {
 	/** Director heartbeat: refresh clock + position without changing seq. */
 	heartbeat(position: number): void {
 		this.mutate((s) => ({ ...s, position }), undefined, { keepSeq: true });
+		if (this.isDirector() && this.state.playing && this.state.queue.length === 0 && this.state.current) {
+			void this.ensureAutoplayQueued(this.state.current);
+		}
 	}
 
 	/** Take over playback authority after the last director went quiet. */
