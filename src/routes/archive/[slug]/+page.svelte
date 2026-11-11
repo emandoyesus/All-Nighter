@@ -16,6 +16,8 @@
 	import IconExternal from '@tabler/icons-svelte/icons/external-link';
 	import IconDisc from '@tabler/icons-svelte/icons/disc';
 	import IconTarget from '@tabler/icons-svelte/icons/target';
+	import IconChevronDown from '@tabler/icons-svelte/icons/chevron-down';
+	import IconChevronUp from '@tabler/icons-svelte/icons/chevron-up';
 
 	let { data }: { data: PageData } = $props();
 	const night = $derived(data.night);
@@ -47,17 +49,32 @@
 		[...night.tracklist].sort((a, b) => (b.reactions ?? 0) - (a.reactions ?? 0))[0]
 	);
 
-	function sourceLabel(source: string | undefined): string {
-		if (source === 'spotify') return 'Spotify';
-		if (source === 'soundcloud') return 'SoundCloud';
-		if (source === 'youtube') return 'YouTube';
-		return 'link';
+	let visibleCount = $state(10);
+	const visibleTracklist = $derived(night.tracklist.slice(0, visibleCount));
+	const hasMoreTracks = $derived(night.tracklist.length > visibleCount);
+
+	function sourceLabel(track: Night['tracklist'][number]): string {
+		if (track.source === 'spotify') return 'Spotify';
+		if (track.source === 'soundcloud') return 'SoundCloud';
+		if (track.source === 'youtube' || track.videoId) return 'YouTube';
+		if (track.url) {
+			try {
+				const host = new URL(track.url).hostname.replace('www.', '');
+				if (host.includes('spotify')) return 'Spotify';
+				if (host.includes('soundcloud')) return 'SoundCloud';
+				if (host.includes('youtube') || host.includes('youtu.be')) return 'YouTube';
+			} catch {}
+		}
+		return 'YouTube';
 	}
 
-	function trackHref(track: Night['tracklist'][number]): string | undefined {
-		if (track.url) return track.url;
-		if (track.videoId) return `https://www.youtube.com/watch?v=${track.videoId}`;
-		return undefined;
+	function trackHref(track: Night['tracklist'][number]): string {
+		if (track.url && track.url.trim()) return track.url.trim();
+		if (track.videoId && track.videoId.trim()) {
+			return `https://www.youtube.com/watch?v=${encodeURIComponent(track.videoId.trim())}`;
+		}
+		const query = `${track.artist} ${track.title}`.trim();
+		return `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
 	}
 </script>
 
@@ -145,27 +162,30 @@
 				<div class="panel overflow-hidden" data-reveal use:reveal>
 					<div class="flex items-baseline justify-between border-b border-cream/10 px-5 py-4">
 						<h2 class="text-lg font-medium">The set list</h2>
-						<span class="num text-xs text-faint">{night.tracklist.length} logged</span>
+						<span class="num text-xs text-faint">
+							{#if night.tracklist.length > 10}
+								Showing {visibleTracklist.length} of {night.tracklist.length} logged
+							{:else}
+								{night.tracklist.length} logged
+							{/if}
+						</span>
 					</div>
 					<ol class="divide-y divide-cream/8">
-						{#each night.tracklist as track, i (track.title + i)}
-							<li class="flex items-center gap-3 px-5 py-3">
+						{#each visibleTracklist as track, i (track.title + i)}
+							<li class="flex items-center gap-3 px-5 py-3 hover:bg-cream/[0.02] transition-colors">
 								<span class="num w-5 shrink-0 text-xs text-faint">{String(i + 1).padStart(2, '0')}</span>
 								<div class="min-w-0 flex-1">
 									<p class="truncate text-sm">
-										{#if trackHref(track)}
-											<a
-												href={trackHref(track)}
-												target="_blank"
-												rel="noreferrer"
-												class="inline-flex items-center gap-1.5 transition-colors hover:text-lamp"
-											>
-												{track.title}
-												<IconExternal size={12} stroke={1.5} class="text-faint" />
-											</a>
-										{:else}
-											{track.title}
-										{/if}
+										<a
+											href={trackHref(track)}
+											target="_blank"
+											rel="noreferrer noopener"
+											class="inline-flex items-center gap-1.5 transition-colors hover:text-lamp font-medium"
+											title="Listen to {track.title}"
+										>
+											<span>{track.title}</span>
+											<IconExternal size={12} stroke={1.5} class="text-faint hover:text-lamp" />
+										</a>
 									</p>
 									<p class="truncate text-xs text-faint">
 										{track.artist}
@@ -179,9 +199,18 @@
 										<p class="mt-0.5 truncate text-[11px] italic text-faint/80">“{track.note}”</p>
 									{/if}
 								</div>
-								<span class="num shrink-0 rounded-full border border-cream/10 px-2 py-0.5 text-[11px] text-taupe">
-									{sourceLabel(track.source)}
-								</span>
+								<!-- Right side clickable link button -->
+								<a
+									href={trackHref(track)}
+									target="_blank"
+									rel="noreferrer noopener"
+									class="num shrink-0 rounded-full border border-cream/15 bg-night-2/80 px-2.5 py-1 text-[11px] text-taupe hover:text-lamp hover:border-lamp/40 hover:bg-lamp/10 transition-all inline-flex items-center gap-1.5 cursor-pointer shadow-sm group/btn"
+									title="Open in {sourceLabel(track)}"
+									aria-label="Open in {sourceLabel(track)}"
+								>
+									<span>{sourceLabel(track)}</span>
+									<IconExternal size={11} stroke={1.8} class="text-faint group-hover/btn:text-lamp transition-colors" />
+								</a>
 								<span class="num flex w-10 shrink-0 items-center justify-end gap-1 text-xs text-faint">
 									<IconFlame size={12} stroke={1.5} class={track.reactions ? 'text-lamp' : ''} />
 									{track.reactions ?? 0}
@@ -189,6 +218,33 @@
 							</li>
 						{/each}
 					</ol>
+
+					{#if night.tracklist.length > 10}
+						<div class="border-t border-cream/8 p-3 text-center bg-night-2/40">
+							{#if hasMoreTracks}
+								<button
+									type="button"
+									class="btn btn-secondary btn-sm text-xs font-mono text-taupe hover:text-lamp hover:border-lamp/40 transition-all cursor-pointer py-2 px-4 rounded-lg inline-flex items-center gap-2 border border-cream/15 bg-[#141c1f]"
+									onclick={() => (visibleCount += 10)}
+								>
+									<IconChevronDown size={14} stroke={2} />
+									<span>Show more ({night.tracklist.length - visibleCount} remaining)</span>
+								</button>
+							{:else}
+								<div class="flex items-center justify-center gap-3">
+									<span class="text-xs font-mono text-faint">All {night.tracklist.length} tracks displayed</span>
+									<button
+										type="button"
+										class="text-xs font-mono text-taupe hover:text-lamp inline-flex items-center gap-1 cursor-pointer transition-colors hover:underline"
+										onclick={() => (visibleCount = 10)}
+									>
+										<IconChevronUp size={13} stroke={2} />
+										<span>Show less</span>
+									</button>
+								</div>
+							{/if}
+						</div>
+					{/if}
 				</div>
 
 				<div class="grid gap-4 sm:grid-cols-2" data-reveal use:reveal={60}>
