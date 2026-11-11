@@ -2,6 +2,7 @@
 	import { auth } from '#lib/auth.svelte';
 	import { room } from '#lib/room/room.svelte';
 	import { isSupabaseConfigured } from '#lib/supabase';
+	import { NOCTURNAL_AVATARS, DEFAULT_AVATAR } from '#lib/avatars';
 	import IconMoon from '@tabler/icons-svelte/icons/moon';
 	import IconMail from '@tabler/icons-svelte/icons/mail';
 	import IconLock from '@tabler/icons-svelte/icons/lock';
@@ -15,7 +16,7 @@
 	let email = $state('');
 	let password = $state('');
 	let callsign = $state(room.name && !room.name.startsWith('guest-') && room.name !== 'night-owl' ? room.name : '');
-	let avatarUrl = $state('/avatars/lofi-girl.svg');
+	let avatarUrl = $state(DEFAULT_AVATAR);
 	let showPassword = $state(false);
 	let isGoogleLoading = $state(false);
 	let isEmailLoading = $state(false);
@@ -58,15 +59,8 @@
 		'dawn-walker'
 	];
 
-	// 6 character avatars (3 boys, 3 girls)
-	const PRESET_AVATARS = [
-		{ id: 'lofigirl', name: 'Lo-Fi Girl', url: '/avatars/lofi-girl.svg' },
-		{ id: 'lofiboy', name: 'Lo-Fi Boy', url: '/avatars/lofi-boy.svg' },
-		{ id: 'cybergirl', name: 'Cyber Girl', url: '/avatars/cyber-girl.svg' },
-		{ id: 'cyberboy', name: 'Cyber Boy', url: '/avatars/cyber-boy.svg' },
-		{ id: 'nightdev', name: 'Night Dev', url: '/avatars/night-dev.svg' },
-		{ id: 'beatsguy', name: 'Beats Guy', url: '/avatars/beats-producer.svg' }
-	];
+	// 9 nocturnal atmospheric avatars
+	const PRESET_AVATARS = NOCTURNAL_AVATARS;
 
 	$effect(() => {
 		if (typeof window === 'undefined') return;
@@ -160,6 +154,9 @@
 					room.setName(chosenCallsign);
 					room.setAvatar(avatarUrl);
 					room.init();
+					if (typeof window !== 'undefined') {
+						window.dispatchEvent(new CustomEvent('an:open-profile-setup'));
+					}
 				} else {
 					emailSent = true;
 				}
@@ -173,6 +170,9 @@
 					room.setAvatar(data.user.user_metadata.avatar_url);
 				}
 				room.init();
+				if (typeof window !== 'undefined' && !data.user?.user_metadata?.profile_configured) {
+					window.dispatchEvent(new CustomEvent('an:open-profile-setup'));
+				}
 			}
 		} catch (err: any) {
 			error = err?.message || 'Authentication failed. Please check your credentials.';
@@ -345,7 +345,7 @@
 						</div>
 					</div>
 
-					<!-- Choose Starter Avatar (6 character avatars: 3 boys, 3 girls) -->
+					<!-- Choose Starter Avatar (Hand-drawn Ink Sketches) -->
 					<div>
 						<span class="block text-xs font-medium text-cream/90 mb-1.5">
 							Choose Avatar
@@ -354,9 +354,9 @@
 							{#each PRESET_AVATARS as preset}
 								<button
 									type="button"
-									class="relative aspect-square w-full rounded-full border-2 p-0.5 transition-all cursor-pointer {avatarUrl === preset.url ? 'border-lamp ring-2 ring-lamp/30 scale-105' : 'border-cream/15 opacity-65 hover:opacity-100 hover:border-cream/40'}"
+									class="relative aspect-square w-full rounded-full border-2 p-0.5 transition-all cursor-pointer {avatarUrl === preset.url ? 'border-lamp ring-2 ring-lamp/30 scale-105' : 'border-cream/15 opacity-75 hover:opacity-100 hover:border-cream/40'}"
 									onclick={() => (avatarUrl = preset.url)}
-									title={preset.name}
+									title="{preset.name} - {preset.tagline}"
 								>
 									<img src={preset.url} alt={preset.name} class="h-full w-full rounded-full object-cover" />
 								</button>

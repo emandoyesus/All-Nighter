@@ -125,6 +125,18 @@ class AuthService {
 			} catch {}
 			window.dispatchEvent(new CustomEvent('an:update-avatar', { detail: { avatar } }));
 		}
+
+		// Check if user has explicitly configured their profile after signin/signup
+		const isConfigured = Boolean(
+			user.user_metadata?.profile_configured ||
+			(typeof localStorage !== 'undefined' && localStorage.getItem('an.profile_configured') === user.id)
+		);
+
+		if (!isConfigured) {
+			setTimeout(() => {
+				window.dispatchEvent(new CustomEvent('an:open-profile-setup'));
+			}, 250);
+		}
 	}
 
 	continueAsGuest(callsign?: string) {
@@ -197,11 +209,12 @@ class AuthService {
 		return supabase.auth.signOut();
 	}
 
-	async updateProfile(updates: { callsign?: string; avatarUrl?: string }) {
+	async updateProfile(updates: { callsign?: string; avatarUrl?: string; profileConfigured?: boolean }) {
 		if (!supabase) throw new Error('Supabase is not configured');
 		const data: Record<string, any> = {};
 		if (updates.callsign !== undefined) data.callsign = updates.callsign;
 		if (updates.avatarUrl !== undefined) data.avatar_url = updates.avatarUrl;
+		if (updates.profileConfigured !== undefined) data.profile_configured = updates.profileConfigured;
 		const { data: res, error } = await supabase.auth.updateUser({ data });
 		if (error) throw error;
 		if (res.user) {

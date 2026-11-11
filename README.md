@@ -1,7 +1,8 @@
 # All Nighter
 
 > **Show up. Lock in till sunrise.**  
-> A shared focus room with synchronized music, chat, and a countdown.
+> A shared focus room with synchronized music, chat, and a countdown.  
+> 🌐 **Live Production**: [https://all-nighter.pro.et](https://all-nighter.pro.et)
 
 All Nighter is a real-time collaborative focus sanctuary for late-night developers, designers, and students. Built on a serverless peer synchronization architecture, everyone in a room shares one synchronized audio stream, one collaborative queue, real-time presence of who's awake, and an unbroken countdown to dawn.
 
@@ -35,7 +36,7 @@ All Nighter is a real-time collaborative focus sanctuary for late-night develope
 - **Role Management**: Hosts can appoint co-admins or transfer control seamlessly.
 
 ### 👤 Nocturnal Profiles & Badges
-- **Callsign & Avatars**: Pick your night callsign and nocturnal avatar (*Night Owl*, *Cassette*, *Midnight Coffee*, *Terminal*, *Vinyl*, etc.).
+- **Callsign & Avatars**: Set your night callsign and choose between your Google account photo or 6 hand-drawn ink doodle avatars (*The Architect*, *The Wanderer*, *The Listener*, *The Stargazer*, *The Hacker*, *The Artist*) featuring diverse representation and bold solid color backgrounds (Blue, Red, Black, White).
 - **Milestones & Badges**: Unlock tiered nocturnal achievements based on dawn rituals completed, tracks contributed, and minutes focused.
 - **Peer Inspection**: Click any member in the room to view their profile, stats, and badges.
 
@@ -90,13 +91,41 @@ Core defaults can be adjusted in [`src/lib/config.ts`](src/lib/config.ts):
 
 ---
 
-## Deployment
+## Deployment & Canonical URLs
 
-The app is built with `@sveltejs/adapter-static` and compiles to zero-dependency static assets in `build/`. It can be deployed to:
-- **GitHub Pages** (workflow included in `.github/workflows/deploy.yml`)
-- **Vercel**
-- **Netlify**
-- **Cloudflare Pages**
+The app is built with `@sveltejs/adapter-static` and compiles to zero-dependency static assets in `build/`.
+
+### 🌐 Canonical Production Deployment
+- **Canonical URL**: [https://all-nighter.pro.et](https://all-nighter.pro.et)
+- **Hosting Provider**: Deployed via [Vercel](https://vercel.com/) with automated HTTPS, HTTP/2, and HSTS headers.
+- **Social Graph Metadata**:
+  - OpenGraph & Twitter Card URL: `https://all-nighter.pro.et`
+  - OpenGraph & Twitter Card Image: `https://all-nighter.pro.et/og-image.png` (1200 × 630 px, pre-generated and verified live over HTTPS).
+
+### 📦 Asset Paths & Subpath Portability
+The project is built to run smoothly both on a custom root domain (`/`) and when hosted under a subpath (e.g. GitHub Pages `/<repo-name>`):
+- **Favicon & Apple Touch Icon**: Referenced via SvelteKit's `%sveltekit.assets%/favicon.svg`, which computes the correct relative path across root and nested routes.
+- **Web App Manifest**: Referenced via `%sveltekit.assets%/site.webmanifest`. Within `site.webmanifest`, relative entries (`"start_url": "./"`, `"src": "favicon.svg"`) prevent 404 path breakages under subpath hosting.
+- **In-App Media & Wallpapers**: Loaded with SvelteKit's `asset(...)` helper from `$app/paths` to automatically prepend any configured base path.
+
+### 🚀 Hosting Targets
+
+#### 1. Vercel (Production)
+Zero-configuration static deployment:
+```bash
+vercel --prod
+```
+
+#### 2. GitHub Pages (Subpath or Custom Domain)
+A continuous deployment GitHub Actions workflow is provided in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml).
+- When deploying under a repository subpath (e.g. `https://<owner>.github.io/<repo>/`), set `BASE_PATH=/<repo>` in the environment:
+  ```bash
+  BASE_PATH=/<repo> npm run build
+  ```
+- If configuring a custom domain in GitHub Pages settings, keep `BASE_PATH` empty.
+
+#### 3. Cloudflare Pages & Netlify
+Point the publish directory to `build/` with build command `npm run build`.
 
 ---
 

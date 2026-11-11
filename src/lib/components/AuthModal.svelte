@@ -3,6 +3,7 @@
 	import { auth } from '#lib/auth.svelte';
 	import { isSupabaseConfigured } from '#lib/supabase';
 	import { room } from '#lib/room/room.svelte';
+	import { NOCTURNAL_AVATARS, DEFAULT_AVATAR } from '#lib/avatars';
 	import { getUserProfileStats, type UserProfileStats, type Achievement } from '#lib/data/profile-stats';
 	import IconX from '@tabler/icons-svelte/icons/x';
 	import IconCheck from '@tabler/icons-svelte/icons/check';
@@ -72,14 +73,15 @@
 	// Hidden file input reference
 	let fileInput: HTMLInputElement | undefined = $state();
 
-	const PRESET_AVATARS = [
-		{ id: 'lofigirl', name: 'Lo-Fi Girl', url: '/avatars/lofi-girl.svg' },
-		{ id: 'lofiboy', name: 'Lo-Fi Boy', url: '/avatars/lofi-boy.svg' },
-		{ id: 'cybergirl', name: 'Cyber Girl', url: '/avatars/cyber-girl.svg' },
-		{ id: 'cyberboy', name: 'Cyber Boy', url: '/avatars/cyber-boy.svg' },
-		{ id: 'nightdev', name: 'Night Dev', url: '/avatars/night-dev.svg' },
-		{ id: 'beatsguy', name: 'Beats Guy', url: '/avatars/beats-producer.svg' }
-	];
+	// Nocturnal atmospheric avatars
+	const PRESET_AVATARS = NOCTURNAL_AVATARS;
+
+	const googlePhoto = $derived(
+		(auth.user?.user_metadata?.picture as string | undefined) ||
+		(auth.user?.app_metadata?.provider === 'google' && auth.user?.user_metadata?.avatar_url?.startsWith('http')
+			? (auth.user.user_metadata.avatar_url as string)
+			: undefined)
+	);
 
 	const RANDOM_CALLSIGNS = [
 		'midnight-coder',
@@ -781,7 +783,7 @@
 									<span class="text-cream font-medium">{userStats.rank.progress}%</span>
 								</div>
 								<div class="h-2 w-full rounded-full bg-night-3 overflow-hidden border border-cream/10 p-[1px]">
-									<div class="h-full rounded-full bg-gradient-to-r from-teal-500 to-lamp transition-all duration-700" style="width: {userStats.rank.progress}%"></div>
+									<div class="h-full rounded-full bg-lamp transition-all duration-700" style="width: {userStats.rank.progress}%"></div>
 								</div>
 							</div>
 						{/if}
@@ -957,27 +959,46 @@
 						<div class="flex rounded-md border border-cream/10 bg-[#060a0b] p-0.5 text-[11px] font-mono">
 							<button
 								type="button"
-								class="rounded px-2.5 py-0.5 transition-colors {avatarTab === 'upload' ? 'bg-lamp/20 text-lamp font-medium' : 'text-faint hover:text-cream'}"
-								onclick={() => (avatarTab = 'upload')}
-							>
-								Upload Photo
-							</button>
-							<button
-								type="button"
 								class="rounded px-2.5 py-0.5 transition-colors {avatarTab === 'presets' ? 'bg-lamp/20 text-lamp font-medium' : 'text-faint hover:text-cream'}"
 								onclick={() => (avatarTab = 'presets')}
 							>
-								Presets
+								Avatars
+							</button>
+							<button
+								type="button"
+								class="rounded px-2.5 py-0.5 transition-colors {avatarTab === 'upload' ? 'bg-lamp/20 text-lamp font-medium' : 'text-faint hover:text-cream'}"
+								onclick={() => (avatarTab = 'upload')}
+							>
+								Upload
 							</button>
 							<button
 								type="button"
 								class="rounded px-2.5 py-0.5 transition-colors {avatarTab === 'url' ? 'bg-lamp/20 text-lamp font-medium' : 'text-faint hover:text-cream'}"
 								onclick={() => (avatarTab = 'url')}
 							>
-								Image URL
+								URL
 							</button>
 						</div>
 					</div>
+
+					{#if googlePhoto}
+						<div class="mb-3 rounded-xl border border-lamp/25 bg-lamp/5 p-2.5 flex items-center justify-between gap-3">
+							<div class="flex items-center gap-2.5 min-w-0">
+								<img src={googlePhoto} alt="Google avatar" class="h-9 w-9 rounded-full object-cover border border-lamp/40 shrink-0" />
+								<div class="min-w-0">
+									<p class="text-xs font-semibold text-cream truncate">Google Account Photo</p>
+									<p class="text-[10px] text-faint truncate">Synced from your Google account</p>
+								</div>
+							</div>
+							<button
+								type="button"
+								class="btn btn-ghost btn-sm text-[11px] font-mono shrink-0 {editAvatar === googlePhoto ? 'border-lamp text-lamp bg-lamp/15' : 'border-cream/15 text-cream hover:border-cream/40'}"
+								onclick={() => { editAvatar = googlePhoto; imgPreviewError = false; }}
+							>
+								{editAvatar === googlePhoto ? 'Selected' : 'Use Google Photo'}
+							</button>
+						</div>
+					{/if}
 
 					{#if avatarTab === 'upload'}
 						<!-- Direct Device Photo Upload Card -->
@@ -1001,27 +1022,32 @@
 							</div>
 						</div>
 					{:else if avatarTab === 'presets'}
-						<!-- Presets Grid -->
-						<div class="grid grid-cols-4 sm:grid-cols-6 gap-2 rounded-xl border border-cream/10 bg-[#060a0b] p-2.5">
+						<!-- Nocturnal Presets Grid -->
+						<div class="grid grid-cols-1 sm:grid-cols-3 gap-2 rounded-xl border border-cream/10 bg-[#060a0b] p-2.5">
 							{#each PRESET_AVATARS as preset (preset.id)}
 								{@const selected = editAvatar === preset.url}
 								<button
 									type="button"
-									class="group relative flex flex-col items-center gap-1 rounded-lg p-1.5 transition-all {selected ? 'border border-lamp bg-lamp/15' : 'border border-cream/5 hover:border-cream/20 hover:bg-cream/5'}"
+									class="group relative flex items-center gap-2.5 rounded-lg p-2 text-left transition-all {selected ? 'border border-lamp bg-lamp/15' : 'border border-cream/5 hover:border-cream/20 hover:bg-cream/5'}"
 									onclick={() => selectPreset(preset.url)}
-									title={preset.name}
+									title="{preset.name} - {preset.tagline}"
 								>
 									<img
 										src={preset.url}
 										alt={preset.name}
-										class="h-10 w-10 rounded-full object-cover border {selected ? 'border-lamp' : 'border-cream/15 group-hover:border-cream/40'}"
+										class="h-9 w-9 shrink-0 rounded-full object-cover border {selected ? 'border-lamp' : 'border-cream/15 group-hover:border-cream/40'}"
 									/>
-									<span class="truncate text-[9px] font-mono text-faint group-hover:text-cream max-w-full">
-										{preset.name.split(' ')[0]}
-									</span>
+									<div class="min-w-0 flex-1">
+										<p class="truncate text-xs font-semibold {selected ? 'text-lamp' : 'text-cream group-hover:text-cream'}">
+											{preset.name}
+										</p>
+										<p class="truncate text-[10px] text-faint font-mono">
+											{preset.tagline}
+										</p>
+									</div>
 									{#if selected}
-										<span class="absolute top-1 right-1 grid h-3.5 w-3.5 place-items-center rounded-full bg-lamp text-night">
-											<IconCheck size={9} stroke={3} />
+										<span class="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-lamp text-night">
+											<IconCheck size={10} stroke={3} />
 										</span>
 									{/if}
 								</button>

@@ -14,6 +14,7 @@
 	import DeskHud from '#lib/components/DeskHud.svelte';
 	import PeerProfileModal from '#lib/components/PeerProfileModal.svelte';
 	import GlobalPauseModal from '#lib/components/GlobalPauseModal.svelte';
+	import ProfileSetupModal from '#lib/components/ProfileSetupModal.svelte';
 	import type { LayoutProps } from './$types';
 
 	let { children }: LayoutProps = $props();
@@ -78,3 +79,4 @@
 <DeskHud bind:open={showDeskHud} />
 <PeerProfileModal />
 <GlobalPauseModal />
+<ProfileSetupModal />
