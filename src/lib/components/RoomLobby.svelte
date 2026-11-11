@@ -204,6 +204,13 @@
 
 	const slug = $derived(sanitizeRoom(draft));
 	const hasReachedLimit = $derived(myRooms.length >= 1);
+	let limitAttempted = $state(false);
+
+	$effect(() => {
+		if (!hasReachedLimit) {
+			limitAttempted = false;
+		}
+	});
 
 	function create(event: SubmitEvent): void {
 		event.preventDefault();
@@ -213,9 +220,11 @@
 			return;
 		}
 		if (hasReachedLimit) {
-			nameError = 'Room limit reached: You can only host 1 active room at a time.';
+			limitAttempted = true;
+			nameError = 'Active room limit reached: Each host can run a maximum of 1 active room at a time. Please delete or close your current active room on the left to start a new one.';
 			return;
 		}
+		limitAttempted = false;
 		const name = draft.trim();
 		const cleanSlug = sanitizeRoom(name);
 		if (!name || !cleanSlug) {
@@ -500,7 +509,7 @@
 				</div>
 			</div>
 		{:else}
-			{#if hasReachedLimit}
+			{#if limitAttempted && hasReachedLimit}
 				<div class="rounded-xl border border-amber/30 bg-amber/10 p-3 sm:p-3.5 text-xs text-cream space-y-1 animate-in fade-in duration-150">
 					<p class="font-semibold text-amber flex items-center gap-1.5">
 						<span>⚠️ Active room limit reached (1 / 1)</span>
@@ -655,10 +664,10 @@
 				<button
 					type="submit"
 					class="btn btn-amber w-full font-medium disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
-					disabled={!slug || hasReachedLimit}
+					disabled={!slug}
 				>
 					<IconPlus size={16} stroke={1.5} />
-					{hasReachedLimit ? 'Limit reached (max 1 room)' : (isPrivate ? 'Create Private Room' : 'Create a room')}
+					{isPrivate ? 'Create Private Room' : 'Create a room'}
 				</button>
 			</form>
 		{/if}
