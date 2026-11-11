@@ -48,19 +48,14 @@
 		'dawn-walker'
 	];
 
+	// Exactly half the avatars (6 character avatars: 3 boys, 3 girls)
 	const PRESET_AVATARS = [
 		{ id: 'lofigirl', name: 'Lo-Fi Girl', url: '/avatars/lofi-girl.svg' },
 		{ id: 'lofiboy', name: 'Lo-Fi Boy', url: '/avatars/lofi-boy.svg' },
 		{ id: 'cybergirl', name: 'Cyber Girl', url: '/avatars/cyber-girl.svg' },
 		{ id: 'cyberboy', name: 'Cyber Boy', url: '/avatars/cyber-boy.svg' },
 		{ id: 'nightdev', name: 'Night Dev', url: '/avatars/night-dev.svg' },
-		{ id: 'beatsguy', name: 'Beats Guy', url: '/avatars/beats-producer.svg' },
-		{ id: 'owl', name: 'Night Owl', url: '/avatars/owl.svg' },
-		{ id: 'cassette', name: 'Analog Tape', url: '/avatars/cassette.svg' },
-		{ id: 'vinyl', name: 'Vinyl Record', url: '/avatars/vinyl.svg' },
-		{ id: 'coffee', name: 'Espresso Mug', url: '/avatars/coffee.svg' },
-		{ id: 'moon', name: 'Midnight Moon', url: '/avatars/moon.svg' },
-		{ id: 'saturn', name: 'Saturn Ring', url: '/avatars/saturn.svg' }
+		{ id: 'beatsguy', name: 'Beats Guy', url: '/avatars/beats-producer.svg' }
 	];
 
 	function handleRandomCallsign() {
@@ -121,12 +116,14 @@
 </script>
 
 <div class="mx-auto max-w-[420px] w-full">
+	<!-- 5% Orange Color Card with Solid Surface (No Gradients) -->
 	<div
-		class="relative overflow-hidden rounded-2xl border border-cream/15 bg-[#0e1315] p-6 sm:p-8 shadow-2xl text-cream"
+		class="relative overflow-hidden rounded-2xl border p-6 sm:p-8 shadow-2xl text-cream"
+		style="background-color: color-mix(in srgb, #ff7a00 5%, #0e1315); border-color: color-mix(in srgb, #ff7a00 24%, rgba(255, 255, 255, 0.12));"
 	>
 		<!-- Centered Brand Header -->
 		<div class="text-center mb-5">
-			<div class="mx-auto mb-3 grid h-11 w-11 place-items-center rounded-full border border-cream/15 bg-[#141c1f] text-lamp shadow-sm">
+			<div class="mx-auto mb-3 grid h-11 w-11 place-items-center rounded-full border border-orange-500/30 bg-orange-500/10 text-orange-400 shadow-sm">
 				<IconMoon size={22} stroke={1.8} />
 			</div>
 			<h2 class="text-xl font-bold tracking-tight text-cream">
@@ -144,8 +141,8 @@
 		{#if emailSent}
 			<!-- Email Sent State -->
 			<div class="space-y-4">
-				<div class="rounded-xl border border-cream/15 bg-[#141c1f] p-4 text-center">
-					<span class="inline-grid h-10 w-10 place-items-center rounded-full bg-lamp/15 text-lamp mb-2">
+				<div class="rounded-xl border border-orange-500/25 bg-[#141c1f] p-4 text-center">
+					<span class="inline-grid h-10 w-10 place-items-center rounded-full bg-orange-500/15 text-orange-400 mb-2">
 						<IconMail size={20} stroke={1.8} />
 					</span>
 					<p class="text-sm font-semibold text-cream">Verification link sent</p>
@@ -153,12 +150,12 @@
 						We sent an activation link to <span class="font-medium text-cream">{email.trim()}</span>.
 					</p>
 					<p class="mt-2 text-[11px] text-faint">
-						Click the link in your email to activate your account, then sign in.
+						Click the link to activate your account, then sign in.
 					</p>
 				</div>
 				<button
 					type="button"
-					class="btn btn-primary w-full py-2.5 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer rounded-lg"
+					class="btn btn-amber w-full py-2.5 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer rounded-lg"
 					onclick={() => handleSwitchMode(false)}
 				>
 					<span>Back to Sign In</span>
@@ -166,18 +163,18 @@
 				</button>
 			</div>
 		{:else}
-			<!-- Clean Social-Style Segmented Tab Switcher -->
-			<div class="grid grid-cols-2 rounded-xl bg-[#141c1f] p-1 border border-cream/10 text-xs font-medium mb-4">
+			<!-- Clean Social-Style Segmented Tab Switcher with 5% Orange Accent -->
+			<div class="grid grid-cols-2 rounded-xl bg-[#141a1c] p-1 border border-cream/10 text-xs font-medium mb-4">
 				<button
 					type="button"
-					class="rounded-lg py-2 transition-all cursor-pointer text-center {!isSignUp ? 'bg-[#1d262a] text-cream shadow-sm font-semibold' : 'text-taupe hover:text-cream'}"
+					class="rounded-lg py-2 transition-all cursor-pointer text-center {!isSignUp ? 'bg-orange-500/15 text-cream border border-orange-500/30 shadow-sm font-semibold' : 'text-taupe hover:text-cream'}"
 					onclick={() => handleSwitchMode(false)}
 				>
 					Sign in
 				</button>
 				<button
 					type="button"
-					class="rounded-lg py-2 transition-all cursor-pointer text-center {isSignUp ? 'bg-[#1d262a] text-cream shadow-sm font-semibold' : 'text-taupe hover:text-cream'}"
+					class="rounded-lg py-2 transition-all cursor-pointer text-center {isSignUp ? 'bg-orange-500/15 text-cream border border-orange-500/30 shadow-sm font-semibold' : 'text-taupe hover:text-cream'}"
 					onclick={() => handleSwitchMode(true)}
 				>
 					Sign up
@@ -202,7 +199,7 @@
 							</label>
 							<button
 								type="button"
-								class="text-[11px] text-faint hover:text-lamp flex items-center gap-1 transition-colors cursor-pointer"
+								class="text-[11px] text-faint hover:text-orange-400 flex items-center gap-1 transition-colors cursor-pointer"
 								onclick={handleRandomCallsign}
 								title="Roll random callsign"
 							>
@@ -217,23 +214,23 @@
 								maxlength="24"
 								required
 								autocomplete="nickname"
-								class="w-full rounded-lg border border-cream/15 bg-[#141c1f] px-3.5 py-2.5 text-sm text-cream outline-none focus:border-lamp focus:ring-1 focus:ring-lamp/40 transition-colors placeholder:text-faint/50"
+								class="w-full rounded-lg border border-cream/15 bg-[#121719] px-3.5 py-2.5 text-sm text-cream outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-400/40 transition-colors placeholder:text-faint/50"
 								placeholder="e.g. midnight-coder"
 								bind:value={callsign}
 							/>
 						</div>
 					</div>
 
-					<!-- Choose Starter Avatar -->
+					<!-- Choose Starter Avatar (Half of previous avatars: 6 distinct character avatars) -->
 					<div>
 						<span class="block text-xs font-medium text-cream/90 mb-1.5">
 							Choose Avatar
 						</span>
-						<div class="flex items-center gap-2 overflow-x-auto pb-1.5 pt-0.5 scrollbar-thin">
+						<div class="grid grid-cols-6 gap-2 pt-0.5">
 							{#each PRESET_AVATARS as preset}
 								<button
 									type="button"
-									class="relative h-10 w-10 shrink-0 rounded-full border-2 p-0.5 transition-all cursor-pointer {avatarUrl === preset.url ? 'border-lamp ring-2 ring-lamp/25 scale-105' : 'border-cream/15 opacity-65 hover:opacity-100 hover:border-cream/40'}"
+									class="relative aspect-square w-full rounded-full border-2 p-0.5 transition-all cursor-pointer {avatarUrl === preset.url ? 'border-orange-400 ring-2 ring-orange-400/35 scale-105' : 'border-cream/15 opacity-65 hover:opacity-100 hover:border-cream/40'}"
 									onclick={() => (avatarUrl = preset.url)}
 									title={preset.name}
 								>
@@ -258,7 +255,7 @@
 							type="email"
 							required
 							autocomplete="email"
-							class="w-full rounded-lg border border-cream/15 bg-[#141c1f] pl-10 pr-3.5 py-2.5 text-sm text-cream outline-none focus:border-lamp focus:ring-1 focus:ring-lamp/40 transition-colors placeholder:text-faint/50"
+							class="w-full rounded-lg border border-cream/15 bg-[#121719] pl-10 pr-3.5 py-2.5 text-sm text-cream outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-400/40 transition-colors placeholder:text-faint/50"
 							placeholder="name@example.com"
 							bind:value={email}
 						/>
@@ -285,7 +282,7 @@
 							required
 							minlength="6"
 							autocomplete={isSignUp ? 'new-password' : 'current-password'}
-							class="w-full rounded-lg border border-cream/15 bg-[#141c1f] pl-10 pr-10 py-2.5 text-sm text-cream outline-none focus:border-lamp focus:ring-1 focus:ring-lamp/40 transition-colors placeholder:text-faint/50"
+							class="w-full rounded-lg border border-cream/15 bg-[#121719] pl-10 pr-10 py-2.5 text-sm text-cream outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-400/40 transition-colors placeholder:text-faint/50"
 							placeholder="••••••••"
 							bind:value={password}
 						/>
@@ -309,7 +306,7 @@
 				<div class="pt-2">
 					<button
 						type="submit"
-						class="btn btn-primary w-full py-2.5 text-sm font-semibold flex items-center justify-center gap-2 cursor-pointer rounded-lg shadow-sm"
+						class="btn btn-amber w-full py-2.5 text-sm font-semibold flex items-center justify-center gap-2 cursor-pointer rounded-lg shadow-sm"
 						disabled={loading}
 					>
 						{#if loading}
@@ -328,7 +325,7 @@
 				{isSignUp ? 'Already have an account?' : "Don't have an account?"}
 				<button
 					type="button"
-					class="font-semibold text-lamp hover:underline ml-1 cursor-pointer"
+					class="font-semibold text-orange-400 hover:underline ml-1 cursor-pointer"
 					onclick={() => handleSwitchMode(!isSignUp)}
 				>
 					{isSignUp ? 'Sign in' : 'Sign up'}

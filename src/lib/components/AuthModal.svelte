@@ -78,17 +78,7 @@
 		{ id: 'cybergirl', name: 'Cyber Girl', url: '/avatars/cyber-girl.svg' },
 		{ id: 'cyberboy', name: 'Cyber Boy', url: '/avatars/cyber-boy.svg' },
 		{ id: 'nightdev', name: 'Night Dev', url: '/avatars/night-dev.svg' },
-		{ id: 'beatsguy', name: 'Beats Guy', url: '/avatars/beats-producer.svg' },
-		{ id: 'hoodie', name: 'Dark Hoodie', url: '/default-avatar.svg' },
-		{ id: 'moon', name: 'Midnight Moon', url: '/avatars/moon.svg' },
-		{ id: 'owl', name: 'Night Owl', url: '/avatars/owl.svg' },
-		{ id: 'headphones', name: 'Studio Cans', url: '/avatars/headphones.svg' },
-		{ id: 'coffee', name: 'Espresso Mug', url: '/avatars/coffee.svg' },
-		{ id: 'cassette', name: 'Analog Tape', url: '/avatars/cassette.svg' },
-		{ id: 'vinyl', name: 'Vinyl Record', url: '/avatars/vinyl.svg' },
-		{ id: 'terminal', name: 'Terminal Shell', url: '/avatars/terminal.svg' },
-		{ id: 'saturn', name: 'Cosmic Saturn', url: '/avatars/saturn.svg' },
-		{ id: 'cat', name: 'Neon Cat', url: '/avatars/cat.svg' }
+		{ id: 'beatsguy', name: 'Beats Guy', url: '/avatars/beats-producer.svg' }
 	];
 
 	const RANDOM_CALLSIGNS = [
