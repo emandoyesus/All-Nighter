@@ -655,7 +655,7 @@
 						<div class="mt-3 flex items-center gap-2">
 							<button
 								type="button"
-								class="btn btn-primary btn-sm flex-1 text-xs py-1.5 font-mono cursor-pointer flex items-center justify-center gap-1"
+								class="btn btn-primary btn-sm flex-1 text-xs py-1.5 font-medium cursor-pointer flex items-center justify-center gap-1 rounded-lg"
 								onclick={() => {
 									open = false;
 									authDialogMode = 'signin';
@@ -666,7 +666,7 @@
 							</button>
 							<button
 								type="button"
-								class="btn btn-ghost btn-sm flex-1 text-xs py-1.5 font-mono border border-cream/15 text-cream hover:border-amber/50 hover:text-amber cursor-pointer flex items-center justify-center gap-1"
+								class="btn btn-ghost btn-sm flex-1 text-xs py-1.5 font-medium border border-cream/15 text-cream hover:bg-cream/5 hover:border-cream/30 cursor-pointer flex items-center justify-center gap-1 rounded-lg"
 								onclick={() => {
 									open = false;
 									authDialogMode = 'signup';

@@ -8,8 +8,6 @@
 	import IconEye from '@tabler/icons-svelte/icons/eye';
 	import IconEyeOff from '@tabler/icons-svelte/icons/eye-off';
 	import IconDice from '@tabler/icons-svelte/icons/dice';
-	import IconCheck from '@tabler/icons-svelte/icons/check';
-	import IconSparkles from '@tabler/icons-svelte/icons/sparkles';
 	import IconUser from '@tabler/icons-svelte/icons/user';
 	import IconAlertCircle from '@tabler/icons-svelte/icons/alert-circle';
 	import IconArrowRight from '@tabler/icons-svelte/icons/arrow-right';
@@ -103,7 +101,6 @@
 				if (data.session) {
 					room.setName(chosenCallsign);
 					room.setAvatar(avatarUrl);
-					// Re-trigger room check if URL has room param
 					room.init();
 				} else {
 					emailSent = true;
@@ -135,44 +132,47 @@
 	}
 </script>
 
-<div class="mx-auto max-w-md w-full">
+<div class="mx-auto max-w-[420px] w-full">
 	<div
-		class="relative overflow-hidden rounded-2xl border border-cream/20 bg-[#0a1012] p-6 sm:p-8 shadow-2xl backdrop-blur-xl text-cream"
+		class="relative overflow-hidden rounded-2xl border border-cream/15 bg-[#0e1315] p-6 sm:p-8 shadow-2xl text-cream"
 	>
-		<!-- Ambient atmospheric lights -->
-		<div class="pointer-events-none absolute -top-24 -right-24 h-48 w-48 rounded-full bg-lamp/10 blur-3xl"></div>
-		<div class="pointer-events-none absolute -bottom-24 -left-24 h-48 w-48 rounded-full bg-amber/10 blur-3xl"></div>
-
-		<!-- Card Header -->
-		<div class="text-center relative z-10">
-			<span class="inline-grid h-12 w-12 place-items-center rounded-2xl border border-lamp/40 bg-lamp/10 text-lamp mb-3 shadow-sm">
-				<IconMoon size={24} stroke={1.8} />
-			</span>
-			<h2 class="text-xl sm:text-2xl font-bold tracking-tight text-cream">
-				{emailSent ? 'Check Your Inbox' : guestMode ? 'Enter Room as Guest' : isSignUp ? 'Join the Night Crew' : 'Sign In to Enter'}
+		<!-- Centered Brand Header -->
+		<div class="text-center mb-5">
+			<div class="mx-auto mb-3 grid h-11 w-11 place-items-center rounded-full border border-cream/15 bg-[#141c1f] text-lamp shadow-sm">
+				<IconMoon size={22} stroke={1.8} />
+			</div>
+			<h2 class="text-xl font-bold tracking-tight text-cream">
+				{emailSent ? 'Check your email' : guestMode ? 'Continue as guest' : isSignUp ? 'Create your account' : 'Sign in to All Nighter'}
 			</h2>
-			<p class="mt-1.5 text-xs text-taupe leading-relaxed">
-				{emailSent ? 'Confirmation link sent to your email' : guestMode ? 'Quick access without cloud sync' : 'Synchronized audio, collaborative queue, and focus room presence.'}
+			<p class="mt-1 text-xs text-taupe leading-relaxed">
+				{emailSent
+					? 'We sent a verification link to your inbox'
+					: guestMode
+						? 'Join the room instantly without creating an account'
+						: isSignUp
+							? 'Join the community and focus together till sunrise.'
+							: 'Welcome back! Please enter your details.'}
 			</p>
 		</div>
 
 		{#if emailSent}
 			<!-- Email Sent State -->
-			<div class="mt-6 relative z-10 space-y-4">
-				<div class="rounded-xl border border-lamp/30 bg-lamp/10 p-4 text-center">
-					<span class="inline-grid h-10 w-10 place-items-center rounded-full bg-lamp/20 text-lamp mb-2">
+			<div class="space-y-4">
+				<div class="rounded-xl border border-cream/15 bg-[#141c1f] p-4 text-center">
+					<span class="inline-grid h-10 w-10 place-items-center rounded-full bg-lamp/15 text-lamp mb-2">
 						<IconMail size={20} stroke={1.8} />
 					</span>
-					<p class="text-xs text-cream/90 leading-relaxed">
-						We sent a verification link to <span class="font-mono text-lamp font-bold">{email.trim()}</span>.
+					<p class="text-sm font-semibold text-cream">Verification link sent</p>
+					<p class="mt-1 text-xs text-taupe leading-relaxed">
+						We sent an activation link to <span class="font-medium text-cream">{email.trim()}</span>.
 					</p>
-					<p class="mt-2 text-[11px] text-taupe">
-						Follow the link in your email to confirm your account, then sign in below.
+					<p class="mt-2 text-[11px] text-faint">
+						Click the link in your email to activate your account, then sign in.
 					</p>
 				</div>
 				<button
 					type="button"
-					class="btn btn-primary w-full py-2.5 text-xs font-mono font-medium flex items-center justify-center gap-2"
+					class="btn btn-primary w-full py-2.5 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer rounded-lg"
 					onclick={() => handleSwitchMode(false)}
 				>
 					<span>Back to Sign In</span>
@@ -181,14 +181,10 @@
 			</div>
 		{:else if guestMode}
 			<!-- Guest Mode Form -->
-			<form class="mt-6 relative z-10 space-y-4" onsubmit={handleGuestContinue}>
-				<div class="rounded-xl border border-cream/10 bg-[#060a0b] p-3 text-xs text-taupe leading-relaxed">
-					Joining as a guest gives you full access to the live audio stream, chat, and room queue. You can upgrade to a cloud account anytime.
-				</div>
-
+			<form class="space-y-4" onsubmit={handleGuestContinue}>
 				<div>
-					<label for="room-guest-callsign" class="block font-mono text-[11px] uppercase tracking-wider text-faint mb-1.5">
-						Your Callsign / Name
+					<label for="room-guest-callsign" class="block text-xs font-medium text-cream/90 mb-1.5">
+						Callsign / Display Name
 					</label>
 					<div class="flex items-center gap-2">
 						<input
@@ -196,7 +192,7 @@
 							type="text"
 							maxlength="24"
 							required
-							class="w-full rounded-lg border border-cream/15 bg-night px-3.5 py-2.5 text-sm font-mono text-cream outline-none focus:border-lamp transition-colors placeholder:text-faint/50"
+							class="w-full rounded-lg border border-cream/15 bg-[#141c1f] px-3.5 py-2.5 text-sm text-cream outline-none focus:border-lamp focus:ring-1 focus:ring-lamp/40 transition-colors placeholder:text-faint/50"
 							placeholder="e.g. night-owl"
 							bind:value={guestCallsign}
 						/>
@@ -212,207 +208,213 @@
 							<IconDice size={16} stroke={1.5} />
 						</button>
 					</div>
+					<p class="mt-1 text-[11px] text-faint">
+						Guests can listen to music and chat. Create an account anytime to save your hours permanently.
+					</p>
 				</div>
 
-				<div class="pt-2 flex flex-col gap-2">
+				<div class="pt-1 flex flex-col gap-2">
 					<button
 						type="submit"
-						class="btn btn-primary w-full py-2.5 text-xs font-mono font-semibold flex items-center justify-center gap-2 cursor-pointer shadow-md"
+						class="btn btn-primary w-full py-2.5 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer shadow-md rounded-lg"
 					>
 						<span>Enter Room as Guest</span>
 						<IconArrowRight size={14} stroke={2} />
 					</button>
 					<button
 						type="button"
-						class="btn btn-ghost w-full py-2 text-xs text-taupe hover:text-cream"
+						class="btn btn-ghost w-full py-2 text-xs text-taupe hover:text-cream cursor-pointer"
 						onclick={() => (guestMode = false)}
 					>
-						← Back to Sign In / Sign Up
+						← Back to Sign In
 					</button>
 				</div>
 			</form>
 		{:else}
-			<!-- Main Auth Form -->
-			<div class="mt-6 relative z-10">
-				<!-- Segmented Switcher Pill -->
-				<div class="flex rounded-xl bg-[#060a0b] p-1 border border-cream/10 text-xs font-mono mb-4">
-					<button
-						type="button"
-						class="flex-1 rounded-lg py-2 font-medium transition-all flex items-center justify-center gap-1.5 {!isSignUp ? 'bg-lamp/15 text-lamp border border-lamp/30 shadow-sm' : 'text-faint hover:text-cream'}"
-						onclick={() => handleSwitchMode(false)}
-					>
-						<IconUser size={13} stroke={1.8} />
-						<span>Sign In</span>
-					</button>
-					<button
-						type="button"
-						class="flex-1 rounded-lg py-2 font-medium transition-all flex items-center justify-center gap-1.5 {isSignUp ? 'bg-amber/15 text-amber border border-amber/30 shadow-sm' : 'text-faint hover:text-cream'}"
-						onclick={() => handleSwitchMode(true)}
-					>
-						<IconSparkles size={13} stroke={1.8} />
-						<span>Create Account</span>
-					</button>
+			<!-- Clean Social-Style Segmented Tab Switcher -->
+			<div class="grid grid-cols-2 rounded-xl bg-[#141c1f] p-1 border border-cream/10 text-xs font-medium mb-4">
+				<button
+					type="button"
+					class="rounded-lg py-2 transition-all cursor-pointer text-center {!isSignUp ? 'bg-[#1d262a] text-cream shadow-sm font-semibold' : 'text-taupe hover:text-cream'}"
+					onclick={() => handleSwitchMode(false)}
+				>
+					Sign in
+				</button>
+				<button
+					type="button"
+					class="rounded-lg py-2 transition-all cursor-pointer text-center {isSignUp ? 'bg-[#1d262a] text-cream shadow-sm font-semibold' : 'text-taupe hover:text-cream'}"
+					onclick={() => handleSwitchMode(true)}
+				>
+					Sign up
+				</button>
+			</div>
+
+			<!-- Error alert -->
+			{#if error}
+				<div class="mb-4 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-xs text-rose-300 flex items-start gap-2">
+					<IconAlertCircle size={16} stroke={2} class="shrink-0 mt-0.5 text-rose-400" />
+					<span class="leading-relaxed">{error}</span>
 				</div>
+			{/if}
 
-				{#if error}
-					<div class="mb-4 rounded-xl border border-ruby/30 bg-ruby/10 p-3 text-xs text-rose-300 flex items-start gap-2">
-						<IconAlertCircle size={16} stroke={2} class="shrink-0 mt-0.5 text-ruby" />
-						<span class="leading-relaxed">{error}</span>
-					</div>
-				{/if}
-
-				<form class="space-y-3.5" onsubmit={handleSubmit}>
-					{#if isSignUp}
-						<!-- Callsign Field -->
-						<div>
-							<div class="flex items-center justify-between mb-1.5">
-								<label for="room-signup-callsign" class="text-xs font-mono uppercase tracking-wider text-faint">
-									Callsign <span class="text-amber">*</span>
-								</label>
-								<button
-									type="button"
-									class="text-[11px] font-mono text-faint hover:text-lamp flex items-center gap-1 transition-colors cursor-pointer"
-									onclick={handleRandomCallsign}
-									title="Roll random callsign"
-								>
-									<IconDice size={12} stroke={1.5} />
-									<span>Randomize</span>
-								</button>
-							</div>
+			<form class="space-y-3.5" onsubmit={handleSubmit}>
+				{#if isSignUp}
+					<!-- Callsign Field -->
+					<div>
+						<div class="flex items-center justify-between mb-1.5">
+							<label for="room-callsign" class="text-xs font-medium text-cream/90">
+								Callsign / Username
+							</label>
+							<button
+								type="button"
+								class="text-[11px] text-faint hover:text-lamp flex items-center gap-1 transition-colors cursor-pointer"
+								onclick={handleRandomCallsign}
+								title="Roll random callsign"
+							>
+								<IconDice size={12} stroke={1.5} />
+								<span>Suggest</span>
+							</button>
+						</div>
+						<div class="relative">
 							<input
-								id="room-signup-callsign"
+								id="room-callsign"
 								type="text"
 								maxlength="24"
 								required
 								autocomplete="nickname"
-								class="w-full rounded-lg border border-cream/15 bg-night px-3.5 py-2.5 text-xs font-mono text-cream outline-none focus:border-lamp transition-colors placeholder:text-faint/50"
-								placeholder="e.g. solomon"
+								class="w-full rounded-lg border border-cream/15 bg-[#141c1f] px-3.5 py-2.5 text-sm text-cream outline-none focus:border-lamp focus:ring-1 focus:ring-lamp/40 transition-colors placeholder:text-faint/50"
+								placeholder="e.g. midnight-coder"
 								bind:value={callsign}
 							/>
 						</div>
+					</div>
 
-						<!-- Starter Avatar Selection -->
-						<div>
-							<span class="block text-xs font-mono uppercase tracking-wider text-faint mb-2">
-								Choose Avatar
-							</span>
-							<div class="grid grid-cols-4 gap-2">
-								{#each PRESET_AVATARS as preset}
-									<button
-										type="button"
-										class="flex flex-col items-center gap-1 rounded-xl border p-1.5 transition-all {avatarUrl === preset.url ? 'border-lamp bg-lamp/15 scale-105 shadow-sm' : 'border-cream/10 bg-[#060a0b] hover:border-cream/20'}"
-										onclick={() => (avatarUrl = preset.url)}
-										title={preset.name}
-									>
-										<img src={preset.url} alt={preset.name} class="h-8 w-8 rounded-full object-cover" />
-										<span class="text-[9px] font-mono text-taupe truncate w-full text-center">{preset.name}</span>
-									</button>
-								{/each}
-							</div>
-						</div>
-					{/if}
-
-					<!-- Email Address -->
+					<!-- Choose Starter Avatar -->
 					<div>
-						<label for="room-auth-email" class="block text-xs font-mono uppercase tracking-wider text-faint mb-1.5">
-							Email Address <span class="text-amber">*</span>
+						<span class="block text-xs font-medium text-cream/90 mb-1.5">
+							Choose Avatar
+						</span>
+						<div class="flex items-center gap-2 overflow-x-auto pb-1.5 pt-0.5 scrollbar-thin">
+							{#each PRESET_AVATARS as preset}
+								<button
+									type="button"
+									class="relative h-10 w-10 shrink-0 rounded-full border-2 p-0.5 transition-all cursor-pointer {avatarUrl === preset.url ? 'border-lamp ring-2 ring-lamp/25 scale-105' : 'border-cream/15 opacity-65 hover:opacity-100 hover:border-cream/40'}"
+									onclick={() => (avatarUrl = preset.url)}
+									title={preset.name}
+								>
+									<img src={preset.url} alt={preset.name} class="h-full w-full rounded-full object-cover" />
+								</button>
+							{/each}
+						</div>
+					</div>
+				{/if}
+
+				<!-- Email Field -->
+				<div>
+					<label for="room-email" class="block text-xs font-medium text-cream/90 mb-1.5">
+						Email
+					</label>
+					<div class="relative flex items-center">
+						<span class="pointer-events-none absolute left-3.5 text-faint">
+							<IconMail size={16} stroke={1.5} />
+						</span>
+						<input
+							id="room-email"
+							type="email"
+							required
+							autocomplete="email"
+							class="w-full rounded-lg border border-cream/15 bg-[#141c1f] pl-10 pr-3.5 py-2.5 text-sm text-cream outline-none focus:border-lamp focus:ring-1 focus:ring-lamp/40 transition-colors placeholder:text-faint/50"
+							placeholder="name@example.com"
+							bind:value={email}
+						/>
+					</div>
+				</div>
+
+				<!-- Password Field -->
+				<div>
+					<div class="flex items-center justify-between mb-1.5">
+						<label for="room-password" class="text-xs font-medium text-cream/90">
+							Password
 						</label>
-						<div class="relative flex items-center">
-							<span class="pointer-events-none absolute left-3.5 text-faint">
-								<IconMail size={15} stroke={1.5} />
-							</span>
-							<input
-								id="room-auth-email"
-								type="email"
-								required
-								autocomplete="email"
-								class="w-full rounded-lg border border-cream/15 bg-night pl-9 pr-3.5 py-2.5 text-xs font-mono text-cream outline-none focus:border-lamp transition-colors placeholder:text-faint/50"
-								placeholder="you@example.com"
-								bind:value={email}
-							/>
-						</div>
+						{#if isSignUp}
+							<span class="text-[11px] text-faint">At least 6 characters</span>
+						{/if}
 					</div>
-
-					<!-- Password -->
-					<div>
-						<div class="flex items-center justify-between mb-1.5">
-							<label for="room-auth-password" class="text-xs font-mono uppercase tracking-wider text-faint">
-								Password <span class="text-amber">*</span>
-							</label>
-							{#if isSignUp}
-								<span class="text-[10px] font-mono text-faint">min 6 chars</span>
-							{/if}
-						</div>
-						<div class="relative flex items-center">
-							<span class="pointer-events-none absolute left-3.5 text-faint">
-								<IconLock size={15} stroke={1.5} />
-							</span>
-							<input
-								id="room-auth-password"
-								type={showPassword ? 'text' : 'password'}
-								required
-								minlength="6"
-								autocomplete={isSignUp ? 'new-password' : 'current-password'}
-								class="w-full rounded-lg border border-cream/15 bg-night pl-9 pr-10 py-2.5 text-xs font-mono text-cream outline-none focus:border-lamp transition-colors placeholder:text-faint/50"
-								placeholder="••••••••"
-								bind:value={password}
-							/>
-							<button
-								type="button"
-								class="absolute right-2.5 text-faint hover:text-cream p-1 transition-colors"
-								onclick={() => (showPassword = !showPassword)}
-								title={showPassword ? 'Hide password' : 'Show password'}
-								aria-label={showPassword ? 'Hide password' : 'Show password'}
-							>
-								{#if showPassword}
-									<IconEyeOff size={15} stroke={1.5} />
-								{:else}
-									<IconEye size={15} stroke={1.5} />
-								{/if}
-							</button>
-						</div>
-					</div>
-
-					<!-- Submit Button -->
-					<div class="pt-2">
-						<button
-							type="submit"
-							class="btn w-full py-2.5 text-xs font-mono font-semibold flex items-center justify-center gap-2 cursor-pointer shadow-md transition-all hover:scale-[1.01] {isSignUp ? 'btn-amber' : 'btn-primary'}"
-							disabled={loading}
-						>
-							{#if loading}
-								<span class="soft-blink h-2 w-2 rounded-full bg-night"></span>
-								<span>{isSignUp ? 'Creating Account...' : 'Connecting...'}</span>
-							{:else}
-								<span>{isSignUp ? 'Create Account & Enter' : 'Sign In & Enter'}</span>
-								<IconArrowRight size={14} stroke={2} />
-							{/if}
-						</button>
-					</div>
-				</form>
-
-				<!-- Footer switcher & Guest link -->
-				<div class="mt-4 pt-3 border-t border-cream/10 flex flex-col items-center gap-2 text-xs">
-					<p class="text-taupe text-center">
-						{isSignUp ? 'Already have an account?' : 'First night here?'}
+					<div class="relative flex items-center">
+						<span class="pointer-events-none absolute left-3.5 text-faint">
+							<IconLock size={16} stroke={1.5} />
+						</span>
+						<input
+							id="room-password"
+							type={showPassword ? 'text' : 'password'}
+							required
+							minlength="6"
+							autocomplete={isSignUp ? 'new-password' : 'current-password'}
+							class="w-full rounded-lg border border-cream/15 bg-[#141c1f] pl-10 pr-10 py-2.5 text-sm text-cream outline-none focus:border-lamp focus:ring-1 focus:ring-lamp/40 transition-colors placeholder:text-faint/50"
+							placeholder="••••••••"
+							bind:value={password}
+						/>
 						<button
 							type="button"
-							class="text-lamp hover:underline font-medium ml-1 cursor-pointer"
-							onclick={() => handleSwitchMode(!isSignUp)}
+							class="absolute right-2.5 text-faint hover:text-cream p-1 transition-colors cursor-pointer"
+							onclick={() => (showPassword = !showPassword)}
+							title={showPassword ? 'Hide password' : 'Show password'}
+							aria-label={showPassword ? 'Hide password' : 'Show password'}
 						>
-							{isSignUp ? 'Sign In instead' : 'Create an account'}
+							{#if showPassword}
+								<IconEyeOff size={16} stroke={1.5} />
+							{:else}
+								<IconEye size={16} stroke={1.5} />
+							{/if}
 						</button>
-					</p>
+					</div>
+				</div>
 
+				<!-- Submit Button -->
+				<div class="pt-2">
 					<button
-						type="button"
-						class="text-faint hover:text-cream text-[11px] font-mono transition-colors mt-0.5"
-						onclick={() => (guestMode = true)}
+						type="submit"
+						class="btn btn-primary w-full py-2.5 text-sm font-semibold flex items-center justify-center gap-2 cursor-pointer rounded-lg shadow-sm"
+						disabled={loading}
 					>
-						Or continue as guest (enter without account) →
+						{#if loading}
+							<span class="soft-blink h-2 w-2 rounded-full bg-night"></span>
+							<span>{isSignUp ? 'Creating account...' : 'Signing in...'}</span>
+						{:else}
+							<span>{isSignUp ? 'Create account' : 'Sign in'}</span>
+							<IconArrowRight size={15} stroke={2} />
+						{/if}
 					</button>
 				</div>
+			</form>
+
+			<!-- Social Media Style Divider -->
+			<div class="relative my-4 flex items-center justify-center">
+				<div class="w-full border-t border-cream/10"></div>
+				<span class="absolute bg-[#0e1315] px-3 text-xs text-faint uppercase tracking-wider">or</span>
 			</div>
+
+			<!-- Secondary Guest Action -->
+			<button
+				type="button"
+				class="w-full rounded-lg border border-cream/15 bg-[#141c1f] py-2.5 text-xs font-medium text-cream hover:bg-[#1a2327] hover:border-cream/30 transition-all flex items-center justify-center gap-2 cursor-pointer"
+				onclick={() => (guestMode = true)}
+			>
+				<IconUser size={15} stroke={1.75} class="text-taupe" />
+				<span>Continue as guest</span>
+			</button>
+
+			<!-- Bottom Switcher -->
+			<p class="mt-4 text-center text-xs text-taupe">
+				{isSignUp ? 'Already have an account?' : "Don't have an account?"}
+				<button
+					type="button"
+					class="font-semibold text-lamp hover:underline ml-1 cursor-pointer"
+					onclick={() => handleSwitchMode(!isSignUp)}
+				>
+					{isSignUp ? 'Sign in' : 'Sign up'}
+				</button>
+			</p>
 		{/if}
 	</div>
 </div>
