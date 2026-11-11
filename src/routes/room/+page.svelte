@@ -213,9 +213,12 @@
 							<Player />
 						</div>
 
-						<!-- Right: Room Mode -->
+						<!-- Right: Room Mode & Roster at bottom -->
 						<aside class="flex min-w-0 flex-col gap-3">
 							<ModeToggle />
+							<div id="crew-roster">
+								<PresencePanel />
+							</div>
 						</aside>
 					</div>
 				{:else}
@@ -227,12 +230,12 @@
 						</div>
 						<aside class="flex min-w-0 flex-col gap-3">
 							<JoinRequests />
-							<div id="crew-roster">
-								<PresencePanel />
-							</div>
 							<ModeToggle />
 							<Countdown />
 							<ChatPanel />
+							<div id="crew-roster">
+								<PresencePanel />
+							</div>
 
 							{#if room.isHost}
 								<div class="pt-1 flex flex-col gap-2">
