@@ -22,6 +22,14 @@
 	let loading = $derived(isGoogleLoading || isEmailLoading);
 	let error = $state('');
 	let emailSent = $state(false);
+	let invitedRoom = $state('');
+
+	$effect(() => {
+		if (typeof window !== 'undefined') {
+			const p = new URLSearchParams(window.location.search).get('room');
+			if (p) invitedRoom = p;
+		}
+	});
 
 	const RANDOM_CALLSIGNS = [
 		'midnight-coder',
@@ -202,6 +210,27 @@
 						: 'Welcome back! Please enter your details.'}
 			</p>
 		</div>
+
+		<!-- Invited Room Preview Card -->
+		{#if invitedRoom}
+			<div class="mb-5 rounded-xl border border-lamp/30 bg-lamp/10 p-3.5 flex items-center gap-3 animate-in fade-in duration-150">
+				<div class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-lamp/20 text-lamp border border-lamp/35 shadow-sm">
+					<IconMoon size={20} stroke={1.8} />
+				</div>
+				<div class="min-w-0 flex-1">
+					<div class="flex items-center gap-1.5">
+						<span class="h-1.5 w-1.5 rounded-full bg-lamp animate-pulse"></span>
+						<span class="text-[10px] font-mono text-lamp uppercase font-semibold tracking-wider">Room Invitation</span>
+					</div>
+					<h3 class="text-xs sm:text-sm font-semibold text-cream truncate mt-0.5">
+						Invited to <span class="text-lamp font-mono">“{invitedRoom}”</span>
+					</h3>
+					<p class="text-[11px] text-taupe leading-tight mt-0.5">
+						Sign in below to enter the room, join the chat, and sync headphones with the crew.
+					</p>
+				</div>
+			</div>
+		{/if}
 
 		{#if emailSent}
 			<!-- Email Sent State -->
