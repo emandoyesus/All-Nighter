@@ -8,7 +8,6 @@
 	import IconEye from '@tabler/icons-svelte/icons/eye';
 	import IconEyeOff from '@tabler/icons-svelte/icons/eye-off';
 	import IconDice from '@tabler/icons-svelte/icons/dice';
-	import IconUser from '@tabler/icons-svelte/icons/user';
 	import IconAlertCircle from '@tabler/icons-svelte/icons/alert-circle';
 	import IconArrowRight from '@tabler/icons-svelte/icons/arrow-right';
 
@@ -21,8 +20,6 @@
 	let loading = $state(false);
 	let error = $state('');
 	let emailSent = $state(false);
-	let guestMode = $state(false);
-	let guestCallsign = $state(room.name || 'night-owl');
 
 	const RANDOM_CALLSIGNS = [
 		'midnight-coder',
@@ -75,7 +72,6 @@
 		isSignUp = signup;
 		error = '';
 		emailSent = false;
-		guestMode = false;
 	}
 
 	async function handleSubmit(e: SubmitEvent) {
@@ -122,14 +118,6 @@
 			loading = false;
 		}
 	}
-
-	function handleGuestContinue(e: SubmitEvent) {
-		e.preventDefault();
-		const name = guestCallsign.trim() || 'night-owl';
-		auth.continueAsGuest(name);
-		room.setName(name);
-		room.init();
-	}
 </script>
 
 <div class="mx-auto max-w-[420px] w-full">
@@ -142,16 +130,14 @@
 				<IconMoon size={22} stroke={1.8} />
 			</div>
 			<h2 class="text-xl font-bold tracking-tight text-cream">
-				{emailSent ? 'Check your email' : guestMode ? 'Continue as guest' : isSignUp ? 'Create your account' : 'Sign in to All Nighter'}
+				{emailSent ? 'Check your email' : isSignUp ? 'Create your account' : 'Sign in to All Nighter'}
 			</h2>
 			<p class="mt-1 text-xs text-taupe leading-relaxed">
 				{emailSent
 					? 'We sent a verification link to your inbox'
-					: guestMode
-						? 'Join the room instantly without creating an account'
-						: isSignUp
-							? 'Join the community and focus together till sunrise.'
-							: 'Welcome back! Please enter your details.'}
+					: isSignUp
+						? 'Join the community and focus together till sunrise.'
+						: 'Welcome back! Please enter your details.'}
 			</p>
 		</div>
 
@@ -179,57 +165,6 @@
 					<IconArrowRight size={14} stroke={2} />
 				</button>
 			</div>
-		{:else if guestMode}
-			<!-- Guest Mode Form -->
-			<form class="space-y-4" onsubmit={handleGuestContinue}>
-				<div>
-					<label for="room-guest-callsign" class="block text-xs font-medium text-cream/90 mb-1.5">
-						Callsign / Display Name
-					</label>
-					<div class="flex items-center gap-2">
-						<input
-							id="room-guest-callsign"
-							type="text"
-							maxlength="24"
-							required
-							class="w-full rounded-lg border border-cream/15 bg-[#141c1f] px-3.5 py-2.5 text-sm text-cream outline-none focus:border-lamp focus:ring-1 focus:ring-lamp/40 transition-colors placeholder:text-faint/50"
-							placeholder="e.g. night-owl"
-							bind:value={guestCallsign}
-						/>
-						<button
-							type="button"
-							class="btn btn-ghost btn-sm px-2.5 py-2.5 shrink-0 border border-cream/15 hover:border-lamp hover:text-lamp transition-colors"
-							onclick={() => {
-								const pool = RANDOM_CALLSIGNS.filter((c) => c !== guestCallsign);
-								guestCallsign = pool[Math.floor(Math.random() * pool.length)];
-							}}
-							title="Roll random callsign"
-						>
-							<IconDice size={16} stroke={1.5} />
-						</button>
-					</div>
-					<p class="mt-1 text-[11px] text-faint">
-						Guests can listen to music and chat. Create an account anytime to save your hours permanently.
-					</p>
-				</div>
-
-				<div class="pt-1 flex flex-col gap-2">
-					<button
-						type="submit"
-						class="btn btn-primary w-full py-2.5 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer shadow-md rounded-lg"
-					>
-						<span>Enter Room as Guest</span>
-						<IconArrowRight size={14} stroke={2} />
-					</button>
-					<button
-						type="button"
-						class="btn btn-ghost w-full py-2 text-xs text-taupe hover:text-cream cursor-pointer"
-						onclick={() => (guestMode = false)}
-					>
-						← Back to Sign In
-					</button>
-				</div>
-			</form>
 		{:else}
 			<!-- Clean Social-Style Segmented Tab Switcher -->
 			<div class="grid grid-cols-2 rounded-xl bg-[#141c1f] p-1 border border-cream/10 text-xs font-medium mb-4">
@@ -387,22 +322,6 @@
 					</button>
 				</div>
 			</form>
-
-			<!-- Social Media Style Divider -->
-			<div class="relative my-4 flex items-center justify-center">
-				<div class="w-full border-t border-cream/10"></div>
-				<span class="absolute bg-[#0e1315] px-3 text-xs text-faint uppercase tracking-wider">or</span>
-			</div>
-
-			<!-- Secondary Guest Action -->
-			<button
-				type="button"
-				class="w-full rounded-lg border border-cream/15 bg-[#141c1f] py-2.5 text-xs font-medium text-cream hover:bg-[#1a2327] hover:border-cream/30 transition-all flex items-center justify-center gap-2 cursor-pointer"
-				onclick={() => (guestMode = true)}
-			>
-				<IconUser size={15} stroke={1.75} class="text-taupe" />
-				<span>Continue as guest</span>
-			</button>
 
 			<!-- Bottom Switcher -->
 			<p class="mt-4 text-center text-xs text-taupe">

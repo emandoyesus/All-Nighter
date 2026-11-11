@@ -650,7 +650,7 @@
 							</div>
 						</div>
 						<p class="text-[11px] text-taupe leading-relaxed mt-1">
-							Currently playing as guest. Sign in or create an account to preserve your nocturnal history across all devices.
+							Sign in or create an account to preserve your nocturnal history and badges across all devices.
 						</p>
 						<div class="mt-3 flex items-center gap-2">
 							<button
