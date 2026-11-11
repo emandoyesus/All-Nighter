@@ -914,16 +914,17 @@ class Room {
 			} catch {}
 		}
 
+		const effectiveAutoArchive = isPrivate ? autoArchive : true;
 		try {
-			localStorage.setItem('an.auto_archive.' + slug, autoArchive ? '1' : '0');
+			localStorage.setItem('an.auto_archive.' + slug, effectiveAutoArchive ? '1' : '0');
 		} catch {}
 
-		this.enterApproved(slug, name.trim() || slug, true, true, isPrivate, adminOnlyPlayback, key, keyHash, autoArchive);
+		this.enterApproved(slug, name.trim() || slug, true, true, isPrivate, adminOnlyPlayback, key, keyHash, effectiveAutoArchive);
 	}
 
-	/** Toggle archive preference for this room (Host only). */
+	/** Toggle archive preference for this room (Host only, private rooms only). */
 	toggleAutoArchive(): void {
-		if (!this.isHost) return;
+		if (!this.isHost || !this.state.isPrivate) return;
 		const next = this.state.autoArchive === false ? true : false;
 		this.state = {
 			...this.state,
@@ -1088,13 +1089,16 @@ class Room {
 			this.activeKeyHash = accessKeyHash;
 		}
 
-		let initialAutoArchive = autoArchive;
-		try {
-			const savedArchivePref = localStorage.getItem('an.auto_archive.' + slug);
-			if (savedArchivePref !== null) {
-				initialAutoArchive = savedArchivePref === '1';
-			}
-		} catch {}
+		let initialAutoArchive = true;
+		if (isPrivate) {
+			initialAutoArchive = autoArchive;
+			try {
+				const savedArchivePref = localStorage.getItem('an.auto_archive.' + slug);
+				if (savedArchivePref !== null) {
+					initialAutoArchive = savedArchivePref === '1';
+				}
+			} catch {}
+		}
 
 		if (isNew) {
 			const starter: Track = {
@@ -1214,8 +1218,12 @@ class Room {
 			return;
 		}
 
-		// Check explicit archive decision, or fallback to autoArchive preference if dawn
-		const doArchive = shouldArchive !== undefined ? shouldArchive : (this.isDawn && this.state.autoArchive !== false);
+		// Public rooms are automatically archived if dawn or if explicitly requested.
+		// For private rooms, the host decides (shouldArchive override or autoArchive preference if dawn).
+		const isPrivate = !!this.state.isPrivate;
+		const doArchive = isPrivate
+			? (shouldArchive !== undefined ? shouldArchive : (this.isDawn && this.state.autoArchive !== false))
+			: (shouldArchive !== undefined ? shouldArchive : this.isDawn);
 		if (doArchive) {
 			await this.archiveRoom();
 			return;
@@ -1899,7 +1907,8 @@ class Room {
 		const now = Date.now();
 		this.now = now;
 
-		// Auto-archive when dawn is reached during an active overnight session (if host prefers archiving)
+		// Auto-archive when dawn is reached during an active overnight session
+		// Public rooms are always auto-archived at dawn; private rooms respect host preference.
 		if (
 			this.isHost &&
 			this.joinState === 'approved' &&
@@ -1909,10 +1918,11 @@ class Room {
 			!this.dawnArchived
 		) {
 			this.dawnArchived = true;
-			if (this.state.autoArchive !== false) {
+			const shouldAutoArchive = !this.state.isPrivate || this.state.autoArchive !== false;
+			if (shouldAutoArchive) {
 				void this.archiveRoom();
 			} else {
-				console.log('[Room] Dawn reached: room auto-archive skipped per host preference');
+				console.log('[Room] Dawn reached: private room auto-archive skipped per host preference');
 			}
 		}
 

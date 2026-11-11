@@ -14,7 +14,7 @@
 
 	$effect(() => {
 		if (open) {
-			archiveOnDelete = room.state.autoArchive !== false;
+			archiveOnDelete = room.state.isPrivate ? (room.state.autoArchive !== false) : true;
 		}
 	});
 
@@ -103,38 +103,48 @@
 			</div>
 
 			<!-- Archive Preference on Delete -->
-			<div class="mt-4 rounded-xl border border-cream/10 bg-night p-3">
-				<span class="mb-2 block text-xs font-mono text-faint">Logbook Archive Option</span>
-				<div class="grid grid-cols-2 gap-2">
-					<button
-						type="button"
-						class="flex flex-col items-start gap-1 rounded-lg border p-2 text-left text-xs transition-colors cursor-pointer {archiveOnDelete
-							? 'border-lamp/50 bg-lamp/10 text-lamp'
-							: 'border-cream/10 bg-night-2 text-taupe hover:border-cream/20 hover:text-cream'}"
-						onclick={() => (archiveOnDelete = true)}
-					>
-						<span class="flex items-center gap-1.5 font-medium">
-							<IconBookmark size={13} stroke={2} />
-							Save to Logbook
-						</span>
-						<span class="text-[10px] text-faint leading-snug">Preserve tracks & roster</span>
-					</button>
+			{#if room.state.isPrivate}
+				<div class="mt-4 rounded-xl border border-cream/10 bg-night p-3">
+					<span class="mb-2 block text-xs font-mono text-faint">Logbook Archive Option (Private Room)</span>
+					<div class="grid grid-cols-2 gap-2">
+						<button
+							type="button"
+							class="flex flex-col items-start gap-1 rounded-lg border p-2 text-left text-xs transition-colors cursor-pointer {archiveOnDelete
+								? 'border-lamp/50 bg-lamp/10 text-lamp'
+								: 'border-cream/10 bg-night-2 text-taupe hover:border-cream/20 hover:text-cream'}"
+							onclick={() => (archiveOnDelete = true)}
+						>
+							<span class="flex items-center gap-1.5 font-medium">
+								<IconBookmark size={13} stroke={2} />
+								Save to Logbook
+							</span>
+							<span class="text-[10px] text-faint leading-snug">Preserve tracks & roster</span>
+						</button>
 
-					<button
-						type="button"
-						class="flex flex-col items-start gap-1 rounded-lg border p-2 text-left text-xs transition-colors cursor-pointer {!archiveOnDelete
-							? 'border-ruby/50 bg-ruby/10 text-ruby'
-							: 'border-cream/10 bg-night-2 text-taupe hover:border-cream/20 hover:text-cream'}"
-						onclick={() => (archiveOnDelete = false)}
-					>
-						<span class="flex items-center gap-1.5 font-medium">
-							<IconFlame size={13} stroke={2} />
-							Discard Completely
-						</span>
-						<span class="text-[10px] text-faint leading-snug">Ephemeral wipe</span>
-					</button>
+						<button
+							type="button"
+							class="flex flex-col items-start gap-1 rounded-lg border p-2 text-left text-xs transition-colors cursor-pointer {!archiveOnDelete
+								? 'border-ruby/50 bg-ruby/10 text-ruby'
+								: 'border-cream/10 bg-night-2 text-taupe hover:border-cream/20 hover:text-cream'}"
+							onclick={() => (archiveOnDelete = false)}
+						>
+							<span class="flex items-center gap-1.5 font-medium">
+								<IconFlame size={13} stroke={2} />
+								Discard Completely
+							</span>
+							<span class="text-[10px] text-faint leading-snug">Ephemeral wipe</span>
+						</button>
+					</div>
 				</div>
-			</div>
+			{:else}
+				<div class="mt-4 rounded-xl border border-cream/10 bg-night p-3 text-xs text-taupe flex items-center justify-between">
+					<span class="flex items-center gap-2 text-cream/90">
+						<IconBookmark size={14} class="text-lamp shrink-0" stroke={2} />
+						<span>Public Room Archive Policy</span>
+					</span>
+					<span class="text-[11px] font-mono text-lamp">Auto-archived at dawn</span>
+				</div>
+			{/if}
 
 			<!-- Double Check Verification Input -->
 			<div class="mt-4">

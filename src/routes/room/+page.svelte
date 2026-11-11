@@ -214,26 +214,39 @@
 
 							{#if room.isHost}
 								<div class="pt-1 flex flex-col gap-2">
-									<!-- Archive Preference Toggle for Host -->
-									<button
-										type="button"
-										class="flex items-center justify-between rounded-lg border px-2.5 py-1.5 text-[11px] font-mono transition-colors cursor-pointer {room.state.autoArchive !== false
-											? 'border-lamp/30 bg-lamp/5 text-lamp hover:bg-lamp/10'
-											: 'border-cream/10 bg-night-3 text-taupe hover:border-cream/20 hover:text-cream'}"
-										onclick={() => room.toggleAutoArchive()}
-										title="Toggle archive preference for this room"
-									>
-										<span class="flex items-center gap-1.5">
-											{#if room.state.autoArchive !== false}
+									<!-- Archive Preference for Host -->
+									{#if room.state.isPrivate}
+										<button
+											type="button"
+											class="flex items-center justify-between rounded-lg border px-2.5 py-1.5 text-[11px] font-mono transition-colors cursor-pointer {room.state.autoArchive !== false
+												? 'border-lamp/30 bg-lamp/5 text-lamp hover:bg-lamp/10'
+												: 'border-cream/10 bg-night-3 text-taupe hover:border-cream/20 hover:text-cream'}"
+											onclick={() => room.toggleAutoArchive()}
+											title="Toggle archive preference for this private room"
+										>
+											<span class="flex items-center gap-1.5">
+												{#if room.state.autoArchive !== false}
+													<IconBookmark size={13} stroke={2} />
+													<span>Archive at Dawn: On</span>
+												{:else}
+													<IconFlame size={13} stroke={1.5} />
+													<span>Archive at Dawn: Off (Ephemeral)</span>
+												{/if}
+											</span>
+											<span class="text-[10px] text-faint underline">change</span>
+										</button>
+									{:else}
+										<div
+											class="flex items-center justify-between rounded-lg border border-cream/10 bg-night-3 px-2.5 py-1.5 text-[11px] font-mono"
+											title="Public rooms are automatically archived at dawn"
+										>
+											<span class="flex items-center gap-1.5 text-lamp">
 												<IconBookmark size={13} stroke={2} />
-												<span>Archive at Dawn: On</span>
-											{:else}
-												<IconFlame size={13} stroke={1.5} />
-												<span>Archive at Dawn: Off (Ephemeral)</span>
-											{/if}
-										</span>
-										<span class="text-[10px] text-faint underline">change</span>
-									</button>
+												<span>Archive at Dawn: Automatic</span>
+											</span>
+											<span class="text-[10px] text-faint font-mono">Public</span>
+										</div>
+									{/if}
 
 									{#if room.isDawn}
 										<button
