@@ -326,10 +326,14 @@
 			{/each}
 		</ul>
 	{:else}
-		<div class="mt-4 border-t border-cream/10 px-4 py-8 text-center">
-			<h3 class="text-sm font-medium text-cream">Queue is empty</h3>
-			<p class="mt-1 text-xs text-taupe">
-				Paste any YouTube, Spotify, or SoundCloud link above to queue tracks. Tracks play in order.
+		<div class="mt-4 border-t border-cream/10 px-4 py-6 text-center">
+			<div class="inline-flex items-center gap-1.5 rounded-full border border-lamp/30 bg-lamp/10 px-2.5 py-0.5 text-[11px] text-lamp mb-2 font-mono">
+				<span class="h-1.5 w-1.5 rounded-full bg-lamp animate-pulse"></span>
+				<span>YouTube Autoplay Active</span>
+			</div>
+			<h3 class="text-sm font-medium text-cream">Queue finished</h3>
+			<p class="mt-1 text-xs text-taupe max-w-xs mx-auto leading-relaxed">
+				Player continues seamlessly with related YouTube music. Paste any track above to queue it next.
 			</p>
 		</div>
 	{/if}

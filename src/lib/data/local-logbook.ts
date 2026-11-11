@@ -28,7 +28,8 @@ export function buildNightFromRoom(
 	roomTitle: string,
 	awake: Array<{ name: string; intention?: string }>,
 	currentTrack: { title: string; channel?: string; addedBy: string; videoId?: string | null; url?: string } | null,
-	queue: Array<{ title: string; channel?: string; addedBy: string; videoId?: string | null; url?: string }>
+	queue: Array<{ title: string; channel?: string; addedBy: string; videoId?: string | null; url?: string }>,
+	allAttendees?: Array<{ name: string; intention?: string }>
 ): Night {
 	const now = new Date();
 	const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -44,20 +45,32 @@ export function buildNightFromRoom(
 		url: t.url
 	}));
 
+	// Combine currently awake crew and everyone who joined and left during the night
+	const roster = allAttendees && allAttendees.length > 0 ? allAttendees : awake;
+	const joinedNames = Array.from(new Set(roster.map((p) => p.name.trim()).filter(Boolean)));
+	const allIntentions = Array.from(
+		new Set(roster.map((p) => p.intention).filter((i): i is string => Boolean(i?.trim())))
+	);
+
+	const note =
+		joinedNames.length > awake.length
+			? `Session with ${awake.length} awake at sunrise (${joinedNames.length} joined throughout the night).`
+			: `Session with ${awake.length} awake till sunrise.`;
+
 	return {
 		slug: cleanSlug,
 		date: dateStr,
 		iso: now.toISOString(),
 		tag: 'All Nighter',
 		title: roomTitle || roomName,
-		note: `Session with ${awake.length} awake till sunrise.`,
+		note,
 		hours: '6h 00m',
 		minutes: 360,
 		tracks: tracklist.length,
-		heads: awake.length,
+		heads: Math.max(awake.length, joinedNames.length),
 		seed: cleanSlug,
-		joined: awake.map((p) => p.name),
-		intentions: awake.map((p) => p.intention).filter((i): i is string => !!i),
+		joined: joinedNames,
+		intentions: allIntentions,
 		tracklist,
 		chatMoments: []
 	};

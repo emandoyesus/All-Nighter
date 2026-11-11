@@ -360,3 +360,73 @@ export async function fetchPlaylistTracks(
 	return tracks;
 }
 
+const NOCTURNAL_RELATED_FALLBACKS: Array<{ videoId: string; title: string; channel: string }> = [
+	{ videoId: 'jfKfPfyJRdk', title: 'lofi hip hop radio 📚 - beats to relax/study to', channel: 'Lofi Girl' },
+	{ videoId: '4xDzrJKXOOY', title: 'synthwave radio 🌌 - beats to chill/game to', channel: 'Lofi Girl' },
+	{ videoId: '5qap5aO4i9A', title: 'lofi hip hop radio 💤 - beats to sleep/chill to', channel: 'Lofi Girl' },
+	{ videoId: 'DWcJFNfaw9c', title: 'Chillhop Radio - jazzy & lofi hip hop beats', channel: 'Chillhop Music' },
+	{ videoId: 'dX3k_QDnzHE', title: 'Midnight City', channel: 'M83' },
+	{ videoId: '4NRXx6U8ABQ', title: 'Blinding Lights', channel: 'The Weeknd' },
+	{ videoId: '1-xGerv5FOk', title: 'Alone', channel: 'Alan Walker' },
+	{ videoId: 'rUxyKA_-Mg4', title: 'Synthwave Radio - Chill Synth / Retro Beats', channel: 'Lofi Girl' },
+	{ videoId: 'kgx4WGK0oNU', title: 'Coffee Shop Radio ☕ - 24/7 lofi hip-hop beats', channel: 'STEEZYASFUCK' },
+	{ videoId: '7NOSDKb0HlU', title: 'peaceful piano radio 🎹 - music to focus/study', channel: 'Lofi Girl' }
+];
+
+/**
+ * Resolves a related YouTube track when the room queue has finished playing.
+ * 1. Checks YouTube's Radio Mix playlist for the current video: `RD<videoId>`
+ * 2. If available, picks a related video from the mix.
+ * 3. Falls back to searching related music by channel or title.
+ * 4. Falls back to a curated pool of nocturnal / chill lo-fi tracks.
+ */
+export async function getRelatedYouTubeTrack(
+	currentTrack?: { videoId?: string | null; title?: string; channel?: string } | null,
+	playedVideoIds: Set<string> = new Set()
+): Promise<{ videoId: string; title: string; channel: string }> {
+	const currentVid = currentTrack?.videoId;
+
+	// 1. Try YouTube's auto-generated Radio Mix for the current video
+	if (currentVid) {
+		try {
+			const mixTracks = await fetchPlaylistTracks(`RD${currentVid}`, currentVid);
+			if (mixTracks && mixTracks.length > 0) {
+				const candidate = mixTracks.find((t) => t.videoId !== currentVid && !playedVideoIds.has(t.videoId));
+				if (candidate) {
+					return candidate;
+				}
+			}
+		} catch {
+			/* mix resolution failed, fallback below */
+		}
+	}
+
+	// 2. Try searching related music using the artist or channel name
+	const searchSeed = currentTrack?.channel && currentTrack.channel !== 'YouTube'
+		? `${currentTrack.channel} music`
+		: (currentTrack?.title ? `${currentTrack.title} related` : null);
+
+	if (searchSeed) {
+		try {
+			const found = await searchYouTubeVideo(searchSeed);
+			if (found && found.videoId && found.videoId !== currentVid && !playedVideoIds.has(found.videoId)) {
+				return {
+					videoId: found.videoId,
+					title: found.title,
+					channel: found.channel
+				};
+			}
+		} catch {
+			/* search failed, fallback below */
+		}
+	}
+
+	// 3. Fallback to our verified nocturnal track rotation
+	const unplayed = NOCTURNAL_RELATED_FALLBACKS.filter(
+		(f) => f.videoId !== currentVid && !playedVideoIds.has(f.videoId)
+	);
+	const pool = unplayed.length > 0 ? unplayed : NOCTURNAL_RELATED_FALLBACKS;
+	const picked = pool[Math.floor(Math.random() * pool.length)];
+	return picked;
+}
+

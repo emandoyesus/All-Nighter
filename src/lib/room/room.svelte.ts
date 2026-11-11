@@ -29,6 +29,7 @@ import { supabase, isSupabaseConfigured } from '#lib/supabase';
 import { buildNightFromRoom, saveToMyNights } from '#lib/data/local-logbook';
 import type { Night } from '#lib/data/archive';
 import { recordStat } from '#lib/data/profile-stats';
+import { getRelatedYouTubeTrack } from './youtube';
 
 const LS_NAME = 'an.callsign';
 const LS_ID = 'an.client';
@@ -275,6 +276,85 @@ class Room {
 	private startedBeforeDawn = false;
 	/** Whether this session was already auto-archived */
 	private dawnArchived = false;
+
+	/** All attendees who joined during this room session, including those who left earlier. */
+	sessionAttendees = $state<Array<{ name: string; avatar?: string; intention?: string; firstSeen: number; leftAt?: number }>>([]);
+	/** Track played video IDs to avoid immediate repeats when continuing with related music. */
+	private playedVideoIds = new Set<string>();
+	private isContinuingRelated = false;
+
+	/** Peers who joined this session earlier tonight but are not currently awake in the room. */
+	get leftPeers(): Array<{ name: string; avatar?: string; intention?: string }> {
+		const currentNames = new Set(this.awake.map((p) => p.name.trim().toLowerCase()));
+		return this.sessionAttendees.filter((a) => !currentNames.has(a.name.trim().toLowerCase()));
+	}
+
+	/** Returns a complete list of everyone who was here during this session. */
+	getAllAttendees(): Array<{ name: string; avatar?: string; intention?: string }> {
+		const map = new Map<string, { name: string; avatar?: string; intention?: string }>();
+		for (const p of this.awake) {
+			if (p.name?.trim()) {
+				map.set(p.name.trim().toLowerCase(), { name: p.name.trim(), avatar: p.avatar, intention: p.intention });
+			}
+		}
+		for (const a of this.sessionAttendees) {
+			if (a.name?.trim() && !map.has(a.name.trim().toLowerCase())) {
+				map.set(a.name.trim().toLowerCase(), { name: a.name.trim(), avatar: a.avatar, intention: a.intention });
+			}
+		}
+		return Array.from(map.values());
+	}
+
+	recordAttendee(name: string, avatar?: string, intention?: string): void {
+		if (!name || !name.trim()) return;
+		const trimmed = name.trim();
+		const lower = trimmed.toLowerCase();
+		const idx = this.sessionAttendees.findIndex((a) => a.name.trim().toLowerCase() === lower);
+		if (idx >= 0) {
+			const item = this.sessionAttendees[idx];
+			if ((!item.avatar && avatar) || (!item.intention && intention) || item.leftAt) {
+				this.sessionAttendees[idx] = {
+					name: item.name,
+					avatar: item.avatar || avatar,
+					intention: item.intention || intention,
+					firstSeen: item.firstSeen,
+					leftAt: undefined
+				};
+			}
+		} else {
+			this.sessionAttendees = [
+				...this.sessionAttendees,
+				{
+					name: trimmed,
+					avatar,
+					intention,
+					firstSeen: Date.now()
+				}
+			];
+		}
+		if (this.room) {
+			try {
+				localStorage.setItem('an.attendees.' + this.room, JSON.stringify(this.sessionAttendees));
+			} catch {}
+		}
+	}
+
+	markAttendeeLeft(name: string): void {
+		if (!name || !name.trim()) return;
+		const lower = name.trim().toLowerCase();
+		const idx = this.sessionAttendees.findIndex((a) => a.name.trim().toLowerCase() === lower);
+		if (idx >= 0) {
+			this.sessionAttendees[idx] = {
+				...this.sessionAttendees[idx],
+				leftAt: Date.now()
+			};
+			if (this.room) {
+				try {
+					localStorage.setItem('an.attendees.' + this.room, JSON.stringify(this.sessionAttendees));
+				} catch {}
+			}
+		}
+	}
 	/** Current room mode: 'normal' (chat open, shared floor) or 'focus' (quiet sprint). */
 	mode = $state<'normal' | 'focus' | 'break'>('normal');
 	/** Seconds remaining in current mode cycle. */
@@ -629,6 +709,10 @@ class Room {
 	private onPresence(id: string, text: string): void {
 		if (id === this.clientId) return;
 		if (!text) {
+			const existing = this.peers.get(id);
+			if (existing) {
+				this.markAttendeeLeft(existing.name);
+			}
 			this.peers.delete(id);
 			this.flushPeers();
 			return;
@@ -643,9 +727,15 @@ class Room {
 				tz?: string;
 			};
 			if (!data?.name) return;
+			const peerName = String(data.name).slice(0, 24);
+			this.recordAttendee(
+				peerName,
+				data.avatar ? String(data.avatar) : undefined,
+				data.intention ? String(data.intention).slice(0, 80) : undefined
+			);
 			this.peers.set(id, {
 				id,
-				name: String(data.name).slice(0, 24),
+				name: peerName,
 				avatar: data.avatar ? String(data.avatar) : undefined,
 				status: data.status ? String(data.status).slice(0, 24) : undefined,
 				intention: data.intention ? String(data.intention).slice(0, 80) : undefined,
@@ -1086,6 +1176,19 @@ class Room {
 		}
 		this.syncUrl(this.room);
 		this.subscribeActive();
+
+		this.sessionAttendees = [];
+		try {
+			const savedAttendees = localStorage.getItem('an.attendees.' + this.room);
+			if (savedAttendees) {
+				const parsed = JSON.parse(savedAttendees);
+				if (Array.isArray(parsed)) {
+					this.sessionAttendees = parsed;
+				}
+			}
+		} catch {}
+		this.recordAttendee(this.name, this.avatar, this.intention);
+
 		this.announce();
 
 		// Hydrate full room state from cached remote state if available
@@ -1330,13 +1433,15 @@ class Room {
 		const roomSlug = this.room;
 		const roomTitle = this.title || roomSlug;
 
-		// 1. Build night archive record
+		// 1. Build night archive record (including everyone who joined and left)
+		const allAttendees = this.getAllAttendees();
 		const night = buildNightFromRoom(
 			roomSlug,
 			roomTitle,
 			this.awake,
 			this.state.current,
-			this.state.queue
+			this.state.queue,
+			allAttendees
 		);
 
 		// 2. Save locally into personal logbook
@@ -1352,7 +1457,7 @@ class Room {
 					slug: night.slug,
 					title: night.title,
 					startedAt: new Date(this.roomStartedAt || Date.now() - 6 * 3600 * 1000).toISOString(),
-					attendees: this.awake.map((p) => p.name),
+					attendees: night.joined,
 					playlist: this.state.queue,
 					summary: night.note
 				});
@@ -1529,6 +1634,7 @@ class Room {
 		} catch {
 			/* private mode */
 		}
+		this.recordAttendee(this.name, this.avatar, this.intention);
 		this.announce();
 	}
 
@@ -1539,6 +1645,7 @@ class Room {
 		} catch {
 			/* private mode */
 		}
+		this.recordAttendee(this.name, this.avatar, this.intention);
 		this.announce();
 	}
 
@@ -1559,6 +1666,7 @@ class Room {
 			} catch {}
 		}
 		this.intention = value.slice(0, 80);
+		this.recordAttendee(this.name, this.avatar, this.intention);
 		this.announce();
 	}
 
@@ -1853,11 +1961,88 @@ class Room {
 		this.mutate((s) => ({ ...s, position }));
 	}
 
+	async continueWithRelated(lastTrack?: Track | null): Promise<void> {
+		if (this.isContinuingRelated) return;
+		this.isContinuingRelated = true;
+
+		try {
+			if (lastTrack?.videoId) {
+				this.playedVideoIds.add(lastTrack.videoId);
+			}
+			if (this.state.current?.videoId) {
+				this.playedVideoIds.add(this.state.current.videoId);
+			}
+
+			const related = await getRelatedYouTubeTrack(lastTrack || this.state.current, this.playedVideoIds);
+			this.playedVideoIds.add(related.videoId);
+
+			const relatedTrack: Track = {
+				uid: `rel-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+				videoId: related.videoId,
+				title: related.title,
+				channel: related.channel,
+				addedBy: 'YouTube Autoplay',
+				source: 'youtube',
+				url: `https://www.youtube.com/watch?v=${related.videoId}`,
+				reactions: {}
+			};
+
+			this.mutate(
+				(s) => ({
+					...s,
+					current: relatedTrack,
+					videoId: relatedTrack.videoId,
+					playlistId: null,
+					source: 'youtube',
+					playing: true,
+					position: 0
+				}),
+				`Queue finished · Autoplaying related: “${relatedTrack.title}”`
+			);
+		} catch (err) {
+			console.warn('[Room] Failed to continue with related track:', err);
+		} finally {
+			this.isContinuingRelated = false;
+		}
+	}
+
 	skip(): void {
 		if (!this.canSkip) return;
 		const finished = this.state.current?.title;
-		this.mutate(
-			(s) => {
+		const lastTrack = this.state.current;
+
+		if (this.state.queue.length > 0) {
+			this.mutate(
+				(s) => {
+					const [next, ...rest] = s.queue;
+					return {
+						...s,
+						queue: rest,
+						current: next ?? null,
+						videoId: next?.videoId ?? null,
+						playlistId: next?.playlistId ?? null,
+						source: next?.source,
+						playing: !!next,
+						position: 0
+					};
+				},
+				finished ? `skipped “${finished}”` : 'skipped ahead'
+			);
+		} else {
+			// When queue is empty, continue with related music
+			void this.continueWithRelated(lastTrack);
+		}
+	}
+
+	/** The video ended on its own: advance, or continue with related music if queue is finished. */
+	ended(watchId: string | null): void {
+		if (watchId && this.state.videoId !== watchId) return;
+		if (!this.state.playing) return;
+		const finished = this.state.current?.title;
+		const lastTrack = this.state.current;
+
+		if (this.state.queue.length > 0) {
+			this.mutate((s) => {
 				const [next, ...rest] = s.queue;
 				return {
 					...s,
@@ -1869,32 +2054,12 @@ class Room {
 					playing: !!next,
 					position: 0
 				};
-			},
-			finished ? `skipped “${finished}”` : 'skipped ahead'
-		);
-	}
-
-	/** The video ended on its own: advance, or settle into the empty state.
-	 *  `watchId` is the video the caller watched; if the room already moved on, do nothing
-	 *  (every client's player ends at roughly the same moment, only the first advances). */
-	ended(watchId: string | null): void {
-		if (watchId && this.state.videoId !== watchId) return;
-		if (!this.state.playing) return;
-		const finished = this.state.current?.title;
-		this.mutate((s) => {
-			const [next, ...rest] = s.queue;
-			return {
-				...s,
-				queue: rest,
-				current: next ?? null,
-				videoId: next?.videoId ?? null,
-				playlistId: next?.playlistId ?? null,
-				source: next?.source,
-				playing: !!next,
-				position: 0
-			};
-		});
-		if (finished) this.writeLog(`finished “${finished}”`);
+			});
+			if (finished) this.writeLog(`finished “${finished}”`);
+		} else {
+			if (finished) this.writeLog(`finished “${finished}” · queue finished`);
+			void this.continueWithRelated(lastTrack);
+		}
 	}
 
 	/** Director heartbeat: refresh clock + position without changing seq. */
@@ -1997,7 +2162,10 @@ class Room {
 		}
 
 		for (const [id, peer] of this.peers) {
-			if (id !== this.clientId && now - peer.ts > PRESENCE_TTL) this.peers.delete(id);
+			if (id !== this.clientId && now - peer.ts > PRESENCE_TTL) {
+				this.markAttendeeLeft(peer.name);
+				this.peers.delete(id);
+			}
 		}
 		this.flushPeers();
 

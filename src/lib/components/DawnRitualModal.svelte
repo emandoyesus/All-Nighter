@@ -24,13 +24,14 @@
 
 	function generateZineMarkdown(): string {
 		const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+		const all = room.getAllAttendees();
 		const lines = [
 			`# ${room.title || room.room} — All Nighter Log (${dateStr})`,
 			``,
 			`> "We made it till sunrise."`,
 			``,
-			`### The Roster (${room.awake.length} awake)`,
-			...room.awake.map((p) => `- **${p.name}**${p.intention ? `: *“${p.intention}”*` : ''}`),
+			`### The Roster (${room.awake.length} awake · ${all.length} nocturnal crew)`,
+			...all.map((p) => `- **${p.name}**${p.intention ? `: *“${p.intention}”*` : ''}`),
 			``,
 			`### Tracks Logged`,
 			...(room.state.current ? [`- Now Playing: ${room.state.current.title} (${room.state.current.channel ?? 'YouTube'})`] : []),
@@ -47,7 +48,8 @@
 			room.title || 'The Night Session',
 			room.awake,
 			room.state.current,
-			room.state.queue
+			room.state.queue,
+			room.getAllAttendees()
 		);
 	}
 

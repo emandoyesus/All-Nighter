@@ -157,6 +157,33 @@
 		{/each}
 	</ul>
 
+	<!-- Who was here earlier (joined and left without ending the whole night) -->
+	{#if room.leftPeers.length > 0}
+		<div class="mt-2.5 pt-2 border-t border-cream/8">
+			<p class="text-[10px] font-mono uppercase tracking-wider text-faint mb-1.5 flex items-center justify-between">
+				<span>Who was here earlier</span>
+				<span class="num text-[9px] text-faint">{room.leftPeers.length} left</span>
+			</p>
+			<div class="flex flex-wrap gap-1">
+				{#each room.leftPeers as peer (peer.name)}
+					<button
+						type="button"
+						class="inline-flex items-center gap-1.5 rounded-full bg-night/50 border border-cream/10 px-2 py-0.5 text-[10px] text-taupe hover:text-cream hover:border-cream/25 transition-colors cursor-pointer"
+						onclick={() => window.dispatchEvent(new CustomEvent('an:inspect-peer', { detail: { peer } }))}
+						title="{peer.name} was here earlier tonight"
+					>
+						{#if peer.avatar}
+							<img src={peer.avatar} alt={peer.name} class="h-3.5 w-3.5 rounded-full object-cover grayscale opacity-70" />
+						{:else}
+							<span class="h-1.5 w-1.5 rounded-full bg-cream/30"></span>
+						{/if}
+						<span class="truncate max-w-[90px]">{peer.name}</span>
+					</button>
+				{/each}
+			</div>
+		</div>
+	{/if}
+
 	<!-- Collapsible Quick Profile & Mood -->
 	<div class="mt-2.5 border-t border-cream/8 pt-2">
 		<button
