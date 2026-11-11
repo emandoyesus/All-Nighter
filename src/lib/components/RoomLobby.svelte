@@ -196,12 +196,17 @@
 	});
 
 	const slug = $derived(sanitizeRoom(draft));
+	const hasReachedLimit = $derived(myRooms.length >= 2);
 
 	function create(event: SubmitEvent): void {
 		event.preventDefault();
 		if (!auth.isCloudUser && !auth.user) {
 			nameError = 'Sign in required to create and host a room.';
 			window.dispatchEvent(new CustomEvent('an:open-auth-modal', { detail: { mode: 'signin' } }));
+			return;
+		}
+		if (hasReachedLimit) {
+			nameError = 'Room limit reached: You can only host a maximum of 2 active rooms at a time.';
 			return;
 		}
 		const name = draft.trim();
@@ -258,7 +263,7 @@
 						<h3 class="text-xs sm:text-sm font-semibold tracking-wide text-cream">Your Active Rooms</h3>
 					</div>
 					<span class="rounded-full bg-lamp/15 px-2 py-0.5 font-mono text-[10px] text-lamp font-medium">
-						{myRooms.length} active
+						{myRooms.length} / 2 active
 					</span>
 				</div>
 				<p class="text-xs text-taupe mb-3">
@@ -488,6 +493,17 @@
 				</div>
 			</div>
 		{:else}
+			{#if hasReachedLimit}
+				<div class="rounded-xl border border-amber/30 bg-amber/10 p-3 sm:p-3.5 text-xs text-cream space-y-1 animate-in fade-in duration-150">
+					<p class="font-semibold text-amber flex items-center gap-1.5">
+						<span>⚠️ Active room limit reached (2 / 2)</span>
+					</p>
+					<p class="text-taupe leading-relaxed text-[11px]">
+						Each host can run a maximum of 2 active rooms at once. Please delete or close one of your active rooms on the left to start a new one.
+					</p>
+				</div>
+			{/if}
+
 			<form class="flex flex-col gap-3" onsubmit={create}>
 				<!-- Room Privacy Mode -->
 				<div>
@@ -632,10 +648,10 @@
 				<button
 					type="submit"
 					class="btn btn-amber w-full font-medium disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
-					disabled={!slug}
+					disabled={!slug || hasReachedLimit}
 				>
 					<IconPlus size={16} stroke={1.5} />
-					{isPrivate ? 'Create Private Room' : 'Create a room'}
+					{hasReachedLimit ? 'Limit reached (max 2 rooms)' : (isPrivate ? 'Create Private Room' : 'Create a room')}
 				</button>
 			</form>
 		{/if}

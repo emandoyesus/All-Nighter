@@ -269,7 +269,7 @@ class Room {
 	/** Whether dawn has been reached for the night session */
 	isDawn = $derived(isDawnReached(new Date(this.now)));
 	/** Transient alert banner for room deleted / archived events */
-	roomAlert = $state<{ type: 'deleted' | 'archived'; message: string; slug?: string } | null>(null);
+	roomAlert = $state<{ type: 'deleted' | 'archived' | 'error'; message: string; slug?: string } | null>(null);
 	/** Timestamp when this session was entered */
 	roomStartedAt = $state(0);
 	/** Whether this room was started during the night before dawn */
@@ -1075,6 +1075,31 @@ class Room {
 			console.warn('[room] Cannot create room without a valid room name');
 			return;
 		}
+
+		// Enforce maximum 2 active rooms per user
+		if (this.dbSync.isEnabled && supabase) {
+			try {
+				const userId = auth.user?.id;
+				const userName = (auth.displayName || this.name || '').trim();
+				let q = supabase.from('rooms').select('slug').eq('status', 'active');
+				if (userId && userName && userName !== 'night-owl' && !userName.startsWith('guest-')) {
+					q = q.or(`host_id.eq.${userId},host_name.eq."${userName}"`);
+				} else if (userId) {
+					q = q.eq('host_id', userId);
+				}
+				const { data: existingRooms } = await q;
+				if (existingRooms && existingRooms.length >= 2 && !existingRooms.some((r) => r.slug === slug)) {
+					this.roomAlert = {
+						type: 'error',
+						message: 'Room limit reached: You can only host up to 2 active rooms at a time. Please close an existing room first.'
+					};
+					return;
+				}
+			} catch (err) {
+				console.warn('[room] Failed to check room limit:', err);
+			}
+		}
+
 		try {
 			recordStat('roomsHosted', 1);
 		} catch {}
