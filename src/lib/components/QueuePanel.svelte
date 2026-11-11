@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { room, parseTrackUrl } from '#lib/room/room.svelte';
-	import { parseYouTubeId, fetchVideoMeta, fetchPlaylistMeta, fetchPlaylistTracks, thumbnailFor, fetchSpotifyMeta, searchYouTubeVideo } from '#lib/room/youtube';
+	import { parseYouTubeId, fetchVideoMeta, fetchPlaylistMeta, fetchPlaylistTracks, thumbnailFor, fetchSpotifyMeta, searchYouTubeVideo, getSuggestedTracks, detectMusicLanguage } from '#lib/room/youtube';
 	import IconPlus from '@tabler/icons-svelte/icons/plus';
 	import IconX from '@tabler/icons-svelte/icons/x';
 	import IconPlay from '@tabler/icons-svelte/icons/player-play';
@@ -10,6 +10,7 @@
 	import IconDisc from '@tabler/icons-svelte/icons/disc';
 	import IconThumbUp from '@tabler/icons-svelte/icons/thumb-up';
 	import IconArrowsShuffle from '@tabler/icons-svelte/icons/arrows-shuffle';
+	import IconSparkles from '@tabler/icons-svelte/icons/sparkles';
 
 	let draft = $state('');
 	let dedicationDraft = $state('');
@@ -17,20 +18,27 @@
 	let busyStatus = $state('Checking…');
 	let error = $state('');
 
-	const QUICK_PRESETS = [
-		{ label: 'Alone', title: 'Alan Walker - Alone', channel: 'Alan Walker', videoId: '1-xGerv5FOk' },
-		{ label: 'Blinding Lights', title: 'The Weeknd - Blinding Lights', channel: 'The Weeknd', videoId: '4NRXx6U8ABQ' },
-		{ label: 'Midnight City', title: 'M83 - Midnight City', channel: 'M83', videoId: 'dX3k_QDnzHE' }
-	];
+	const detectedLang = $derived(detectMusicLanguage(room.state.current));
+	const langLabel = $derived(
+		detectedLang === 'amharic' ? 'Amharic' : detectedLang === 'tigrinya' ? 'Tigrinya' : 'English'
+	);
 
-	function addPreset(preset: typeof QUICK_PRESETS[number]) {
+	const suggestions = $derived(
+		getSuggestedTracks(
+			room.state.current,
+			new Set(room.state.queue.map((q) => q.videoId).filter(Boolean) as string[]),
+			4
+		)
+	);
+
+	function addSuggestion(suggestion: { label: string; title: string; channel: string; videoId: string }) {
 		room.add(
-			preset.videoId,
-			preset.title,
-			preset.channel,
+			suggestion.videoId,
+			suggestion.title,
+			suggestion.channel,
 			room.name,
 			'youtube',
-			`https://www.youtube.com/watch?v=${preset.videoId}`
+			`https://www.youtube.com/watch?v=${suggestion.videoId}`
 		);
 	}
 
@@ -150,16 +158,19 @@
 		<div class="mb-2 flex flex-wrap items-center justify-between gap-1.5">
 			<label for="yt-link" class="block text-xs text-faint">Add a track or playlist link</label>
 			<div class="flex flex-wrap items-center gap-1">
-				<span class="text-[10px] font-mono uppercase tracking-wider text-faint">Presets:</span>
-				{#each QUICK_PRESETS as preset}
+				<span class="text-[10px] font-mono uppercase tracking-wider text-lamp/80 flex items-center gap-1">
+					<IconSparkles size={11} />
+					<span>Suggested ({langLabel}):</span>
+				</span>
+				{#each suggestions as suggestion}
 					<button
 						type="button"
-						class="inline-flex items-center gap-1 rounded-full border border-cream/10 bg-night/80 px-2 py-0.5 text-[10px] text-taupe transition-colors hover:border-lamp/40 hover:text-lamp hover:bg-lamp/10"
-						onclick={() => addPreset(preset)}
-						title={`Quick add "${preset.title}" to room queue`}
+						class="inline-flex items-center gap-1 rounded-full border border-cream/10 bg-night/80 px-2 py-0.5 text-[10px] text-taupe transition-colors hover:border-lamp/40 hover:text-lamp hover:bg-lamp/10 cursor-pointer"
+						onclick={() => addSuggestion(suggestion)}
+						title={`Queue "${suggestion.title}"`}
 					>
 						<IconPlus size={10} stroke={2} />
-						<span>{preset.label}</span>
+						<span class="max-w-[120px] truncate">{suggestion.label}</span>
 					</button>
 				{/each}
 			</div>
@@ -326,15 +337,48 @@
 			{/each}
 		</ul>
 	{:else}
-		<div class="mt-4 border-t border-cream/10 px-4 py-6 text-center">
+		<div class="mt-4 border-t border-cream/10 px-4 py-5 text-center">
 			<div class="inline-flex items-center gap-1.5 rounded-full border border-lamp/35 bg-lamp/10 px-3 py-1 text-xs text-lamp mb-2 font-mono shadow-sm">
 				<span class="h-1.5 w-1.5 rounded-full bg-lamp animate-pulse"></span>
 				<span class="font-medium">YouTube Autoplay Active</span>
 			</div>
-			<h3 class="text-sm font-semibold text-cream">Floor is playing related music</h3>
-			<p class="mt-1 text-xs text-taupe max-w-sm mx-auto leading-relaxed">
-				Anyone can paste a link to queue their own tracks anytime. Your music will be placed into the queue without stopping the current playing music from YouTube autoplay.
-			</p>
+			<h3 class="text-sm font-semibold text-cream">Queue finished · Autoplay active</h3>
+
+			{#if room.nextAutoplayTrack || (suggestions.length > 0 && room.state.current)}
+				{@const upNext = room.nextAutoplayTrack || {
+					videoId: suggestions[0]?.videoId,
+					title: suggestions[0]?.title,
+					channel: suggestions[0]?.channel
+				}}
+				<div class="mt-3 flex items-center justify-between gap-2.5 rounded-xl border border-cream/10 bg-night/80 p-2.5 text-left max-w-sm mx-auto shadow-sm">
+					<div class="flex items-center gap-2.5 min-w-0">
+						{#if upNext.videoId}
+							<img
+								src={thumbnailFor(upNext.videoId)}
+								alt=""
+								class="h-9 w-12 rounded-lg object-cover border border-cream/10 shrink-0"
+							/>
+						{/if}
+						<div class="min-w-0 flex-1">
+							<span class="text-[9px] font-mono uppercase tracking-wider text-lamp font-medium">Up next in Autoplay:</span>
+							<p class="text-xs font-medium text-cream truncate">{upNext.title}</p>
+							<p class="text-[10px] text-taupe truncate">{upNext.channel} · Next {langLabel} song in autoplay</p>
+						</div>
+					</div>
+					<button
+						type="button"
+						class="btn btn-ghost btn-sm text-[11px] px-2.5 py-1 text-lamp hover:bg-lamp/10 shrink-0 border border-lamp/25 rounded-lg cursor-pointer"
+						onclick={() => room.add(upNext.videoId || null, upNext.title || '', upNext.channel || 'YouTube', room.name, 'youtube')}
+						title="Queue this track immediately"
+					>
+						+ Queue
+					</button>
+				</div>
+			{:else}
+				<p class="mt-1 text-xs text-taupe max-w-sm mx-auto leading-relaxed">
+					Anyone can paste a link to queue their own tracks anytime. Your music will be placed into the queue without stopping the current playing music from YouTube autoplay.
+				</p>
+			{/if}
 		</div>
 	{/if}
 </div>

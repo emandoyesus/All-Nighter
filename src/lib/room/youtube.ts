@@ -365,89 +365,387 @@ export async function fetchPlaylistTracks(
  */
 export const BANNED_VIDEO_IDS = new Set([
 	'4xDzrJKXOOY', // Lofi Girl - Synthwave Radio
-	'rUxyKA_-Mg4'  // Synthwave Radio - Chill Synth / Retro Beats
+	'rUxyKA_-Mg4', // Synthwave Radio - Chill Synth / Retro Beats
+	'jfKfPfyJRdk', // lofi hip hop radio
+	'5qap5aO4i9A', // lofi sleep radio
+	'DWcJFNfaw9c', // Chillhop Radio
+	'kgx4WGK0oNU', // Coffee Shop Radio
+	'7NOSDKb0HlU', // peaceful piano radio
+	'WPni755-Krg'  // Midnight Jazz Lounge
 ]);
 
 export function isBannedMusic(videoId?: string | null, title?: string): boolean {
 	if (videoId && BANNED_VIDEO_IDS.has(videoId)) return true;
-	if (title && /synthwave\s*radio/i.test(title)) return true;
-	return false;
+	if (!title) return false;
+	const t = title.toLowerCase();
+	return (
+		/lofi|lo-fi|chillhop|study\s*(beats|session|with\s*me)|relax(ing)?\s*beats|piano\s*radio|classical|instrumental(\s*only)?|bgm|sleep(ing)?\s*music|meditation|ambient\s*sound|\b(1|2|3|4|5|6|8|10|12|24)\s*hours?|\bnon[\s-]*stop|\bcompilation|\bfull\s*album|\bjukebox/i.test(
+			t
+		)
+	);
 }
 
-const NOCTURNAL_RELATED_FALLBACKS: Array<{ videoId: string; title: string; channel: string }> = [
-	{ videoId: 'jfKfPfyJRdk', title: 'lofi hip hop radio 📚 - beats to relax/study to', channel: 'Lofi Girl' },
-	{ videoId: '5qap5aO4i9A', title: 'lofi hip hop radio 💤 - beats to sleep/chill to', channel: 'Lofi Girl' },
-	{ videoId: 'DWcJFNfaw9c', title: 'Chillhop Radio - jazzy & lofi hip hop beats', channel: 'Chillhop Music' },
-	{ videoId: 'dX3k_QDnzHE', title: 'Midnight City', channel: 'M83' },
-	{ videoId: '4NRXx6U8ABQ', title: 'Blinding Lights', channel: 'The Weeknd' },
-	{ videoId: '1-xGerv5FOk', title: 'Alone', channel: 'Alan Walker' },
-	{ videoId: 'kgx4WGK0oNU', title: 'Coffee Shop Radio ☕ - 24/7 lofi hip-hop beats', channel: 'STEEZYASFUCK' },
-	{ videoId: '7NOSDKb0HlU', title: 'peaceful piano radio 🎹 - music to focus/study', channel: 'Lofi Girl' },
-	{ videoId: 'WPni755-Krg', title: 'Midnight Jazz Lounge - Relaxing Instrumental Music', channel: 'Cafe Music BGM channel' }
+export type MusicLanguage = 'amharic' | 'tigrinya' | 'english';
+
+/**
+ * Detects whether a track is Amharic, Tigrinya, or English / International music.
+ */
+export function detectMusicLanguage(
+	track?: { title?: string; channel?: string; genre?: string } | null
+): MusicLanguage {
+	if (!track) return 'english';
+	const title = (track.title ?? '').toLowerCase();
+	const channel = (track.channel ?? '').toLowerCase();
+	const genre = (track.genre ?? '').toLowerCase();
+	const combined = `${title} ${channel} ${genre}`;
+
+	// Check Tigrinya / Eritrean indicators first
+	const isTigrinya =
+		/tigrinya|tigrigna|tigrina|eritrean|asmera|asmara|shikor|wedi|aytekaelen|fetiki|korchach|robel\s*michael|eden\s*kesete|tikabo|helen\s*meles|dawit\s*eyob|millen\s*hailu|dejen\s*gebreab|ella\s*records|admas\s*entertainment|qielem|mahtem/i.test(
+			combined
+		) || /[\u1250-\u1256\u1318-\u131F]/.test(combined);
+
+	if (isTigrinya) return 'tigrinya';
+
+	// Check Amharic / Ethiopian indicators or Ge'ez script
+	const isAmharic =
+		/amharic|ethiopian|ethiopia|addis|hope\s*music|minew\s*shewa|sewasew|nahom|teddy\s*afro|michael\s*belayneh|belayneh|aster\s*aweke|rophnan|ephrem\s*tamiru|dawit\s*tsige|neway\s*damtie|tilahun|gessesse|mahmoud\s*ahmed|betty\s*g|yohana|gosaye|zeritu|tamrat\s*desta/i.test(
+			combined
+		) || /[\u1200-\u137F]/.test(combined);
+
+	if (isAmharic) return 'amharic';
+
+	return 'english';
+}
+
+export type CuratedTrack = {
+	videoId: string;
+	title: string;
+	channel: string;
+	language: MusicLanguage;
+	tags: string[];
+};
+
+export const CURATED_CATALOG: CuratedTrack[] = [
+	// ================= AMHARIC MUSIC (Real Vocal Songs, No Lofi) =================
+	{
+		videoId: 'VsrL9Rz-A5A',
+		title: 'Teddy Afro - ETHIOPIA',
+		channel: 'Teddy Afro',
+		language: 'amharic',
+		tags: ['teddy afro', 'ethiopia', 'amharic', 'ethiopian', 'vocal', 'single']
+	},
+	{
+		videoId: '-RfFt4nkl5g',
+		title: 'Michael Belayneh - Teneta',
+		channel: 'Michael Belayneh',
+		language: 'amharic',
+		tags: ['michael belayneh', 'belayneh', 'teneta', 'amharic', 'ethiopian', 'vocal']
+	},
+	{
+		videoId: 'FWj7CLxK_yU',
+		title: 'ROPHNAN - SHEGIYE',
+		channel: 'ROPHNAN',
+		language: 'amharic',
+		tags: ['rophnan', 'shegiye', 'shega', 'amharic', 'ethiopian', 'electronic']
+	},
+	{
+		videoId: 'ULgwcno7gZs',
+		title: 'Aster Aweke - Nafkot',
+		channel: 'Aster Aweke',
+		language: 'amharic',
+		tags: ['aster aweke', 'nafkot', 'amharic', 'ethiopian', 'vocal']
+	},
+	{
+		videoId: 'P2pmg2fh-7g',
+		title: 'Neway Damtie - Ejigitu',
+		channel: 'Neway Damtie',
+		language: 'amharic',
+		tags: ['neway damtie', 'ejigitu', 'amharic', 'ethiopian', 'vocal']
+	},
+
+	// ================= TIGRINYA MUSIC (Real Vocal Songs, No Lofi) =================
+	{
+		videoId: '_oIC_DHf7IU',
+		title: 'Robel Michael - Aytehteyeni',
+		channel: 'Robel Michael',
+		language: 'tigrinya',
+		tags: ['robel michael', 'aytehteyeni', 'tigrinya', 'tigrigna', 'eritrean']
+	},
+	{
+		videoId: 'ea1SuHCU1TM',
+		title: 'Robel Michael - Nlomi Ngbero',
+		channel: 'Robel Michael',
+		language: 'tigrinya',
+		tags: ['robel michael', 'nlomi ngbero', 'tigrinya', 'tigrigna', 'eritrean']
+	},
+	{
+		videoId: 'EXJNvCOeOEg',
+		title: 'Tesfealem Arefaine (Korchach) - ZEBET',
+		channel: 'Korchach',
+		language: 'tigrinya',
+		tags: ['korchach', 'tesfealem arefaine', 'zebet', 'tigrinya', 'eritrean']
+	},
+	{
+		videoId: 'VWcfZe5DNWo',
+		title: 'Eden Kesete - Kizirifeka',
+		channel: 'Eden Kesete',
+		language: 'tigrinya',
+		tags: ['eden kesete', 'kizirifeka', 'tigrinya', 'tigrigna', 'eritrean']
+	},
+	{
+		videoId: 'QQgWoYeEKgw',
+		title: 'Yohannes Tikabo (Wedi Tikabo) - Belwa',
+		channel: 'Yohannes Tikabo',
+		language: 'tigrinya',
+		tags: ['wedi tikabo', 'yohannes tikabo', 'belwa', 'tigrinya', 'eritrean']
+	},
+
+	// ================= ENGLISH MUSIC (Real Vocal Hit Songs, No Lofi) =================
+	{
+		videoId: '4NRXx6U8ABQ',
+		title: 'The Weeknd - Blinding Lights',
+		channel: 'The Weeknd',
+		language: 'english',
+		tags: ['the weeknd', 'blinding lights', 'english', 'pop', 'synth']
+	},
+	{
+		videoId: '1-xGerv5FOk',
+		title: 'Alan Walker - Alone',
+		channel: 'Alan Walker',
+		language: 'english',
+		tags: ['alan walker', 'alone', 'english', 'electronic', 'edm']
+	},
+	{
+		videoId: '60ItHLz5WEA',
+		title: 'Alan Walker - Faded',
+		channel: 'Alan Walker',
+		language: 'english',
+		tags: ['alan walker', 'faded', 'english', 'electronic']
+	},
+	{
+		videoId: '34Na4j8AVgA',
+		title: 'The Weeknd ft. Daft Punk - Starboy',
+		channel: 'The Weeknd',
+		language: 'english',
+		tags: ['the weeknd', 'starboy', 'daft punk', 'english', 'pop']
+	},
+	{
+		videoId: 'UtF6Jej8yb4',
+		title: 'Avicii - The Nights',
+		channel: 'Avicii',
+		language: 'english',
+		tags: ['avicii', 'the nights', 'english', 'dance', 'anthem']
+	},
+	{
+		videoId: 'dX3k_QDnzHE',
+		title: 'M83 - Midnight City',
+		channel: 'M83',
+		language: 'english',
+		tags: ['m83', 'midnight city', 'english', 'indie', 'electronic']
+	}
 ];
+
+/** Score and find similar tracks from the curated catalog based on language, artist, and title. */
+export function getSimilarCuratedTracks(
+	currentTrack?: { videoId?: string | null; title?: string; channel?: string; genre?: string } | null,
+	playedVideoIds: Set<string> = new Set(),
+	count = 4
+): Array<{ videoId: string; title: string; channel: string; label: string; language: MusicLanguage }> {
+	const currentVid = currentTrack?.videoId ?? '';
+	const targetLang = detectMusicLanguage(currentTrack);
+	const titleLower = (currentTrack?.title ?? '').toLowerCase();
+	const channelLower = (currentTrack?.channel ?? '').toLowerCase();
+
+	// Extract keyword tokens
+	const combinedTokens = `${titleLower} ${channelLower}`
+		.replace(/[^a-z0-9\s]/g, ' ')
+		.split(/\s+/)
+		.filter((t) => t.length > 2);
+
+	// STRICT LANGUAGE FILTER: Only pick songs of the same language
+	const languageCatalog = CURATED_CATALOG.filter((item) => item.language === targetLang);
+
+	const scored = languageCatalog.map((item) => {
+		if (item.videoId === currentVid || isBannedMusic(item.videoId, item.title)) {
+			return { item, score: -1 };
+		}
+
+		let score = 20; // Base score for matching language
+
+		// Deprioritize tracks already played in this room session
+		if (playedVideoIds.has(item.videoId)) {
+			score -= 50;
+		}
+
+		const itemChannel = item.channel.toLowerCase();
+		const itemTitle = item.title.toLowerCase();
+
+		// Artist / Channel match (e.g. Michael Belayneh -> Michael Belayneh)
+		if (
+			(channelLower && itemChannel.includes(channelLower)) ||
+			(channelLower && channelLower.includes(itemChannel)) ||
+			(titleLower && itemChannel.length > 3 && titleLower.includes(itemChannel))
+		) {
+			score += 60;
+		}
+
+		// Token matching against tags and title
+		for (const token of combinedTokens) {
+			if (item.tags.some((tag) => tag.includes(token) || token.includes(tag))) {
+				score += 15;
+			}
+			if (itemTitle.includes(token)) {
+				score += 10;
+			}
+		}
+
+		return { item, score };
+	});
+
+	// Sort highest score first
+	scored.sort((a, b) => b.score - a.score);
+
+	const results = scored
+		.filter((s) => s.score >= 0)
+		.slice(0, count)
+		.map(({ item }) => {
+			let label = item.title;
+			if (label.includes(' - ')) {
+				label = label.split(' - ')[1].trim();
+			} else if (label.length > 22) {
+				label = label.slice(0, 20) + '…';
+			}
+			return {
+				videoId: item.videoId,
+				title: `${item.channel} - ${item.title}`,
+				channel: item.channel,
+				label,
+				language: item.language
+			};
+		});
+
+	// If all were played or filtered, return any track in the same language
+	if (results.length === 0) {
+		return languageCatalog
+			.filter((c) => c.videoId !== currentVid && !isBannedMusic(c.videoId, c.title))
+			.slice(0, count)
+			.map((item) => ({
+				videoId: item.videoId,
+				title: `${item.channel} - ${item.title}`,
+				channel: item.channel,
+				label: item.title.slice(0, 20),
+				language: item.language
+			}));
+	}
+
+	return results;
+}
+
+/**
+ * Returns dynamic track suggestions based on the last played / current music.
+ * Used in QueuePanel quick pills and Autoplay previews.
+ */
+export function getSuggestedTracks(
+	currentTrack?: { videoId?: string | null; title?: string; channel?: string; genre?: string } | null,
+	playedVideoIds: Set<string> = new Set(),
+	count = 3
+): Array<{ label: string; title: string; channel: string; videoId: string; language: MusicLanguage }> {
+	return getSimilarCuratedTracks(currentTrack, playedVideoIds, count);
+}
+
+/**
+ * Fast Invidious video recommendation lookup with strict 1.2s timeout.
+ */
+async function fetchInvidiousRecommended(
+	videoId: string
+): Promise<Array<{ videoId: string; title: string; channel: string }>> {
+	try {
+		const controller = new AbortController();
+		const timeout = setTimeout(() => controller.abort(), 1200);
+		const res = await fetch(`https://yt.chocolatemoo53.com/api/v1/videos/${videoId}`, {
+			signal: controller.signal
+		});
+		clearTimeout(timeout);
+		if (!res.ok) return [];
+		const data = await res.json();
+		if (Array.isArray(data.recommendedVideos) && data.recommendedVideos.length > 0) {
+			return data.recommendedVideos
+				.filter((v: any) => v.videoId && !isBannedMusic(v.videoId, v.title))
+				.map((v: any) => ({
+					videoId: v.videoId,
+					title: v.title ?? 'Related Track',
+					channel: v.author ?? 'YouTube'
+				}));
+		}
+	} catch {}
+	return [];
+}
 
 /**
  * Resolves a related YouTube track when the room queue has finished playing.
- * 1. Checks YouTube's Radio Mix playlist for the current video: `RD<videoId>`
- * 2. If available, picks a related video from the mix.
- * 3. Falls back to searching related music by channel or title.
- * 4. Falls back to a curated pool of nocturnal / chill lo-fi tracks.
+ * - If last track was Amharic -> autoplays Amharic!
+ * - If last track was Tigrinya -> autoplays Tigrinya!
+ * - If last track was English -> autoplays English!
+ * - Strictly filters out lofi, classical, study sessions, and 1h+ compilations.
  */
 export async function getRelatedYouTubeTrack(
-	currentTrack?: { videoId?: string | null; title?: string; channel?: string } | null,
+	currentTrack?: { videoId?: string | null; title?: string; channel?: string; genre?: string } | null,
 	playedVideoIds: Set<string> = new Set()
-): Promise<{ videoId: string; title: string; channel: string }> {
+): Promise<{ videoId: string; title: string; channel: string; language?: MusicLanguage }> {
 	const currentVid = currentTrack?.videoId;
+	const targetLang = detectMusicLanguage(currentTrack);
 
-	// 1. Try YouTube's auto-generated Radio Mix for the current video
+	// 1. Fast online recommendations if videoId exists (1.2s timeout)
 	if (currentVid) {
 		try {
-			const mixTracks = await fetchPlaylistTracks(`RD${currentVid}`, currentVid);
-			if (mixTracks && mixTracks.length > 0) {
-				const candidate = mixTracks.find(
-					(t) => t.videoId !== currentVid && !playedVideoIds.has(t.videoId) && !isBannedMusic(t.videoId, t.title)
-				);
-				if (candidate) {
-					return candidate;
-				}
-			}
-		} catch {
-			/* mix resolution failed, fallback below */
-		}
-	}
-
-	// 2. Try searching related music using the artist or channel name
-	const searchSeed = currentTrack?.channel && currentTrack.channel !== 'YouTube'
-		? `${currentTrack.channel} music`
-		: (currentTrack?.title ? `${currentTrack.title} related` : null);
-
-	if (searchSeed) {
-		try {
-			const found = await searchYouTubeVideo(searchSeed);
-			if (
-				found &&
-				found.videoId &&
-				found.videoId !== currentVid &&
-				!playedVideoIds.has(found.videoId) &&
-				!isBannedMusic(found.videoId, found.title)
-			) {
+			const recommended = await fetchInvidiousRecommended(currentVid);
+			const matching = recommended.find(
+				(r) =>
+					r.videoId !== currentVid &&
+					!playedVideoIds.has(r.videoId) &&
+					!isBannedMusic(r.videoId, r.title) &&
+					detectMusicLanguage(r) === targetLang
+			);
+			if (matching) {
 				return {
-					videoId: found.videoId,
-					title: found.title,
-					channel: found.channel
+					...matching,
+					language: targetLang
 				};
 			}
-		} catch {
-			/* search failed, fallback below */
-		}
+		} catch {}
 	}
 
-	// 3. Fallback to our verified nocturnal track rotation
-	const unplayed = NOCTURNAL_RELATED_FALLBACKS.filter(
-		(f) => f.videoId !== currentVid && !playedVideoIds.has(f.videoId) && !isBannedMusic(f.videoId, f.title)
-	);
-	const pool = unplayed.length > 0 ? unplayed : NOCTURNAL_RELATED_FALLBACKS.filter((f) => !isBannedMusic(f.videoId, f.title));
-	const picked = pool[Math.floor(Math.random() * pool.length)];
-	return picked;
+	// 2. Similarity-matched curated track based strictly on language & artist (instant)
+	const suggestions = getSimilarCuratedTracks(currentTrack, playedVideoIds, 4);
+	if (suggestions.length > 0) {
+		return suggestions[0];
+	}
+
+	// 3. Fallback based strictly on the detected language
+	if (targetLang === 'amharic') {
+		return {
+			videoId: 'VsrL9Rz-A5A',
+			title: 'Teddy Afro - ETHIOPIA',
+			channel: 'Teddy Afro',
+			language: 'amharic'
+		};
+	}
+
+	if (targetLang === 'tigrinya') {
+		return {
+			videoId: '_oIC_DHf7IU',
+			title: 'Robel Michael - Aytehteyeni',
+			channel: 'Robel Michael',
+			language: 'tigrinya'
+		};
+	}
+
+	return {
+		videoId: '4NRXx6U8ABQ',
+		title: 'The Weeknd - Blinding Lights',
+		channel: 'The Weeknd',
+		language: 'english'
+	};
 }
 

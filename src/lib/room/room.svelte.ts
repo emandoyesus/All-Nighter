@@ -287,6 +287,8 @@ class Room {
 	/** Track played video IDs to avoid immediate repeats when continuing with related music. */
 	private playedVideoIds = new Set<string>();
 	private isContinuingRelated = false;
+	/** Pre-resolved related track waiting in memory for instant 0ms transition when queue finishes */
+	nextAutoplayTrack = $state<Track | null>(null);
 
 	/** Peers who joined this session earlier tonight but are not currently awake in the room. */
 	get leftPeers(): Array<{ name: string; avatar?: string; intention?: string }> {
@@ -1424,6 +1426,7 @@ class Room {
 		this.announce();
 		if (isNew) {
 			this.publishState();
+			void this.prefetchNextRelatedTrack(this.state.current);
 		} else if (host) {
 			// On reload as host: give MQTT/peers 2.5s to hydrate live state.
 			// Only if room is truly empty and no state arrived do we seed starter track.
@@ -2092,6 +2095,7 @@ class Room {
 			},
 			`put “${track.title}” on`
 		);
+		void this.prefetchNextRelatedTrack(track);
 	}
 
 	toggle(position: number): void {
@@ -2104,44 +2108,80 @@ class Room {
 		this.mutate((s) => ({ ...s, position }));
 	}
 
+	/** Prefetches the next related track in memory so transition happens with 0ms delay. */
+	async prefetchNextRelatedTrack(currentTrack?: Track | null): Promise<void> {
+		const track = currentTrack || this.state.current;
+		if (!track) return;
+		try {
+			const related = await getRelatedYouTubeTrack(track, this.playedVideoIds);
+			if (related?.videoId && related.videoId !== track.videoId && !this.playedVideoIds.has(related.videoId)) {
+				this.nextAutoplayTrack = {
+					uid: `rel-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+					videoId: related.videoId,
+					title: related.title,
+					channel: related.channel,
+					addedBy: 'YouTube Autoplay',
+					source: 'youtube',
+					url: `https://www.youtube.com/watch?v=${related.videoId}`,
+					reactions: {}
+				};
+			}
+		} catch (err) {
+			console.warn('[Room] Failed to prefetch related track:', err);
+		}
+	}
+
 	async continueWithRelated(lastTrack?: Track | null): Promise<void> {
 		if (this.isContinuingRelated) return;
 		this.isContinuingRelated = true;
 
 		try {
-			if (lastTrack?.videoId) {
-				this.playedVideoIds.add(lastTrack.videoId);
-			}
-			if (this.state.current?.videoId) {
-				this.playedVideoIds.add(this.state.current.videoId);
+			const finishedTrack = lastTrack || this.state.current;
+			if (finishedTrack?.videoId) {
+				this.playedVideoIds.add(finishedTrack.videoId);
 			}
 
-			const related = await getRelatedYouTubeTrack(lastTrack || this.state.current, this.playedVideoIds);
-			this.playedVideoIds.add(related.videoId);
+			// 1. If we have a prefetched track ready that doesn't match the finished track, use it instantly (0ms delay)!
+			let nextTrack = this.nextAutoplayTrack;
+			if (nextTrack && finishedTrack?.videoId && nextTrack.videoId === finishedTrack.videoId) {
+				nextTrack = null;
+			}
 
-			const relatedTrack: Track = {
-				uid: `rel-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-				videoId: related.videoId,
-				title: related.title,
-				channel: related.channel,
-				addedBy: 'YouTube Autoplay',
-				source: 'youtube',
-				url: `https://www.youtube.com/watch?v=${related.videoId}`,
-				reactions: {}
-			};
+			// 2. If not prefetched yet, resolve immediately using similarity matching
+			if (!nextTrack) {
+				const related = await getRelatedYouTubeTrack(finishedTrack, this.playedVideoIds);
+				nextTrack = {
+					uid: `rel-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+					videoId: related.videoId,
+					title: related.title,
+					channel: related.channel,
+					addedBy: 'YouTube Autoplay',
+					source: 'youtube',
+					url: `https://www.youtube.com/watch?v=${related.videoId}`,
+					reactions: {}
+				};
+			}
+
+			if (nextTrack.videoId) {
+				this.playedVideoIds.add(nextTrack.videoId);
+			}
+			this.nextAutoplayTrack = null;
 
 			this.mutate(
 				(s) => ({
 					...s,
-					current: relatedTrack,
-					videoId: relatedTrack.videoId,
+					current: nextTrack,
+					videoId: nextTrack!.videoId,
 					playlistId: null,
 					source: 'youtube',
 					playing: true,
 					position: 0
 				}),
-				`Queue finished · Autoplaying related: “${relatedTrack.title}”`
+				`Queue finished · Autoplaying related: “${nextTrack.title}”`
 			);
+
+			// 3. Immediately prefetch the NEXT track in background so future transitions are also instant
+			void this.prefetchNextRelatedTrack(nextTrack);
 		} catch (err) {
 			console.warn('[Room] Failed to continue with related track:', err);
 		} finally {
@@ -2171,6 +2211,9 @@ class Room {
 				},
 				finished ? `skipped “${finished}”` : 'skipped ahead'
 			);
+			if (this.state.queue.length <= 1) {
+				void this.prefetchNextRelatedTrack(this.state.current);
+			}
 		} else {
 			// When queue is empty, continue with related music
 			void this.continueWithRelated(lastTrack);
@@ -2199,6 +2242,9 @@ class Room {
 				};
 			});
 			if (finished) this.writeLog(`finished “${finished}”`);
+			if (this.state.queue.length <= 1) {
+				void this.prefetchNextRelatedTrack(this.state.current);
+			}
 		} else {
 			if (finished) this.writeLog(`finished “${finished}” · queue finished`);
 			void this.continueWithRelated(lastTrack);

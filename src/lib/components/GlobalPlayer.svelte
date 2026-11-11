@@ -159,7 +159,8 @@
 					} catch {}
 				}
 			}
-			if (playerState !== PLAYING) {
+			// Never restart a video that reached ENDED state (calling playVideo repeats the song from 0:00)
+			if (playerState !== PLAYING && playerState !== ENDED) {
 				try {
 					player.playVideo?.();
 				} catch {}
@@ -434,14 +435,8 @@
 										if (room.state.queue.length > 0) {
 											room.skip();
 										} else {
-											// Switch to a guaranteed embeddable chillhop stream so the room never falls dead silent
-											room.add(
-												'DWcJFNfaw9c',
-												'Chillhop Radio - jazzy & lofi hip hop beats',
-												'Chillhop Music',
-												'All Nighter',
-												'youtube'
-											);
+											// Switch to the next related song matched to the current language
+											void room.continueWithRelated(room.state.current);
 										}
 									}
 								}, 1500);
