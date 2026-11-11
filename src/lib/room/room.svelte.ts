@@ -29,7 +29,7 @@ import { supabase, isSupabaseConfigured } from '#lib/supabase';
 import { buildNightFromRoom, saveToMyNights } from '#lib/data/local-logbook';
 import type { Night } from '#lib/data/archive';
 import { recordStat } from '#lib/data/profile-stats';
-import { getRelatedYouTubeTrack } from './youtube';
+import { getRelatedYouTubeTrack, isBannedMusic } from './youtube';
 
 const LS_NAME = 'an.callsign';
 const LS_ID = 'an.client';
@@ -392,12 +392,23 @@ class Room {
 		(msg) => this.onChat(msg),
 		(queue) => {
 			if (queue && Array.isArray(queue)) {
-				this.state = { ...this.state, queue };
+				const cleanQueue = queue.filter((t) => !isBannedMusic(t.videoId, t.title));
+				this.state = { ...this.state, queue: cleanQueue };
 			}
 		},
 		(remoteState) => {
 			if (remoteState) {
-				this.state = { ...this.state, ...remoteState };
+				let s = { ...this.state, ...remoteState };
+				if (s.current && isBannedMusic(s.current.videoId, s.current.title)) {
+					s.current = s.queue && s.queue.length > 0 ? s.queue[0] : null;
+					s.videoId = s.current?.videoId ?? null;
+					s.source = s.current?.source ?? undefined;
+					if (s.queue && s.queue.length > 0) s.queue = s.queue.slice(1);
+				}
+				if (s.queue && s.queue.length > 0) {
+					s.queue = s.queue.filter((t) => !isBannedMusic(t.videoId, t.title));
+				}
+				this.state = s;
 			}
 		}
 	);
@@ -973,6 +984,18 @@ class Room {
 		const now = Date.now();
 		const prevQueue = this.state.queue;
 		const base = next(this.state);
+
+		// Purge banned tracks from current playback and queue
+		if (base.current && isBannedMusic(base.current.videoId, base.current.title)) {
+			base.current = base.queue && base.queue.length > 0 ? base.queue[0] : null;
+			base.videoId = base.current?.videoId ?? null;
+			base.source = base.current?.source ?? undefined;
+			if (base.queue && base.queue.length > 0) base.queue = base.queue.slice(1);
+		}
+		if (base.queue && base.queue.length > 0) {
+			base.queue = base.queue.filter((t) => !isBannedMusic(t.videoId, t.title));
+		}
+
 		const seq = options?.keepSeq ? this.state.seq || now : now;
 
 		// If mutation did not explicitly change playback position, advance position by elapsed playback time
@@ -1771,6 +1794,12 @@ class Room {
 		const parsed = source ? null : parseTrackUrl(raw);
 		const trackSource = source ?? parsed?.source ?? (raw.includes('youtube.com') || raw.includes('youtu.be') ? 'youtube' : 'unknown');
 		const videoId = trackSource === 'youtube' ? (parsed?.id ?? raw ?? null) : null;
+
+		// Block banned music from being queued
+		if (isBannedMusic(videoId, title)) {
+			return;
+		}
+
 		const trackUrl = url ?? raw;
 		const playlist = isPlaylist ?? parsed?.isPlaylist;
 		const plistId = playlistId ?? parsed?.playlistId ?? undefined;
@@ -1827,8 +1856,9 @@ class Room {
 		tag?: 'focus' | 'hangout',
 		playlistTitle?: string
 	): void {
-		if (!tracks.length) return;
-		const newTracks: Track[] = tracks.map((t) => ({
+		const filtered = tracks.filter((t) => !isBannedMusic(t.videoId, t.title));
+		if (!filtered.length) return;
+		const newTracks: Track[] = filtered.map((t) => ({
 			uid: randomId(),
 			videoId: t.videoId,
 			source: t.source ?? 'youtube',

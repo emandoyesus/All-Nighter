@@ -360,17 +360,30 @@ export async function fetchPlaylistTracks(
 	return tracks;
 }
 
+/**
+ * Permanently banned tracks from ever appearing in autoplay, fallbacks, or room playback
+ */
+export const BANNED_VIDEO_IDS = new Set([
+	'4xDzrJKXOOY', // Lofi Girl - Synthwave Radio
+	'rUxyKA_-Mg4'  // Synthwave Radio - Chill Synth / Retro Beats
+]);
+
+export function isBannedMusic(videoId?: string | null, title?: string): boolean {
+	if (videoId && BANNED_VIDEO_IDS.has(videoId)) return true;
+	if (title && /synthwave\s*radio/i.test(title)) return true;
+	return false;
+}
+
 const NOCTURNAL_RELATED_FALLBACKS: Array<{ videoId: string; title: string; channel: string }> = [
 	{ videoId: 'jfKfPfyJRdk', title: 'lofi hip hop radio 📚 - beats to relax/study to', channel: 'Lofi Girl' },
-	{ videoId: '4xDzrJKXOOY', title: 'synthwave radio 🌌 - beats to chill/game to', channel: 'Lofi Girl' },
 	{ videoId: '5qap5aO4i9A', title: 'lofi hip hop radio 💤 - beats to sleep/chill to', channel: 'Lofi Girl' },
 	{ videoId: 'DWcJFNfaw9c', title: 'Chillhop Radio - jazzy & lofi hip hop beats', channel: 'Chillhop Music' },
 	{ videoId: 'dX3k_QDnzHE', title: 'Midnight City', channel: 'M83' },
 	{ videoId: '4NRXx6U8ABQ', title: 'Blinding Lights', channel: 'The Weeknd' },
 	{ videoId: '1-xGerv5FOk', title: 'Alone', channel: 'Alan Walker' },
-	{ videoId: 'rUxyKA_-Mg4', title: 'Synthwave Radio - Chill Synth / Retro Beats', channel: 'Lofi Girl' },
 	{ videoId: 'kgx4WGK0oNU', title: 'Coffee Shop Radio ☕ - 24/7 lofi hip-hop beats', channel: 'STEEZYASFUCK' },
-	{ videoId: '7NOSDKb0HlU', title: 'peaceful piano radio 🎹 - music to focus/study', channel: 'Lofi Girl' }
+	{ videoId: '7NOSDKb0HlU', title: 'peaceful piano radio 🎹 - music to focus/study', channel: 'Lofi Girl' },
+	{ videoId: 'WPni755-Krg', title: 'Midnight Jazz Lounge - Relaxing Instrumental Music', channel: 'Cafe Music BGM channel' }
 ];
 
 /**
@@ -391,7 +404,9 @@ export async function getRelatedYouTubeTrack(
 		try {
 			const mixTracks = await fetchPlaylistTracks(`RD${currentVid}`, currentVid);
 			if (mixTracks && mixTracks.length > 0) {
-				const candidate = mixTracks.find((t) => t.videoId !== currentVid && !playedVideoIds.has(t.videoId));
+				const candidate = mixTracks.find(
+					(t) => t.videoId !== currentVid && !playedVideoIds.has(t.videoId) && !isBannedMusic(t.videoId, t.title)
+				);
 				if (candidate) {
 					return candidate;
 				}
@@ -409,7 +424,13 @@ export async function getRelatedYouTubeTrack(
 	if (searchSeed) {
 		try {
 			const found = await searchYouTubeVideo(searchSeed);
-			if (found && found.videoId && found.videoId !== currentVid && !playedVideoIds.has(found.videoId)) {
+			if (
+				found &&
+				found.videoId &&
+				found.videoId !== currentVid &&
+				!playedVideoIds.has(found.videoId) &&
+				!isBannedMusic(found.videoId, found.title)
+			) {
 				return {
 					videoId: found.videoId,
 					title: found.title,
@@ -423,9 +444,9 @@ export async function getRelatedYouTubeTrack(
 
 	// 3. Fallback to our verified nocturnal track rotation
 	const unplayed = NOCTURNAL_RELATED_FALLBACKS.filter(
-		(f) => f.videoId !== currentVid && !playedVideoIds.has(f.videoId)
+		(f) => f.videoId !== currentVid && !playedVideoIds.has(f.videoId) && !isBannedMusic(f.videoId, f.title)
 	);
-	const pool = unplayed.length > 0 ? unplayed : NOCTURNAL_RELATED_FALLBACKS;
+	const pool = unplayed.length > 0 ? unplayed : NOCTURNAL_RELATED_FALLBACKS.filter((f) => !isBannedMusic(f.videoId, f.title));
 	const picked = pool[Math.floor(Math.random() * pool.length)];
 	return picked;
 }

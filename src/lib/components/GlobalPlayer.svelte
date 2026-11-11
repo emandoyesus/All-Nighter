@@ -395,11 +395,11 @@
 										if (room.state.queue.length > 0) {
 											room.skip();
 										} else {
-											// Switch to a guaranteed embeddable lofi stream so the room never falls dead silent
+											// Switch to a guaranteed embeddable chillhop stream so the room never falls dead silent
 											room.add(
-												'4xDzrJKXOOY',
-												'Lofi Girl - Synthwave Radio',
-												'Lofi Girl',
+												'DWcJFNfaw9c',
+												'Chillhop Radio - jazzy & lofi hip hop beats',
+												'Chillhop Music',
 												'All Nighter',
 												'youtube'
 											);
