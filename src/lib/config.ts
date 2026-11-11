@@ -52,6 +52,23 @@ export function isDawnReached(now = new Date()): boolean {
 	return !isNightLockIn;
 }
 
+/**
+ * Returns true if a room created at `createdAt` has passed its sunrise / dawn.
+ * Overnight sessions conclude and archive at sunrise (default 06:00 AM).
+ */
+export function isRoomPastDawn(createdAt: string | number | Date, now = new Date()): boolean {
+	const created = new Date(createdAt);
+	const dawn = getDawnTarget();
+
+	const roomDawn = new Date(created);
+	roomDawn.setHours(dawn.h, dawn.m, 0, 0);
+	if (created.getTime() >= roomDawn.getTime()) {
+		roomDawn.setDate(roomDawn.getDate() + 1);
+	}
+
+	return now.getTime() >= roomDawn.getTime();
+}
+
 /** Public MQTT brokers (WebSockets, no account). Tried in order at startup.
  *  Verified reachable; swap freely for your own broker. */
 export const BROKERS = ['wss://broker.emqx.io:8084/mqtt', 'wss://test.mosquitto.org:8081/mqtt'];

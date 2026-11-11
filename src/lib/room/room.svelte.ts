@@ -782,12 +782,18 @@ class Room {
 				this.directory = this.directory.filter((entry) => entry.room !== room);
 				return;
 			}
+			const ts = Number(ad.ts) || 0;
+			// Ignore stale retained ads older than DIR_TTL so they never ghost-flash on screen
+			if (ts > 0 && Date.now() - ts > DIR_TTL) {
+				this.directory = this.directory.filter((entry) => entry.room !== room);
+				return;
+			}
 			const entry: RoomAd = {
 				room: sanitizeRoom(ad.room),
 				title: String(ad.title ?? ad.room).slice(0, 40),
 				host: String(ad.host ?? '').slice(0, 24),
 				members: Math.max(0, Number(ad.members) || 0),
-				ts: Number(ad.ts) || 0,
+				ts: ts || Date.now(),
 				isPrivate: !!ad.isPrivate,
 				adminOnlyPlayback: !!ad.adminOnlyPlayback
 			};
@@ -1649,6 +1655,13 @@ class Room {
 	/** Keep the original host name when other members refresh the ad. */
 	hostName(): string {
 		return this.directory.find((entry) => entry.room === this.room)?.host || this.name;
+	}
+
+	/** Explicitly clear an ad for a deleted or archived room from local directory and broker */
+	clearRoomAd(roomSlug: string): void {
+		const slug = sanitizeRoom(roomSlug);
+		this.directory = this.directory.filter((entry) => entry.room !== slug);
+		this.pub(this.dirTopic(slug), '', true);
 	}
 
 	/* -------------------------------------------------------------- actions */

@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { room, sanitizeRoom, generateRoomKey } from '#lib/room/room.svelte';
 	import type { RoomAd } from '#lib/room/types';
-	import { isDawnReached } from '#lib/config';
+	import { isRoomPastDawn } from '#lib/config';
 	import { auth } from '#lib/auth.svelte';
 	import { supabase } from '#lib/supabase';
 	import IconPlus from '@tabler/icons-svelte/icons/plus';
@@ -34,7 +34,7 @@
 		const now = new Date();
 		const unarchived: any[] = [];
 		for (const r of rooms) {
-			if (isDawnReached(now)) {
+			if (isRoomPastDawn(r.created_at, now)) {
 				// Room has passed sunrise: archive it immediately
 				try {
 					await supabase.from('session_archives').insert({
@@ -53,6 +53,7 @@
 						.update({ status: 'archived', closed_at: now.toISOString() })
 						.eq('slug', r.slug);
 				} catch {}
+				room.clearRoomAd(r.slug);
 			} else {
 				unarchived.push(r);
 			}
@@ -150,6 +151,7 @@
 				.eq('slug', slug);
 			myRooms = myRooms.filter((r) => r.slug !== slug);
 			dbRooms = dbRooms.filter((r) => r.room !== slug);
+			room.clearRoomAd(slug);
 		} catch (err) {
 			console.warn('[RoomLobby] Failed to delete room:', err);
 		}
@@ -178,19 +180,24 @@
 	}
 
 	const listings = $derived.by(() => {
+		const now = new Date();
 		const map = new Map<string, RoomAd>();
-		// 1. First add rooms from persistent database
+		// 1. First add rooms from persistent database (filter out any that passed dawn)
 		for (const d of dbRooms) {
-			map.set(d.room, d);
+			if (!isRoomPastDawn(d.ts, now)) {
+				map.set(d.room, d);
+			}
 		}
-		// 2. Overlay live rooms from MQTT directory (which have active member counts)
+		// 2. Overlay live rooms from MQTT directory (filter out any that passed dawn)
 		for (const ad of room.directory) {
-			const existing = map.get(ad.room);
-			map.set(ad.room, {
-				...ad,
-				title: ad.title || existing?.title || ad.room,
-				host: ad.host || existing?.host || 'host'
-			});
+			if (!isRoomPastDawn(ad.ts, now)) {
+				const existing = map.get(ad.room);
+				map.set(ad.room, {
+					...ad,
+					title: ad.title || existing?.title || ad.room,
+					host: ad.host || existing?.host || 'host'
+				});
+			}
 		}
 		return Array.from(map.values()).sort((a, b) => b.members - a.members || b.ts - a.ts);
 	});
