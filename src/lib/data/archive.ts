@@ -153,13 +153,13 @@ export type ArchiveStats = {
 	topGenre: { name: string; count: number };
 };
 
-export function archiveStats(): ArchiveStats {
+export function archiveStats(list: Night[] = nights): ArchiveStats {
 	const artistCounts = new Map<string, number>();
 	const contributorCounts = new Map<string, number>();
 	const genreCounts = new Map<string, number>();
 	let tracks = 0;
 	let hours = 0;
-	for (const night of nights) {
+	for (const night of list) {
 		tracks += night.tracks;
 		hours += night.minutes;
 		for (const track of night.tracklist) {
@@ -172,9 +172,9 @@ export function archiveStats(): ArchiveStats {
 		const [entry] = [...counts.entries()].sort((a, b) => b[1] - a[1]);
 		return { name: entry?.[0] ?? '—', count: entry?.[1] ?? 0 };
 	};
-	const longest = [...nights].sort((a, b) => b.minutes - a.minutes)[0];
+	const longest = [...list].sort((a, b) => b.minutes - a.minutes)[0];
 	return {
-		nights: nights.length,
+		nights: list.length,
 		tracks,
 		hours: Math.round((hours / 60) * 10) / 10,
 		longest,

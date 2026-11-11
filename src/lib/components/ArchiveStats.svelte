@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { archiveStats, contributors } from '#lib/data/archive';
+	import { archiveStats, contributors, type Night } from '#lib/data/archive';
 	import { countUp } from '#lib/count-up';
 	import { reveal } from '#lib/reveal';
 	import IconMoon from '@tabler/icons-svelte/icons/moon';
@@ -9,8 +9,13 @@
 	import IconFlame from '@tabler/icons-svelte/icons/flame';
 	import IconUsers from '@tabler/icons-svelte/icons/users';
 
-	const stats = archiveStats();
-	const crew = contributors().length;
+	let { nightsList }: { nightsList?: Night[] } = $props();
+	const stats = $derived(archiveStats(nightsList));
+	const crew = $derived(
+		nightsList
+			? new Set(nightsList.flatMap((n) => n.joined)).size
+			: contributors().length
+	);
 </script>
 
 <section class="mx-auto max-w-[1400px] px-5 pt-8 pb-12 md:pb-16">

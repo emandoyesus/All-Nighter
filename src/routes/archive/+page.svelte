@@ -4,7 +4,9 @@
 	import ArchiveStats from '#lib/components/ArchiveStats.svelte';
 	import { nights, genres, contributors } from '#lib/data/archive';
 	import type { Night } from '#lib/data/archive';
-	import { loadMyNights } from '#lib/data/local-logbook';
+	import { loadMyNights, dbArchiveToNight } from '#lib/data/local-logbook';
+	import { supabase } from '#lib/supabase';
+	import { auth } from '#lib/auth.svelte';
 	import { reveal } from '#lib/reveal';
 	import { splitReveal } from '#lib/split-reveal';
 	import IconArrowLeft from '@tabler/icons-svelte/icons/arrow-left';
@@ -13,31 +15,123 @@
 	import IconClock from '@tabler/icons-svelte/icons/clock';
 	import IconMusic from '@tabler/icons-svelte/icons/music';
 	import IconChevronRight from '@tabler/icons-svelte/icons/chevron-right';
+	import IconChevronDown from '@tabler/icons-svelte/icons/chevron-down';
 	import IconX from '@tabler/icons-svelte/icons/x';
+
+	const ITEMS_PER_ROW = 3;
+	const INITIAL_ROWS = 2;
+	const ITEMS_PER_PAGE = ITEMS_PER_ROW * INITIAL_ROWS; // 6 items (2 rows in 3-column grid)
+	let visibleCount = $state(ITEMS_PER_PAGE);
 
 	let query = $state('');
 	let contributor = $state('');
 	let genre = $state('');
 	let month = $state('');
 	let sourceTab = $state<'all' | 'curated' | 'my'>('all');
-	let myNights = $state<Night[]>([]);
+	let myLocalNights = $state<Night[]>([]);
+	let dbNights = $state<Night[]>([]);
+
+	async function loadDbArchives(): Promise<void> {
+		if (!supabase) return;
+		try {
+			// 1. Fetch from session_archives
+			const { data: archives } = await supabase
+				.from('session_archives')
+				.select('*')
+				.order('ended_at', { ascending: false });
+
+			const loaded: Night[] = [];
+			const seenSlugs = new Set<string>();
+
+			if (archives && archives.length > 0) {
+				for (const a of archives) {
+					seenSlugs.add(a.slug);
+					loaded.push(dbArchiveToNight(a));
+				}
+			}
+
+			// 2. Also fetch any rooms marked 'archived' in rooms table that might not be in session_archives yet
+			const { data: archivedRooms } = await supabase
+				.from('rooms')
+				.select('*')
+				.eq('status', 'archived')
+				.order('created_at', { ascending: false });
+
+			if (archivedRooms && archivedRooms.length > 0) {
+				for (const r of archivedRooms) {
+					if (!seenSlugs.has(r.slug)) {
+						seenSlugs.add(r.slug);
+						loaded.push(
+							dbArchiveToNight({
+								slug: r.slug,
+								title: r.title || r.slug,
+								started_at: r.created_at,
+								ended_at: r.closed_at || new Date().toISOString(),
+								attendees: [r.host_name || 'Host'],
+								playlist: r.playback_state?.queue || [],
+								summary: 'Overnight lock-in session archived at sunrise'
+							})
+						);
+					}
+				}
+			}
+
+			dbNights = loaded;
+		} catch (err) {
+			console.warn('[Archive] Failed to load db archives:', err);
+		}
+	}
 
 	onMount(() => {
-		myNights = loadMyNights();
+		myLocalNights = loadMyNights();
+		void loadDbArchives();
 	});
 
-	const baseNights = $derived.by(() => {
-		if (sourceTab === 'my') return myNights;
-		if (sourceTab === 'curated') return nights;
+	const myNights = $derived.by(() => {
+		const currentName = (auth.displayName || '').trim().toLowerCase();
 		const seen = new Set<string>();
 		const result: Night[] = [];
-		for (const item of [...myNights, ...nights]) {
+
+		for (const n of myLocalNights) {
+			if (!seen.has(n.slug)) {
+				seen.add(n.slug);
+				result.push(n);
+			}
+		}
+
+		if (currentName) {
+			for (const dn of dbNights) {
+				if (!seen.has(dn.slug)) {
+					const isParticipant =
+						dn.joined.some((name) => name.trim().toLowerCase() === currentName) ||
+						dn.tracklist.some((t) => t.addedBy.trim().toLowerCase() === currentName);
+					if (isParticipant) {
+						seen.add(dn.slug);
+						result.push(dn);
+					}
+				}
+			}
+		}
+
+		return result;
+	});
+
+	const allNights = $derived.by(() => {
+		const seen = new Set<string>();
+		const result: Night[] = [];
+		for (const item of [...dbNights, ...myLocalNights, ...nights]) {
 			if (!seen.has(item.slug)) {
 				seen.add(item.slug);
 				result.push(item);
 			}
 		}
 		return result;
+	});
+
+	const baseNights = $derived.by(() => {
+		if (sourceTab === 'my') return myNights;
+		if (sourceTab === 'curated') return nights;
+		return allNights;
 	});
 
 	const months = $derived(
@@ -89,11 +183,24 @@
 			.sort((a, b) => new Date(b.iso).getTime() - new Date(a.iso).getTime());
 	});
 
+	const displayedNights = $derived(filtered.slice(0, visibleCount));
+
+	$effect(() => {
+		// Reset visible count when query, filters, or tab changes
+		query;
+		contributor;
+		genre;
+		month;
+		sourceTab;
+		visibleCount = ITEMS_PER_PAGE;
+	});
+
 	function reset(): void {
 		query = '';
 		contributor = '';
 		genre = '';
 		month = '';
+		visibleCount = ITEMS_PER_PAGE;
 	}
 
 	const hasFilters = $derived(!!(query || contributor || genre || month));
@@ -125,7 +232,7 @@
 				<IconArrowLeft size={15} stroke={1.5} />
 				Tonight
 			</a>
-			<p class="eyebrow mt-4">{nights.length} {nights.length === 1 ? 'night' : 'nights'} on record</p>
+			<p class="eyebrow mt-4">{allNights.length} {allNights.length === 1 ? 'night' : 'nights'} on record</p>
 			<h1
 				class="mt-2 text-3xl font-semibold tracking-tight md:text-4xl"
 				data-split
@@ -140,7 +247,7 @@
 		</div>
 	</section>
 
-	<ArchiveStats />
+	<ArchiveStats nightsList={allNights} />
 
 	<section class="relative border-t border-cream/10 bg-[#060a0b] py-14 md:py-20 overflow-hidden">
 		<!-- Subtle dot ledger pattern -->
@@ -170,7 +277,7 @@
 						class="rounded-full px-3 py-1 transition-colors {sourceTab === 'all' ? 'bg-lamp/20 font-medium text-lamp' : 'text-taupe hover:text-cream'}"
 						onclick={() => (sourceTab = 'all')}
 					>
-						All ({myNights.length + nights.length})
+						All ({allNights.length})
 					</button>
 					<button
 						type="button"
@@ -323,7 +430,7 @@
 		{/if}
 
 		<div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-			{#each filtered as night, i (night.seed)}
+			{#each displayedNights as night, i (night.seed)}
 				<a
 					href="/archive/{night.slug}"
 					class="group relative flex h-full flex-col justify-between overflow-hidden rounded-xl border border-cream/10 bg-night-2 p-5 transition-all duration-300 hover:border-lamp/50 hover:bg-night-2/90"
@@ -420,6 +527,25 @@
 				</div>
 			{/each}
 		</div>
+
+		{#if filtered.length > visibleCount}
+			<div class="mt-8 flex flex-col items-center justify-center gap-2">
+				<button
+					type="button"
+					class="btn btn-secondary flex items-center gap-2 px-6 py-2.5 text-xs font-mono uppercase tracking-wider text-cream hover:border-lamp/40 hover:text-lamp transition-all cursor-pointer shadow-md"
+					onclick={() => (visibleCount += ITEMS_PER_PAGE)}
+				>
+					<span>Show more</span>
+					<span class="rounded bg-cream/10 px-1.5 py-0.5 text-[10px] text-faint">
+						+{Math.min(ITEMS_PER_PAGE, filtered.length - visibleCount)}
+					</span>
+					<IconChevronDown size={14} stroke={2} />
+				</button>
+				<p class="font-mono text-[11px] text-faint">
+					Showing {visibleCount} of {filtered.length} sessions
+				</p>
+			</div>
+		{/if}
 
 		<div class="mt-10 flex items-center gap-2 border-t border-cream/10 pt-5 text-xs text-faint">
 			<IconUsers size={14} stroke={1.5} />

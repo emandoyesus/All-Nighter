@@ -75,3 +75,45 @@ export function buildNightFromRoom(
 		chatMoments: []
 	};
 }
+
+export function dbArchiveToNight(row: any): Night {
+	const started = row.started_at ? new Date(row.started_at) : new Date();
+	const ended = row.ended_at ? new Date(row.ended_at) : new Date();
+	const durationMs = Math.max(0, ended.getTime() - started.getTime());
+	const totalMinutes = Math.round(durationMs / (60 * 1000)) || 360;
+	const hoursPart = Math.floor(totalMinutes / 60);
+	const minsPart = totalMinutes % 60;
+	const hoursStr = `${hoursPart}h ${minsPart.toString().padStart(2, '0')}m`;
+
+	const attendees = Array.isArray(row.attendees) ? row.attendees : [];
+	const playlist = Array.isArray(row.playlist) ? row.playlist : [];
+
+	const tracklist: ArchiveTrack[] = playlist.map((t: any) => ({
+		title: t.title || 'Untitled Track',
+		artist: t.channel || t.artist || 'YouTube',
+		addedBy: t.addedBy || 'Crew',
+		genre: t.genre || 'lo-fi',
+		videoId: t.videoId || undefined,
+		url: t.url || undefined
+	}));
+
+	const dateStr = ended.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+	return {
+		slug: row.slug,
+		date: dateStr,
+		iso: row.ended_at || row.started_at || new Date().toISOString(),
+		tag: 'All Nighter',
+		title: row.title || row.slug,
+		note: row.summary || `Session with ${attendees.length || 1} awake till sunrise.`,
+		hours: hoursStr,
+		minutes: totalMinutes,
+		tracks: tracklist.length,
+		heads: Math.max(attendees.length, 1),
+		seed: row.slug,
+		joined: attendees.map((a: any) => (typeof a === 'string' ? a : a.name || 'Anonymous')),
+		intentions: [],
+		tracklist,
+		chatMoments: Array.isArray(row.moments) ? row.moments : []
+	};
+}
