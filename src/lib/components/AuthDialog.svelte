@@ -59,7 +59,7 @@
 		'dawn-walker'
 	];
 
-	// Exactly half the avatars (6 character avatars: 3 boys, 3 girls)
+	// 6 character avatars (3 boys, 3 girls)
 	const PRESET_AVATARS = [
 		{ id: 'lofigirl', name: 'Lo-Fi Girl', url: '/avatars/lofi-girl.svg' },
 		{ id: 'lofiboy', name: 'Lo-Fi Boy', url: '/avatars/lofi-boy.svg' },
@@ -74,7 +74,7 @@
 			mode = initialMode;
 			errorMessage = '';
 			emailSent = false;
-			if (!callsign && room.name && room.name !== 'night-owl') {
+			if (!callsign && room.name && room.name !== 'night-owl' && !room.name.startsWith('guest-')) {
 				callsign = room.name;
 			}
 		}
@@ -172,10 +172,9 @@
 			if (e.target === e.currentTarget) open = false;
 		}}
 	>
-		<!-- 5% Orange Color Card with Solid Surface (No Gradients) -->
+		<!-- Theme as before: Clean dark neutral container without gradients -->
 		<div
-			class="relative w-full max-w-[420px] my-auto overflow-hidden rounded-2xl border p-6 sm:p-7 shadow-2xl text-cream animate-in fade-in zoom-in-95 duration-150"
-			style="background-color: color-mix(in srgb, #ff7a00 5%, #0e1315); border-color: color-mix(in srgb, #ff7a00 24%, rgba(255, 255, 255, 0.12));"
+			class="relative w-full max-w-[420px] my-auto overflow-hidden rounded-2xl border border-cream/15 bg-[#0e1315] p-6 sm:p-7 shadow-2xl text-cream animate-in fade-in zoom-in-95 duration-150"
 		>
 			<!-- Close Button -->
 			<button
@@ -189,7 +188,7 @@
 
 			<!-- Centered Brand Header -->
 			<div class="text-center mb-5">
-				<div class="mx-auto mb-3 grid h-11 w-11 place-items-center rounded-full border border-orange-500/30 bg-orange-500/10 text-orange-400 shadow-sm">
+				<div class="mx-auto mb-3 grid h-11 w-11 place-items-center rounded-full border border-cream/15 bg-[#141c1f] text-lamp shadow-sm">
 					<IconMoon size={22} stroke={1.8} />
 				</div>
 				<h2 id="auth-modal-title" class="text-xl font-bold tracking-tight text-cream">
@@ -207,8 +206,8 @@
 			{#if emailSent}
 				<!-- Email Sent Confirmation View -->
 				<div class="space-y-4">
-					<div class="rounded-xl border border-orange-500/25 bg-[#141c1f] p-4 text-center">
-						<span class="inline-grid h-10 w-10 place-items-center rounded-full bg-orange-500/15 text-orange-400 mb-2">
+					<div class="rounded-xl border border-cream/15 bg-[#141c1f] p-4 text-center">
+						<span class="inline-grid h-10 w-10 place-items-center rounded-full bg-lamp/15 text-lamp mb-2">
 							<IconMail size={20} stroke={1.8} />
 						</span>
 						<p class="text-sm font-semibold text-cream">Verification link sent</p>
@@ -222,7 +221,7 @@
 
 					<button
 						type="button"
-						class="btn btn-amber w-full py-2.5 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer rounded-lg"
+						class="btn btn-primary w-full py-2.5 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer rounded-lg"
 						onclick={() => handleSwitchMode('signin')}
 					>
 						<span>Back to Sign In</span>
@@ -230,18 +229,18 @@
 					</button>
 				</div>
 			{:else}
-				<!-- Clean Social-Style Segmented Tab Switcher with 5% Orange Accent -->
-				<div class="grid grid-cols-2 rounded-xl bg-[#141a1c] p-1 border border-cream/10 text-xs font-medium mb-4">
+				<!-- Clean Social-Style Segmented Tab Switcher -->
+				<div class="grid grid-cols-2 rounded-xl bg-[#141c1f] p-1 border border-cream/10 text-xs font-medium mb-4">
 					<button
 						type="button"
-						class="rounded-lg py-2 transition-all cursor-pointer text-center {mode === 'signin' ? 'bg-orange-500/15 text-cream border border-orange-500/30 shadow-sm font-semibold' : 'text-taupe hover:text-cream'}"
+						class="rounded-lg py-2 transition-all cursor-pointer text-center {mode === 'signin' ? 'bg-[#1d262a] text-cream shadow-sm font-semibold' : 'text-taupe hover:text-cream'}"
 						onclick={() => handleSwitchMode('signin')}
 					>
 						Sign in
 					</button>
 					<button
 						type="button"
-						class="rounded-lg py-2 transition-all cursor-pointer text-center {mode === 'signup' ? 'bg-orange-500/15 text-cream border border-orange-500/30 shadow-sm font-semibold' : 'text-taupe hover:text-cream'}"
+						class="rounded-lg py-2 transition-all cursor-pointer text-center {mode === 'signup' ? 'bg-[#1d262a] text-cream shadow-sm font-semibold' : 'text-taupe hover:text-cream'}"
 						onclick={() => handleSwitchMode('signup')}
 					>
 						Sign up
@@ -266,7 +265,7 @@
 								</label>
 								<button
 									type="button"
-									class="text-[11px] text-faint hover:text-orange-400 flex items-center gap-1 transition-colors cursor-pointer"
+									class="text-[11px] text-faint hover:text-lamp flex items-center gap-1 transition-colors cursor-pointer"
 									onclick={handleRandomCallsign}
 									title="Roll random callsign"
 								>
@@ -281,14 +280,14 @@
 									maxlength="24"
 									required
 									autocomplete="nickname"
-									class="w-full rounded-lg border border-cream/15 bg-[#121719] px-3.5 py-2.5 text-sm text-cream outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-400/40 transition-colors placeholder:text-faint/50"
+									class="w-full rounded-lg border border-cream/15 bg-[#141c1f] px-3.5 py-2.5 text-sm text-cream outline-none focus:border-lamp focus:ring-1 focus:ring-lamp/40 transition-colors placeholder:text-faint/50"
 									placeholder="e.g. midnight-coder"
 									bind:value={callsign}
 								/>
 							</div>
 						</div>
 
-						<!-- Choose Starter Avatar (Half of previous avatars: 6 distinct character avatars) -->
+						<!-- Choose Starter Avatar (6 character avatars: 3 boys, 3 girls) -->
 						<div>
 							<span class="block text-xs font-medium text-cream/90 mb-1.5">
 								Choose Avatar
@@ -297,7 +296,7 @@
 								{#each PRESET_AVATARS as preset}
 									<button
 										type="button"
-										class="relative aspect-square w-full rounded-full border-2 p-0.5 transition-all cursor-pointer {avatarUrl === preset.url ? 'border-orange-400 ring-2 ring-orange-400/35 scale-105' : 'border-cream/15 opacity-65 hover:opacity-100 hover:border-cream/40'}"
+										class="relative aspect-square w-full rounded-full border-2 p-0.5 transition-all cursor-pointer {avatarUrl === preset.url ? 'border-lamp ring-2 ring-lamp/30 scale-105' : 'border-cream/15 opacity-65 hover:opacity-100 hover:border-cream/40'}"
 										onclick={() => (avatarUrl = preset.url)}
 										title={preset.name}
 									>
@@ -322,7 +321,7 @@
 								type="email"
 								required
 								autocomplete="email"
-								class="w-full rounded-lg border border-cream/15 bg-[#121719] pl-10 pr-3.5 py-2.5 text-sm text-cream outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-400/40 transition-colors placeholder:text-faint/50"
+								class="w-full rounded-lg border border-cream/15 bg-[#141c1f] pl-10 pr-3.5 py-2.5 text-sm text-cream outline-none focus:border-lamp focus:ring-1 focus:ring-lamp/40 transition-colors placeholder:text-faint/50"
 								placeholder="name@example.com"
 								bind:value={email}
 							/>
@@ -349,7 +348,7 @@
 								required
 								minlength="6"
 								autocomplete={mode === 'signup' ? 'new-password' : 'current-password'}
-								class="w-full rounded-lg border border-cream/15 bg-[#121719] pl-10 pr-10 py-2.5 text-sm text-cream outline-none focus:border-orange-400 focus:ring-1 focus:ring-orange-400/40 transition-colors placeholder:text-faint/50"
+								class="w-full rounded-lg border border-cream/15 bg-[#141c1f] pl-10 pr-10 py-2.5 text-sm text-cream outline-none focus:border-lamp focus:ring-1 focus:ring-lamp/40 transition-colors placeholder:text-faint/50"
 								placeholder="••••••••"
 								bind:value={password}
 							/>
@@ -373,7 +372,7 @@
 					<div class="pt-2">
 						<button
 							type="submit"
-							class="btn btn-amber w-full py-2.5 text-sm font-semibold flex items-center justify-center gap-2 cursor-pointer rounded-lg shadow-sm"
+							class="btn btn-primary w-full py-2.5 text-sm font-semibold flex items-center justify-center gap-2 cursor-pointer rounded-lg shadow-sm"
 							disabled={loading}
 						>
 							{#if loading}
@@ -387,16 +386,27 @@
 					</div>
 				</form>
 
-				<!-- Bottom Switcher -->
+				<!-- Bottom Switcher: only "Sign up" and "Sign in" in orange -->
 				<p class="mt-4 text-center text-xs text-taupe">
-					{mode === 'signup' ? 'Already have an account?' : "Don't have an account?"}
-					<button
-						type="button"
-						class="font-semibold text-orange-400 hover:underline ml-1 cursor-pointer"
-						onclick={() => handleSwitchMode(mode === 'signup' ? 'signin' : 'signup')}
-					>
-						{mode === 'signup' ? 'Sign in' : 'Sign up'}
-					</button>
+					{#if mode === 'signup'}
+						Already have an account?
+						<button
+							type="button"
+							class="font-semibold text-orange-400 hover:text-orange-300 hover:underline ml-1 cursor-pointer transition-colors"
+							onclick={() => handleSwitchMode('signin')}
+						>
+							Sign in
+						</button>
+					{:else}
+						Don't have an account?
+						<button
+							type="button"
+							class="font-semibold text-orange-400 hover:text-orange-300 hover:underline ml-1 cursor-pointer transition-colors"
+							onclick={() => handleSwitchMode('signup')}
+						>
+							Sign up
+						</button>
+					{/if}
 				</p>
 			{/if}
 		</div>
