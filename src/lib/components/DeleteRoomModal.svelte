@@ -102,10 +102,10 @@
 				</div>
 			</div>
 
-			<!-- Archive Preference on Delete -->
+			<!-- Archive Preference on Delete (Host decides for Private Room) -->
 			{#if room.state.isPrivate}
 				<div class="mt-4 rounded-xl border border-cream/10 bg-night p-3">
-					<span class="mb-2 block text-xs font-mono text-faint">Logbook Archive Option (Private Room)</span>
+					<span class="mb-2 block text-xs font-mono text-faint">Logbook Archive Option</span>
 					<div class="grid grid-cols-2 gap-2">
 						<button
 							type="button"
@@ -135,14 +135,6 @@
 							<span class="text-[10px] text-faint leading-snug">Ephemeral wipe</span>
 						</button>
 					</div>
-				</div>
-			{:else}
-				<div class="mt-4 rounded-xl border border-cream/10 bg-night p-3 text-xs text-taupe flex items-center justify-between">
-					<span class="flex items-center gap-2 text-cream/90">
-						<IconBookmark size={14} class="text-lamp shrink-0" stroke={2} />
-						<span>Public Room Archive Policy</span>
-					</span>
-					<span class="text-[11px] font-mono text-lamp">Auto-archived at dawn</span>
 				</div>
 			{/if}
 

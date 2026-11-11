@@ -12,15 +12,12 @@
 	import IconShield from '@tabler/icons-svelte/icons/shield';
 	import IconKey from '@tabler/icons-svelte/icons/key';
 	import IconDice from '@tabler/icons-svelte/icons/dice';
-	import IconBookmark from '@tabler/icons-svelte/icons/bookmark';
-	import IconFlame from '@tabler/icons-svelte/icons/flame';
 
 	let creating = $state(false);
 	let draft = $state('');
 	let isPrivate = $state(false);
 	let roomKeyDraft = $state(generateRoomKey());
 	let adminOnly = $state(false);
-	let autoArchive = $state(true);
 	let nightPlan = $state('');
 	let copiedSlug = $state<string | null>(null);
 	let joinPrivateInput = $state('');
@@ -62,8 +59,7 @@
 			// Store the intention before creating the room so announce() picks it up
 			room.setIntention(nightPlan.trim());
 		}
-		const effectiveArchive = isPrivate ? autoArchive : true;
-		void room.createRoom(name, isPrivate, adminOnly, isPrivate ? roomKeyDraft : undefined, effectiveArchive);
+		void room.createRoom(name, isPrivate, adminOnly, isPrivate ? roomKeyDraft : undefined);
 	}
 
 	function handleJoinPrivate(event: SubmitEvent): void {
@@ -336,50 +332,6 @@
 						</button>
 					</div>
 				</div>
-
-				<!-- Archive Preference -->
-				{#if isPrivate}
-					<div>
-						<span class="mb-1.5 block text-xs text-faint">Archive Preference (Private Room)</span>
-						<div class="grid grid-cols-2 gap-2">
-							<button
-								type="button"
-								class="flex flex-col items-start gap-1 rounded-field border px-3 py-2 text-left text-xs transition-colors {autoArchive
-									? 'border-lamp/50 bg-lamp/10 text-lamp'
-									: 'border-cream/10 bg-night/50 text-taupe hover:border-cream/20 hover:text-cream'}"
-								onclick={() => (autoArchive = true)}
-							>
-								<span class="flex items-center gap-1.5 font-medium">
-									<IconBookmark size={14} stroke={2} />
-									Archive to Logbook
-								</span>
-								<span class="text-[11px] leading-snug opacity-75">Save playlist & stats at dawn</span>
-							</button>
-
-							<button
-								type="button"
-								class="flex flex-col items-start gap-1 rounded-field border px-3 py-2 text-left text-xs transition-colors {!autoArchive
-									? 'border-amber-400/50 bg-amber-400/10 text-amber-300'
-									: 'border-cream/10 bg-night/50 text-taupe hover:border-cream/20 hover:text-cream'}"
-								onclick={() => (autoArchive = false)}
-							>
-								<span class="flex items-center gap-1.5 font-medium">
-									<IconFlame size={14} stroke={2} />
-									Do Not Archive
-								</span>
-								<span class="text-[11px] leading-snug opacity-75">Ephemeral · Discard at sunrise</span>
-							</button>
-						</div>
-					</div>
-				{:else}
-					<div class="rounded-field border border-cream/10 bg-night/40 px-3 py-2 text-xs flex items-center justify-between text-taupe">
-						<span class="flex items-center gap-1.5 text-cream/90">
-							<IconBookmark size={14} class="text-lamp shrink-0" stroke={2} />
-							<span>Public Archive Policy</span>
-						</span>
-						<span class="text-[11px] font-mono text-lamp">Auto-archived at dawn</span>
-					</div>
-				{/if}
 
 				<div>
 					<label for="room-name" class="text-xs text-faint flex items-center justify-between mb-1.5">

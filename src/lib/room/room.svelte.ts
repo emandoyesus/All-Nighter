@@ -1219,10 +1219,10 @@ class Room {
 		}
 
 		// Public rooms are automatically archived if dawn or if explicitly requested.
-		// For private rooms, the host decides (shouldArchive override or autoArchive preference if dawn).
+		// For private rooms, the host decides at the end (shouldArchive override).
 		const isPrivate = !!this.state.isPrivate;
 		const doArchive = isPrivate
-			? (shouldArchive !== undefined ? shouldArchive : (this.isDawn && this.state.autoArchive !== false))
+			? (shouldArchive !== undefined ? shouldArchive : false)
 			: (shouldArchive !== undefined ? shouldArchive : this.isDawn);
 		if (doArchive) {
 			await this.archiveRoom();
@@ -1908,7 +1908,7 @@ class Room {
 		this.now = now;
 
 		// Auto-archive when dawn is reached during an active overnight session
-		// Public rooms are always auto-archived at dawn; private rooms respect host preference.
+		// Public rooms are always auto-archived at dawn; private rooms host decides at the end.
 		if (
 			this.isHost &&
 			this.joinState === 'approved' &&
@@ -1918,11 +1918,10 @@ class Room {
 			!this.dawnArchived
 		) {
 			this.dawnArchived = true;
-			const shouldAutoArchive = !this.state.isPrivate || this.state.autoArchive !== false;
-			if (shouldAutoArchive) {
+			if (!this.state.isPrivate) {
 				void this.archiveRoom();
 			} else {
-				console.log('[Room] Dawn reached: private room auto-archive skipped per host preference');
+				console.log('[Room] Dawn reached: private room waiting for host decision');
 			}
 		}
 
