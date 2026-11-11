@@ -7,7 +7,8 @@ import {
 	PRESENCE_TTL,
 	REQUEST_TICK,
 	REQUEST_TTL,
-	isDawnReached
+	isDawnReached,
+	isRoomPastDawn
 } from '#lib/config';
 import type {
 	ChatMessage,
@@ -266,12 +267,16 @@ class Room {
 	joinState = $state<JoinState>('lobby');
 	title = $state('');
 	isHost = $state(false);
-	/** Whether dawn has been reached for the night session */
-	isDawn = $derived(isDawnReached(new Date(this.now)));
-	/** Transient alert banner for room deleted / archived events */
-	roomAlert = $state<{ type: 'deleted' | 'archived' | 'error'; message: string; slug?: string } | null>(null);
 	/** Timestamp when this session was entered */
 	roomStartedAt = $state(0);
+	/** Whether dawn (06:00 AM) has been reached for this room's overnight session */
+	isDawn = $derived(
+		this.roomStartedAt
+			? isRoomPastDawn(this.roomStartedAt, new Date(this.now))
+			: false
+	);
+	/** Transient alert banner for room deleted / archived events */
+	roomAlert = $state<{ type: 'deleted' | 'archived' | 'error'; message: string; slug?: string } | null>(null);
 	/** Whether this room was started during the night before dawn */
 	private startedBeforeDawn = false;
 	/** Whether this session was already auto-archived */
@@ -1339,7 +1344,19 @@ class Room {
 		this.title = title;
 		this.isHost = host;
 		this.joinState = 'approved';
-		this.roomStartedAt = Date.now();
+		if (isNew) {
+			this.roomStartedAt = Date.now();
+			try {
+				localStorage.setItem('an.started.' + slug, String(this.roomStartedAt));
+			} catch {}
+		} else {
+			try {
+				const saved = localStorage.getItem('an.started.' + slug);
+				this.roomStartedAt = saved ? Number(saved) : (this.roomStartedAt || Date.now());
+			} catch {
+				this.roomStartedAt = this.roomStartedAt || Date.now();
+			}
+		}
 		this.startedBeforeDawn = !isDawnReached(new Date());
 		this.dawnArchived = false;
 
@@ -2327,6 +2344,8 @@ class Room {
 		this.room = '';
 		this.title = '';
 		this.isHost = false;
+		this.roomStartedAt = 0;
+		this.dawnArchived = false;
 		this.state = emptyState();
 		this.log = [];
 		this.pending = [];
