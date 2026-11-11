@@ -104,6 +104,19 @@ class AuthService {
 		return res;
 	}
 
+	async signInWithGoogle() {
+		if (!supabase) throw new Error('Supabase is not configured');
+		const redirectTo = typeof window !== 'undefined' ? `${window.location.origin}/room` : undefined;
+		const res = await supabase.auth.signInWithOAuth({
+			provider: 'google',
+			options: {
+				redirectTo
+			}
+		});
+		if (res.error) throw res.error;
+		return res;
+	}
+
 	async signOut() {
 		this.isGuest = false;
 		try {
