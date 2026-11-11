@@ -380,7 +380,7 @@ export function isBannedMusic(videoId?: string | null, title?: string, duration?
 	if (!title) return false;
 	const t = title.toLowerCase();
 	return (
-		/cultural|bahilawi|traditional|eskista|masenqo|kirar\s*folk|lofi|lo-fi|chillhop|study\s*(beats|session|with\s*me)|relax(ing)?\s*beats|piano\s*radio|classical|instrumental(\s*only)?|bgm|sleep(ing)?\s*music|meditation|ambient\s*sound|\b(1|2|3|4|5|6|8|10|12|24)\s*hours?|\bnon[\s-]*stop|\bcompilation|\bfull\s*album|\bjukebox/i.test(
+		/news|ዜና|ዜናታት|asena|atv|tdf|war|military|ኣጽዋር|ጦርነት|ፖለቲካ|politics|interview|መግለጺ|መግለፂ|መሰረት|speech|breaking|update|report|podcast|talk\s*show|documentary|ወቅታዊ|ድምጺ\s*ወያነ|dw\s*international|tigrai\s*tv|tmh|dimtsi\s*weyane|ebc|fana|walta|zehabesha|mereja|andafta|esat|asham|zara\s*media|abbay\s*media|fetash|ethiopia\s*today|sheger\s*fm|balageru\s*tv|nahoo|arts\s*tv|hossana|prophecy|press\s*release|orthodox|mezmur|tewahdo|islamic|dawa|quran|preaching|sermon|gospel|መንፈሳዊ|drama|movie|film|ድራማ|ፊልም|ክፍሊ|cultural|bahilawi|traditional|eskista|masenqo|kirar\s*folk|ባህላዊ|እስክስታ|ማሲንቆ|አዝማሪ|lofi|lo-fi|chillhop|study\s*(beats|session|with\s*me)|relax(ing)?\s*beats|piano\s*radio|classical|instrumental(\s*only)?|bgm|sleep(ing)?\s*music|meditation|ambient\s*sound|\b(1|2|3|4|5|6|8|10|12|24)\s*hours?|\bnon[\s-]*stop|\bcompilation|\bfull\s*album|\bjukebox/i.test(
 			t
 		)
 	);
@@ -388,6 +388,9 @@ export function isBannedMusic(videoId?: string | null, title?: string, duration?
 
 export type MusicLanguage = 'amharic' | 'tigrinya' | 'english';
 
+/**
+ * Detects whether a track is Amharic, Ethiopian Tigrinya, or English / International music.
+ */
 /**
  * Detects whether a track is Amharic, Ethiopian Tigrinya, or English / International music.
  */
@@ -402,7 +405,7 @@ export function detectMusicLanguage(
 
 	// Check Ethiopian Tigrinya indicators first
 	const isTigrinya =
-		/tigrinya|tigrigna|tigrina|tigray|mekelle|dawit\s*nega|abraham\s*gebremedhin|abreham\s*g\/medhin|kiros\s*alemayehu|eden\s*gebreselasie|gidey\s*gebremedhin|haftu\s*zeferu|tesfay\s*gomera|teklemariam|yemane\s*barya|aytekaelen|fetiki/i.test(
+		/tigrinya|tigrigna|tigrina|tigray|mekelle|dawit\s*nega|abraham\s*gebremedhin|abreham\s*g\/medhin|kiros\s*alemayehu|eden\s*gebreselasie|gidey\s*gebremedhin|haftu\s*zeferu|tesfay\s*gomera|teklemariam|yemane\s*barya|aytekaelen|fetiki|merkeb\s*bonitua|solomon\s*haile|zemen\s*alemseged|tmnit\s*welday|timnit\s*welday|mahlet\s*gebrezgiaber|amir\s*dawud|dawit\s*alemayehu|nahom\s*yohannes|ephrem\s*amare|rahel\s*haile|mesfin\s*berhanu|shewit\s*mezgebo|neguse\s*abadi|anbessa\s*tekle|hermon\s*baraki|alula\s*mampa|tesfaye\s*gebre|freselam\s*mussie|estifanos\s*abraham|amanuel\s*yemane|robel\s*michael|solomon\s*bayre/i.test(
 			combined
 		) || /[\u1250-\u1256\u1318-\u131F]/.test(combined);
 
@@ -410,7 +413,7 @@ export function detectMusicLanguage(
 
 	// Check Amharic 90s / Ethiopian modern pop indicators or Ge'ez script
 	const isAmharic =
-		/amharic|ethiopian|ethiopia|addis|ephrem\s*tamiru|aster\s*aweke|tamrat\s*desta|tilahun\s*gessesse|tlahoun|aregahegn\s*worash|kuku\s*sebsebe|girma\s*tefera|teddy\s*afro|michael\s*belayneh|belayneh|rophnan|dawit\s*tsige|neway\s*damtie|gosaye|zeritu|eyob\s*mekonnen|hope\s*music|minew\s*shewa|sewasew|nahom/i.test(
+		/amharic|ethiopian|ethiopia|addis|ephrem\s*tamiru|aster\s*aweke|tamrat\s*desta|tilahun\s*gessesse|tlahoun|aregahegn\s*worash|kuku\s*sebsebe|girma\s*tefera|teddy\s*afro|michael\s*belayneh|belayneh|rophnan|dawit\s*tsige|neway\s*damtie|gosaye|zeritu|eyob\s*mekonnen|hope\s*music|minew\s*shewa|sewasew|nahom|mahmoud\s*ahmed|muluken\s*melesse|abinet\s*agonafir|abdu\s*kiar|abdu\s*kiyar|gigi\s*shibabaw|bizunesh\s*bekele|alemayehu\s*eshete|hirut\s*bekele|betty\s*g|tsegaye\s*eshetu|tsedenia\s*gebremarkos|dagi\s*dagne|dag\s*daniel|bisrat\s*surafel|dereje\s*dubale|alex\s*olympia|alex\s*olompia|fitsum\s*t|haimanot\s*girma|hamelmal\s*abate|helen\s*berhe|lij\s*michael|tsehaye\s*yohannes|tibebu\s*workiye/i.test(
 			combined
 		) || /[\u1200-\u137F]/.test(combined);
 
@@ -428,119 +431,727 @@ export type CuratedTrack = {
 };
 
 export const CURATED_CATALOG: CuratedTrack[] = [
-	// ================= 90s AMHARIC MODERN POP (No Cultural Folk) =================
 	{
-		videoId: 'WD_IDsP3sbY',
-		title: 'Ephrem Tamiru - Demamaye',
-		channel: 'Ephrem Tamiru',
-		language: 'amharic',
-		tags: ['ephrem tamiru', 'demamaye', '90s', 'amharic', 'ethiopian', 'pop']
-	},
-	{
-		videoId: 'vgybg--StKc',
-		title: 'Tamrat Desta - Hakime Nesh',
-		channel: 'Tamrat Desta',
-		language: 'amharic',
-		tags: ['tamrat desta', 'hakime nesh', '90s', 'amharic', 'ethiopian', 'love']
-	},
-	{
-		videoId: 'ULgwcno7gZs',
-		title: 'Aster Aweke - Nafkot',
-		channel: 'Aster Aweke',
-		language: 'amharic',
-		tags: ['aster aweke', 'nafkot', '90s', 'amharic', 'ethiopian']
-	},
-	{
-		videoId: '1geU0Xo4sns',
-		title: 'Tilahun Gessesse - Kulun Manqualesh',
-		channel: 'Tilahun Gessesse',
-		language: 'amharic',
-		tags: ['tilahun gessesse', 'kulun manqualesh', 'amharic', 'ethiopian', 'classic']
-	},
-	{
-		videoId: '-RfFt4nkl5g',
-		title: 'Michael Belayneh - Teneta',
-		channel: 'Michael Belayneh',
-		language: 'amharic',
-		tags: ['michael belayneh', 'belayneh', 'teneta', 'amharic', 'ethiopian']
-	},
-	{
-		videoId: 'VsrL9Rz-A5A',
-		title: 'Teddy Afro - ETHIOPIA',
+		videoId: 'xE-9kJOPbxE',
+		title: 'Teddy Afro - Teddy Afro - Alamin [Official Video]',
 		channel: 'Teddy Afro',
 		language: 'amharic',
-		tags: ['teddy afro', 'ethiopia', 'amharic', 'ethiopian']
+		tags: ['teddy afro', 'amharic', 'music']
 	},
-
-	// ================= ETHIOPIAN TIGRINYA MUSIC (Mainly Ethiopian Tigrinya, No Folk) =================
 	{
-		videoId: 'mMUzrTXQPJg',
-		title: 'Dawit Nega - Ajoki Tigray',
-		channel: 'Dawit Nega',
+		videoId: '581JQIgckzo',
+		title: 'Aster Aweke - Aster Aweke - Bale Gariw | አስቴር አወቀ - ባለ ጋሪው ',
+		channel: 'Aster Aweke',
+		language: 'amharic',
+		tags: ['aster aweke', 'amharic', 'music']
+	},
+	{
+		videoId: 'UD0fA2WJdbU',
+		title: 'Tilahun Gessesse - Tilahun Gessesse - Kome Limerkish | ቆሜ ልመርቅሽ ',
+		channel: 'Tilahun Gessesse',
+		language: 'amharic',
+		tags: ['tilahun gessesse', 'amharic', 'music']
+	},
+	{
+		videoId: 'exHYkiFkbHU',
+		title: 'Mahmoud Ahmed - Mahmoud Ahmed - Yeshi Hargetu',
+		channel: 'Mahmoud Ahmed',
+		language: 'amharic',
+		tags: ['mahmoud ahmed', 'amharic', 'music']
+	},
+	{
+		videoId: 'nDGUOFzxMl0',
+		title: 'Muluken Melesse - Muluken Melesse - Baynish Lilefibet (ባይንሽ ልለፍ',
+		channel: 'Muluken Melesse',
+		language: 'amharic',
+		tags: ['muluken melesse', 'amharic', 'music']
+	},
+	{
+		videoId: 'UjidhLKXA_g',
+		title: 'Abinet Agonafir - Abinet Agonafir አብነት አጎናፍር | የእውነት መንገድ | Yew',
+		channel: 'Abinet Agonafir',
+		language: 'amharic',
+		tags: ['abinet agonafir', 'amharic', 'music']
+	},
+	{
+		videoId: '3saR6DZGfNU',
+		title: 'Dawit Tsige - Dawit Tsige - እትቱ | Etitu (Official Concert M',
+		channel: 'Dawit Tsige',
+		language: 'amharic',
+		tags: ['dawit tsige', 'amharic', 'music']
+	},
+	{
+		videoId: 'dKMF0WkBD9o',
+		title: 'Abdu Kiar - Ethiopian Music : Abdu Kiar & Melat Kelemewor',
+		channel: 'Abdu Kiar',
+		language: 'amharic',
+		tags: ['abdu kiar', 'amharic', 'music']
+	},
+	{
+		videoId: 'yKlol9zuE5s',
+		title: 'Gossaye Tesfaye - Gossaye Tesfaye - Kurfiyaw | ጎሳዬ ተስፋዬ - ኩርፊያው',
+		channel: 'Gossaye Tesfaye',
+		language: 'amharic',
+		tags: ['gossaye tesfaye', 'amharic', 'music']
+	},
+	{
+		videoId: 'vDLWIZamLwI',
+		title: 'Gigi Shibabaw - ገላ -እጅጋየሁ ሽባባው(ጂጂ)-ግጥም(Lyrics)  -(Abugida Lyr',
+		channel: 'Gigi Shibabaw',
+		language: 'amharic',
+		tags: ['gigi shibabaw', 'amharic', 'music']
+	},
+	{
+		videoId: 'kzXPkoD3Lwg',
+		title: 'Ephrem Tamiru - Ephrem Tamiru - Akale - ኤፍሬም ታምሩ - አካሌ - Ethi',
+		channel: 'Ephrem Tamiru',
+		language: 'amharic',
+		tags: ['ephrem tamiru', 'amharic', 'music']
+	},
+	{
+		videoId: 'd8BdXzg9AMQ',
+		title: 'Bizunesh Bekele - Bizunesh Bekele - Timeless Ethiopian Oldies',
+		channel: 'Bizunesh Bekele',
+		language: 'amharic',
+		tags: ['bizunesh bekele', 'amharic', 'music']
+	},
+	{
+		videoId: 'iPMwz3brdek',
+		title: 'Alemayehu Eshete - Alteleyeshignim Alemayehu Eshete | አልተለየሽኝም -',
+		channel: 'Alemayehu Eshete',
+		language: 'amharic',
+		tags: ['alemayehu eshete', 'amharic', 'music']
+	},
+	{
+		videoId: 'tG0YD68vKtI',
+		title: 'Hirut Bekele - ሂሩት በቀለ - ስምህን አውሰኝ  New Ethiopian Music 2026',
+		channel: 'Hirut Bekele',
+		language: 'amharic',
+		tags: ['hirut bekele', 'amharic', 'music']
+	},
+	{
+		videoId: 'kUknTOgdWgk',
+		title: 'Rophnan - ROPHNAN - SHEGIYE | ሮፍናን - ሸግዬ',
+		channel: 'Rophnan',
+		language: 'amharic',
+		tags: ['rophnan', 'amharic', 'music']
+	},
+	{
+		videoId: 'o2o6V5YwDrU',
+		title: 'Michael Belayneh - Michael Belayneh - የፍቅር ምርጫዬ  _ Yefkr Mirchay',
+		channel: 'Michael Belayneh',
+		language: 'amharic',
+		tags: ['michael belayneh', 'amharic', 'music']
+	},
+	{
+		videoId: 'HZnfRwFKCO8',
+		title: 'Betty G - Betty G - Na Na Demaye [NEW! Music Video 2015',
+		channel: 'Betty G',
+		language: 'amharic',
+		tags: ['betty g', 'amharic', 'music']
+	},
+	{
+		videoId: '0x7fRqgq3dk',
+		title: 'Tsegaye Eshetu - Tsegaye Eshetu -  እሄዳለሁ ባቡር ተሳፍሬ  Ethiopia Ol',
+		channel: 'Tsegaye Eshetu',
+		language: 'amharic',
+		tags: ['tsegaye eshetu', 'amharic', 'music']
+	},
+	{
+		videoId: 'faXPu5_Y3Cs',
+		title: 'Eyob Mekonnen - Eyob Mekonnen - Yewnetwan new (Official)',
+		channel: 'Eyob Mekonnen',
+		language: 'amharic',
+		tags: ['eyob mekonnen', 'amharic', 'music']
+	},
+	{
+		videoId: 'NyNY-dwncB8',
+		title: 'Tsedenia Gebremarkos - Tsedeniya G/Markos - Mech Gebagn | መች ገባኝ -  ',
+		channel: 'Tsedenia Gebremarkos',
+		language: 'amharic',
+		tags: ['tsedenia gebremarkos', 'amharic', 'music']
+	},
+	{
+		videoId: '1GGV38L-pHE',
+		title: 'Dagi Dagne - Awtar Tv - Dagne Walle - Aba Siber - ዳኘ ዋለ - ',
+		channel: 'Dagi Dagne',
+		language: 'amharic',
+		tags: ['dagi dagne', 'amharic', 'music']
+	},
+	{
+		videoId: 'LO1KpHNL5WQ',
+		title: 'Tamrat Desta - Enechawet  Tamrat Desta',
+		channel: 'Tamrat Desta',
+		language: 'amharic',
+		tags: ['tamrat desta', 'amharic', 'music']
+	},
+	{
+		videoId: '4BN7XzhQpDY',
+		title: 'Bisrat Surafel - Bisrat Surafel - Man | ማን - New Ethiopian Mus',
+		channel: 'Bisrat Surafel',
+		language: 'amharic',
+		tags: ['bisrat surafel', 'amharic', 'music']
+	},
+	{
+		videoId: 'pxVI9Z2KEWM',
+		title: 'Dereje Dubale - Derege Dubale, Ged Yelem lebe yichilal',
+		channel: 'Dereje Dubale',
+		language: 'amharic',
+		tags: ['dereje dubale', 'amharic', 'music']
+	},
+	{
+		videoId: 'xwuN5BlAef0',
+		title: 'Alex Olympia - ALEX OLYMPIA - METECHALEHU',
+		channel: 'Alex Olympia',
+		language: 'amharic',
+		tags: ['alex olympia', 'amharic', 'music']
+	},
+	{
+		videoId: 'zoGbEFokYOY',
+		title: 'Fitsum Teshale - Desalegne Teshale - Ft.Jalud Awel - Yene - ደሳ',
+		channel: 'Fitsum Teshale',
+		language: 'amharic',
+		tags: ['fitsum teshale', 'amharic', 'music']
+	},
+	{
+		videoId: '9PXUpv7f-C4',
+		title: 'Haimanot Girma - Haimanot Girma - Kezira',
+		channel: 'Haimanot Girma',
+		language: 'amharic',
+		tags: ['haimanot girma', 'amharic', 'music']
+	},
+	{
+		videoId: 'Biu9nHSwpiI',
+		title: 'Hamelmal Abate - Hamelmal Abate - Awdamet "Enkuan Aderesachu" ',
+		channel: 'Hamelmal Abate',
+		language: 'amharic',
+		tags: ['hamelmal abate', 'amharic', 'music']
+	},
+	{
+		videoId: 'uVIghBLJFY8',
+		title: 'Helen Berhe - Helen Berhe - Yebereta (የበረታ) | New Ethiopian',
+		channel: 'Helen Berhe',
+		language: 'amharic',
+		tags: ['helen berhe', 'amharic', 'music']
+	},
+	{
+		videoId: 'xPwlVss7yN8',
+		title: 'Lij Michael - Lij Michael - የሺ | Yeshi | Ethiopian New Musi',
+		channel: 'Lij Michael',
+		language: 'amharic',
+		tags: ['lij michael', 'amharic', 'music']
+	},
+	{
+		videoId: 'VpraLnMvgMw',
+		title: 'Tsehaye Yohannes - Tsehaye Yohannes - Betesfa - ፀሐዬ ዮሃንስ - በተስፋ ',
+		channel: 'Tsehaye Yohannes',
+		language: 'amharic',
+		tags: ['tsehaye yohannes', 'amharic', 'music']
+	},
+	{
+		videoId: 'K6CTf-OluwA',
+		title: 'Tibebu Workiye - Tibebu Workeye - Bebagne Ahun Gena',
+		channel: 'Tibebu Workiye',
+		language: 'amharic',
+		tags: ['tibebu workiye', 'amharic', 'music']
+	},
+	{
+		videoId: '4ltz7XAnlbs',
+		title: 'Merkeb Bonitua - Teddy Yo. Ft Merkeb Bonitua ቴዲ ዮ ft መርከብ ቦኒቷ ',
+		channel: 'Merkeb Bonitua',
 		language: 'tigrinya',
-		tags: ['dawit nega', 'ajoki', 'ethiopian tigrigna', 'tigray', 'ethiopia', 'music']
+		tags: ['merkeb bonitua', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'WV3f7M-6dNA',
+		title: 'Solomon Haile - Solomon Haile : Bealti Mado [New! Tigrigna Mu',
+		channel: 'Solomon Haile',
+		language: 'tigrinya',
+		tags: ['solomon haile', 'tigrinya', 'music']
+	},
+	{
+		videoId: '18pNqmYpCk0',
+		title: 'Zemen Alemseged - Zemen Alemseged ( ዘመን ኣለምሰገድ ) - በቲ ደመና (beti',
+		channel: 'Zemen Alemseged',
+		language: 'tigrinya',
+		tags: ['zemen alemseged', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'MqVT5GdW6hQ',
+		title: 'Timnit Welday - Timnit Welday - Wenani (Official Video) | Eth',
+		channel: 'Timnit Welday',
+		language: 'tigrinya',
+		tags: ['timnit welday', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'yA2sdHdXy0o',
+		title: 'Amir Dawud - Amir Dawud - Mekele (Official Video) | Ethiop',
+		channel: 'Amir Dawud',
+		language: 'tigrinya',
+		tags: ['amir dawud', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'nO1Sg2Vlgys',
+		title: 'Dawit Alemayehu - Dawit Alemayehu | Aykewnn | ዳዊት አለማየሁ-ኦራ| አይከ',
+		channel: 'Dawit Alemayehu',
+		language: 'tigrinya',
+		tags: ['dawit alemayehu', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'H-fQKUU0qME',
+		title: 'Nahom Yohannes - Nahom Yohannes   Seb Entay Zeybele   ሰብ እንታይ ',
+		channel: 'Nahom Yohannes',
+		language: 'tigrinya',
+		tags: ['nahom yohannes', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'CGteduEW554',
+		title: 'Eden Gebreselassie - Eden Gebreselassie - Aytneknkni | ኣይትነቅንቅኒ - ',
+		channel: 'Eden Gebreselassie',
+		language: 'tigrinya',
+		tags: ['eden gebreselassie', 'tigrinya', 'music']
 	},
 	{
 		videoId: '4wadY4IbRa4',
-		title: 'Dawit Nega - Wezamey',
+		title: 'Dawit Nega - Ethiopia: Dawit Nega - Wezamey (ወዛመይ) NEW! Ti',
 		channel: 'Dawit Nega',
 		language: 'tigrinya',
-		tags: ['dawit nega', 'wezamey', 'ethiopian tigrigna', 'tigray', 'ethiopia']
+		tags: ['dawit nega', 'tigrinya', 'music']
 	},
 	{
-		videoId: 'AQzD-j8017g',
-		title: 'Abreham G/Medhin – Hamelmalo',
-		channel: 'Abreham G/Medhin',
+		videoId: '8AVG1A4n8VU',
+		title: 'Ephrem Amare - Ephrem Amare - \'Sey (Official Video) | \'ሰይ - ',
+		channel: 'Ephrem Amare',
 		language: 'tigrinya',
-		tags: ['abraham gebremedhin', 'hamelmalo', 'ethiopian tigrigna', 'tigray', 'ethiopia']
+		tags: ['ephrem amare', 'tigrinya', 'music']
 	},
-
-	// ================= ENGLISH HIT MUSIC (Real Vocal Pop/Electronic) =================
+	{
+		videoId: '-Yjr7CeJVHY',
+		title: 'Abraham Gebremedhin - Abraham_Gebremedhin__gorzo__ኣብርሃም_ገ/መድህን__ጎርዞ',
+		channel: 'Abraham Gebremedhin',
+		language: 'tigrinya',
+		tags: ['abraham gebremedhin', 'tigrinya', 'music']
+	},
+	{
+		videoId: '72HWdjEDxpA',
+		title: 'Kiros Alemayehu - Kiros Alemayehu MeQenaye',
+		channel: 'Kiros Alemayehu',
+		language: 'tigrinya',
+		tags: ['kiros alemayehu', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'oK9CyU4A0ko',
+		title: 'Rahel Haile - Rahel Haile - HANENEN | ሃነነን - ራሄል ሃይለ - New ',
+		channel: 'Rahel Haile',
+		language: 'tigrinya',
+		tags: ['rahel haile', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'nV-SDXGntHo',
+		title: 'Mesfin Berhanu - Mesfin Berhanu - Tezez | ተዘዝ - New Ethiopian ',
+		channel: 'Mesfin Berhanu',
+		language: 'tigrinya',
+		tags: ['mesfin berhanu', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'N4VJFlhQC90',
+		title: 'Shewit Mezgebo - Shewit Mezgebo - New Tigrigna music 2026 -ወላይ',
+		channel: 'Shewit Mezgebo',
+		language: 'tigrinya',
+		tags: ['shewit mezgebo', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'HOADb_H4buk',
+		title: 'Neguse Abadi - Nguse Abadi (Maeger) ንጉሰ ኣባዲ (ማእገር) New Tigri',
+		channel: 'Neguse Abadi',
+		language: 'tigrinya',
+		tags: ['neguse abadi', 'tigrinya', 'music']
+	},
+	{
+		videoId: '-YlVudyi588',
+		title: 'Anbessa Tekle - Gamey Kuhulo by Anbessa /Tigray',
+		channel: 'Anbessa Tekle',
+		language: 'tigrinya',
+		tags: ['anbessa tekle', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'KSxFJy3xX1Q',
+		title: 'Hermon Baraki - New Eritrean Music 2026 Live Music - Hermon B',
+		channel: 'Hermon Baraki',
+		language: 'tigrinya',
+		tags: ['hermon baraki', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'BzAnS851RcA',
+		title: 'Alula Mampa - Natu ft. Alula Mampa  - Knegra - official vid',
+		channel: 'Alula Mampa',
+		language: 'tigrinya',
+		tags: ['alula mampa', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'pXrpnJIXE8U',
+		title: 'Freselam Mussie - Freselam Mussie “ ሕራይ በልኒ ‘‘ Hiray belni erit',
+		channel: 'Freselam Mussie',
+		language: 'tigrinya',
+		tags: ['freselam mussie', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'Ae_z03fZze4',
+		title: 'Estifanos Abraham Zemach - Estifanos Abraham Zemach - Kndey Mo Kbleki (O',
+		channel: 'Estifanos Abraham Zemach',
+		language: 'tigrinya',
+		tags: ['estifanos abraham zemach', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'NTGAqp1UaXI',
+		title: 'Amanuel Yemane - ela tv - Amanuel Yemane - Amanay | ኣማናይ -  Ti',
+		channel: 'Amanuel Yemane',
+		language: 'tigrinya',
+		tags: ['amanuel yemane', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'W-TnSBgYsqE',
+		title: 'Robel Michael - Robel Michael - Mizer - New Eritrean Music 20',
+		channel: 'Robel Michael',
+		language: 'tigrinya',
+		tags: ['robel michael', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'Y12TIn7jaDM',
+		title: 'Solomon Bayre - ሰሎሙን ባይረ (ወዲ ባይረ) Solomon Bayre - Terekiba ||',
+		channel: 'Solomon Bayre',
+		language: 'tigrinya',
+		tags: ['solomon bayre', 'tigrinya', 'music']
+	},
 	{
 		videoId: '4NRXx6U8ABQ',
-		title: 'The Weeknd - Blinding Lights',
+		title: 'The Weeknd - The Weeknd - Blinding Lights (Official Video)',
 		channel: 'The Weeknd',
 		language: 'english',
-		tags: ['the weeknd', 'blinding lights', 'english', 'pop', 'synth']
+		tags: ['the weeknd', 'english', 'music']
 	},
 	{
-		videoId: '1-xGerv5FOk',
-		title: 'Alan Walker - Alone',
-		channel: 'Alan Walker',
+		videoId: '2Vv-BfVoq4g',
+		title: 'Ed Sheeran - Ed Sheeran - Perfect (Official Music Video)',
+		channel: 'Ed Sheeran',
 		language: 'english',
-		tags: ['alan walker', 'alone', 'english', 'electronic', 'edm']
+		tags: ['ed sheeran', 'english', 'music']
+	},
+	{
+		videoId: 'mw3kSNIxjqo',
+		title: 'Taylor Swift - Taylor Swift - Patient Zero (Official Music V',
+		channel: 'Taylor Swift',
+		language: 'english',
+		tags: ['taylor swift', 'english', 'music']
+	},
+	{
+		videoId: 'lY5V4hSLWY8',
+		title: 'Bruno Mars - Bruno Mars - Risk It All [Official Music Vide',
+		channel: 'Bruno Mars',
+		language: 'english',
+		tags: ['bruno mars', 'english', 'music']
+	},
+	{
+		videoId: 'hLQl3WQQoQ0',
+		title: 'Adele - Adele - Someone Like You (Official Music Vide',
+		channel: 'Adele',
+		language: 'english',
+		tags: ['adele', 'english', 'music']
+	},
+	{
+		videoId: 'k2qgadSvNyU',
+		title: 'Dua Lipa - Dua Lipa - New Rules (Official Music Video)',
+		channel: 'Dua Lipa',
+		language: 'english',
+		tags: ['dua lipa', 'english', 'music']
+	},
+	{
+		videoId: 'wXhTHyIgQ_U',
+		title: 'Post Malone - Post Malone - Circles',
+		channel: 'Post Malone',
+		language: 'english',
+		tags: ['post malone', 'english', 'music']
+	},
+	{
+		videoId: 'RB-RcX5DS5A',
+		title: 'Coldplay - Coldplay - The Scientist (Official 4K Video)',
+		channel: 'Coldplay',
+		language: 'english',
+		tags: ['coldplay', 'english', 'music']
+	},
+	{
+		videoId: 'fJ9rUzIMcZQ',
+		title: 'Queen - Queen – Bohemian Rhapsody (Official Video Rem',
+		channel: 'Queen',
+		language: 'english',
+		tags: ['queen', 'english', 'music']
+	},
+	{
+		videoId: 'oRdxUFDoQe0',
+		title: 'Michael Jackson - Michael Jackson - Beat It (Official 4K Video)',
+		channel: 'Michael Jackson',
+		language: 'english',
+		tags: ['michael jackson', 'english', 'music']
+	},
+	{
+		videoId: 'CvBfHwUxHIk',
+		title: 'Rihanna - Rihanna - Umbrella (Orange Version) (Official',
+		channel: 'Rihanna',
+		language: 'english',
+		tags: ['rihanna', 'english', 'music']
+	},
+	{
+		videoId: 'nCkpzqqog4k',
+		title: 'Sam Smith - Sam Smith - I\'m Not The Only One (Official Mu',
+		channel: 'Sam Smith',
+		language: 'english',
+		tags: ['sam smith', 'english', 'music']
+	},
+	{
+		videoId: 'uuwfgXD8qV8',
+		title: 'Katy Perry - Katy Perry - Part Of Me (Official)',
+		channel: 'Katy Perry',
+		language: 'english',
+		tags: ['katy perry', 'english', 'music']
+	},
+	{
+		videoId: '09R8_2nJtjg',
+		title: 'Maroon 5 - Maroon 5 - Sugar (Official Music Video)',
+		channel: 'Maroon 5',
+		language: 'english',
+		tags: ['maroon 5', 'english', 'music']
+	},
+	{
+		videoId: '7wtfhZwyrcc',
+		title: 'Imagine Dragons - Imagine Dragons - Believer (Official Music Vi',
+		channel: 'Imagine Dragons',
+		language: 'english',
+		tags: ['imagine dragons', 'english', 'music']
+	},
+	{
+		videoId: 'VbfpW0pbvaU',
+		title: 'Shawn Mendes - Shawn Mendes - Stitches (Official Music Video',
+		channel: 'Shawn Mendes',
+		language: 'english',
+		tags: ['shawn mendes', 'english', 'music']
+	},
+	{
+		videoId: 'nfs8NYg7yQM',
+		title: 'Charlie Puth - Charlie Puth - Attention [Official Video]',
+		channel: 'Charlie Puth',
+		language: 'english',
+		tags: ['charlie puth', 'english', 'music']
+	},
+	{
+		videoId: 'M4qX5wzx-wY',
+		title: 'Harry Styles - Harry Styles - Coming Up Roses (Official Vide',
+		channel: 'Harry Styles',
+		language: 'english',
+		tags: ['harry styles', 'english', 'music']
+	},
+	{
+		videoId: 'qrO4YZeyl0I',
+		title: 'Lady Gaga - Lady Gaga - Bad Romance (Official Music Video',
+		channel: 'Lady Gaga',
+		language: 'english',
+		tags: ['lady gaga', 'english', 'music']
+	},
+	{
+		videoId: 'KWZGAExj-es',
+		title: 'Sia - Sia - Elastic Heart feat. Shia LaBeouf & Madd',
+		channel: 'Sia',
+		language: 'english',
+		tags: ['sia', 'english', 'music']
 	},
 	{
 		videoId: '60ItHLz5WEA',
-		title: 'Alan Walker - Faded',
+		title: 'Alan Walker - Alan Walker - Faded',
 		channel: 'Alan Walker',
 		language: 'english',
-		tags: ['alan walker', 'faded', 'english', 'electronic']
+		tags: ['alan walker', 'english', 'music']
 	},
 	{
-		videoId: '34Na4j8AVgA',
-		title: 'The Weeknd ft. Daft Punk - Starboy',
-		channel: 'The Weeknd',
-		language: 'english',
-		tags: ['the weeknd', 'starboy', 'daft punk', 'english', 'pop']
-	},
-	{
-		videoId: 'UtF6Jej8yb4',
-		title: 'Avicii - The Nights',
+		videoId: 'IcrbM1l_BoI',
+		title: 'Avicii - Avicii - Wake Me Up (Official Video)',
 		channel: 'Avicii',
 		language: 'english',
-		tags: ['avicii', 'the nights', 'english', 'dance', 'anthem']
+		tags: ['avicii', 'english', 'music']
 	},
 	{
-		videoId: 'dX3k_QDnzHE',
-		title: 'M83 - Midnight City',
-		channel: 'M83',
+		videoId: 'YVkUvmDQ3HY',
+		title: 'Eminem - Eminem - Without Me (Official Music Video)',
+		channel: 'Eminem',
 		language: 'english',
-		tags: ['m83', 'midnight city', 'english', 'indie', 'electronic']
+		tags: ['eminem', 'english', 'music']
+	},
+	{
+		videoId: 'H58vbez_m4E',
+		title: 'Kendrick Lamar - Kendrick Lamar - Not Like Us',
+		channel: 'Kendrick Lamar',
+		language: 'english',
+		tags: ['kendrick lamar', 'english', 'music']
+	},
+	{
+		videoId: 'K0HSD_i2DvA',
+		title: 'Daft Punk - Daft Punk - Around The World (Official Music ',
+		channel: 'Daft Punk',
+		language: 'english',
+		tags: ['daft punk', 'english', 'music']
+	},
+	{
+		videoId: 'hT_nvWreIhg',
+		title: 'OneRepublic - OneRepublic - Counting Stars',
+		channel: 'OneRepublic',
+		language: 'english',
+		tags: ['onerepublic', 'english', 'music']
+	},
+	{
+		videoId: 'fRh_vgS2dFE',
+		title: 'Justin Bieber - Sorry',
+		channel: 'Justin Bieber',
+		language: 'english',
+		tags: ['justin bieber', 'sorry', 'pop', 'english']
+	},
+	{
+		videoId: 'gl1aHhXnN1k',
+		title: 'Ariana Grande - thank u, next',
+		channel: 'Ariana Grande',
+		language: 'english',
+		tags: ['ariana grande', 'pop', 'english']
+	},
+	{
+		videoId: '4m1EFMoRFvY',
+		title: 'Beyonce - Single Ladies',
+		channel: 'Beyonce',
+		language: 'english',
+		tags: ['beyonce', 'pop', 'english']
+	},
+	{
+		videoId: 'uxpDa-c-4Mc',
+		title: 'Drake - Hotline Bling',
+		channel: 'Drake',
+		language: 'english',
+		tags: ['drake', 'hip hop', 'english']
+	},
+	{
+		videoId: 'HUHC9tYz8ik',
+		title: 'Billie Eilish - bury a friend',
+		channel: 'Billie Eilish',
+		language: 'english',
+		tags: ['billie eilish', 'alt pop', 'english']
 	}
 ];
 
-/** Score and find similar tracks from the curated catalog based on language, artist, and title. */
+/** Extracts and normalizes the primary singer/artist name from track metadata. */
+export function extractSinger(track?: { channel?: string; title?: string } | null): string {
+	if (!track) return '';
+	const ch = (track.channel ?? '').toLowerCase().trim();
+	const ti = (track.title ?? '').toLowerCase().trim();
+	const combined = `${ch} ${ti}`;
+
+	const KNOWN_SINGERS = [
+		'abdu kiar',
+		'abinet agonafir',
+		'abraham gebremedhin',
+		'adele',
+		'alan walker',
+		'alemayehu eshete',
+		'alex olympia',
+		'alula mampa',
+		'amanuel yemane',
+		'amir dawud',
+		'anbessa tekle',
+		'ariana grande',
+		'aster aweke',
+		'avicii',
+		'betty g',
+		'beyonce',
+		'billie eilish',
+		'bisrat surafel',
+		'bizunesh bekele',
+		'bruno mars',
+		'charlie puth',
+		'coldplay',
+		'daft punk',
+		'dagi dagne',
+		'dawit alemayehu',
+		'dawit nega',
+		'dawit tsige',
+		'dereje dubale',
+		'drake',
+		'dua lipa',
+		'ed sheeran',
+		'eden gebreselassie',
+		'eminem',
+		'ephrem amare',
+		'ephrem tamiru',
+		'estifanos abraham zemach',
+		'eyob mekonnen',
+		'fitsum teshale',
+		'freselam mussie',
+		'gigi shibabaw',
+		'gossaye tesfaye',
+		'haimanot girma',
+		'hamelmal abate',
+		'harry styles',
+		'helen berhe',
+		'hermon baraki',
+		'hirut bekele',
+		'imagine dragons',
+		'justin bieber',
+		'katy perry',
+		'kendrick lamar',
+		'kiros alemayehu',
+		'lady gaga',
+		'lij michael',
+		'mahmoud ahmed',
+		'maroon 5',
+		'merkeb bonitua',
+		'mesfin berhanu',
+		'michael belayneh',
+		'michael jackson',
+		'muluken melesse',
+		'nahom yohannes',
+		'neguse abadi',
+		'onerepublic',
+		'post malone',
+		'queen',
+		'rahel haile',
+		'rihanna',
+		'robel michael',
+		'rophnan',
+		'sam smith',
+		'shawn mendes',
+		'shewit mezgebo',
+		'sia',
+		'solomon bayre',
+		'solomon haile',
+		'tamrat desta',
+		'taylor swift',
+		'teddy afro',
+		'the weeknd',
+		'tibebu workiye',
+		'tilahun gessesse',
+		'timnit welday',
+		'tsedenia gebremarkos',
+		'tsegaye eshetu',
+		'tsehaye yohannes',
+		'zemen alemseged'
+	];
+
+	for (const s of KNOWN_SINGERS) {
+		if (combined.includes(s)) {
+			if (s.includes('abraham') || s.includes('abreham')) return 'abraham gebremedhin';
+			if (s.includes('eden')) return 'eden gebreselassie';
+			if (s.includes('daft punk')) return 'the weeknd';
+			if (s.includes('bruno mars')) return 'bruno mars';
+			return s;
+		}
+	}
+
+	return ch || ti.split(/[-–]/)[0]?.trim() || '';
+}
+
 export function getSimilarCuratedTracks(
 	currentTrack?: { videoId?: string | null; title?: string; channel?: string; genre?: string } | null,
 	playedVideoIds: Set<string> = new Set(),
@@ -548,14 +1159,7 @@ export function getSimilarCuratedTracks(
 ): Array<{ videoId: string; title: string; channel: string; label: string; language: MusicLanguage }> {
 	const currentVid = currentTrack?.videoId ?? '';
 	const targetLang = detectMusicLanguage(currentTrack);
-	const titleLower = (currentTrack?.title ?? '').toLowerCase();
-	const channelLower = (currentTrack?.channel ?? '').toLowerCase();
-
-	// Extract keyword tokens
-	const combinedTokens = `${titleLower} ${channelLower}`
-		.replace(/[^a-z0-9\s]/g, ' ')
-		.split(/\s+/)
-		.filter((t) => t.length > 2);
+	const currentSinger = extractSinger(currentTrack);
 
 	// STRICT LANGUAGE FILTER: Only pick songs of the same language
 	const languageCatalog = CURATED_CATALOG.filter((item) => item.language === targetLang);
@@ -565,40 +1169,26 @@ export function getSimilarCuratedTracks(
 			return { item, score: -1 };
 		}
 
-		let score = 20; // Base score for matching language
+		const itemSinger = extractSinger(item);
+		const isSameSinger = !!currentSinger && !!itemSinger && itemSinger === currentSinger;
+
+		// STRICT REQUIREMENT: Never suggest the same singer in a row (ensure a varied mix of singers)!
+		if (isSameSinger) {
+			return { item, score: -1 };
+		}
+
+		let score = 30; // Base score for matching language
 
 		// Deprioritize tracks already played in this room session
 		if (playedVideoIds.has(item.videoId)) {
 			score -= 50;
 		}
 
-		const itemChannel = item.channel.toLowerCase();
-		const itemTitle = item.title.toLowerCase();
-
-		// Artist / Channel match (e.g. Michael Belayneh -> Michael Belayneh)
-		if (
-			(channelLower && itemChannel.includes(channelLower)) ||
-			(channelLower && channelLower.includes(itemChannel)) ||
-			(titleLower && itemChannel.length > 3 && titleLower.includes(itemChannel))
-		) {
-			score += 60;
-		}
-
-		// Token matching against tags and title
-		for (const token of combinedTokens) {
-			if (item.tags.some((tag) => tag.includes(token) || token.includes(tag))) {
-				score += 15;
-			}
-			if (itemTitle.includes(token)) {
-				score += 10;
-			}
-		}
-
 		return { item, score };
 	});
 
-	// Sort highest score first
-	scored.sort((a, b) => b.score - a.score);
+	// Sort highest score first, with jitter for natural variety
+	scored.sort((a, b) => b.score - a.score || Math.random() - 0.5);
 
 	const results = scored
 		.filter((s) => s.score >= 0)
@@ -619,27 +1209,24 @@ export function getSimilarCuratedTracks(
 			};
 		});
 
-	// If all were played or filtered, return any track in the same language
+	// If all other singers have already been played, cycle back through candidates, still avoiding currentVid and currentSinger
 	if (results.length === 0) {
-		return languageCatalog
-			.filter((c) => c.videoId !== currentVid && !isBannedMusic(c.videoId, c.title))
-			.slice(0, count)
-			.map((item) => ({
-				videoId: item.videoId,
-				title: `${item.channel} - ${item.title}`,
-				channel: item.channel,
-				label: item.title.slice(0, 20),
-				language: item.language
-			}));
+		const differentSingers = languageCatalog.filter(
+			(c) => c.videoId !== currentVid && !isBannedMusic(c.videoId, c.title) && extractSinger(c) !== currentSinger
+		);
+		const pool = differentSingers.length > 0 ? differentSingers : languageCatalog.filter((c) => c.videoId !== currentVid);
+		return pool.slice(0, count).map((item) => ({
+			videoId: item.videoId,
+			title: `${item.channel} - ${item.title}`,
+			channel: item.channel,
+			label: item.title.slice(0, 20),
+			language: item.language
+		}));
 	}
 
 	return results;
 }
 
-/**
- * Returns dynamic track suggestions based on the last played / current music.
- * Used in QueuePanel quick pills and Autoplay previews.
- */
 export function getSuggestedTracks(
 	currentTrack?: { videoId?: string | null; title?: string; channel?: string; genre?: string } | null,
 	playedVideoIds: Set<string> = new Set(),
@@ -649,39 +1236,12 @@ export function getSuggestedTracks(
 }
 
 /**
- * Fast Invidious video recommendation lookup with strict 1.2s timeout.
- */
-async function fetchInvidiousRecommended(
-	videoId: string
-): Promise<Array<{ videoId: string; title: string; channel: string }>> {
-	try {
-		const controller = new AbortController();
-		const timeout = setTimeout(() => controller.abort(), 1200);
-		const res = await fetch(`https://yt.chocolatemoo53.com/api/v1/videos/${videoId}`, {
-			signal: controller.signal
-		});
-		clearTimeout(timeout);
-		if (!res.ok) return [];
-		const data = await res.json();
-		if (Array.isArray(data.recommendedVideos) && data.recommendedVideos.length > 0) {
-			return data.recommendedVideos
-				.filter((v: any) => v.videoId && !isBannedMusic(v.videoId, v.title))
-				.map((v: any) => ({
-					videoId: v.videoId,
-					title: v.title ?? 'Related Track',
-					channel: v.author ?? 'YouTube'
-				}));
-		}
-	} catch {}
-	return [];
-}
-
-/**
  * Resolves a related YouTube track when the room queue has finished playing.
- * - If last track was Amharic -> autoplays Amharic!
- * - If last track was Tigrinya -> autoplays Tigrinya!
- * - If last track was English -> autoplays English!
- * - Strictly filters out lofi, classical, study sessions, and 1h+ compilations.
+ * - Strictly music only (No news, talk shows, sermons, podcasts, or cultural folk).
+ * - Rotates through a rich roster of different singers (never repeats the same singer in a row).
+ * - If last track was Amharic -> autoplays Amharic modern music!
+ * - If last track was Tigrinya -> autoplays Ethiopian Tigrinya hit music!
+ * - If last track was English -> autoplays English vocal hit music!
  */
 export async function getRelatedYouTubeTrack(
 	currentTrack?: { videoId?: string | null; title?: string; channel?: string; genre?: string } | null,
@@ -689,65 +1249,27 @@ export async function getRelatedYouTubeTrack(
 ): Promise<{ videoId: string; title: string; channel: string; language?: MusicLanguage }> {
 	const currentVid = currentTrack?.videoId;
 	const targetLang = detectMusicLanguage(currentTrack);
+	const currentSinger = extractSinger(currentTrack);
 
-	// 1. Fast online recommendations if videoId exists (1.2s timeout)
-	if (currentVid) {
-		try {
-			const recommended = await fetchInvidiousRecommended(currentVid);
-			const matching = recommended.find(
-				(r) =>
-					r.videoId !== currentVid &&
-					!playedVideoIds.has(r.videoId) &&
-					!isBannedMusic(r.videoId, r.title) &&
-					detectMusicLanguage(r) === targetLang
-			);
-			if (matching) {
-				return {
-					...matching,
-					language: targetLang
-				};
-			}
-		} catch {}
-	}
-
-	// 2. Similarity-matched curated track based strictly on language & artist (instant)
-	const suggestions = getSimilarCuratedTracks(currentTrack, playedVideoIds, 4);
+	// 1. Similarity-matched curated music track from a DIFFERENT singer
+	const suggestions = getSimilarCuratedTracks(currentTrack, playedVideoIds, 6);
 	if (suggestions.length > 0) {
 		return suggestions[0];
 	}
 
-	// 3. Fallback based strictly on the detected language (cycling candidates to prevent repeats)
-	const fallbacks: Record<MusicLanguage, Array<{ videoId: string; title: string; channel: string }>> = {
-		amharic: [
-			{ videoId: 'WD_IDsP3sbY', title: 'Ephrem Tamiru - Demamaye', channel: 'Ephrem Tamiru' },
-			{ videoId: 'vgybg--StKc', title: 'Tamrat Desta - Hakime Nesh', channel: 'Tamrat Desta' },
-			{ videoId: 'ULgwcno7gZs', title: 'Aster Aweke - Nafkot', channel: 'Aster Aweke' },
-			{ videoId: '1geU0Xo4sns', title: 'Tilahun Gessesse - Kulun Manqualesh', channel: 'Tilahun Gessesse' },
-			{ videoId: '-RfFt4nkl5g', title: 'Michael Belayneh - Teneta', channel: 'Michael Belayneh' },
-			{ videoId: 'VsrL9Rz-A5A', title: 'Teddy Afro - ETHIOPIA', channel: 'Teddy Afro' }
-		],
-		tigrinya: [
-			{ videoId: 'mMUzrTXQPJg', title: 'Dawit Nega - Ajoki Tigray', channel: 'Dawit Nega' },
-			{ videoId: '4wadY4IbRa4', title: 'Dawit Nega - Wezamey', channel: 'Dawit Nega' },
-			{ videoId: 'AQzD-j8017g', title: 'Abreham G/Medhin – Hamelmalo', channel: 'Abraham Gebremedhin' }
-		],
-		english: [
-			{ videoId: '4NRXx6U8ABQ', title: 'The Weeknd - Blinding Lights', channel: 'The Weeknd' },
-			{ videoId: '1-xGerv5FOk', title: 'Daft Punk - Get Lucky', channel: 'Daft Punk' },
-			{ videoId: '60ItHLz5WEA', title: 'Alan Walker - Faded', channel: 'Alan Walker' },
-			{ videoId: '34Na4j8AVgA', title: 'The Weeknd - Starboy', channel: 'The Weeknd' }
-		]
-	};
-
-	const list = fallbacks[targetLang] || fallbacks.english;
+	// 2. Language-matched catalog pool ensuring singer diversity
+	const catalog = CURATED_CATALOG.filter((c) => c.language === targetLang);
 	const picked =
-		list.find((c) => c.videoId !== currentVid && !playedVideoIds.has(c.videoId)) ||
-		list.find((c) => c.videoId !== currentVid) ||
-		list[0];
+		catalog.find((c) => c.videoId !== currentVid && extractSinger(c) !== currentSinger && !playedVideoIds.has(c.videoId)) ||
+		catalog.find((c) => c.videoId !== currentVid && extractSinger(c) !== currentSinger) ||
+		catalog.find((c) => c.videoId !== currentVid && !playedVideoIds.has(c.videoId)) ||
+		catalog.find((c) => c.videoId !== currentVid) ||
+		catalog[0];
 
 	return {
-		...picked,
+		videoId: picked.videoId,
+		title: picked.title,
+		channel: picked.channel,
 		language: targetLang
 	};
 }
-
