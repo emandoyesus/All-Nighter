@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="100%" height="100%">
+	<defs>
+		<linearGradient id="bg-cyberboy" x1="0%" y1="0%" x2="100%" y2="100%">
+			<stop offset="0%" stop-color="#0a1928" />
+			<stop offset="100%" stop-color="#02060c" />
+		</linearGradient>
+		<linearGradient id="jacket-cyberboy" x1="0%" y1="0%" x2="0%" y2="100%">
+			<stop offset="0%" stop-color="#1e293b" />
+			<stop offset="100%" stop-color="#0f172a" />
+		</linearGradient>
+		<linearGradient id="skin-cyberboy" x1="0%" y1="0%" x2="0%" y2="100%">
+			<stop offset="0%" stop-color="#faeee0" />
+			<stop offset="100%" stop-color="#decaba" />
+		</linearGradient>
+		<linearGradient id="hair-cyberboy" x1="0%" y1="0%" x2="0%" y2="100%">
+			<stop offset="0%" stop-color="#0284c7" />
+			<stop offset="100%" stop-color="#0f172a" />
+		</linearGradient>
+	</defs>
+
+	<!-- Circular background -->
+	<circle cx="64" cy="64" r="64" fill="url(#bg-cyberboy)" />
+	<circle cx="64" cy="64" r="62.5" fill="none" stroke="#0ea5e9" stroke-width="1.5" stroke-opacity="0.5" />
+
+	<!-- Cyber tech sparkles -->
+	<circle cx="28" cy="36" r="1.5" fill="#38bdf8" opacity="0.8" />
+	<circle cx="100" cy="40" r="1.5" fill="#38bdf8" opacity="0.8" />
+
+	<!-- Shoulders / Techwear High-Collar Jacket -->
+	<path
+		d="M22 116 C24 96 38 86 52 83 C54 86 58 90 64 90 C70 90 74 86 76 83 C90 86 104 96 106 116 C106 123 102 128 94 128 L34 128 C26 128 22 123 22 116 Z"
+		fill="url(#jacket-cyberboy)"
+	/>
+	<!-- Cyber Jacket Straps & Neon Trim -->
+	<path d="M50 84 L64 98 L78 84" stroke="#0ea5e9" stroke-width="2.2" fill="none" stroke-linecap="round" />
+	<line x1="64" y1="98" x2="64" y2="116" stroke="#0ea5e9" stroke-width="2.2" stroke-linecap="round" />
+	<line x1="38" y1="102" x2="48" y2="124" stroke="#38bdf8" stroke-width="1.5" opacity="0.7" />
+	<line x1="90" y1="102" x2="80" y2="124" stroke="#38bdf8" stroke-width="1.5" opacity="0.7" />
+
+	<!-- Neck -->
+	<rect x="56" y="67" width="16" height="20" rx="3" fill="#decaba" />
+
+	<!-- Head Base -->
+	<ellipse cx="64" cy="54" rx="18" ry="22" fill="url(#skin-cyberboy)" />
+
+	<!-- Hair (Textured Undercut with Electric Cyan Tips) -->
+	<!-- Shaved sides -->
+	<path d="M44 48 C44 40 46 36 50 34 L50 56 C46 56 44 52 44 48 Z" fill="#0f172a" opacity="0.9" />
+	<path d="M84 48 C84 40 82 36 78 34 L78 56 C82 56 84 52 84 48 Z" fill="#0f172a" opacity="0.9" />
+
+	<!-- Top Voluminous Fade Haircut -->
+	<path
+		d="M46 38 C44 24 52 18 64 18 C76 18 84 24 82 38 C80 32 74 26 64 26 C54 26 48 32 46 38 Z"
+		fill="url(#hair-cyberboy)"
+	/>
+	<path d="M48 32 C52 20 60 16 68 17 C76 18 82 22 80 34 C76 26 70 22 62 23 C55 24 50 28 48 32 Z" fill="#38bdf8" opacity="0.85" />
+	<!-- Fringe locks -->
+	<path d="M46 38 Q52 44 58 36 Q64 46 72 37 Q78 44 82 36 Q74 33 64 33 Q54 33 46 38 Z" fill="#0369a1" />
+
+	<!-- Cyber Communicator / Single-eye Visor Glass -->
+	<path
+		d="M60 48 L82 48 C85 48 87 50 86 54 L84 58 C83 61 80 62 77 62 L64 62 C61 62 59 60 60 57 Z"
+		fill="#0ea5e9"
+		fill-opacity="0.25"
+		stroke="#38bdf8"
+		stroke-width="1.8"
+	/>
+	<line x1="63" y1="53" x2="83" y2="53" stroke="#e0f2fe" stroke-width="1.2" opacity="0.8" />
+	<!-- Ear communicator node -->
+	<circle cx="86" cy="54" r="3.5" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5" />
+	<circle cx="86" cy="54" r="1.5" fill="#38bdf8" />
+</svg>

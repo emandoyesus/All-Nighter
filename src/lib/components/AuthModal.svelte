@@ -74,7 +74,11 @@
 
 	const PRESET_AVATARS = [
 		{ id: 'lofigirl', name: 'Lo-Fi Girl', url: '/avatars/lofi-girl.svg' },
+		{ id: 'lofiboy', name: 'Lo-Fi Boy', url: '/avatars/lofi-boy.svg' },
 		{ id: 'cybergirl', name: 'Cyber Girl', url: '/avatars/cyber-girl.svg' },
+		{ id: 'cyberboy', name: 'Cyber Boy', url: '/avatars/cyber-boy.svg' },
+		{ id: 'nightdev', name: 'Night Dev', url: '/avatars/night-dev.svg' },
+		{ id: 'beatsguy', name: 'Beats Guy', url: '/avatars/beats-producer.svg' },
 		{ id: 'hoodie', name: 'Dark Hoodie', url: '/default-avatar.svg' },
 		{ id: 'moon', name: 'Midnight Moon', url: '/avatars/moon.svg' },
 		{ id: 'owl', name: 'Night Owl', url: '/avatars/owl.svg' },
