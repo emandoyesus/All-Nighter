@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { room } from '#lib/room/room.svelte';
+	import { siteAudio } from '#lib/audio/site-audio.svelte';
 	import { playFocusChime, playBreakChime } from '#lib/audio/chime';
 	import IconWaveSine from '@tabler/icons-svelte/icons/wave-sine';
 	import IconTarget from '@tabler/icons-svelte/icons/target';
@@ -18,9 +19,13 @@
 	function setMode(next: RoomMode) {
 		if (next === 'focus') {
 			playFocusChime();
+			siteAudio.play();
 			window.dispatchEvent(new CustomEvent('an:open-desk-hud'));
 		} else {
 			playBreakChime();
+			if (mode === 'focus') {
+				siteAudio.pause();
+			}
 		}
 		room.setMode(next);
 	}

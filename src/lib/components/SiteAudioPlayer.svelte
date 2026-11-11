@@ -35,7 +35,9 @@
 							try {
 								player.setVolume(siteAudio.volume);
 								player.seekTo(5, true);
-								if (siteAudio.isPlaying && !room.state.playing) {
+								const isFocus = room.mode === 'focus';
+								const shouldPlay = isFocus ? siteAudio.isPlaying : (siteAudio.isPlaying && !room.state.playing);
+								if (shouldPlay) {
 									player.unMute();
 									player.playVideo();
 								} else {
@@ -45,7 +47,9 @@
 						},
 						onStateChange: (e: { data: number }) => {
 							// Loop back if ended, restarting at 5 seconds
-							if (e.data === 0 && siteAudio.isPlaying) {
+							const isFocus = room.mode === 'focus';
+							const shouldPlay = isFocus ? siteAudio.isPlaying : (siteAudio.isPlaying && !room.state.playing);
+							if (e.data === 0 && shouldPlay) {
 								try {
 									player.seekTo(5, true);
 									player.playVideo();
@@ -68,15 +72,13 @@
 	$effect(() => {
 		if (!ready || !player) return;
 
-		// If a room video is currently playing, pause the site's background soundtrack
-		if (room.state.playing) {
-			try {
-				player.pauseVideo();
-			} catch {}
-			return;
-		}
+		const isFocus = room.mode === 'focus';
 
-		if (siteAudio.isPlaying) {
+		// In deep focus mode: Interstellar is the dedicated soundtrack
+		// In normal mode: if room music is playing with audio, pause Interstellar so they don't clash
+		const shouldPlay = isFocus ? siteAudio.isPlaying : (siteAudio.isPlaying && !room.state.playing);
+
+		if (shouldPlay) {
 			try {
 				player.unMute();
 				player.setVolume(siteAudio.volume);

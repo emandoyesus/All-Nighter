@@ -2,6 +2,7 @@
 	import { onMount, tick } from 'svelte';
 	import { afterNavigate } from '$app/navigation';
 	import { room } from '#lib/room/room.svelte';
+	import { siteAudio } from '#lib/audio/site-audio.svelte';
 	import { DRIFT_TOLERANCE, HEARTBEAT_TICK } from '#lib/config';
 	import { loadYouTubeApi } from '#lib/room/youtube';
 	import IconVolume from '@tabler/icons-svelte/icons/volume';
@@ -32,12 +33,29 @@
 
 	let volume = $state(loadSavedVolume());
 	let unlocked = $state(false);
+	let userMuted = $state(false);
 	let playerState = $state(-1);
 	let localTime = $state(0);
 	let duration = $state(0);
 	let drift = $state(0);
-	let muted = $state(true);
 	let apiError = $state(false);
+
+	const muted = $derived(!unlocked || userMuted || room.mode === 'focus' || siteAudio.isPlaying);
+
+	$effect(() => {
+		if (!ready || !player) return;
+		if (muted) {
+			try {
+				player.mute?.();
+			} catch {}
+		} else {
+			try {
+				player.unMute?.();
+				player.setVolume?.(volume);
+			} catch {}
+		}
+		broadcastStatus();
+	});
 
 	function targetTime(): number {
 		const s = room.state;
@@ -81,7 +99,7 @@
 			loadedVideoId = s.videoId ?? null;
 			loadedPlaylistId = targetPlaylist;
 
-			if (!unlocked) {
+			if (muted) {
 				try {
 					player.mute?.();
 				} catch {}
@@ -177,12 +195,16 @@
 
 	function unlock(): void {
 		unlocked = true;
-		muted = false;
+		userMuted = false;
 		if (volume === 0) setVolume(80);
 		if (!ready || !player) return;
 		try {
-			player.unMute();
-			player.setVolume(volume > 0 ? volume : 80);
+			if (room.mode !== 'focus' && !siteAudio.isPlaying) {
+				player.unMute();
+				player.setVolume(volume > 0 ? volume : 80);
+			} else {
+				player.mute();
+			}
 			if (player.playVideo) player.playVideo();
 		} catch {
 			/* settling */
@@ -200,12 +222,14 @@
 		try {
 			player.setVolume(volume);
 			if (volume === 0) {
+				userMuted = true;
 				player.mute();
-				muted = true;
-			} else if (muted) {
-				player.unMute();
-				muted = false;
+			} else if (userMuted) {
+				userMuted = false;
 				unlocked = true;
+				if (room.mode !== 'focus' && !siteAudio.isPlaying) {
+					player.unMute();
+				}
 			}
 		} catch {}
 		broadcastStatus();
@@ -219,13 +243,15 @@
 		if (!ready || !player) return;
 		if (muted || volume === 0) {
 			const restore = volume > 0 ? volume : 80;
-			setVolume(restore);
-			player.unMute();
-			muted = false;
+			userMuted = false;
 			unlocked = true;
+			setVolume(restore);
+			if (room.mode !== 'focus' && !siteAudio.isPlaying) {
+				try { player.unMute(); } catch {}
+			}
 		} else {
-			player.mute();
-			muted = true;
+			userMuted = true;
+			try { player.mute(); } catch {}
 		}
 		broadcastStatus();
 	}
@@ -369,8 +395,14 @@
 						onReady: () => {
 							ready = true;
 							duration = player.getDuration?.() ?? 0;
-							if (!unlocked) player.mute();
-							else player.setVolume(volume);
+							if (muted) {
+								try { player.mute?.(); } catch {}
+							} else {
+								try {
+									player.unMute?.();
+									player.setVolume?.(volume);
+								} catch {}
+							}
 							applyToPlayer();
 							checkObserver();
 						},
@@ -378,7 +410,14 @@
 							playerState = e.data;
 							if (e.data === PLAYING) {
 								duration = player.getDuration?.() ?? 0;
-								muted = player.isMuted?.() ?? muted;
+								if (muted) {
+									try { player.mute?.(); } catch {}
+								} else {
+									try {
+										player.unMute?.();
+										player.setVolume?.(volume);
+									} catch {}
+								}
 							}
 							if (e.data === ENDED && room.state.playing) {
 								room.ended(room.state.videoId);

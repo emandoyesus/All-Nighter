@@ -7,6 +7,7 @@
 	import favicon from '#lib/assets/favicon.svg';
 	import { ScrollTrigger } from '#lib/motion';
 	import { room } from '#lib/room/room.svelte';
+	import { siteAudio } from '#lib/audio/site-audio.svelte';
 	import GlobalPlayer from '#lib/components/GlobalPlayer.svelte';
 	import SiteAudioPlayer from '#lib/components/SiteAudioPlayer.svelte';
 	import RoomMusicDock from '#lib/components/RoomMusicDock.svelte';
@@ -21,10 +22,24 @@
 
 	$effect(() => {
 		const currentMode = room.mode;
-		if (prevMode !== undefined && prevMode !== 'focus' && currentMode === 'focus' && room.joinState === 'approved') {
-			showDeskHud = true;
+		if (prevMode === undefined) {
+			prevMode = currentMode;
+			if (currentMode === 'focus') {
+				siteAudio.play();
+			}
+			return;
 		}
-		prevMode = currentMode;
+		if (prevMode !== currentMode) {
+			if (currentMode === 'focus') {
+				if (room.joinState === 'approved') {
+					showDeskHud = true;
+				}
+				siteAudio.play();
+			} else if (prevMode === 'focus') {
+				siteAudio.pause();
+			}
+			prevMode = currentMode;
+		}
 	});
 
 	onMount(() => {
