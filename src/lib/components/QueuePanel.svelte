@@ -327,13 +327,13 @@
 		</ul>
 	{:else}
 		<div class="mt-4 border-t border-cream/10 px-4 py-6 text-center">
-			<div class="inline-flex items-center gap-1.5 rounded-full border border-lamp/30 bg-lamp/10 px-2.5 py-0.5 text-[11px] text-lamp mb-2 font-mono">
+			<div class="inline-flex items-center gap-1.5 rounded-full border border-lamp/35 bg-lamp/10 px-3 py-1 text-xs text-lamp mb-2 font-mono shadow-sm">
 				<span class="h-1.5 w-1.5 rounded-full bg-lamp animate-pulse"></span>
-				<span>YouTube Autoplay Active</span>
+				<span class="font-medium">YouTube Autoplay Active</span>
 			</div>
-			<h3 class="text-sm font-medium text-cream">Queue finished</h3>
-			<p class="mt-1 text-xs text-taupe max-w-xs mx-auto leading-relaxed">
-				Player continues seamlessly with related YouTube music. Paste any track above to queue it next.
+			<h3 class="text-sm font-semibold text-cream">Floor is playing related music</h3>
+			<p class="mt-1 text-xs text-taupe max-w-sm mx-auto leading-relaxed">
+				Anyone can paste a link to queue their own tracks anytime. Your music will be placed into the queue without stopping the current playing music from YouTube autoplay.
 			</p>
 		</div>
 	{/if}
