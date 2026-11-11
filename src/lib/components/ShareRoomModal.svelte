@@ -15,12 +15,16 @@
 	import IconEye from '@tabler/icons-svelte/icons/eye';
 	import IconMusic from '@tabler/icons-svelte/icons/music';
 	import IconMessageCircle from '@tabler/icons-svelte/icons/message-circle';
+	import IconDownload from '@tabler/icons-svelte/icons/download';
+	import IconPhoto from '@tabler/icons-svelte/icons/photo';
 
 	let { open = $bindable(false) }: { open: boolean } = $props();
 
 	let copiedLink = $state(false);
 	let copiedKey = $state(false);
 	let copiedMessage = $state(false);
+	let copiedCardImage = $state(false);
+	let isExportingCard = $state(false);
 	let activeTab = $state<'preview' | 'share'>('preview');
 	let showQr = $state(false);
 
@@ -40,6 +44,206 @@
 		(isPrivate && roomKey ? `🔑 Passkey: ${roomKey}\n` : '') +
 		`🔗 ${inviteUrl}`
 	);
+
+	async function generateCardCanvas(): Promise<HTMLCanvasElement> {
+		const canvas = document.createElement('canvas');
+		canvas.width = 1000;
+		canvas.height = 540;
+		const ctx = canvas.getContext('2d');
+		if (!ctx) throw new Error('Canvas not supported');
+
+		// Background dark card
+		ctx.fillStyle = '#0a0f12';
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+		// Decorative subtle border
+		ctx.strokeStyle = '#1d272b';
+		ctx.lineWidth = 4;
+		ctx.strokeRect(12, 12, canvas.width - 24, canvas.height - 24);
+
+		// Accent bar at top
+		ctx.fillStyle = '#e5a93c';
+		ctx.fillRect(14, 14, canvas.width - 28, 6);
+
+		// Brand header
+		ctx.fillStyle = '#e5a93c';
+		ctx.font = 'bold 20px monospace';
+		ctx.fillText('ALL NIGHTER · LIVE AUX', 48, 65);
+
+		ctx.fillStyle = '#788986';
+		ctx.font = '15px monospace';
+		ctx.fillText('all-nighter.pro.et', 48, 92);
+
+		// Thumbnail / artwork on left
+		const thumbX = 48;
+		const thumbY = 120;
+		const thumbW = 340;
+		const thumbH = 210;
+
+		let thumbDrawn = false;
+		if (currentTrack?.videoId) {
+			try {
+				const img = new Image();
+				img.crossOrigin = 'anonymous';
+				await new Promise((resolve) => {
+					img.onload = resolve;
+					img.onerror = resolve;
+					setTimeout(resolve, 1500);
+					img.src = `https://img.youtube.com/vi/${currentTrack.videoId}/hqdefault.jpg`;
+				});
+				if (img.complete && img.naturalWidth > 0) {
+					ctx.save();
+					ctx.beginPath();
+					if (typeof ctx.roundRect === 'function') {
+						ctx.roundRect(thumbX, thumbY, thumbW, thumbH, 12);
+					} else {
+						ctx.rect(thumbX, thumbY, thumbW, thumbH);
+					}
+					ctx.clip();
+					ctx.drawImage(img, thumbX, thumbY, thumbW, thumbH);
+					ctx.restore();
+					thumbDrawn = true;
+				}
+			} catch {}
+		}
+
+		if (!thumbDrawn) {
+			ctx.fillStyle = '#141c1f';
+			ctx.beginPath();
+			if (typeof ctx.roundRect === 'function') {
+				ctx.roundRect(thumbX, thumbY, thumbW, thumbH, 12);
+			} else {
+				ctx.rect(thumbX, thumbY, thumbW, thumbH);
+			}
+			ctx.fill();
+			ctx.strokeStyle = '#26373d';
+			ctx.lineWidth = 2;
+			ctx.stroke();
+
+			ctx.fillStyle = '#e5a93c';
+			ctx.font = 'bold 24px monospace';
+			ctx.textAlign = 'center';
+			ctx.fillText('🎧 LIVE AUX', thumbX + thumbW / 2, thumbY + thumbH / 2 - 10);
+			ctx.fillStyle = '#8e9e9a';
+			ctx.font = '15px sans-serif';
+			ctx.fillText('Synchronized Floor', thumbX + thumbW / 2, thumbY + thumbH / 2 + 20);
+			ctx.textAlign = 'start';
+		}
+
+		// Text block on right
+		const textX = 420;
+		// Room title
+		ctx.fillStyle = '#f4ede2';
+		ctx.font = 'bold 32px sans-serif';
+		const safeTitle = roomTitle.length > 25 ? roomTitle.slice(0, 24) + '…' : roomTitle;
+		ctx.fillText(safeTitle, textX, 155);
+
+		// Public/Private badge
+		ctx.fillStyle = isPrivate ? '#f59e0b' : '#34d399';
+		ctx.font = 'bold 13px monospace';
+		ctx.fillText(isPrivate ? '[PRIVATE ROOM]' : '[PUBLIC ROOM]', textX, 185);
+
+		// Now playing
+		ctx.fillStyle = '#e5a93c';
+		ctx.font = 'bold 18px monospace';
+		const songTitle = currentTrack
+			? `🎵 ${currentTrack.title.slice(0, 32)}${currentTrack.title.length > 32 ? '…' : ''}`
+			: '🎵 Open Aux · Community DJ Queue';
+		ctx.fillText(songTitle, textX, 225);
+
+		if (currentTrack?.channel) {
+			ctx.fillStyle = '#7a8e8b';
+			ctx.font = '15px sans-serif';
+			ctx.fillText(`by ${currentTrack.channel}`, textX, 252);
+		}
+
+		// Awake count
+		ctx.fillStyle = '#26de81';
+		ctx.beginPath();
+		ctx.arc(textX + 6, 296, 6, 0, Math.PI * 2);
+		ctx.fill();
+
+		ctx.fillStyle = '#f4ede2';
+		ctx.font = 'bold 17px monospace';
+		ctx.fillText(`${room.awake.length} member${room.awake.length === 1 ? '' : 's'} awake now`, textX + 22, 302);
+
+		if (isPrivate && roomKey) {
+			ctx.fillStyle = '#f59e0b';
+			ctx.font = '15px monospace';
+			ctx.fillText(`🔑 Room Passkey: ${roomKey}`, textX, 335);
+		}
+
+		// Bottom Join Pill
+		ctx.fillStyle = '#141c1f';
+		ctx.beginPath();
+		if (typeof ctx.roundRect === 'function') {
+			ctx.roundRect(48, 360, canvas.width - 96, 65, 10);
+		} else {
+			ctx.rect(48, 360, canvas.width - 96, 65);
+		}
+		ctx.fill();
+		ctx.strokeStyle = '#2d3e45';
+		ctx.lineWidth = 1.5;
+		ctx.stroke();
+
+		ctx.fillStyle = '#f4ede2';
+		ctx.font = 'bold 16px monospace';
+		ctx.fillText('JOIN SESSION:', 70, 400);
+
+		ctx.fillStyle = '#e5a93c';
+		ctx.font = '15px monospace';
+		const shortUrl = inviteUrl.length > 60 ? inviteUrl.slice(0, 58) + '…' : inviteUrl;
+		ctx.fillText(shortUrl, 210, 400);
+
+		// Bottom tagline
+		ctx.fillStyle = '#596966';
+		ctx.font = '13px monospace';
+		ctx.fillText('All Nighter · Show up. Lock in till sunrise.', 48, 490);
+
+		return canvas;
+	}
+
+	async function downloadCardImage() {
+		if (isExportingCard) return;
+		isExportingCard = true;
+		try {
+			const canvas = await generateCardCanvas();
+			const link = document.createElement('a');
+			link.download = `${roomTitle.toLowerCase().replace(/[^a-z0-9]/g, '-')}-invite.png`;
+			link.href = canvas.toDataURL('image/png');
+			link.click();
+		} catch {} finally {
+			isExportingCard = false;
+		}
+	}
+
+	async function copyCardImage() {
+		if (isExportingCard) return;
+		isExportingCard = true;
+		try {
+			const canvas = await generateCardCanvas();
+			canvas.toBlob(async (blob) => {
+				if (!blob) return;
+				try {
+					if (typeof ClipboardItem !== 'undefined') {
+						await navigator.clipboard.write([
+							new ClipboardItem({ 'image/png': blob })
+						]);
+						copiedCardImage = true;
+						setTimeout(() => (copiedCardImage = false), 2000);
+					} else {
+						await downloadCardImage();
+					}
+				} catch {
+					await downloadCardImage();
+				} finally {
+					isExportingCard = false;
+				}
+			}, 'image/png');
+		} catch {
+			isExportingCard = false;
+		}
+	}
 
 	async function copyLink() {
 		if (!inviteUrl) return;
@@ -72,7 +276,7 @@
 		try {
 			await navigator.share({
 				title: `${roomTitle} · All Nighter`,
-				text: `Join "${roomTitle}" on All Nighter — synchronized music, live chat, and all-night focus till dawn.`,
+				text: formattedInviteMessage,
 				url: inviteUrl
 			});
 		} catch {
@@ -97,10 +301,15 @@
 		};
 	}
 
-	const shareText = $derived(`Join my room "${roomTitle}" on All Nighter:`);
-	const telegramShareUrl = $derived(`https://t.me/share/url?url=${encodeURIComponent(inviteUrl)}&text=${encodeURIComponent(shareText)}`);
-	const whatsappShareUrl = $derived(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + ' ' + inviteUrl)}`);
-	const xShareUrl = $derived(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(inviteUrl)}`);
+	const telegramShareUrl = $derived(
+		`https://t.me/share/url?url=${encodeURIComponent(inviteUrl)}&text=${encodeURIComponent(formattedInviteMessage)}`
+	);
+	const whatsappShareUrl = $derived(
+		`https://api.whatsapp.com/send?text=${encodeURIComponent(formattedInviteMessage)}`
+	);
+	const xShareUrl = $derived(
+		`https://twitter.com/intent/tweet?text=${encodeURIComponent(formattedInviteMessage)}`
+	);
 	const qrCodeUrl = $derived(`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(inviteUrl)}&color=f4ede2&bgcolor=141c1f&margin=8`);
 </script>
 
@@ -261,35 +470,46 @@
 					</div>
 				</div>
 
-				<!-- Action to Copy Full Formatted Message -->
-				<div class="flex gap-2 mb-4">
+				<!-- Action to Copy Full Formatted Message and Graphic Card -->
+				<div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4">
 					<button
 						type="button"
-						class="btn btn-primary flex-1 py-2.5 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer rounded-lg shadow-sm"
-						onclick={copyFormattedMessage}
+						class="btn btn-primary py-2.5 px-3 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer rounded-lg shadow-sm"
+						onclick={copyCardImage}
+						disabled={isExportingCard}
+						title="Copy card image to clipboard to paste directly into Telegram"
 					>
-						{#if copiedMessage}
+						{#if copiedCardImage}
 							<IconCheck size={14} stroke={2} />
-							<span>Message Copied!</span>
+							<span>Card Copied!</span>
 						{:else}
-							<IconMessageCircle size={14} stroke={1.8} />
-							<span>Copy Full Invite Message</span>
+							<IconPhoto size={14} stroke={1.8} />
+							<span>{isExportingCard ? 'Rendering...' : 'Copy Card Image'}</span>
 						{/if}
 					</button>
 
 					<button
 						type="button"
-						class="btn btn-secondary py-2.5 px-3.5 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer rounded-lg shadow-sm"
-						onclick={copyLink}
-						title="Copy only URL"
+						class="btn btn-secondary py-2.5 px-3 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer rounded-lg shadow-sm"
+						onclick={copyFormattedMessage}
 					>
-						{#if copiedLink}
+						{#if copiedMessage}
 							<IconCheck size={14} stroke={2} />
-							<span>Copied!</span>
+							<span>Text Copied!</span>
 						{:else}
-							<IconCopy size={14} stroke={1.8} />
-							<span>Copy Link</span>
+							<IconMessageCircle size={14} stroke={1.8} />
+							<span>Copy Text</span>
 						{/if}
+					</button>
+
+					<button
+						type="button"
+						class="btn btn-ghost border border-cream/15 hover:border-lamp/40 py-2.5 px-3 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer rounded-lg shadow-sm text-cream"
+						onclick={downloadCardImage}
+						disabled={isExportingCard}
+					>
+						<IconDownload size={14} stroke={1.8} />
+						<span>Download PNG</span>
 					</button>
 				</div>
 			{/if}
