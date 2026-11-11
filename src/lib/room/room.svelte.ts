@@ -30,7 +30,7 @@ import { supabase, isSupabaseConfigured } from '#lib/supabase';
 import { buildNightFromRoom, saveToMyNights } from '#lib/data/local-logbook';
 import type { Night } from '#lib/data/archive';
 import { recordStat } from '#lib/data/profile-stats';
-import { getRelatedYouTubeTrack, isBannedMusic } from './youtube';
+import { getRelatedYouTubeTrack, isBannedMusic, detectMusicLanguage } from './youtube';
 
 const LS_NAME = 'an.callsign';
 const LS_ID = 'an.client';
@@ -289,6 +289,8 @@ class Room {
 	private isContinuingRelated = false;
 	/** Pre-resolved related track waiting in memory for instant 0ms transition when queue finishes */
 	nextAutoplayTrack = $state<Track | null>(null);
+	/** Timestamp when uninterrupted autoplay started. Caps autoplay at 30 minutes. */
+	autoplayStartedAt = $state<number | null>(null);
 
 	/** Peers who joined this session earlier tonight but are not currently awake in the room. */
 	get leftPeers(): Array<{ name: string; avatar?: string; intention?: string }> {
@@ -1900,6 +1902,7 @@ class Room {
 		isPlaylist?: boolean,
 		playlistId?: string
 	): void {
+		this.autoplayStartedAt = null;
 		const raw = videoIdOrUrl ?? '';
 		const parsed = source ? null : parseTrackUrl(raw);
 		const trackSource = source ?? parsed?.source ?? (raw.includes('youtube.com') || raw.includes('youtu.be') ? 'youtube' : 'unknown');
@@ -1966,6 +1969,7 @@ class Room {
 		tag?: 'focus' | 'hangout',
 		playlistTitle?: string
 	): void {
+		this.autoplayStartedAt = null;
 		const filtered = tracks.filter((t) => !isBannedMusic(t.videoId, t.title));
 		if (!filtered.length) return;
 		const newTracks: Track[] = filtered.map((t) => ({
@@ -2079,6 +2083,7 @@ class Room {
 
 	playNow(track: Track): void {
 		if (!this.canControlPlayback) return;
+		this.autoplayStartedAt = null;
 		this.mutate(
 			(s) => {
 				const queue = s.queue.filter((item) => item.uid !== track.uid);
@@ -2136,6 +2141,17 @@ class Room {
 		this.isContinuingRelated = true;
 
 		try {
+			// Enforce 30-minute maximum autoplay limit
+			if (this.autoplayStartedAt === null) {
+				this.autoplayStartedAt = Date.now();
+			} else if (Date.now() - this.autoplayStartedAt >= 30 * 60 * 1000) {
+				this.mutate(
+					(s) => ({ ...s, playing: false }),
+					'Autoplay paused after 30 minutes · Add tracks to resume'
+				);
+				return;
+			}
+
 			const finishedTrack = lastTrack || this.state.current;
 			if (finishedTrack?.videoId) {
 				this.playedVideoIds.add(finishedTrack.videoId);
@@ -2189,12 +2205,72 @@ class Room {
 		}
 	}
 
+	/**
+	 * Called when YouTube native Mix auto-advances to the next video.
+	 * Checks 30-minute uninterrupted autoplay limit and filters out banned / wrong-language music.
+	 */
+	onAutoplayTransition(track: { videoId: string; title: string; channel?: string }): void {
+		if (!this.canControlPlayback) return;
+
+		// 30-minute limit
+		if (this.autoplayStartedAt === null) {
+			this.autoplayStartedAt = Date.now();
+		} else if (Date.now() - this.autoplayStartedAt >= 30 * 60 * 1000) {
+			this.mutate(
+				(s) => ({ ...s, playing: false }),
+				'Autoplay paused after 30 minutes · Add tracks to resume'
+			);
+			return;
+		}
+
+		// Language & banned content filter
+		const currentLang = detectMusicLanguage(this.state.current);
+		const candidateLang = detectMusicLanguage(track);
+		if (isBannedMusic(track.videoId, track.title) || (currentLang && candidateLang !== currentLang)) {
+			// YouTube autoplay picked something outside our constraints (e.g. cultural, wrong language, >10min).
+			// Immediately override with our curated related track!
+			void this.continueWithRelated(this.state.current);
+			return;
+		}
+
+		if (track.videoId) {
+			this.playedVideoIds.add(track.videoId);
+		}
+
+		const newTrack: Track = {
+			uid: `yt-auto-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+			videoId: track.videoId,
+			title: track.title || 'Related Track',
+			channel: track.channel || 'YouTube',
+			addedBy: 'YouTube Autoplay',
+			source: 'youtube',
+			url: `https://www.youtube.com/watch?v=${track.videoId}`,
+			reactions: {}
+		};
+
+		this.mutate(
+			(s) => ({
+				...s,
+				current: newTrack,
+				videoId: track.videoId,
+				playlistId: null,
+				source: 'youtube',
+				playing: true,
+				position: 0
+			}),
+			`YouTube Autoplay · “${newTrack.title}”`
+		);
+
+		void this.prefetchNextRelatedTrack(newTrack);
+	}
+
 	skip(): void {
 		if (!this.canSkip) return;
 		const finished = this.state.current?.title;
 		const lastTrack = this.state.current;
 
 		if (this.state.queue.length > 0) {
+			this.autoplayStartedAt = null;
 			this.mutate(
 				(s) => {
 					const [next, ...rest] = s.queue;
@@ -2228,6 +2304,7 @@ class Room {
 		const lastTrack = this.state.current;
 
 		if (this.state.queue.length > 0) {
+			this.autoplayStartedAt = null;
 			this.mutate((s) => {
 				const [next, ...rest] = s.queue;
 				return {

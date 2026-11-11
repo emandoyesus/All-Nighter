@@ -374,12 +374,13 @@ export const BANNED_VIDEO_IDS = new Set([
 	'WPni755-Krg'  // Midnight Jazz Lounge
 ]);
 
-export function isBannedMusic(videoId?: string | null, title?: string): boolean {
+export function isBannedMusic(videoId?: string | null, title?: string, duration?: number): boolean {
 	if (videoId && BANNED_VIDEO_IDS.has(videoId)) return true;
+	if (typeof duration === 'number' && duration > 1800) return true; // Never autoplay tracks over 30 minutes
 	if (!title) return false;
 	const t = title.toLowerCase();
 	return (
-		/lofi|lo-fi|chillhop|study\s*(beats|session|with\s*me)|relax(ing)?\s*beats|piano\s*radio|classical|instrumental(\s*only)?|bgm|sleep(ing)?\s*music|meditation|ambient\s*sound|\b(1|2|3|4|5|6|8|10|12|24)\s*hours?|\bnon[\s-]*stop|\bcompilation|\bfull\s*album|\bjukebox/i.test(
+		/cultural|bahilawi|traditional|eskista|masenqo|kirar\s*folk|lofi|lo-fi|chillhop|study\s*(beats|session|with\s*me)|relax(ing)?\s*beats|piano\s*radio|classical|instrumental(\s*only)?|bgm|sleep(ing)?\s*music|meditation|ambient\s*sound|\b(1|2|3|4|5|6|8|10|12|24)\s*hours?|\bnon[\s-]*stop|\bcompilation|\bfull\s*album|\bjukebox/i.test(
 			t
 		)
 	);
@@ -388,7 +389,7 @@ export function isBannedMusic(videoId?: string | null, title?: string): boolean 
 export type MusicLanguage = 'amharic' | 'tigrinya' | 'english';
 
 /**
- * Detects whether a track is Amharic, Tigrinya, or English / International music.
+ * Detects whether a track is Amharic, Ethiopian Tigrinya, or English / International music.
  */
 export function detectMusicLanguage(
 	track?: { title?: string; channel?: string; genre?: string } | null
@@ -399,17 +400,17 @@ export function detectMusicLanguage(
 	const genre = (track.genre ?? '').toLowerCase();
 	const combined = `${title} ${channel} ${genre}`;
 
-	// Check Tigrinya / Eritrean indicators first
+	// Check Ethiopian Tigrinya indicators first
 	const isTigrinya =
-		/tigrinya|tigrigna|tigrina|eritrean|asmera|asmara|shikor|wedi|aytekaelen|fetiki|korchach|robel\s*michael|eden\s*kesete|tikabo|helen\s*meles|dawit\s*eyob|millen\s*hailu|dejen\s*gebreab|ella\s*records|admas\s*entertainment|qielem|mahtem/i.test(
+		/tigrinya|tigrigna|tigrina|tigray|mekelle|dawit\s*nega|abraham\s*gebremedhin|abreham\s*g\/medhin|kiros\s*alemayehu|eden\s*gebreselasie|gidey\s*gebremedhin|haftu\s*zeferu|tesfay\s*gomera|teklemariam|yemane\s*barya|aytekaelen|fetiki/i.test(
 			combined
 		) || /[\u1250-\u1256\u1318-\u131F]/.test(combined);
 
 	if (isTigrinya) return 'tigrinya';
 
-	// Check Amharic / Ethiopian indicators or Ge'ez script
+	// Check Amharic 90s / Ethiopian modern pop indicators or Ge'ez script
 	const isAmharic =
-		/amharic|ethiopian|ethiopia|addis|hope\s*music|minew\s*shewa|sewasew|nahom|teddy\s*afro|michael\s*belayneh|belayneh|aster\s*aweke|rophnan|ephrem\s*tamiru|dawit\s*tsige|neway\s*damtie|tilahun|gessesse|mahmoud\s*ahmed|betty\s*g|yohana|gosaye|zeritu|tamrat\s*desta/i.test(
+		/amharic|ethiopian|ethiopia|addis|ephrem\s*tamiru|aster\s*aweke|tamrat\s*desta|tilahun\s*gessesse|tlahoun|aregahegn\s*worash|kuku\s*sebsebe|girma\s*tefera|teddy\s*afro|michael\s*belayneh|belayneh|rophnan|dawit\s*tsige|neway\s*damtie|gosaye|zeritu|eyob\s*mekonnen|hope\s*music|minew\s*shewa|sewasew|nahom/i.test(
 			combined
 		) || /[\u1200-\u137F]/.test(combined);
 
@@ -427,81 +428,74 @@ export type CuratedTrack = {
 };
 
 export const CURATED_CATALOG: CuratedTrack[] = [
-	// ================= AMHARIC MUSIC (Real Vocal Songs, No Lofi) =================
+	// ================= 90s AMHARIC MODERN POP (No Cultural Folk) =================
 	{
-		videoId: 'VsrL9Rz-A5A',
-		title: 'Teddy Afro - ETHIOPIA',
-		channel: 'Teddy Afro',
+		videoId: 'WD_IDsP3sbY',
+		title: 'Ephrem Tamiru - Demamaye',
+		channel: 'Ephrem Tamiru',
 		language: 'amharic',
-		tags: ['teddy afro', 'ethiopia', 'amharic', 'ethiopian', 'vocal', 'single']
+		tags: ['ephrem tamiru', 'demamaye', '90s', 'amharic', 'ethiopian', 'pop']
 	},
 	{
-		videoId: '-RfFt4nkl5g',
-		title: 'Michael Belayneh - Teneta',
-		channel: 'Michael Belayneh',
+		videoId: 'vgybg--StKc',
+		title: 'Tamrat Desta - Hakime Nesh',
+		channel: 'Tamrat Desta',
 		language: 'amharic',
-		tags: ['michael belayneh', 'belayneh', 'teneta', 'amharic', 'ethiopian', 'vocal']
-	},
-	{
-		videoId: 'FWj7CLxK_yU',
-		title: 'ROPHNAN - SHEGIYE',
-		channel: 'ROPHNAN',
-		language: 'amharic',
-		tags: ['rophnan', 'shegiye', 'shega', 'amharic', 'ethiopian', 'electronic']
+		tags: ['tamrat desta', 'hakime nesh', '90s', 'amharic', 'ethiopian', 'love']
 	},
 	{
 		videoId: 'ULgwcno7gZs',
 		title: 'Aster Aweke - Nafkot',
 		channel: 'Aster Aweke',
 		language: 'amharic',
-		tags: ['aster aweke', 'nafkot', 'amharic', 'ethiopian', 'vocal']
+		tags: ['aster aweke', 'nafkot', '90s', 'amharic', 'ethiopian']
 	},
 	{
-		videoId: 'P2pmg2fh-7g',
-		title: 'Neway Damtie - Ejigitu',
-		channel: 'Neway Damtie',
+		videoId: '1geU0Xo4sns',
+		title: 'Tilahun Gessesse - Kulun Manqualesh',
+		channel: 'Tilahun Gessesse',
 		language: 'amharic',
-		tags: ['neway damtie', 'ejigitu', 'amharic', 'ethiopian', 'vocal']
+		tags: ['tilahun gessesse', 'kulun manqualesh', 'amharic', 'ethiopian', 'classic']
+	},
+	{
+		videoId: '-RfFt4nkl5g',
+		title: 'Michael Belayneh - Teneta',
+		channel: 'Michael Belayneh',
+		language: 'amharic',
+		tags: ['michael belayneh', 'belayneh', 'teneta', 'amharic', 'ethiopian']
+	},
+	{
+		videoId: 'VsrL9Rz-A5A',
+		title: 'Teddy Afro - ETHIOPIA',
+		channel: 'Teddy Afro',
+		language: 'amharic',
+		tags: ['teddy afro', 'ethiopia', 'amharic', 'ethiopian']
 	},
 
-	// ================= TIGRINYA MUSIC (Real Vocal Songs, No Lofi) =================
+	// ================= ETHIOPIAN TIGRINYA MUSIC (Mainly Ethiopian Tigrinya, No Folk) =================
 	{
-		videoId: '_oIC_DHf7IU',
-		title: 'Robel Michael - Aytehteyeni',
-		channel: 'Robel Michael',
+		videoId: 'mMUzrTXQPJg',
+		title: 'Dawit Nega - Ajoki Tigray',
+		channel: 'Dawit Nega',
 		language: 'tigrinya',
-		tags: ['robel michael', 'aytehteyeni', 'tigrinya', 'tigrigna', 'eritrean']
+		tags: ['dawit nega', 'ajoki', 'ethiopian tigrigna', 'tigray', 'ethiopia', 'music']
 	},
 	{
-		videoId: 'ea1SuHCU1TM',
-		title: 'Robel Michael - Nlomi Ngbero',
-		channel: 'Robel Michael',
+		videoId: '4wadY4IbRa4',
+		title: 'Dawit Nega - Wezamey',
+		channel: 'Dawit Nega',
 		language: 'tigrinya',
-		tags: ['robel michael', 'nlomi ngbero', 'tigrinya', 'tigrigna', 'eritrean']
+		tags: ['dawit nega', 'wezamey', 'ethiopian tigrigna', 'tigray', 'ethiopia']
 	},
 	{
-		videoId: 'EXJNvCOeOEg',
-		title: 'Tesfealem Arefaine (Korchach) - ZEBET',
-		channel: 'Korchach',
+		videoId: 'AQzD-j8017g',
+		title: 'Abreham G/Medhin – Hamelmalo',
+		channel: 'Abreham G/Medhin',
 		language: 'tigrinya',
-		tags: ['korchach', 'tesfealem arefaine', 'zebet', 'tigrinya', 'eritrean']
-	},
-	{
-		videoId: 'VWcfZe5DNWo',
-		title: 'Eden Kesete - Kizirifeka',
-		channel: 'Eden Kesete',
-		language: 'tigrinya',
-		tags: ['eden kesete', 'kizirifeka', 'tigrinya', 'tigrigna', 'eritrean']
-	},
-	{
-		videoId: 'QQgWoYeEKgw',
-		title: 'Yohannes Tikabo (Wedi Tikabo) - Belwa',
-		channel: 'Yohannes Tikabo',
-		language: 'tigrinya',
-		tags: ['wedi tikabo', 'yohannes tikabo', 'belwa', 'tigrinya', 'eritrean']
+		tags: ['abraham gebremedhin', 'hamelmalo', 'ethiopian tigrigna', 'tigray', 'ethiopia']
 	},
 
-	// ================= ENGLISH MUSIC (Real Vocal Hit Songs, No Lofi) =================
+	// ================= ENGLISH HIT MUSIC (Real Vocal Pop/Electronic) =================
 	{
 		videoId: '4NRXx6U8ABQ',
 		title: 'The Weeknd - Blinding Lights',
@@ -725,18 +719,18 @@ export async function getRelatedYouTubeTrack(
 	// 3. Fallback based strictly on the detected language
 	if (targetLang === 'amharic') {
 		return {
-			videoId: 'VsrL9Rz-A5A',
-			title: 'Teddy Afro - ETHIOPIA',
-			channel: 'Teddy Afro',
+			videoId: 'WD_IDsP3sbY',
+			title: 'Ephrem Tamiru - Demamaye',
+			channel: 'Ephrem Tamiru',
 			language: 'amharic'
 		};
 	}
 
 	if (targetLang === 'tigrinya') {
 		return {
-			videoId: '_oIC_DHf7IU',
-			title: 'Robel Michael - Aytehteyeni',
-			channel: 'Robel Michael',
+			videoId: 'mMUzrTXQPJg',
+			title: 'Dawit Nega - Ajoki Tigray',
+			channel: 'Dawit Nega',
 			language: 'tigrinya'
 		};
 	}
