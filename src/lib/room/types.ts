@@ -48,6 +48,7 @@ export type RoomState = {
 	accessKeyHash?: string;
 	adminOnlyPlayback?: boolean;
 	admins?: string[];
+	autoArchive?: boolean;
 };
 
 export type Peer = {

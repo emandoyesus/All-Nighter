@@ -3,11 +3,20 @@
 	import IconAlertTriangle from '@tabler/icons-svelte/icons/alert-triangle';
 	import IconTrash from '@tabler/icons-svelte/icons/trash';
 	import IconX from '@tabler/icons-svelte/icons/x';
+	import IconBookmark from '@tabler/icons-svelte/icons/bookmark';
+	import IconFlame from '@tabler/icons-svelte/icons/flame';
 
 	let { open = $bindable(false) }: { open: boolean } = $props();
 
 	let confirmInput = $state('');
 	let isDeleting = $state(false);
+	let archiveOnDelete = $state(true);
+
+	$effect(() => {
+		if (open) {
+			archiveOnDelete = room.state.autoArchive !== false;
+		}
+	});
 
 	const isMatch = $derived(
 		confirmInput.trim().toLowerCase() === (room.room || '').toLowerCase()
@@ -28,7 +37,7 @@
 		if (!isMatch || isDeleting) return;
 		isDeleting = true;
 		try {
-			await room.deleteRoom();
+			await room.deleteRoom(archiveOnDelete);
 			open = false;
 			confirmInput = '';
 		} finally {
@@ -90,6 +99,40 @@
 							Deleting <span class="text-cream font-mono">“{room.title || room.room}”</span> will clear the shared queue and disconnect all {room.awake.length} awake crew member{room.awake.length === 1 ? '' : 's'}.
 						</p>
 					</div>
+				</div>
+			</div>
+
+			<!-- Archive Preference on Delete -->
+			<div class="mt-4 rounded-xl border border-cream/10 bg-night p-3">
+				<span class="mb-2 block text-xs font-mono text-faint">Logbook Archive Option</span>
+				<div class="grid grid-cols-2 gap-2">
+					<button
+						type="button"
+						class="flex flex-col items-start gap-1 rounded-lg border p-2 text-left text-xs transition-colors cursor-pointer {archiveOnDelete
+							? 'border-lamp/50 bg-lamp/10 text-lamp'
+							: 'border-cream/10 bg-night-2 text-taupe hover:border-cream/20 hover:text-cream'}"
+						onclick={() => (archiveOnDelete = true)}
+					>
+						<span class="flex items-center gap-1.5 font-medium">
+							<IconBookmark size={13} stroke={2} />
+							Save to Logbook
+						</span>
+						<span class="text-[10px] text-faint leading-snug">Preserve tracks & roster</span>
+					</button>
+
+					<button
+						type="button"
+						class="flex flex-col items-start gap-1 rounded-lg border p-2 text-left text-xs transition-colors cursor-pointer {!archiveOnDelete
+							? 'border-ruby/50 bg-ruby/10 text-ruby'
+							: 'border-cream/10 bg-night-2 text-taupe hover:border-cream/20 hover:text-cream'}"
+						onclick={() => (archiveOnDelete = false)}
+					>
+						<span class="flex items-center gap-1.5 font-medium">
+							<IconFlame size={13} stroke={2} />
+							Discard Completely
+						</span>
+						<span class="text-[10px] text-faint leading-snug">Ephemeral wipe</span>
+					</button>
 				</div>
 			</div>
 

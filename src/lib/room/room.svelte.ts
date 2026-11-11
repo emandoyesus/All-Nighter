@@ -881,7 +881,13 @@ class Room {
 	}
 
 	/** Create a room and step inside as its host. */
-	async createRoom(name: string, isPrivate = false, adminOnlyPlayback = false, customKey?: string): Promise<void> {
+	async createRoom(
+		name: string,
+		isPrivate = false,
+		adminOnlyPlayback = false,
+		customKey?: string,
+		autoArchive = true
+	): Promise<void> {
 		if (!auth.isCloudUser && !auth.user) {
 			console.warn('[room] Must be signed in with an account to create a room');
 			if (typeof window !== 'undefined') {
@@ -908,7 +914,27 @@ class Room {
 			} catch {}
 		}
 
-		this.enterApproved(slug, name.trim() || slug, true, true, isPrivate, adminOnlyPlayback, key, keyHash);
+		try {
+			localStorage.setItem('an.auto_archive.' + slug, autoArchive ? '1' : '0');
+		} catch {}
+
+		this.enterApproved(slug, name.trim() || slug, true, true, isPrivate, adminOnlyPlayback, key, keyHash, autoArchive);
+	}
+
+	/** Toggle archive preference for this room (Host only). */
+	toggleAutoArchive(): void {
+		if (!this.isHost) return;
+		const next = this.state.autoArchive === false ? true : false;
+		this.state = {
+			...this.state,
+			autoArchive: next
+		};
+		if (this.room) {
+			try {
+				localStorage.setItem('an.auto_archive.' + this.room, next ? '1' : '0');
+			} catch {}
+		}
+		this.publishState();
 	}
 
 	/** Claim an unhosted or deserted room and step inside as host. */
@@ -1043,7 +1069,8 @@ class Room {
 		isPrivate = false,
 		adminOnlyPlayback = false,
 		accessKey = '',
-		accessKeyHash = ''
+		accessKeyHash = '',
+		autoArchive = true
 	): void {
 		this.resetRoom();
 		this.room = slug;
@@ -1060,6 +1087,14 @@ class Room {
 		if (accessKeyHash) {
 			this.activeKeyHash = accessKeyHash;
 		}
+
+		let initialAutoArchive = autoArchive;
+		try {
+			const savedArchivePref = localStorage.getItem('an.auto_archive.' + slug);
+			if (savedArchivePref !== null) {
+				initialAutoArchive = savedArchivePref === '1';
+			}
+		} catch {}
 
 		if (isNew) {
 			const starter: Track = {
@@ -1078,7 +1113,13 @@ class Room {
 				isPrivate,
 				doorLocked: isPrivate,
 				accessKeyHash: accessKeyHash || undefined,
-				adminOnlyPlayback
+				adminOnlyPlayback,
+				autoArchive: initialAutoArchive
+			};
+		} else {
+			this.state = {
+				...this.state,
+				autoArchive: initialAutoArchive
 			};
 		}
 
@@ -1165,16 +1206,17 @@ class Room {
 
 	/**
 	 * Delete this room session (Owner only).
-	 * If it is already dawn, the room will be archived into the logbook instead of deleted.
+	 * If archive preference is enabled or requested, the room will be archived into the logbook.
 	 */
-	async deleteRoom(): Promise<void> {
+	async deleteRoom(shouldArchive?: boolean): Promise<void> {
 		if (!this.isHost) {
 			console.warn('[Room] Only the owner can delete a room.');
 			return;
 		}
 
-		// If it is already dawn, archive rather than plain delete
-		if (this.isDawn) {
+		// Check explicit archive decision, or fallback to autoArchive preference if dawn
+		const doArchive = shouldArchive !== undefined ? shouldArchive : (this.isDawn && this.state.autoArchive !== false);
+		if (doArchive) {
 			await this.archiveRoom();
 			return;
 		}
@@ -1857,7 +1899,7 @@ class Room {
 		const now = Date.now();
 		this.now = now;
 
-		// Auto-archive when dawn is reached during an active overnight session
+		// Auto-archive when dawn is reached during an active overnight session (if host prefers archiving)
 		if (
 			this.isHost &&
 			this.joinState === 'approved' &&
@@ -1867,7 +1909,11 @@ class Room {
 			!this.dawnArchived
 		) {
 			this.dawnArchived = true;
-			void this.archiveRoom();
+			if (this.state.autoArchive !== false) {
+				void this.archiveRoom();
+			} else {
+				console.log('[Room] Dawn reached: room auto-archive skipped per host preference');
+			}
 		}
 
 		// Track focus sprint minutes
