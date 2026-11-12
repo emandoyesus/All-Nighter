@@ -453,23 +453,6 @@
 								{night.note}
 							</p>
 						</div>
-
-						<!-- Transmission Audio Snippet Quote Box -->
-						{#if night.chatMoments[0]}
-							<div class="mt-4 rounded-lg border border-cream/8 bg-night-3/70 p-3 pl-3.5 relative">
-								<div class="flex items-center justify-between font-mono text-[9px] uppercase tracking-wider text-faint mb-1.5">
-									<span class="text-lamp/80 flex items-center gap-1">
-										<span>REC</span>
-										<span>//</span>
-										<span>{night.chatMoments[0].at}</span>
-									</span>
-									<span>@{night.chatMoments[0].who}</span>
-								</div>
-								<p class="font-mono text-[11px] leading-relaxed text-cream/90 italic">
-									"{night.chatMoments[0].text}"
-								</p>
-							</div>
-						{/if}
 					</div>
 
 					<!-- Bottom Ledger Metrics Strip -->

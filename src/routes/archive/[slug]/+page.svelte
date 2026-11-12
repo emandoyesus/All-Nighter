@@ -13,7 +13,6 @@
 	import IconMusic from '@tabler/icons-svelte/icons/music';
 	import IconUsers from '@tabler/icons-svelte/icons/users';
 	import IconFlame from '@tabler/icons-svelte/icons/flame';
-	import IconMessage from '@tabler/icons-svelte/icons/message-2';
 	import IconExternal from '@tabler/icons-svelte/icons/external-link';
 	import IconDisc from '@tabler/icons-svelte/icons/disc';
 	import IconTarget from '@tabler/icons-svelte/icons/target';
@@ -117,22 +116,6 @@
 						{night.title}
 					</h1>
 					<p class="mt-3 max-w-[62ch] text-sm leading-relaxed text-taupe">{night.note}</p>
-
-					{#if night.chatMoments && night.chatMoments.length > 0}
-						<div class="mt-5 max-w-[62ch] rounded-lg border border-cream/8 bg-night-3/70 p-3.5 pl-4">
-							<div class="flex items-center justify-between font-mono text-[9px] uppercase tracking-wider text-faint mb-1.5">
-								<span class="text-lamp/80 flex items-center gap-1">
-									<span>REC</span>
-									<span>//</span>
-									<span>{night.chatMoments[0].at}</span>
-								</span>
-								<span>@{night.chatMoments[0].who}</span>
-							</div>
-							<p class="font-mono text-xs leading-relaxed text-cream/90 italic">
-								"{night.chatMoments[0].text}"
-							</p>
-						</div>
-					{/if}
 
 					<div class="mt-6 flex flex-wrap gap-2.5 pt-5 border-t border-cream/5 font-mono">
 						<span class="inline-flex items-center gap-1.5 rounded-full border border-cream/10 bg-night/60 px-3 py-1 text-xs text-taupe">
@@ -252,39 +235,19 @@
 					{/if}
 				</div>
 
-				<div class="grid gap-4 sm:grid-cols-2" data-reveal use:reveal={60}>
-					{#if topTrack}
-						<div class="panel p-5">
-							<p class="flex items-center gap-1.5 text-xs text-faint">
-								<IconFlame size={14} stroke={1.5} class="text-lamp" />
-								Most reacted track
-							</p>
-							<p class="mt-2 text-base font-medium leading-snug">{topTrack.title}</p>
-							<p class="mt-1 text-sm text-taupe">{topTrack.artist}</p>
-							<p class="num mt-3 text-xs text-faint">
-								{topTrack.reactions ?? 0} reactions · added by {topTrack.addedBy}
-							</p>
-						</div>
-					{/if}
-
-					<div class="panel p-5">
+				{#if topTrack}
+					<div class="panel p-5" data-reveal use:reveal={60}>
 						<p class="flex items-center gap-1.5 text-xs text-faint">
-							<IconMessage size={14} stroke={1.5} class="text-lamp" />
-							Memorable moments
+							<IconFlame size={14} stroke={1.5} class="text-lamp" />
+							Most reacted track
 						</p>
-						<ul class="mt-2.5 space-y-2.5">
-							{#each night.chatMoments as moment (moment.text)}
-								<li class="text-sm leading-relaxed">
-									<p class="flex items-baseline gap-2 text-xs">
-										<a href="/crew/{moment.who}" class="text-taupe hover:text-lamp">{moment.who}</a>
-										<span class="num text-[10px] text-faint">{moment.at}</span>
-									</p>
-									<p class="text-cream/90">“{moment.text}”</p>
-								</li>
-							{/each}
-						</ul>
+						<p class="mt-2 text-base font-medium leading-snug">{topTrack.title}</p>
+						<p class="mt-1 text-sm text-taupe">{topTrack.artist}</p>
+						<p class="num mt-3 text-xs text-faint">
+							{topTrack.reactions ?? 0} reactions · added by {topTrack.addedBy}
+						</p>
 					</div>
-				</div>
+				{/if}
 			</div>
 
 			<aside class="min-w-0 space-y-4" data-reveal use:reveal={120}>

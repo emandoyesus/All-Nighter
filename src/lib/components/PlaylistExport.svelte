@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { asset } from '$app/paths';
 	import type { Night } from '#lib/data/archive';
-	import IconBrandYoutube from '@tabler/icons-svelte/icons/brand-youtube';
-	import IconBrandSpotify from '@tabler/icons-svelte/icons/brand-spotify';
+	import IconBrandYoutubeFilled from '@tabler/icons-svelte/icons/brand-youtube-filled';
+	import IconBrandSpotifyFilled from '@tabler/icons-svelte/icons/brand-spotify-filled';
 	import IconCopy from '@tabler/icons-svelte/icons/copy';
 	import IconCheck from '@tabler/icons-svelte/icons/check';
 
@@ -48,16 +48,25 @@
 	<p class="mt-1.5 text-xs leading-relaxed text-taupe">
 		Rebuild this set as a playlist, or keep the list for the next lock-in.
 	</p>
-	<div class="mt-3.5 flex flex-wrap gap-2">
-		<a href={youtubeUrl} target="_blank" rel="noreferrer" class="btn btn-primary btn-sm">
-			<IconBrandYoutube size={15} stroke={1.5} />
-			YouTube playlist
+	<div class="mt-3.5 flex flex-wrap items-center gap-2">
+		<a
+			href={youtubeUrl}
+			target="_blank"
+			rel="noreferrer"
+			class="inline-flex items-center gap-1.5 rounded-lg bg-[#CC0000] hover:bg-[#B30000] px-3.5 py-1.5 text-xs font-semibold text-white transition-all cursor-pointer shadow-sm hover:shadow-red-950/40 active:scale-95"
+		>
+			<IconBrandYoutubeFilled size={15} class="shrink-0 text-white" />
+			<span>YouTube playlist</span>
 		</a>
-		<button class="btn btn-ghost btn-sm" onclick={exportSpotify}>
-			<IconBrandSpotify size={15} stroke={1.5} />
-			Export for Spotify
+		<button
+			type="button"
+			class="inline-flex items-center gap-1.5 rounded-lg bg-[#1DB954] hover:bg-[#1AA34A] px-3.5 py-1.5 text-xs font-semibold text-black transition-all cursor-pointer shadow-sm hover:shadow-emerald-950/30 active:scale-95"
+			onclick={exportSpotify}
+		>
+			<IconBrandSpotifyFilled size={15} class="shrink-0 text-black" />
+			<span>Export to Spotify</span>
 		</button>
-		<button class="btn btn-ghost btn-sm" onclick={copyList}>
+		<button type="button" class="btn btn-ghost btn-sm" onclick={copyList}>
 			{#if copied}
 				<IconCheck size={15} stroke={1.5} />
 				Copied

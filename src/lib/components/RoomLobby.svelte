@@ -35,9 +35,30 @@
 		if (!supabase || !rooms || rooms.length === 0) return [];
 		const now = new Date();
 		const unarchived: any[] = [];
+		const doorsOpen = areDoorsOpen(now);
+
+		// Fetch existing session archive slugs to immediately detect rooms that are already archived
+		const archivedSlugs = new Set<string>();
+		try {
+			const { data: archives } = await supabase
+				.from('session_archives')
+				.select('slug');
+			if (archives) {
+				for (const a of archives) {
+					archivedSlugs.add(a.slug);
+					const base = a.slug.replace(/-\d{4}-\d{2}-\d{2}$/, '');
+					archivedSlugs.add(base);
+				}
+			}
+		} catch {}
+
 		for (const r of rooms) {
-			if (isRoomPastDawn(r.created_at, now)) {
-				// Room has passed sunrise: archive it immediately with canonical slug and upsert to prevent duplicates
+			const canonicalSlug = toArchiveSlug(r.slug, new Date(r.created_at));
+			const alreadyArchived = archivedSlugs.has(r.slug) || archivedSlugs.has(canonicalSlug);
+			const pastDawn = isRoomPastDawn(r.created_at, now) || !doorsOpen;
+
+			if (alreadyArchived || pastDawn) {
+				// Room has passed sunrise or is already in the archive: ensure it is marked archived in DB
 				const canonicalSlug = toArchiveSlug(r.slug, new Date(r.created_at));
 				try {
 					await supabase.from('session_archives').upsert(
@@ -208,6 +229,7 @@
 
 	const listings = $derived.by(() => {
 		const now = new Date();
+		if (!doorsOpen) return [];
 		const map = new Map<string, RoomAd>();
 		// 1. First add rooms from persistent database (filter out any that passed dawn)
 		for (const d of dbRooms) {

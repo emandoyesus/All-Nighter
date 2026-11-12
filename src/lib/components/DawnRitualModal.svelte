@@ -90,6 +90,16 @@
 					},
 					{ onConflict: 'slug' }
 				);
+
+				if (room.room) {
+					try {
+						await supabase
+							.from('rooms')
+							.update({ status: 'archived', closed_at: new Date().toISOString() })
+							.eq('slug', room.room);
+					} catch {}
+					room.clearRoomAd(room.room);
+				}
 			} catch (err) {
 				console.warn('Failed to archive to Supabase:', err);
 			}

@@ -470,6 +470,9 @@ class Room {
 					localStorage.removeItem('an.host.' + this.room);
 				} catch {}
 			}
+		},
+		(slug) => {
+			this.onRemoteRoomArchived(undefined, slug);
 		}
 	);
 
@@ -1644,6 +1647,17 @@ class Room {
 
 		// 6. Remove directory ad
 		this.pub(this.dirTopic(roomSlug), '', true);
+		this.clearRoomAd(roomSlug);
+
+		// Direct update to rooms table to guarantee room is marked archived in DB
+		if (supabase) {
+			try {
+				await supabase
+					.from('rooms')
+					.update({ status: 'archived', closed_at: new Date().toISOString() })
+					.eq('slug', roomSlug);
+			} catch {}
+		}
 
 		// 7. Clean up host flag & leave
 		try {
@@ -1673,21 +1687,33 @@ class Room {
 		}
 	}
 
-	private onRemoteRoomArchived(night: Night): void {
-		if (!this.isHost) {
-			if (night) {
-				try {
-					saveToMyNights(night);
-				} catch {}
+	private onRemoteRoomArchived(night?: Night, roomSlug?: string): void {
+		if (night) {
+			try {
+				saveToMyNights(night);
+			} catch {}
+		}
+		const slug = night?.slug || roomSlug || this.room;
+		this.roomAlert = {
+			type: 'archived',
+			message: `Dawn reached! Session “${night?.title || this.title || this.room}” has been archived to the logbook.`,
+			slug
+		};
+		try {
+			if (this.room) {
+				localStorage.removeItem('an.host.' + this.room);
 			}
-			this.roomAlert = {
-				type: 'archived',
-				message: `Dawn reached! Session “${night?.title || this.title || this.room}” has been archived to the logbook.`,
-				slug: night?.slug
-			};
-			this.leave();
-			if (night?.slug && typeof window !== 'undefined') {
-				goto(`/archive/${night.slug}`);
+		} catch {}
+		this.isHost = false;
+		if (this.room) {
+			this.clearRoomAd(this.room);
+		}
+		this.leave();
+		if (typeof window !== 'undefined') {
+			if (slug) {
+				goto(`/archive/${slug}`);
+			} else {
+				goto('/archive');
 			}
 		}
 	}

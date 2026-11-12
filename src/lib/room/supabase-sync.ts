@@ -48,7 +48,8 @@ export class SupabaseRoomSync {
 		private onRemoteMessage: (msg: ChatMessage) => void,
 		private onRemoteQueue: (queue: Track[]) => void,
 		private onRemoteState?: (state: Partial<RoomState>) => void,
-		private onHostConfirmed?: (isHost: boolean, canonicalHostName?: string) => void
+		private onHostConfirmed?: (isHost: boolean, canonicalHostName?: string) => void,
+		private onRoomArchived?: (slug: string, title?: string) => void
 	) {}
 
 	/** Check if database connection is configured */
@@ -70,6 +71,10 @@ export class SupabaseRoomSync {
 				.maybeSingle();
 
 			if (existing) {
+				if (existing.status === 'archived' || existing.status === 'closed') {
+					this.onRoomArchived?.(slug, existing.title || slug);
+					return;
+				}
 				const isHostUser = Boolean(
 					(hostId && existing.host_id === hostId) ||
 					(!existing.host_id && hostName && existing.host_name === hostName)
@@ -189,6 +194,10 @@ export class SupabaseRoomSync {
 				{ event: 'UPDATE', schema: 'public', table: 'rooms', filter: `slug=eq.${slug}` },
 				(payload) => {
 					const updatedRoom = payload.new as DbRoom;
+					if (updatedRoom?.status === 'archived' || updatedRoom?.status === 'closed') {
+						this.onRoomArchived?.(slug, updatedRoom.title);
+						return;
+					}
 					if (updatedRoom?.host_name && this.onHostConfirmed) {
 						const isHostUser = Boolean(
 							(hostId && updatedRoom.host_id === hostId) ||

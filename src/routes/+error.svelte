@@ -9,16 +9,17 @@
 	import IconTrophy from '@tabler/icons-svelte/icons/trophy';
 	import IconBookmark from '@tabler/icons-svelte/icons/bookmark';
 
+	import { areDoorsOpen } from '#lib/config';
+
 	const status = $derived(page.status ?? 404);
 	const message = $derived(page.error?.message || 'That page does not exist in the logbook.');
 	const pathname = $derived(page.url?.pathname || '');
+	const doorsOpen = $derived(areDoorsOpen());
 
-	// Detect if this error was triggered upon an archive or completed night session
+	// Only trigger sunrise finish celebration when explicitly intended, never on a generic 404
 	const isNightFinish = $derived(
-		pathname.startsWith('/archive') ||
-		message.toLowerCase().includes('night') ||
-		message.toLowerCase().includes('logbook') ||
-		message.toLowerCase().includes('dawn')
+		message === 'DAWN_REACHED' ||
+		page.url?.searchParams?.get('dawn') === '1'
 	);
 
 	const LS_ACHIEVEMENT_SEEN = 'an.achievement_seen.sunrise_survivor';
@@ -96,10 +97,12 @@
 					<IconArrowLeft size={14} stroke={2} />
 					<span>Tonight's Lounge</span>
 				</a>
-				<a href="/room" class="btn btn-ghost w-full sm:w-auto text-xs px-4 py-2.5 flex items-center justify-center gap-1.5">
-					<IconRadio size={14} stroke={1.5} />
-					<span>The Room</span>
-				</a>
+				{#if doorsOpen}
+					<a href="/room" class="btn btn-ghost w-full sm:w-auto text-xs px-4 py-2.5 flex items-center justify-center gap-1.5">
+						<IconRadio size={14} stroke={1.5} />
+						<span>The Room</span>
+					</a>
+				{/if}
 			</div>
 		{:else}
 			<!-- Standard 404 View -->
@@ -128,10 +131,12 @@
 					<IconArrowLeft size={14} stroke={2} />
 					Back to Tonight
 				</a>
-				<a href="/room" class="btn btn-ghost w-full sm:w-auto text-xs px-4">
-					<IconRadio size={14} stroke={1.5} />
-					The Room
-				</a>
+				{#if doorsOpen}
+					<a href="/room" class="btn btn-ghost w-full sm:w-auto text-xs px-4">
+						<IconRadio size={14} stroke={1.5} />
+						The Room
+					</a>
+				{/if}
 				<a href="/archive" class="btn btn-ghost w-full sm:w-auto text-xs px-4">
 					<IconDisc size={14} stroke={1.5} />
 					Past Nights

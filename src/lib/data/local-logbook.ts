@@ -6,12 +6,10 @@ const LS_MY_NIGHTS = 'an.my_nights';
 export function isTestArchiveSlug(slug: string): boolean {
 	const s = (slug || '').trim().toLowerCase();
 	// Preserve authentic sessions
-	if (s === 'the-asylum-2026-11-12') return false;
+	if (s.startsWith('the-asylum')) return false;
 	if (s === 'entoto-sunrise-addis-lock-in') return false;
 
 	return (
-		s === 'the-asylum' ||
-		s === 'the-asylum-2026-11-11' ||
 		s === 'k' ||
 		s.startsWith('k-') ||
 		s === 'skubidu' ||

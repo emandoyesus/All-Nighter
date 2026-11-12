@@ -4,20 +4,29 @@ import { supabase } from '#lib/supabase';
 import { error } from '@sveltejs/kit';
 import type { EntryGenerator, PageLoad } from './$types';
 
+export const prerender = 'auto';
 export const entries: EntryGenerator = () => nights.map((night) => ({ slug: night.slug }));
 
 export const load: PageLoad = async ({ params }) => {
-	let night = nights.find((item) => item.slug === params.slug);
+	const baseSlug = params.slug.replace(/-\d{4}-\d{2}-\d{2}$/, '');
+	let night = nights.find((item) => item.slug === params.slug || item.slug === baseSlug);
 	if (!night && typeof window !== 'undefined') {
 		const myNights = loadMyNights();
-		night = myNights.find((item) => item.slug === params.slug || item.slug.startsWith(params.slug + '-'));
+		night = myNights.find(
+			(item) =>
+				item.slug === params.slug ||
+				item.slug === baseSlug ||
+				item.slug.startsWith(params.slug + '-') ||
+				item.slug.startsWith(baseSlug + '-')
+		);
 	}
-	if (!night && supabase && typeof window !== 'undefined') {
+	if (!night && supabase) {
 		try {
+			const orFilter = `slug.eq."${params.slug}",slug.like."${params.slug}-%",slug.eq."${baseSlug}",slug.like."${baseSlug}-%"`;
 			const { data } = await supabase
 				.from('session_archives')
 				.select('*')
-				.or(`slug.eq."${params.slug}",slug.like."${params.slug}-%"`)
+				.or(orFilter)
 				.order('ended_at', { ascending: false })
 				.limit(1)
 				.maybeSingle();
@@ -27,7 +36,7 @@ export const load: PageLoad = async ({ params }) => {
 				const { data: roomData } = await supabase
 					.from('rooms')
 					.select('*')
-					.or(`slug.eq."${params.slug}",slug.like."${params.slug}-%"`)
+					.or(orFilter)
 					.order('created_at', { ascending: false })
 					.limit(1)
 					.maybeSingle();

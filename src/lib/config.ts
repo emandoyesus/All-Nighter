@@ -101,6 +101,12 @@ export function isRoomPastDawn(createdAt: string | number | Date, now = new Date
 	const created = new Date(createdAt);
 	const dawn = getDawnTarget();
 
+	// During daytime (between dawn 06:00 and sunset 18:00 doors are closed),
+	// any overnight room created before the current time has concluded and passed dawn.
+	if (!areDoorsOpen(now) && created.getTime() <= now.getTime()) {
+		return true;
+	}
+
 	const roomDawn = new Date(created);
 	roomDawn.setHours(dawn.h, dawn.m, 0, 0);
 	if (created.getTime() >= roomDawn.getTime()) {
