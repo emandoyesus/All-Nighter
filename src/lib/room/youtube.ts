@@ -470,6 +470,7 @@ export type CuratedTrack = {
 };
 
 export const CURATED_CATALOG: CuratedTrack[] = [
+	// ============================================================
 	// AMHARIC (Top 5 tracks per artist)
 	// ============================================================
 	{
@@ -1558,7 +1559,6 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['tibebu workiye', 'amharic', 'music']
 	},
 	// ============================================================
-
 	// TIGRINYA (Top 5 tracks per artist)
 	// ============================================================
 	{
@@ -2367,7 +2367,6 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['solomon bayre', 'tigrinya', 'music']
 	},
 	// ============================================================
-
 	// ENGLISH (Top 5 tracks per artist)
 	// ============================================================
 	{
@@ -3667,6 +3666,7 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 	},
 ];
 
+/** Extracts and normalizes the primary singer/artist name from track metadata. */
 export function extractSinger(track?: { channel?: string; title?: string } | null): string {
 	if (!track) return '';
 	const ch = (track.channel ?? '').toLowerCase().trim();
@@ -3851,7 +3851,7 @@ export function getSimilarCuratedTracks(
 			}
 			return {
 				videoId: item.videoId,
-				title: `${item.channel} - ${item.title}`,
+				title: item.title.startsWith(item.channel) ? item.title : `${item.channel} - ${item.title}`,
 				channel: item.channel,
 				label,
 				language: item.language
@@ -3864,9 +3864,11 @@ export function getSimilarCuratedTracks(
 			(c) => c.videoId !== currentVid && !isBannedMusic(c.videoId, c.title) && extractSinger(c) !== currentSinger
 		);
 		const pool = differentSingers.length > 0 ? differentSingers : languageCatalog.filter((c) => c.videoId !== currentVid);
-		return pool.slice(0, count).map((item) => ({
+		// Randomize recycled pool with jitter so songs replay organically without loops
+		const recycled = [...pool].sort(() => Math.random() - 0.5);
+		return recycled.slice(0, count).map((item) => ({
 			videoId: item.videoId,
-			title: `${item.channel} - ${item.title}`,
+			title: item.title.startsWith(item.channel) ? item.title : `${item.channel} - ${item.title}`,
 			channel: item.channel,
 			label: item.title.slice(0, 20),
 			language: item.language
