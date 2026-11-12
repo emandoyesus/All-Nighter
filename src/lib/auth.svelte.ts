@@ -36,6 +36,27 @@ class AuthService {
 	email = $derived(this.user?.email || this.cachedUser?.email || null);
 	displayName = $derived.by(() => {
 		if (this.user) {
+			// 1. Explicit custom callsign saved in user metadata
+			const customCallsign =
+				this.user.user_metadata?.custom_callsign ||
+				this.user.user_metadata?.callsign;
+
+			if (customCallsign && typeof customCallsign === 'string' && customCallsign.trim()) {
+				return customCallsign.trim().slice(0, 24);
+			}
+
+			// 2. Persistent profile for this user ID in localStorage
+			if (typeof localStorage !== 'undefined') {
+				try {
+					const saved = localStorage.getItem(`an.profile.${this.user.id}`);
+					if (saved) {
+						const parsed = JSON.parse(saved);
+						if (parsed.callsign) return parsed.callsign;
+					}
+				} catch {}
+			}
+
+			// 3. Fallback to Google first name
 			const isGoogle =
 				this.user.app_metadata?.provider === 'google' ||
 				this.user.identities?.some((id) => id.provider === 'google') ||
@@ -43,16 +64,10 @@ class AuthService {
 
 			if (isGoogle) {
 				const googleFirst = extractGoogleFirstName(this.user.user_metadata, this.user.email);
-				return (
-					googleFirst ||
-					this.user.user_metadata?.callsign ||
-					this.user.email?.split('@')[0] ||
-					null
-				);
+				if (googleFirst) return googleFirst;
 			}
 
 			return (
-				this.user.user_metadata?.callsign ||
 				this.user.user_metadata?.full_name ||
 				this.user.email?.split('@')[0] ||
 				null
@@ -67,6 +82,27 @@ class AuthService {
 	});
 	avatarUrl = $derived.by(() => {
 		if (this.user) {
+			// 1. Explicit custom avatar saved in user metadata
+			const customAvatar =
+				this.user.user_metadata?.custom_avatar ||
+				(this.user.user_metadata?.profile_edited ? this.user.user_metadata?.avatar_url : null);
+
+			if (customAvatar && typeof customAvatar === 'string' && customAvatar.trim()) {
+				return customAvatar.trim();
+			}
+
+			// 2. Persistent profile for this user ID in localStorage
+			if (typeof localStorage !== 'undefined') {
+				try {
+					const saved = localStorage.getItem(`an.profile.${this.user.id}`);
+					if (saved) {
+						const parsed = JSON.parse(saved);
+						if (parsed.avatarUrl) return parsed.avatarUrl;
+					}
+				} catch {}
+			}
+
+			// 3. Fallback to Google picture or avatar_url
 			return (
 				this.user.user_metadata?.avatar_url ||
 				this.user.user_metadata?.picture ||
@@ -100,18 +136,43 @@ class AuthService {
 								const parsed = JSON.parse(localStorage.getItem(key) || '{}');
 								const u = parsed?.user;
 								if (u) {
+									let savedCallsign: string | null = null;
+									let savedAvatar: string | null = null;
+									try {
+										const saved = localStorage.getItem(`an.profile.${u.id}`);
+										if (saved) {
+											const p = JSON.parse(saved);
+											savedCallsign = p.callsign || null;
+											savedAvatar = p.avatarUrl || null;
+										}
+									} catch {}
+
+									const customCallsign =
+										u.user_metadata?.custom_callsign ||
+										u.user_metadata?.callsign ||
+										savedCallsign;
+
 									const isGoogle =
 										u.app_metadata?.provider === 'google' ||
 										u.identities?.some((id: any) => id.provider === 'google') ||
 										Boolean(u.user_metadata?.iss?.includes('accounts.google.com'));
 									const googleFirst = extractGoogleFirstName(u.user_metadata, u.email);
-									const resolvedName = isGoogle && googleFirst
-										? googleFirst
-										: (u.user_metadata?.callsign || googleFirst || u.email?.split('@')[0]);
+
+									const resolvedName =
+										customCallsign ||
+										(isGoogle && googleFirst ? googleFirst : (googleFirst || u.email?.split('@')[0]));
+
+									const customAvatar =
+										u.user_metadata?.custom_avatar ||
+										(u.user_metadata?.profile_edited ? u.user_metadata?.avatar_url : null) ||
+										savedAvatar;
+
 									const avatar =
+										customAvatar ||
 										(u.user_metadata?.avatar_url as string | undefined) ||
 										(u.user_metadata?.picture as string | undefined) ||
 										(u.user_metadata?.avatar as string | undefined);
+
 									this.cachedUser = {
 										id: u.id,
 										email: u.email || null,
@@ -188,6 +249,23 @@ class AuthService {
 
 	syncUserProfile(user: User | null) {
 		if (!user || typeof window === 'undefined') return;
+
+		let savedCallsign: string | null = null;
+		let savedAvatar: string | null = null;
+		try {
+			const saved = localStorage.getItem(`an.profile.${user.id}`);
+			if (saved) {
+				const p = JSON.parse(saved);
+				savedCallsign = p.callsign || null;
+				savedAvatar = p.avatarUrl || null;
+			}
+		} catch {}
+
+		const customCallsign =
+			user.user_metadata?.custom_callsign ||
+			user.user_metadata?.callsign ||
+			savedCallsign;
+
 		const isGoogle =
 			user.app_metadata?.provider === 'google' ||
 			user.identities?.some((id) => id.provider === 'google') ||
@@ -195,11 +273,17 @@ class AuthService {
 
 		const googleFirstName = extractGoogleFirstName(user.user_metadata, user.email);
 
-		const resolvedName = isGoogle && googleFirstName
-			? googleFirstName
-			: (user.user_metadata?.callsign || googleFirstName || user.email?.split('@')[0]);
+		const resolvedName =
+			customCallsign ||
+			(isGoogle && googleFirstName ? googleFirstName : (googleFirstName || user.email?.split('@')[0]));
+
+		const customAvatar =
+			user.user_metadata?.custom_avatar ||
+			(user.user_metadata?.profile_edited ? user.user_metadata?.avatar_url : null) ||
+			savedAvatar;
 
 		const avatar =
+			customAvatar ||
 			(user.user_metadata?.avatar_url as string | undefined) ||
 			(user.user_metadata?.picture as string | undefined) ||
 			(user.user_metadata?.avatar as string | undefined);
@@ -215,6 +299,12 @@ class AuthService {
 		this.cachedUser = cacheEntry;
 		try {
 			localStorage.setItem('an.auth_cache', JSON.stringify(cacheEntry));
+			if (user.id) {
+				localStorage.setItem(
+					`an.profile.${user.id}`,
+					JSON.stringify({ callsign: resolvedName, avatarUrl: avatar })
+				);
+			}
 		} catch {}
 
 		if (resolvedName) {
@@ -322,9 +412,28 @@ class AuthService {
 	async updateProfile(updates: { callsign?: string; avatarUrl?: string; profileConfigured?: boolean }) {
 		if (!supabase) throw new Error('Supabase is not configured');
 		const data: Record<string, any> = {};
-		if (updates.callsign !== undefined) data.callsign = updates.callsign;
-		if (updates.avatarUrl !== undefined) data.avatar_url = updates.avatarUrl;
+		if (updates.callsign !== undefined) {
+			data.callsign = updates.callsign;
+			data.custom_callsign = updates.callsign;
+		}
+		if (updates.avatarUrl !== undefined) {
+			data.avatar_url = updates.avatarUrl;
+			data.custom_avatar = updates.avatarUrl;
+			data.profile_edited = true;
+		}
 		if (updates.profileConfigured !== undefined) data.profile_configured = updates.profileConfigured;
+
+		// Persist locally per user ID immediately
+		if (this.user?.id && typeof localStorage !== 'undefined') {
+			try {
+				const existing = localStorage.getItem(`an.profile.${this.user.id}`);
+				const parsed = existing ? JSON.parse(existing) : {};
+				if (updates.callsign !== undefined) parsed.callsign = updates.callsign;
+				if (updates.avatarUrl !== undefined) parsed.avatarUrl = updates.avatarUrl;
+				localStorage.setItem(`an.profile.${this.user.id}`, JSON.stringify(parsed));
+			} catch {}
+		}
+
 		const { data: res, error } = await supabase.auth.updateUser({ data });
 		if (error) throw error;
 		if (res.user) {
