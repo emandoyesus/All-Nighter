@@ -10,14 +10,16 @@ export const load: PageLoad = async ({ params }) => {
 	let night = nights.find((item) => item.slug === params.slug);
 	if (!night && typeof window !== 'undefined') {
 		const myNights = loadMyNights();
-		night = myNights.find((item) => item.slug === params.slug);
+		night = myNights.find((item) => item.slug === params.slug || item.slug.startsWith(params.slug + '-'));
 	}
 	if (!night && supabase && typeof window !== 'undefined') {
 		try {
 			const { data } = await supabase
 				.from('session_archives')
 				.select('*')
-				.eq('slug', params.slug)
+				.or(`slug.eq."${params.slug}",slug.like."${params.slug}-%"`)
+				.order('ended_at', { ascending: false })
+				.limit(1)
 				.maybeSingle();
 			if (data) {
 				night = dbArchiveToNight(data);
@@ -25,7 +27,9 @@ export const load: PageLoad = async ({ params }) => {
 				const { data: roomData } = await supabase
 					.from('rooms')
 					.select('*')
-					.eq('slug', params.slug)
+					.or(`slug.eq."${params.slug}",slug.like."${params.slug}-%"`)
+					.order('created_at', { ascending: false })
+					.limit(1)
 					.maybeSingle();
 				if (roomData) {
 					night = dbArchiveToNight({

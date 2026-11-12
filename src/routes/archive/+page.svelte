@@ -4,7 +4,7 @@
 	import ArchiveStats from '#lib/components/ArchiveStats.svelte';
 	import { nights, genres, contributors } from '#lib/data/archive';
 	import type { Night } from '#lib/data/archive';
-	import { loadMyNights, dbArchiveToNight } from '#lib/data/local-logbook';
+	import { loadMyNights, dbArchiveToNight, isTestArchiveSlug } from '#lib/data/local-logbook';
 	import { supabase } from '#lib/supabase';
 	import { auth } from '#lib/auth.svelte';
 	import { reveal } from '#lib/reveal';
@@ -45,8 +45,10 @@
 
 			if (archives && archives.length > 0) {
 				for (const a of archives) {
-					seenSlugs.add(a.slug);
-					loaded.push(dbArchiveToNight(a));
+					if (!isTestArchiveSlug(a.slug)) {
+						seenSlugs.add(a.slug);
+						loaded.push(dbArchiveToNight(a));
+					}
 				}
 			}
 
@@ -59,7 +61,7 @@
 
 			if (archivedRooms && archivedRooms.length > 0) {
 				for (const r of archivedRooms) {
-					if (!seenSlugs.has(r.slug)) {
+					if (!seenSlugs.has(r.slug) && !isTestArchiveSlug(r.slug)) {
 						seenSlugs.add(r.slug);
 						loaded.push(
 							dbArchiveToNight({
@@ -88,11 +90,19 @@
 	});
 
 	const allNights = $derived.by(() => {
-		const seen = new Set<string>();
 		const result: Night[] = [];
 		for (const item of [...dbNights, ...myLocalNights, ...nights]) {
-			if (!seen.has(item.slug)) {
-				seen.add(item.slug);
+			if (isTestArchiveSlug(item.slug)) continue;
+			// Deduplicate: if an entry for this room base name already exists for this date, pick the richer one
+			const base = item.slug.replace(/-\d{4}-\d{2}-\d{2}$/, '');
+			const existingIndex = result.findIndex(
+				(r) => r.slug === item.slug || (r.slug.replace(/-\d{4}-\d{2}-\d{2}$/, '') === base && r.date === item.date)
+			);
+			if (existingIndex !== -1) {
+				if ((item.tracks || 0) > (result[existingIndex].tracks || 0)) {
+					result[existingIndex] = item;
+				}
+			} else {
 				result.push(item);
 			}
 		}

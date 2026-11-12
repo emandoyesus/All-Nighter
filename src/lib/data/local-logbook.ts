@@ -19,7 +19,20 @@ export function isTestArchiveSlug(slug: string): boolean {
 		s === 'trial' ||
 		s.startsWith('trial-') ||
 		s === 'test' ||
-		s.startsWith('test-')
+		s.startsWith('test-') ||
+		s === 'provatee' ||
+		s.startsWith('provatee-') ||
+		s === 'abc' ||
+		s.startsWith('abc-') ||
+		s === 'mad' ||
+		s.startsWith('mad-') ||
+		s === 'se-devs' ||
+		s.startsWith('se-devs-') ||
+		s === 'taju-emando' ||
+		s.startsWith('taju-emando-') ||
+		s === 'late-night-shift' ||
+		s.startsWith('late-night-shift-') ||
+		s === 'the-asylum-2026-11-11'
 	);
 }
 

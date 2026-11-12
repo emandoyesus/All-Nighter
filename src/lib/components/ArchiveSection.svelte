@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { nights, type Night } from '#lib/data/archive';
-	import { loadMyNights } from '#lib/data/local-logbook';
+	import { loadMyNights, isTestArchiveSlug } from '#lib/data/local-logbook';
 	import { splitReveal } from '#lib/split-reveal';
 	import { tilt } from '#lib/tilt';
 	import IconChevronRight from '@tabler/icons-svelte/icons/chevron-right';
@@ -20,7 +20,7 @@
 	const allNights = $derived.by(() => {
 		const combined = [...nights];
 		for (const mn of myNights) {
-			if (!combined.some((n) => n.slug === mn.slug)) {
+			if (!isTestArchiveSlug(mn.slug) && !combined.some((n) => n.slug === mn.slug)) {
 				combined.push(mn);
 			}
 		}
@@ -30,7 +30,7 @@
 	const chronologicalAllNights = $derived.by(() => {
 		const combined = [...nights];
 		for (const mn of myNights) {
-			if (!combined.some((n) => n.slug === mn.slug)) {
+			if (!isTestArchiveSlug(mn.slug) && !combined.some((n) => n.slug === mn.slug)) {
 				combined.push(mn);
 			}
 		}

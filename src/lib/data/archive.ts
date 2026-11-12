@@ -72,34 +72,6 @@ export const nights: Night[] = [
 			{ title: 'Blinding Lights', artist: 'The Weeknd', addedBy: 'yared', genre: 'pop', source: 'youtube', videoId: '4NRXx6U8ABQ', reactions: 10 }
 		],
 		chatMoments: []
-	},
-	{
-		slug: 'the-asylum',
-		date: 'Nov 12',
-		iso: '2026-11-12T06:00:00',
-		tag: 'Addis Ababa',
-		title: 'The Asylum — Sunrise Lock-in',
-		note: 'Overnight lock-in session in the asylum room. Synchronized music queue, late-night code, and an unbroken sprint to dawn.',
-		hours: '6h 00m',
-		minutes: 360,
-		tracks: 4,
-		heads: 2,
-		seed: 'the-asylum-nov12',
-		joined: ['Emandoyesus', 'Bisrat'],
-		intentions: [
-			'lock in and build till sunrise',
-			'keep the tab open and ship'
-		],
-		tracklist: [
-			{ title: 'Diamonds', artist: 'Rihanna', addedBy: 'Autoplay', genre: 'pop', source: 'youtube', videoId: 'lWA2pjMjpBs', reactions: 12 },
-			{ title: 'Levitating', artist: 'Dua Lipa', addedBy: 'Emandoyesus', genre: 'pop', source: 'youtube', reactions: 16 },
-			{ title: 'The Nights', artist: 'Avicii', addedBy: 'Emandoyesus', genre: 'electronic', source: 'youtube', reactions: 20 },
-			{ title: 'Let Me Down Slowly', artist: 'Alec Benjamin', addedBy: 'Bisrat', genre: 'pop', source: 'youtube', reactions: 14 }
-		],
-		chatMoments: [
-			{ who: 'Bisrat', text: 'Hello all nighter 👋', at: '03:31 AM' },
-			{ who: 'Emandoyesus', text: 'Hello', at: '03:32 AM' }
-		]
 	}
 ];
 
