@@ -350,17 +350,23 @@
 	<!-- Profile Trigger Button in Navigation -->
 	<button
 		type="button"
-		class="relative flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full border border-cream/20 bg-night-2 transition-all hover:border-lamp hover:scale-105 active:scale-95 p-0 overflow-hidden"
-		onclick={() => {
+		class="relative flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full border border-cream/20 bg-night-2 transition-all hover:border-lamp hover:scale-105 active:scale-95 p-0 overflow-hidden cursor-pointer"
+		onclick={(e) => {
+			e.stopPropagation();
+			if (!auth.isCloudUser) {
+				authDialogMode = 'signin';
+				authDialogOpen = true;
+				return;
+			}
 			if (open && !isEditing) {
 				open = false;
 			} else {
 				openModal(false);
 			}
 		}}
-		title={auth.isCloudUser ? `${currentDisplayName} · Profile & Settings` : 'Anonymous · Sign in or Guest Profile'}
-		aria-label={auth.isCloudUser ? `Profile: ${currentDisplayName}` : 'Anonymous profile'}
-		aria-expanded={open}
+		title={auth.isCloudUser ? `${currentDisplayName} · Profile & Settings` : 'Sign in'}
+		aria-label={auth.isCloudUser ? `Profile: ${currentDisplayName}` : 'Sign in'}
+		aria-expanded={auth.isCloudUser ? open : authDialogOpen}
 	>
 		{#if auth.isCloudUser}
 			{#key currentDisplayAvatar}
@@ -379,8 +385,8 @@
 			></span>
 		{:else}
 			<!-- YouTube-style anonymous profile silhouette -->
-			<div class="grid h-full w-full place-items-center bg-[#151c1f] text-cream/70 hover:text-white transition-colors" title="Anonymous (Not signed in)">
-				<svg viewBox="0 0 24 24" class="h-4.5 w-4.5 sm:h-5 sm:w-5 fill-current" aria-hidden="true">
+			<div class="grid h-full w-full place-items-center bg-[#151c1f] text-cream/70 hover:text-white transition-colors pointer-events-none">
+				<svg viewBox="0 0 24 24" class="h-4.5 w-4.5 sm:h-5 sm:w-5 fill-current pointer-events-none" aria-hidden="true">
 					<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88C7.55 15.8 9.68 15 12 15s4.45.8 6.14 2.12C16.43 19.18 14.03 20 12 20z" />
 				</svg>
 			</div>
