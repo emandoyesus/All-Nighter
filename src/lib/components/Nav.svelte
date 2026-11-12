@@ -170,17 +170,6 @@
 				{/if}
 			</button>
 
-			<!-- Quick Sign In button for guest / unauthenticated visitors -->
-			{#if !auth.isCloudUser && !auth.loading}
-				<button
-					type="button"
-					class="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-lamp/35 bg-lamp/10 px-3 py-1.5 text-xs font-mono font-medium text-lamp hover:bg-lamp/20 hover:border-lamp transition-all cursor-pointer shadow-sm active:scale-95"
-					onclick={() => window.dispatchEvent(new CustomEvent('an:open-auth-modal', { detail: { mode: 'signin' } }))}
-				>
-					<span>Sign in</span>
-				</button>
-			{/if}
-
 			<!-- Profile Icon / Modal -->
 			<AuthModal />
 		</div>

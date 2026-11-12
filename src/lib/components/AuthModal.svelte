@@ -350,7 +350,7 @@
 	<!-- Profile Trigger Button in Navigation -->
 	<button
 		type="button"
-		class="relative flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full border border-lamp/30 bg-night-2 transition-all hover:border-lamp hover:scale-105 active:scale-95 p-0 overflow-hidden"
+		class="relative flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full border border-cream/20 bg-night-2 transition-all hover:border-lamp hover:scale-105 active:scale-95 p-0 overflow-hidden"
 		onclick={() => {
 			if (open && !isEditing) {
 				open = false;
@@ -358,40 +358,79 @@
 				openModal(false);
 			}
 		}}
-		title={`${currentDisplayName} · Profile & Settings`}
-		aria-label={`Profile: ${currentDisplayName}`}
+		title={auth.isCloudUser ? `${currentDisplayName} · Profile & Settings` : 'Anonymous · Sign in or Guest Profile'}
+		aria-label={auth.isCloudUser ? `Profile: ${currentDisplayName}` : 'Anonymous profile'}
 		aria-expanded={open}
 	>
-		{#key currentDisplayAvatar}
-			<img
-				src={currentDisplayAvatar}
-				alt={currentDisplayName}
-				class="h-full w-full rounded-full object-cover"
-				onerror={(e) => {
-					(e.currentTarget as HTMLImageElement).src = '/default-avatar.svg';
-				}}
-			/>
-		{/key}
-		{#if auth.isAuthenticated}
+		{#if auth.isCloudUser}
+			{#key currentDisplayAvatar}
+				<img
+					src={currentDisplayAvatar}
+					alt={currentDisplayName}
+					class="h-full w-full rounded-full object-cover"
+					onerror={(e) => {
+						(e.currentTarget as HTMLImageElement).src = '/default-avatar.svg';
+					}}
+				/>
+			{/key}
 			<span
 				class="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-lamp border-2 border-night"
 				title="Connected to Supabase"
 			></span>
 		{:else}
-			<span
-				class="absolute bottom-0 right-0 h-2 w-2 rounded-full bg-aqua-foam/60 border border-night"
-				title="Local Guest Profile"
-			></span>
+			<!-- YouTube-style anonymous profile silhouette -->
+			<div class="grid h-full w-full place-items-center bg-[#151c1f] text-cream/70 hover:text-white transition-colors" title="Anonymous (Not signed in)">
+				<svg viewBox="0 0 24 24" class="h-4.5 w-4.5 sm:h-5 sm:w-5 fill-current" aria-hidden="true">
+					<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88C7.55 15.8 9.68 15 12 15s4.45.8 6.14 2.12C16.43 19.18 14.03 20 12 20z" />
+				</svg>
+			</div>
 		{/if}
 	</button>
 
 	<!-- 1. SOLID, OPAQUE DROPDOWN (anchored right under profile icon, no transparency, no screen dimming) -->
 	{#if open && !isEditing}
-		<div
-			class="absolute right-0 top-full mt-2.5 z-50 w-[310px] sm:w-[340px] max-w-[calc(100vw-1.5rem)] rounded-2xl border border-cream/20 bg-[#0a1012] p-4 shadow-2xl text-cream"
-			role="region"
-			aria-label="Night Profile"
-		>
+		{#if !auth.isCloudUser}
+			<!-- ANONYMOUS POPUP: SIGN IN OPTION ONLY (YouTube style) -->
+			<div
+				class="absolute right-0 top-full mt-2 z-50 w-[260px] sm:w-[280px] rounded-2xl border border-cream/20 bg-[#0a1012] p-4 shadow-2xl text-cream animate-in fade-in zoom-in-95 duration-100"
+				role="region"
+				aria-label="Account"
+			>
+				<div class="flex items-center gap-3">
+					<div class="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-cream/20 bg-[#151c1f] text-cream/70">
+						<svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
+							<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88C7.55 15.8 9.68 15 12 15s4.45.8 6.14 2.12C16.43 19.18 14.03 20 12 20z" />
+						</svg>
+					</div>
+					<div class="min-w-0 flex-1">
+						<p class="font-semibold text-sm text-cream truncate">Anonymous</p>
+						<p class="text-[11px] text-faint leading-tight mt-0.5">Not signed in</p>
+					</div>
+				</div>
+
+				<div class="mt-3.5 pt-3 border-t border-cream/10">
+					<button
+						type="button"
+						class="w-full btn btn-primary py-2 px-3 text-xs font-mono font-medium flex items-center justify-center gap-2 rounded-xl cursor-pointer shadow-md hover:scale-[1.01] active:scale-98 transition-all"
+						onclick={() => {
+							open = false;
+							authDialogMode = 'signin';
+							authDialogOpen = true;
+						}}
+					>
+						<svg viewBox="0 0 24 24" class="h-4 w-4 fill-current shrink-0" aria-hidden="true">
+							<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88C7.55 15.8 9.68 15 12 15s4.45.8 6.14 2.12C16.43 19.18 14.03 20 12 20z" />
+						</svg>
+						<span>Sign in</span>
+					</button>
+				</div>
+			</div>
+		{:else}
+			<div
+				class="absolute right-0 top-full mt-2.5 z-50 w-[310px] sm:w-[340px] max-w-[calc(100vw-1.5rem)] rounded-2xl border border-cream/20 bg-[#0a1012] p-4 shadow-2xl text-cream"
+				role="region"
+				aria-label="Night Profile"
+			>
 			<!-- Dropdown Header -->
 			<div class="flex items-center justify-between pb-2.5 border-b border-cream/10">
 				<div class="min-w-0">
@@ -443,41 +482,50 @@
 				<!-- Profile Preview Card (100% Solid, Non-transparent) -->
 				<div class="mt-3 rounded-xl border border-cream/10 bg-[#060a0b] p-3">
 					<div class="flex items-center gap-3">
-						<!-- Avatar with direct upload trigger -->
+						<!-- Avatar with direct upload trigger (or YouTube-style anonymous icon) -->
 						<div class="relative shrink-0 group">
-							{#key currentDisplayAvatar}
-								<img
-									src={currentDisplayAvatar}
-									alt={currentDisplayName}
-									class="h-13 w-13 rounded-full object-cover border-2 border-lamp/40 bg-[#0a1012] transition-transform group-hover:scale-[1.03]"
-									onerror={(e) => {
-										(e.currentTarget as HTMLImageElement).src = '/default-avatar.svg';
-									}}
-								/>
-							{/key}
-							<span
-								class="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-lamp border-2 border-[#060a0b]"
-								title="Awake now"
-							></span>
+							{#if auth.isCloudUser}
+								{#key currentDisplayAvatar}
+									<img
+										src={currentDisplayAvatar}
+										alt={currentDisplayName}
+										class="h-13 w-13 rounded-full object-cover border-2 border-lamp/40 bg-[#0a1012] transition-transform group-hover:scale-[1.03]"
+										onerror={(e) => {
+											(e.currentTarget as HTMLImageElement).src = '/default-avatar.svg';
+										}}
+									/>
+								{/key}
+								<span
+									class="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-lamp border-2 border-[#060a0b]"
+									title="Awake now"
+								></span>
 
-							<!-- Clickable camera overlay to upload photo directly -->
-							<button
-								type="button"
-								class="absolute inset-0 flex flex-col items-center justify-center rounded-full bg-[#060a0b]/85 text-lamp opacity-0 group-hover:opacity-100 transition-opacity"
-								onclick={triggerUpload}
-								title="Upload your own photo"
-								aria-label="Upload your own photo"
-							>
-								<IconCamera size={15} stroke={1.7} />
-								<span class="text-[8px] font-mono text-white">Upload</span>
-							</button>
+								<!-- Clickable camera overlay to upload photo directly -->
+								<button
+									type="button"
+									class="absolute inset-0 flex flex-col items-center justify-center rounded-full bg-[#060a0b]/85 text-lamp opacity-0 group-hover:opacity-100 transition-opacity"
+									onclick={triggerUpload}
+									title="Upload your own photo"
+									aria-label="Upload your own photo"
+								>
+									<IconCamera size={15} stroke={1.7} />
+									<span class="text-[8px] font-mono text-white">Upload</span>
+								</button>
+							{:else}
+								<!-- Anonymous Avatar Silhouette (YouTube style) -->
+								<div class="grid h-13 w-13 place-items-center rounded-full border-2 border-cream/20 bg-[#151c1f] text-cream/70 shadow-inner">
+									<svg viewBox="0 0 24 24" class="h-7 w-7 fill-current" aria-hidden="true">
+										<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88C7.55 15.8 9.68 15 12 15s4.45.8 6.14 2.12C16.43 19.18 14.03 20 12 20z" />
+									</svg>
+								</div>
+							{/if}
 						</div>
 
 						<!-- Details -->
 						<div class="min-w-0 flex-1">
 							<div class="flex items-center gap-1.5">
-								<span class="font-mono text-sm sm:text-base font-bold text-lamp truncate">
-									{currentDisplayName}
+								<span class="font-mono text-sm sm:text-base font-bold {auth.isCloudUser ? 'text-lamp' : 'text-cream'} truncate">
+									{auth.isCloudUser ? currentDisplayName : 'Anonymous'}
 								</span>
 								{#if room.statusText}
 									<span class="rounded-full bg-cream/10 px-1.5 py-0.5 text-[9px] text-lamp font-medium">
@@ -487,26 +535,39 @@
 							</div>
 
 							<p class="text-[11px] text-taupe truncate">
-								{#if auth.isAuthenticated}
+								{#if auth.isCloudUser}
 									<span class="inline-flex items-center gap-1 text-[10px] text-lamp/90 font-mono">
 										<IconCheck size={10} stroke={2} />
 										{auth.email || auth.user?.email}
 									</span>
 								{:else}
-									<span class="text-[10px] text-faint font-mono">Guest Session</span>
+									<span class="text-[10px] text-faint font-mono">Anonymous · Not signed in</span>
 								{/if}
 							</p>
 
-							<!-- Quick button to upload own photo directly from device -->
-							<button
-								type="button"
-								class="mt-1.5 inline-flex items-center gap-1 rounded border border-cream/15 px-2 py-0.5 text-[10px] text-taupe transition-colors hover:border-lamp hover:text-lamp"
-								onclick={triggerUpload}
-								title="Upload your own photo"
-							>
-								<IconCamera size={11} stroke={1.7} />
-								<span>Upload photo</span>
-							</button>
+							{#if !auth.isCloudUser}
+								<button
+									type="button"
+									class="mt-2 inline-flex items-center gap-1.5 rounded-full border border-lamp/40 bg-lamp/15 px-3 py-1 text-xs font-mono font-medium text-lamp hover:bg-lamp/25 transition-all cursor-pointer shadow-sm active:scale-95"
+									onclick={() => {
+										open = false;
+										window.dispatchEvent(new CustomEvent('an:open-auth-modal', { detail: { mode: 'signin' } }));
+									}}
+								>
+									<span>Sign in</span>
+								</button>
+							{:else}
+								<!-- Quick button to upload own photo directly from device -->
+								<button
+									type="button"
+									class="mt-1.5 inline-flex items-center gap-1 rounded border border-cream/15 px-2 py-0.5 text-[10px] text-taupe transition-colors hover:border-lamp hover:text-lamp"
+									onclick={triggerUpload}
+									title="Upload your own photo"
+								>
+									<IconCamera size={11} stroke={1.7} />
+									<span>Upload photo</span>
+								</button>
+							{/if}
 						</div>
 					</div>
 
@@ -705,6 +766,7 @@
 				{/if}
 			</div>
 		</div>
+		{/if}
 	{/if}
 </div>
 
@@ -911,12 +973,20 @@
 				<div class="flex items-center gap-4">
 					<!-- Avatar with direct upload trigger -->
 					<div class="relative shrink-0 group">
-						<img
-							src={!imgPreviewError && editAvatar ? editAvatar : '/default-avatar.svg'}
-							alt={editCallsign || 'Preview'}
-							class="h-16 w-16 sm:h-20 sm:w-20 rounded-full object-cover border-2 border-lamp/40 bg-[#0a1012] transition-transform group-hover:scale-[1.02]"
-							onerror={() => (imgPreviewError = true)}
-						/>
+						{#if !auth.isCloudUser && (!editAvatar || editAvatar === '/default-avatar.svg')}
+							<div class="grid h-16 w-16 sm:h-20 sm:w-20 place-items-center rounded-full border-2 border-cream/20 bg-[#151c1f] text-cream/70">
+								<svg viewBox="0 0 24 24" class="h-9 w-9 sm:h-11 sm:w-11 fill-current" aria-hidden="true">
+									<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88C7.55 15.8 9.68 15 12 15s4.45.8 6.14 2.12C16.43 19.18 14.03 20 12 20z" />
+								</svg>
+							</div>
+						{:else}
+							<img
+								src={!imgPreviewError && editAvatar ? editAvatar : '/default-avatar.svg'}
+								alt={editCallsign || 'Preview'}
+								class="h-16 w-16 sm:h-20 sm:w-20 rounded-full object-cover border-2 border-lamp/40 bg-[#0a1012] transition-transform group-hover:scale-[1.02]"
+								onerror={() => (imgPreviewError = true)}
+							/>
+						{/if}
 						<span
 							class="absolute bottom-0 right-0 h-4 w-4 rounded-full bg-lamp border-2 border-[#060a0b]"
 							title="Awake now"
