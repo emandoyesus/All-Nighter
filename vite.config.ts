@@ -16,7 +16,12 @@ export default defineConfig({
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
 			adapter: adapter({ fallback: '404.html' }),
-			paths: { base: safeBase as "" | `/${string}` }
+			paths: { base: safeBase as "" | `/${string}` },
+			prerender: {
+				handleHttpError: ({ path, referrer, message }) => {
+					console.warn(`[Prerender] ${path} (from ${referrer}): ${message}`);
+				}
+			}
 		})
 	]
 });
