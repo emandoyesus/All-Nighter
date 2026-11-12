@@ -470,51 +470,249 @@ export type CuratedTrack = {
 };
 
 export const CURATED_CATALOG: CuratedTrack[] = [
+	// AMHARIC (Top 5 tracks per artist)
+	// ============================================================
 	{
 		videoId: 'xE-9kJOPbxE',
-		title: 'Teddy Afro - Teddy Afro - Alamin [Official Video]',
+		title: 'Teddy Afro - Alamin [Official Video]',
+		channel: 'Teddy Afro',
+		language: 'amharic',
+		tags: ['teddy afro', 'amharic', 'music']
+	},
+	{
+		videoId: 'UlqLeuVHpEU',
+		title: 'Teddy Afro - ሺ ቢባል (ወደ 90ዎቹ) - Shih Bibal (Back to 90s) | Track 9 (Official Lyrics Video)',
+		channel: 'Teddy Afro',
+		language: 'amharic',
+		tags: ['teddy afro', 'amharic', 'music']
+	},
+	{
+		videoId: 'pRHWe6Lz2mY',
+		title: 'Teddy Afro - ታየኝ - Tayegn | Track 10 (Official Lyrics Video)',
+		channel: 'Teddy Afro',
+		language: 'amharic',
+		tags: ['teddy afro', 'amharic', 'music']
+	},
+	{
+		videoId: '-qUZFnbAoT0',
+		title: 'Teddy Afro - ETORIKA ALBUM NONSTOP| ETO-A (Official Visualizer)',
+		channel: 'Teddy Afro',
+		language: 'amharic',
+		tags: ['teddy afro', 'amharic', 'music']
+	},
+	{
+		videoId: 'mpngSRVbeIs',
+		title: 'Teddy Afro - ETORIKA ALBUM NONSTOP | ETO - B (Official Visualizer)',
 		channel: 'Teddy Afro',
 		language: 'amharic',
 		tags: ['teddy afro', 'amharic', 'music']
 	},
 	{
 		videoId: '581JQIgckzo',
-		title: 'Aster Aweke - Aster Aweke - Bale Gariw | አስቴር አወቀ - ባለ ጋሪው ',
+		title: 'Aster Aweke - Bale Gariw | አስቴር አወቀ - ባለ ጋሪው',
+		channel: 'Aster Aweke',
+		language: 'amharic',
+		tags: ['aster aweke', 'amharic', 'music']
+	},
+	{
+		videoId: '6OCBxSC0r4g',
+		title: 'Aster Aweke - 01 Aster Aweke Gela Gela',
+		channel: 'Aster Aweke',
+		language: 'amharic',
+		tags: ['aster aweke', 'amharic', 'music']
+	},
+	{
+		videoId: 'o04VXsniPx0',
+		title: 'Aster Aweke - 02 Aster Aweke Bayne Mulu',
+		channel: 'Aster Aweke',
+		language: 'amharic',
+		tags: ['aster aweke', 'amharic', 'music']
+	},
+	{
+		videoId: 'Uil1RJN1QTQ',
+		title: 'Aster Aweke - አስቴር አወቀ - የኔ ወዳጅ | Aster Aweke -  Yene Wedaj  [Official Visualizer 2026]',
+		channel: 'Aster Aweke',
+		language: 'amharic',
+		tags: ['aster aweke', 'amharic', 'music']
+	},
+	{
+		videoId: 'UlqLeuVHpEU',
+		title: 'Aster Aweke - TEDDY AFRO  - ሺ ቢባል (ወደ 90ዎቹ) - Shih Bibal (Back to 90s) | Track 9 (Official Lyrics Video)',
 		channel: 'Aster Aweke',
 		language: 'amharic',
 		tags: ['aster aweke', 'amharic', 'music']
 	},
 	{
 		videoId: 'UD0fA2WJdbU',
-		title: 'Tilahun Gessesse - Tilahun Gessesse - Kome Limerkish | ቆሜ ልመርቅሽ ',
+		title: 'Tilahun Gessesse - Kome Limerkish | ቆሜ ልመርቅሽ',
+		channel: 'Tilahun Gessesse',
+		language: 'amharic',
+		tags: ['tilahun gessesse', 'amharic', 'music']
+	},
+	{
+		videoId: 'ZIOYTYT1uBA',
+		title: 'Tilahun Gessesse - Hit Track',
+		channel: 'Tilahun Gessesse',
+		language: 'amharic',
+		tags: ['tilahun gessesse', 'amharic', 'music']
+	},
+	{
+		videoId: 'DiFxBCZq4hc',
+		title: 'Tilahun Gessesse - ጥላሁን ገሠሠ ምርጥ 10 የፍቅር ዘፈኖች | Tilahin Gessesse Top 10 Love songs',
+		channel: 'Tilahun Gessesse',
+		language: 'amharic',
+		tags: ['tilahun gessesse', 'amharic', 'music']
+	},
+	{
+		videoId: 'GWX1RskfUwA',
+		title: 'Tilahun Gessesse - Xasan Diiriye Faarax Iyo Hibo Nuura Maxamed 🔥Iyo Heesta DHALANTEED',
+		channel: 'Tilahun Gessesse',
+		language: 'amharic',
+		tags: ['tilahun gessesse', 'amharic', 'music']
+	},
+	{
+		videoId: 'UsA86uT6QBk',
+		title: 'Tilahun Gessesse - Wubetin Ayenat',
 		channel: 'Tilahun Gessesse',
 		language: 'amharic',
 		tags: ['tilahun gessesse', 'amharic', 'music']
 	},
 	{
 		videoId: 'exHYkiFkbHU',
-		title: 'Mahmoud Ahmed - Mahmoud Ahmed - Yeshi Hargetu',
+		title: 'Mahmoud Ahmed - Yeshi Hargetu',
+		channel: 'Mahmoud Ahmed',
+		language: 'amharic',
+		tags: ['mahmoud ahmed', 'amharic', 'music']
+	},
+	{
+		videoId: 't9nTYGI-NXk',
+		title: 'Mahmoud Ahmed - Best of Mahmoud Ahmed Collection',
+		channel: 'Mahmoud Ahmed',
+		language: 'amharic',
+		tags: ['mahmoud ahmed', 'amharic', 'music']
+	},
+	{
+		videoId: '0HeOkd-HAsY',
+		title: 'Mahmoud Ahmed - yeshi haregitu & Endegena',
+		channel: 'Mahmoud Ahmed',
+		language: 'amharic',
+		tags: ['mahmoud ahmed', 'amharic', 'music']
+	},
+	{
+		videoId: '-H2naX9Gec4',
+		title: 'Mahmoud Ahmed - Muziqa Deg Nesh',
+		channel: 'Mahmoud Ahmed',
+		language: 'amharic',
+		tags: ['mahmoud ahmed', 'amharic', 'music']
+	},
+	{
+		videoId: '6ki_gf6BQ88',
+		title: 'Mahmoud Ahmed - Mehamud Ahmed_linurbet|መሀሙድ አህመድ_ልኑርበት_New ethiopian music lyrics 2023',
 		channel: 'Mahmoud Ahmed',
 		language: 'amharic',
 		tags: ['mahmoud ahmed', 'amharic', 'music']
 	},
 	{
 		videoId: 'nDGUOFzxMl0',
-		title: 'Muluken Melesse - Muluken Melesse - Baynish Lilefibet (ባይንሽ ልለፍ',
+		title: 'Muluken Melesse - Baynish Lilefibet (ባይንሽ ልለፍ',
+		channel: 'Muluken Melesse',
+		language: 'amharic',
+		tags: ['muluken melesse', 'amharic', 'music']
+	},
+	{
+		videoId: '_9j5c7KETXQ',
+		title: 'Muluken Melesse minew kerefede Lyrics  ሙሉቀን መለሰ ምንው ከረፈደ ግጥም',
+		channel: 'Muluken Melesse',
+		language: 'amharic',
+		tags: ['muluken melesse', 'amharic', 'music']
+	},
+	{
+		videoId: 'c9Invp75HwU',
+		title: 'Muluken Melesse - ❤ሙሉቀን መለሰ – ምርጥ ዘፈኖች ስብስብ | Muluken Melesse Old Amharic Music | Old Ethiopian Nonstop Mix',
+		channel: 'Muluken Melesse',
+		language: 'amharic',
+		tags: ['muluken melesse', 'amharic', 'music']
+	},
+	{
+		videoId: 'yHVj4k4moAc',
+		title: 'Muluken Melesse - ሙሉቀን መለሰ - ምርጥ ዘፈኖች ስብስብ | Muluken Melese Old Songs',
+		channel: 'Muluken Melesse',
+		language: 'amharic',
+		tags: ['muluken melesse', 'amharic', 'music']
+	},
+	{
+		videoId: 'JmaerpzFYww',
+		title: 'Muluken Melesse - Minew Kerefede',
 		channel: 'Muluken Melesse',
 		language: 'amharic',
 		tags: ['muluken melesse', 'amharic', 'music']
 	},
 	{
 		videoId: 'UjidhLKXA_g',
-		title: 'Abinet Agonafir - Abinet Agonafir አብነት አጎናፍር | የእውነት መንገድ | Yew',
+		title: 'Abinet Agonafir - አብነት አጎናፍር | የእውነት መንገድ | Yew',
+		channel: 'Abinet Agonafir',
+		language: 'amharic',
+		tags: ['abinet agonafir', 'amharic', 'music']
+	},
+	{
+		videoId: 'MFSdbrCA0Fc',
+		title: 'Abinet Agonafir - አብነት አጎናፍር -አስታራቂ | Abinet Agonafir- Astaraki',
+		channel: 'Abinet Agonafir',
+		language: 'amharic',
+		tags: ['abinet agonafir', 'amharic', 'music']
+	},
+	{
+		videoId: 'SQJpB0HD8nw',
+		title: 'Abinet Agonafir - አብነት አጎናፍር- ስሚኝ | Abinet Agonafir- Semign (Official Lyrics Video)',
+		channel: 'Abinet Agonafir',
+		language: 'amharic',
+		tags: ['abinet agonafir', 'amharic', 'music']
+	},
+	{
+		videoId: 'Mgwp-GIFmiw',
+		title: 'Abinet Agonafir - Ethiopian Music Abinet Agonafir simign/ listen',
+		channel: 'Abinet Agonafir',
+		language: 'amharic',
+		tags: ['abinet agonafir', 'amharic', 'music']
+	},
+	{
+		videoId: 'y2Z84i_pnU0',
+		title: 'Abinet Agonafir - አብነት አጎናፍር- ጩህ ጩህ ይለኛል | Abinet Agonafir- Chuh Chuh Yilegnal (Official Lyrics Video)',
 		channel: 'Abinet Agonafir',
 		language: 'amharic',
 		tags: ['abinet agonafir', 'amharic', 'music']
 	},
 	{
 		videoId: '3saR6DZGfNU',
-		title: 'Dawit Tsige - Dawit Tsige - እትቱ | Etitu (Official Concert M',
+		title: 'Dawit Tsige - እትቱ | Etitu (Official Concert M',
+		channel: 'Dawit Tsige',
+		language: 'amharic',
+		tags: ['dawit tsige', 'amharic', 'music']
+	},
+	{
+		videoId: 'asZszsycNNs',
+		title: 'Dawit Tsige - Hailu Amerga & Dawit Tsige - Keteraraw mado ( Concert Video ) ኃይሉ አመርጋ ና ዳዊት ፅጌ   ከተራራው ማዶ',
+		channel: 'Dawit Tsige',
+		language: 'amharic',
+		tags: ['dawit tsige', 'amharic', 'music']
+	},
+	{
+		videoId: 'hhs_ZRQEiJ8',
+		title: 'Dawit Tsige - Hit Track',
+		channel: 'Dawit Tsige',
+		language: 'amharic',
+		tags: ['dawit tsige', 'amharic', 'music']
+	},
+	{
+		videoId: 'HLdcgcVQ1gk',
+		title: 'Dawit Tsige - Hit Track',
+		channel: 'Dawit Tsige',
+		language: 'amharic',
+		tags: ['dawit tsige', 'amharic', 'music']
+	},
+	{
+		videoId: '93XiEdt8iVA',
+		title: 'Dawit Tsige Asechelosh -Lyrics  ዳዊት ፅጌ - አስችሎሽ',
 		channel: 'Dawit Tsige',
 		language: 'amharic',
 		tags: ['dawit tsige', 'amharic', 'music']
@@ -527,8 +725,64 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['abdu kiar', 'amharic', 'music']
 	},
 	{
+		videoId: 'CmNGEcltUYk',
+		title: 'Abdu Kiar - Yetal Yetal - Ethiopian music አብዱ ኪያር - የታል የታል',
+		channel: 'Abdu Kiar',
+		language: 'amharic',
+		tags: ['abdu kiar', 'amharic', 'music']
+	},
+	{
+		videoId: 'tMCh3JiodN4',
+		title: 'Abdu Kiar - Ethiopian music with lyrics - Abdu Kiar - Ete Emete አብዱ ኪያር - እቴ ሜቴ - ከግጥም ጋር',
+		channel: 'Abdu Kiar',
+		language: 'amharic',
+		tags: ['abdu kiar', 'amharic', 'music']
+	},
+	{
+		videoId: 'NP3MuFWY0vg',
+		title: 'Abdu Kiar - yelijenete Lyric video',
+		channel: 'Abdu Kiar',
+		language: 'amharic',
+		tags: ['abdu kiar', 'amharic', 'music']
+	},
+	{
+		videoId: '-KezcyaYpD4',
+		title: 'Abdu Kiar - Zoro Zoro Adam',
+		channel: 'Abdu Kiar',
+		language: 'amharic',
+		tags: ['abdu kiar', 'amharic', 'music']
+	},
+	{
 		videoId: 'yKlol9zuE5s',
-		title: 'Gossaye Tesfaye - Gossaye Tesfaye - Kurfiyaw | ጎሳዬ ተስፋዬ - ኩርፊያው',
+		title: 'Gossaye Tesfaye - Kurfiyaw | ጎሳዬ ተስፋዬ - ኩርፊያው',
+		channel: 'Gossaye Tesfaye',
+		language: 'amharic',
+		tags: ['gossaye tesfaye', 'amharic', 'music']
+	},
+	{
+		videoId: 'MLOfbX8pNDg',
+		title: 'Gossaye Tesfaye - ጎሳዬ ተስፋዬ ሸጋ ልጅ በሀሳቤ ተወዳጅ ሙዚቃ በግጥም//Gosaye tesfaye shega lij behasabe ethiopian music lyrics',
+		channel: 'Gossaye Tesfaye',
+		language: 'amharic',
+		tags: ['gossaye tesfaye', 'amharic', 'music']
+	},
+	{
+		videoId: '5zODWhwba8Y',
+		title: 'Gossaye Tesfaye - Sew telamdo || ጎሳዬ ተስፋዬ - ሰው ተላምዶ (lyrics)',
+		channel: 'Gossaye Tesfaye',
+		language: 'amharic',
+		tags: ['gossaye tesfaye', 'amharic', 'music']
+	},
+	{
+		videoId: 'kSS2_hGZnC8',
+		title: 'Gossaye Tesfaye - Konjiye',
+		channel: 'Gossaye Tesfaye',
+		language: 'amharic',
+		tags: ['gossaye tesfaye', 'amharic', 'music']
+	},
+	{
+		videoId: 'cqIqyr-gIog',
+		title: 'Gossaye Tesfaye - man benegersh (lyrics)',
 		channel: 'Gossaye Tesfaye',
 		language: 'amharic',
 		tags: ['gossaye tesfaye', 'amharic', 'music']
@@ -541,15 +795,99 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['gigi shibabaw', 'amharic', 'music']
 	},
 	{
+		videoId: 'zvoZbLxkT4I',
+		title: 'Gigi Shibabaw - Gigi: Gud Fella',
+		channel: 'Gigi Shibabaw',
+		language: 'amharic',
+		tags: ['gigi shibabaw', 'amharic', 'music']
+	},
+	{
+		videoId: 'NGhQjxuAAIg',
+		title: 'Gigi Shibabaw - Mengedegna',
+		channel: 'Gigi Shibabaw',
+		language: 'amharic',
+		tags: ['gigi shibabaw', 'amharic', 'music']
+	},
+	{
+		videoId: 'ouMqW1oIpcI',
+		title: 'Gigi Shibabaw - Gigi Emama , (And hager) // እጅጋየሁ ሽባባው (ጂጂ) እማማ ፤ አንድ ሀገር (Ejigayehu Shibabaw)',
+		channel: 'Gigi Shibabaw',
+		language: 'amharic',
+		tags: ['gigi shibabaw', 'amharic', 'music']
+	},
+	{
+		videoId: 'r72Z8w2JisA',
+		title: 'Gigi Shibabaw - Gigi Eskemeche // እጅጋየሁ ሽባባው (ጂጂ) እስከመቼ',
+		channel: 'Gigi Shibabaw',
+		language: 'amharic',
+		tags: ['gigi shibabaw', 'amharic', 'music']
+	},
+	{
 		videoId: 'kzXPkoD3Lwg',
-		title: 'Ephrem Tamiru - Ephrem Tamiru - Akale - ኤፍሬም ታምሩ - አካሌ - Ethi',
+		title: 'Ephrem Tamiru - Akale - ኤፍሬም ታምሩ - አካሌ - Ethi',
+		channel: 'Ephrem Tamiru',
+		language: 'amharic',
+		tags: ['ephrem tamiru', 'amharic', 'music']
+	},
+	{
+		videoId: 'eK-oyVCvnAQ',
+		title: 'Ephrem Tamiru - ኤፍሬም ታምሩ - ምርጥ ዘፈኖች ስብስብ | Ephrem Tamiru Best Songs Collection #ኤፍሬም_ታምሩ #Ephrem_tamiru #music2025',
+		channel: 'Ephrem Tamiru',
+		language: 'amharic',
+		tags: ['ephrem tamiru', 'amharic', 'music']
+	},
+	{
+		videoId: 'tUg2xJSp6Qs',
+		title: 'Ephrem Tamiru Collection vol.1',
+		channel: 'Ephrem Tamiru',
+		language: 'amharic',
+		tags: ['ephrem tamiru', 'amharic', 'music']
+	},
+	{
+		videoId: '8yRY1GnDv8o',
+		title: 'Ephrem Tamiru - Metadel New - ኤፍሬም ታምሩ - መታደል ነው - Ethiopian Music',
+		channel: 'Ephrem Tamiru',
+		language: 'amharic',
+		tags: ['ephrem tamiru', 'amharic', 'music']
+	},
+	{
+		videoId: 'Tw6KA_yG3Rc',
+		title: 'Ephrem Tamiru - ኤፍሬም ታምሩ 1985 ሙሉ አልበም | Ephrem Tamiru Full Album | Ethiopian Music #Ethiopian Music',
 		channel: 'Ephrem Tamiru',
 		language: 'amharic',
 		tags: ['ephrem tamiru', 'amharic', 'music']
 	},
 	{
 		videoId: 'd8BdXzg9AMQ',
-		title: 'Bizunesh Bekele - Bizunesh Bekele - Timeless Ethiopian Oldies',
+		title: 'Bizunesh Bekele - Timeless Ethiopian Oldies',
+		channel: 'Bizunesh Bekele',
+		language: 'amharic',
+		tags: ['bizunesh bekele', 'amharic', 'music']
+	},
+	{
+		videoId: 'tG0YD68vKtI',
+		title: 'Bizunesh Bekele - ሂሩት በቀለ - ስምህን አውሰኝ  New Ethiopian Music 2026  Hirut Bekele  (Renewed)',
+		channel: 'Bizunesh Bekele',
+		language: 'amharic',
+		tags: ['bizunesh bekele', 'amharic', 'music']
+	},
+	{
+		videoId: 'kJAcnNj3cNc',
+		title: 'Bizunesh Bekele - _yewedegn aywedegn|ብዙነሽ በቀለ_ ይወደኝ አይወደኝ_New ethiopian music lyrics 2024',
+		channel: 'Bizunesh Bekele',
+		language: 'amharic',
+		tags: ['bizunesh bekele', 'amharic', 'music']
+	},
+	{
+		videoId: '7w4SXx9kV6o',
+		title: 'Bizunesh Bekele   አረ እንዴት ነው በሉት  Emotional AI Cover Music 2026  Best Ethiopian Classic Legend',
+		channel: 'Bizunesh Bekele',
+		language: 'amharic',
+		tags: ['bizunesh bekele', 'amharic', 'music']
+	},
+	{
+		videoId: 'fRItBu3XKsI',
+		title: 'Bizunesh Bekele - ፍቅርን በልቤ | Fikirin Belibe — Bizunesh Bekele Tribute | LucyWave Cover',
 		channel: 'Bizunesh Bekele',
 		language: 'amharic',
 		tags: ['bizunesh bekele', 'amharic', 'music']
@@ -562,6 +900,34 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['alemayehu eshete', 'amharic', 'music']
 	},
 	{
+		videoId: '6nybsPdN5ek',
+		title: 'Alemayehu Eshete - ስቀሽ አታስቂኝ - Sikesh Ataskigne',
+		channel: 'Alemayehu Eshete',
+		language: 'amharic',
+		tags: ['alemayehu eshete', 'amharic', 'music']
+	},
+	{
+		videoId: 'newPahjRwT4',
+		title: 'Alemayehu Eshete - Beliye',
+		channel: 'Alemayehu Eshete',
+		language: 'amharic',
+		tags: ['alemayehu eshete', 'amharic', 'music']
+	},
+	{
+		videoId: 'GYlWgPulcjc',
+		title: 'Alemayehu Eshete Wodedku Afekerkush/ አለማየሁ እሸቴ ወደድኩ አፈቀርኩሽ',
+		channel: 'Alemayehu Eshete',
+		language: 'amharic',
+		tags: ['alemayehu eshete', 'amharic', 'music']
+	},
+	{
+		videoId: 'ME2waiU9mZE',
+		title: 'Alemayehu Eshete - Beliye Beliye (AI Cover) | አለማየሁ እሸቴ - በልዬ በልዬ',
+		channel: 'Alemayehu Eshete',
+		language: 'amharic',
+		tags: ['alemayehu eshete', 'amharic', 'music']
+	},
+	{
 		videoId: 'tG0YD68vKtI',
 		title: 'Hirut Bekele - ሂሩት በቀለ - ስምህን አውሰኝ  New Ethiopian Music 2026',
 		channel: 'Hirut Bekele',
@@ -569,50 +935,274 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['hirut bekele', 'amharic', 'music']
 	},
 	{
+		videoId: 'WtswsOdrPao',
+		title: 'Hirut Bekele - 🛑🛑Hirut Bekele Old Album 03 | ሂሩት በቀለ 1980 ዓም ሙሉ አልበም',
+		channel: 'Hirut Bekele',
+		language: 'amharic',
+		tags: ['hirut bekele', 'amharic', 'music']
+	},
+	{
+		videoId: 'II3wWAM2U5s',
+		title: 'Hirut Bekele - Ethiopian Oldies - Classic',
+		channel: 'Hirut Bekele',
+		language: 'amharic',
+		tags: ['hirut bekele', 'amharic', 'music']
+	},
+	{
+		videoId: 'AYDDFhgs134',
+		title: 'Hirut Bekele - ETHIOPIAN MUSIC -HIWOT ENDE SHEKLA – HIRUT BEKELE',
+		channel: 'Hirut Bekele',
+		language: 'amharic',
+		tags: ['hirut bekele', 'amharic', 'music']
+	},
+	{
+		videoId: 'NXjBdQsssj0',
+		title: 'Hirut Bekele - ሽታ ሆነህ ቆየኝ: #EthiopianMusic ሂሩት በቀለ እንደገና',
+		channel: 'Hirut Bekele',
+		language: 'amharic',
+		tags: ['hirut bekele', 'amharic', 'music']
+	},
+	{
 		videoId: 'kUknTOgdWgk',
-		title: 'Rophnan - ROPHNAN - SHEGIYE | ሮፍናን - ሸግዬ',
+		title: 'Rophnan - SHEGIYE | ሮፍናን - ሸግዬ',
+		channel: 'Rophnan',
+		language: 'amharic',
+		tags: ['rophnan', 'amharic', 'music']
+	},
+	{
+		videoId: 'a6oos465ZU0',
+		title: 'Rophnan - DESSE | ሮፍናን - ደሴ',
+		channel: 'Rophnan',
+		language: 'amharic',
+		tags: ['rophnan', 'amharic', 'music']
+	},
+	{
+		videoId: 'xIVv3-WCv4s',
+		title: 'Rophnan - HAYA feat. Kismaw & Mahlet Negash | ሮፍናን - ሀያ feat. ኪስማው እና ማሀሌት ነጋሽ',
+		channel: 'Rophnan',
+		language: 'amharic',
+		tags: ['rophnan', 'amharic', 'music']
+	},
+	{
+		videoId: '1Eftvwn5mfc',
+		title: 'Rophnan - YESAT ERAT feat. Merewa Choir | ሮፍናን - የእሳት እራት feat. መረዋ ኳየር',
+		channel: 'Rophnan',
+		language: 'amharic',
+		tags: ['rophnan', 'amharic', 'music']
+	},
+	{
+		videoId: '0cFVse_kFz8',
+		title: 'Rophnan, Harmonize - YELOMI (Official Audio)',
 		channel: 'Rophnan',
 		language: 'amharic',
 		tags: ['rophnan', 'amharic', 'music']
 	},
 	{
 		videoId: 'o2o6V5YwDrU',
-		title: 'Michael Belayneh - Michael Belayneh - የፍቅር ምርጫዬ  _ Yefkr Mirchay',
+		title: 'Michael Belayneh - የፍቅር ምርጫዬ  _ Yefkr Mirchay',
+		channel: 'Michael Belayneh',
+		language: 'amharic',
+		tags: ['michael belayneh', 'amharic', 'music']
+	},
+	{
+		videoId: 'g58PqHxBSBc',
+		title: 'Michael Belayneh - እንዴት - Endet | Track 4  (Official Lyrics Video)',
+		channel: 'Michael Belayneh',
+		language: 'amharic',
+		tags: ['michael belayneh', 'amharic', 'music']
+	},
+	{
+		videoId: 'e1nA4TyD6uY',
+		title: 'Michael Belayneh _ Ante Godana Album Nonstop | አንተ ጎዳና ሙሉ አልበም | New Ethiopian Music 2025',
+		channel: 'Michael Belayneh',
+		language: 'amharic',
+		tags: ['michael belayneh', 'amharic', 'music']
+	},
+	{
+		videoId: 'GU2yAO6pTGg',
+		title: 'Michael Belayneh - አንድ ቃል - And Qal (Official Music Video)',
+		channel: 'Michael Belayneh',
+		language: 'amharic',
+		tags: ['michael belayneh', 'amharic', 'music']
+	},
+	{
+		videoId: '5tfjPkUk-Kc',
+		title: 'Michael Belayneh - አሸነፈ _ Ashenefe Track 02 (Official Audio)',
 		channel: 'Michael Belayneh',
 		language: 'amharic',
 		tags: ['michael belayneh', 'amharic', 'music']
 	},
 	{
 		videoId: 'HZnfRwFKCO8',
-		title: 'Betty G - Betty G - Na Na Demaye [NEW! Music Video 2015',
+		title: 'Betty G - Na Na Demaye [NEW! Music Video 2015',
+		channel: 'Betty G',
+		language: 'amharic',
+		tags: ['betty g', 'amharic', 'music']
+	},
+	{
+		videoId: 'CXqfxcLmOWc',
+		title: 'Betty G - Asebehalew [NEW! Hot! Music Video 2015]',
+		channel: 'Betty G',
+		language: 'amharic',
+		tags: ['betty g', 'amharic', 'music']
+	},
+	{
+		videoId: 'GyGjS3Re3gw',
+		title: 'Betty G performs Yamlu Molas Sin Jaaladhaa at the 2019 Nobel Peace Prize Ceremony',
+		channel: 'Betty G',
+		language: 'amharic',
+		tags: ['betty g', 'amharic', 'music']
+	},
+	{
+		videoId: '_G5NIqjVTKc',
+		title: 'Betty G & Nhatty Man - ከአንተ አይበልጥም kante aybeltim(easy up)',
+		channel: 'Betty G',
+		language: 'amharic',
+		tags: ['betty g', 'amharic', 'music']
+	},
+	{
+		videoId: '_IIIF9f1dcc',
+		title: 'Betty G Bruktawit Getahun ft  Nhatty Man Kante Ayebeltim Official Music Video',
 		channel: 'Betty G',
 		language: 'amharic',
 		tags: ['betty g', 'amharic', 'music']
 	},
 	{
 		videoId: '0x7fRqgq3dk',
-		title: 'Tsegaye Eshetu - Tsegaye Eshetu -  እሄዳለሁ ባቡር ተሳፍሬ  Ethiopia Ol',
+		title: 'Tsegaye Eshetu - እሄዳለሁ ባቡር ተሳፍሬ  Ethiopia Ol',
+		channel: 'Tsegaye Eshetu',
+		language: 'amharic',
+		tags: ['tsegaye eshetu', 'amharic', 'music']
+	},
+	{
+		videoId: '-NMoxu5gvGg',
+		title: 'Tsegaye Eshetu - የሰርግሽ እለት ጥሪው ደርሶኛል Tsegaye Eshetu Lesergua Teterahu ፀጋዬ እሸቱ ለሰርጓ ተጠራሁ Ethiopian Music Lyrics Video',
+		channel: 'Tsegaye Eshetu',
+		language: 'amharic',
+		tags: ['tsegaye eshetu', 'amharic', 'music']
+	},
+	{
+		videoId: 'SKxnX8veBRU',
+		title: 'Tsegaye Eshetu - Kinategna | ቅናተኛ - New Ethiopian Music 2026 (Track 09)',
+		channel: 'Tsegaye Eshetu',
+		language: 'amharic',
+		tags: ['tsegaye eshetu', 'amharic', 'music']
+	},
+	{
+		videoId: '2iw1xzGtZdE',
+		title: 'Tsegaye Eshetu - Lesergua Teterahu',
+		channel: 'Tsegaye Eshetu',
+		language: 'amharic',
+		tags: ['tsegaye eshetu', 'amharic', 'music']
+	},
+	{
+		videoId: 'rVuTRSJAkXM',
+		title: 'Tsegaye Eshetu - Yaye Ale - ፀጋዬ እሸቱ - ያየ አለ - Ethiopian Music',
 		channel: 'Tsegaye Eshetu',
 		language: 'amharic',
 		tags: ['tsegaye eshetu', 'amharic', 'music']
 	},
 	{
 		videoId: 'faXPu5_Y3Cs',
-		title: 'Eyob Mekonnen - Eyob Mekonnen - Yewnetwan new (Official)',
+		title: 'Eyob Mekonnen - Yewnetwan new (Official)',
+		channel: 'Eyob Mekonnen',
+		language: 'amharic',
+		tags: ['eyob mekonnen', 'amharic', 'music']
+	},
+	{
+		videoId: 'LT_iqtNv2Xo',
+		title: 'Eyob Mekonnen, ነቅጫለሁ Neckchalehu   Best Ethiopian Reggae Song',
+		channel: 'Eyob Mekonnen',
+		language: 'amharic',
+		tags: ['eyob mekonnen', 'amharic', 'music']
+	},
+	{
+		videoId: '-dPh_KrrbNI',
+		title: 'Eyob Mekonnen - Eyob Mekonen - Debzezesh',
+		channel: 'Eyob Mekonnen',
+		language: 'amharic',
+		tags: ['eyob mekonnen', 'amharic', 'music']
+	},
+	{
+		videoId: 'Ddpd0s_x_Pg',
+		title: 'Eyob Mekonnen - Endatefash - Eyob mekonnen (Lyrics) || እዮብ መኮንን - እንዳጠፋሽ (በግጥም)',
+		channel: 'Eyob Mekonnen',
+		language: 'amharic',
+		tags: ['eyob mekonnen', 'amharic', 'music']
+	},
+	{
+		videoId: 'O0U5u7QjND8',
+		title: 'Eyob Mekonnen - (debzzesh) lyrics                 እዮብ መኮንን (ደብዝዘሽ )',
 		channel: 'Eyob Mekonnen',
 		language: 'amharic',
 		tags: ['eyob mekonnen', 'amharic', 'music']
 	},
 	{
 		videoId: 'NyNY-dwncB8',
-		title: 'Tsedenia Gebremarkos - Tsedeniya G/Markos - Mech Gebagn | መች ገባኝ -  ',
+		title: 'Tsedenia Gebremarkos - Tsedeniya G/Markos - Mech Gebagn | መች ገባኝ -',
+		channel: 'Tsedenia Gebremarkos',
+		language: 'amharic',
+		tags: ['tsedenia gebremarkos', 'amharic', 'music']
+	},
+	{
+		videoId: 'ouvHC_okk4M',
+		title: 'Tsedenia Gebremarkos - Tsedenya G/Markos - Himemie New clip New single',
+		channel: 'Tsedenia Gebremarkos',
+		language: 'amharic',
+		tags: ['tsedenia gebremarkos', 'amharic', 'music']
+	},
+	{
+		videoId: 'uvU-Se6O_-s',
+		title: 'Tsedenia Gebremarkos - Tsedeniya G/Markos - Gelaye | ገላ_ዬ | Track 7 (Official Lyrics Video) 2026',
+		channel: 'Tsedenia Gebremarkos',
+		language: 'amharic',
+		tags: ['tsedenia gebremarkos', 'amharic', 'music']
+	},
+	{
+		videoId: 'asZszsycNNs',
+		title: 'Tsedenia Gebremarkos - Hailu Amerga & Dawit Tsige - Keteraraw mado ( Concert Video ) ኃይሉ አመርጋ ና ዳዊት ፅጌ   ከተራራው ማዶ',
+		channel: 'Tsedenia Gebremarkos',
+		language: 'amharic',
+		tags: ['tsedenia gebremarkos', 'amharic', 'music']
+	},
+	{
+		videoId: 'VKe8Knwd1GU',
+		title: 'Tsedenia Gebremarkos - Tsedenia G/ markos - Yefikir Girma New Ethiopian Music 2015 (Official Video)',
 		channel: 'Tsedenia Gebremarkos',
 		language: 'amharic',
 		tags: ['tsedenia gebremarkos', 'amharic', 'music']
 	},
 	{
 		videoId: '1GGV38L-pHE',
-		title: 'Dagi Dagne - Awtar Tv - Dagne Walle - Aba Siber - ዳኘ ዋለ - ',
+		title: 'Dagi Dagne - Awtar Tv - Dagne Walle - Aba Siber - ዳኘ ዋለ -',
+		channel: 'Dagi Dagne',
+		language: 'amharic',
+		tags: ['dagi dagne', 'amharic', 'music']
+	},
+	{
+		videoId: 'SjW0bMSLjTg',
+		title: 'Dagi Dagne - Dagi D - Bayish - ዳጊ ዲ - ባይሽ - New Ethiopian Music 2022 (Official Video)',
+		channel: 'Dagi Dagne',
+		language: 'amharic',
+		tags: ['dagi dagne', 'amharic', 'music']
+	},
+	{
+		videoId: 'FR37e7qjjOY',
+		title: 'Dagi Dagne - Dagne Wale - Addis Ababa | አዲስ አበባ - New Ethiopian Music 2026 (Official Lyrics Video)',
+		channel: 'Dagi Dagne',
+		language: 'amharic',
+		tags: ['dagi dagne', 'amharic', 'music']
+	},
+	{
+		videoId: 'ytlZdX5ypHQ',
+		title: 'Dagi Dagne - #amharamusic dagne walle #ethiopia #ethiopiamusic @abrsh1234',
+		channel: 'Dagi Dagne',
+		language: 'amharic',
+		tags: ['dagi dagne', 'amharic', 'music']
+	},
+	{
+		videoId: 'M4OPtWxNZWs',
+		title: 'Dagi Dagne - Wow best #amharic #habesha #ethiopianmusic #duet',
 		channel: 'Dagi Dagne',
 		language: 'amharic',
 		tags: ['dagi dagne', 'amharic', 'music']
@@ -625,8 +1215,64 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['tamrat desta', 'amharic', 'music']
 	},
 	{
+		videoId: 'stfNIUlRFTE',
+		title: 'Tamrat Desta aykebdm wey Lyrics#ethiopianmusic #tamratdesta',
+		channel: 'Tamrat Desta',
+		language: 'amharic',
+		tags: ['tamrat desta', 'amharic', 'music']
+	},
+	{
+		videoId: '_BhnM6ttH0U',
+		title: 'Tamrat Desta - Egnan new mayet ታምራት ደስታ እኛን ነው ማየት amharic music #tamratdesta #tamratdesta',
+		channel: 'Tamrat Desta',
+		language: 'amharic',
+		tags: ['tamrat desta', 'amharic', 'music']
+	},
+	{
+		videoId: 'im-W7D69o9Q',
+		title: 'Tamrat Desta Best 6 Musics | ታምራት ደስታ ምርጥ እንቁ ዘፈኖች | Ethiopian Music 2025',
+		channel: 'Tamrat Desta',
+		language: 'amharic',
+		tags: ['tamrat desta', 'amharic', 'music']
+	},
+	{
+		videoId: 'avaxcdxgGJo',
+		title: 'Tamrat Desta - Shegnugne',
+		channel: 'Tamrat Desta',
+		language: 'amharic',
+		tags: ['tamrat desta', 'amharic', 'music']
+	},
+	{
 		videoId: '4BN7XzhQpDY',
-		title: 'Bisrat Surafel - Bisrat Surafel - Man | ማን - New Ethiopian Mus',
+		title: 'Bisrat Surafel - Man | ማን - New Ethiopian Mus',
+		channel: 'Bisrat Surafel',
+		language: 'amharic',
+		tags: ['bisrat surafel', 'amharic', 'music']
+	},
+	{
+		videoId: '9oTGPuQymJo',
+		title: 'Bisrat Surafel - Men Aseba New - ምን አስባ ነዉ (Official Music Video)',
+		channel: 'Bisrat Surafel',
+		language: 'amharic',
+		tags: ['bisrat surafel', 'amharic', 'music']
+	},
+	{
+		videoId: 'VDbLetOWm0E',
+		title: 'Bisrat Surafel - Kal Bekal | ቃል በቃል - New Ethiopian Music 2018 (Official Audio)',
+		channel: 'Bisrat Surafel',
+		language: 'amharic',
+		tags: ['bisrat surafel', 'amharic', 'music']
+	},
+	{
+		videoId: 'GAyOagG19sk',
+		title: 'Bisrat Surafel - Ehedalehu | እሄዳለሁ - New Ethiopian Music 2018 (Official Audio)',
+		channel: 'Bisrat Surafel',
+		language: 'amharic',
+		tags: ['bisrat surafel', 'amharic', 'music']
+	},
+	{
+		videoId: 'kuoCF8MJEPU',
+		title: 'Bisrat Surafel feat  Jah Lude   Yehew Sewyew   New Ethiopian Official Music video',
 		channel: 'Bisrat Surafel',
 		language: 'amharic',
 		tags: ['bisrat surafel', 'amharic', 'music']
@@ -639,8 +1285,64 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['dereje dubale', 'amharic', 'music']
 	},
 	{
+		videoId: '8LIfHo35iKs',
+		title: 'Dereje Dubale - ged yelem music lyrics',
+		channel: 'Dereje Dubale',
+		language: 'amharic',
+		tags: ['dereje dubale', 'amharic', 'music']
+	},
+	{
+		videoId: 'yq5kVPvgyG8',
+		title: 'Dereje Dubale - Befikresh tasere || ደረጀ ዱባለ - በፍቅርሽ ታስሬ (lyrics)',
+		channel: 'Dereje Dubale',
+		language: 'amharic',
+		tags: ['dereje dubale', 'amharic', 'music']
+	},
+	{
+		videoId: '4X4XDnB0bME',
+		title: 'Dereje Dubale - Mewdeden Negriyat | Dereje Dubale | ደረጀ ዱባለ | መውደዴን ነግሪያት | Ethiopian Music | Amharic Music | Lyrics',
+		channel: 'Dereje Dubale',
+		language: 'amharic',
+		tags: ['dereje dubale', 'amharic', 'music']
+	},
+	{
+		videoId: 'rU8PEH1CCDA',
+		title: 'Dereje Dubale - Ged Yelem Lebe Yichilal',
+		channel: 'Dereje Dubale',
+		language: 'amharic',
+		tags: ['dereje dubale', 'amharic', 'music']
+	},
+	{
 		videoId: 'xwuN5BlAef0',
-		title: 'Alex Olympia - ALEX OLYMPIA - METECHALEHU',
+		title: 'Alex Olympia - METECHALEHU',
+		channel: 'Alex Olympia',
+		language: 'amharic',
+		tags: ['alex olympia', 'amharic', 'music']
+	},
+	{
+		videoId: 'S_htu8iQBGw',
+		title: 'Alex Olympia - Alex Olompia - Zelalem Zelalem (Ethiopian Music)',
+		channel: 'Alex Olympia',
+		language: 'amharic',
+		tags: ['alex olympia', 'amharic', 'music']
+	},
+	{
+		videoId: 'FzubqCpC5kY',
+		title: 'Alex Olympia - Alex Olompia - Come in diaspora.mp4',
+		channel: 'Alex Olympia',
+		language: 'amharic',
+		tags: ['alex olympia', 'amharic', 'music']
+	},
+	{
+		videoId: '0Uzah5gquJ4',
+		title: 'Alex Olympia - Alex Olompia (አሌክስ ኦሎምፒያ) ሪሓነይ Rihanney New Ethiopian & Eritrean Music 2019 (Official Video)',
+		channel: 'Alex Olympia',
+		language: 'amharic',
+		tags: ['alex olympia', 'amharic', 'music']
+	},
+	{
+		videoId: 'xwXQyj7ZJL0',
+		title: 'Alex Olympia    - Maths- Chemistry .mp4',
 		channel: 'Alex Olympia',
 		language: 'amharic',
 		tags: ['alex olympia', 'amharic', 'music']
@@ -653,36 +1355,169 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['fitsum teshale', 'amharic', 'music']
 	},
 	{
+		videoId: 'tnGKy35FCSc',
+		title: 'Fitsum Teshale - Hit Track',
+		channel: 'Fitsum Teshale',
+		language: 'amharic',
+		tags: ['fitsum teshale', 'amharic', 'music']
+	},
+	{
+		videoId: 'ZaLp9tVN-CM',
+		title: 'Fitsum Teshale - Fitsum Abere - Fikrishima | ፍፁም አበረ | ፍቅርሽማ | New Ethiopian Amharic Music 2026 (Official Video)',
+		channel: 'Fitsum Teshale',
+		language: 'amharic',
+		tags: ['fitsum teshale', 'amharic', 'music']
+	},
+	{
+		videoId: 'dW9B2Tl_liI',
+		title: 'Fitsum Teshale - Ethiopian music : Fisum T ፍፁም ቲ ደስ ይላል Dess Yelal New Ethiopian Music 2019(Official Video)',
+		channel: 'Fitsum Teshale',
+		language: 'amharic',
+		tags: ['fitsum teshale', 'amharic', 'music']
+	},
+	{
+		videoId: 'dgMmkQAslQc',
+		title: 'Fitsum Teshale - Fisum T   Pretty Woman   New Ethiopian Music 2018 Official Video   YouTube',
+		channel: 'Fitsum Teshale',
+		language: 'amharic',
+		tags: ['fitsum teshale', 'amharic', 'music']
+	},
+	{
 		videoId: '9PXUpv7f-C4',
-		title: 'Haimanot Girma - Haimanot Girma - Kezira',
+		title: 'Haimanot Girma - Kezira',
 		channel: 'Haimanot Girma',
 		language: 'amharic',
 		tags: ['haimanot girma', 'amharic', 'music']
 	},
 	{
-		videoId: 'Biu9nHSwpiI',
-		title: 'Hamelmal Abate - Hamelmal Abate - Awdamet "Enkuan Aderesachu" ',
-		channel: 'Hamelmal Abate',
+		videoId: 'LgI7_0K3Si4',
+		title: 'Haimanot Girma - Haymanot Girma - Yemalkeyrew - ሃይማኖት ግርማ  - የማልቀይረዉ - Ethiopian Music',
+		channel: 'Haimanot Girma',
 		language: 'amharic',
-		tags: ['hamelmal abate', 'amharic', 'music']
+		tags: ['haimanot girma', 'amharic', 'music']
+	},
+	{
+		videoId: '8mZd88wZrxk',
+		title: 'Haimanot Girma - Haymanot Girma - ene alsetim ሀይማኖት ግርማ - እኔ አልሰጥም 1996 Gc Ethiopian music',
+		channel: 'Haimanot Girma',
+		language: 'amharic',
+		tags: ['haimanot girma', 'amharic', 'music']
+	},
+	{
+		videoId: '_uSvqWxkGKg',
+		title: 'Haimanot Girma - Haymanot Girma - Ishururu (እሽሩሩ) 1996 E.C.',
+		channel: 'Haimanot Girma',
+		language: 'amharic',
+		tags: ['haimanot girma', 'amharic', 'music']
+	},
+	{
+		videoId: 'qmQ2A8_s04c',
+		title: 'Haimanot Girma - ሃይማኖት ግርማ በቃ  ከዚራ አልበም | Haimanot Girma Beka Kezira Album',
+		channel: 'Haimanot Girma',
+		language: 'amharic',
+		tags: ['haimanot girma', 'amharic', 'music']
 	},
 	{
 		videoId: 'uVIghBLJFY8',
-		title: 'Helen Berhe - Helen Berhe - Yebereta (የበረታ) | New Ethiopian',
+		title: 'Helen Berhe - Yebereta (የበረታ) | New Ethiopian',
+		channel: 'Helen Berhe',
+		language: 'amharic',
+		tags: ['helen berhe', 'amharic', 'music']
+	},
+	{
+		videoId: 'TREZNDBPLXA',
+		title: 'Helen Berhe - Zeyadaye (ዚያዳዬ) | New Ethiopian Music 2026 (Official Video)',
+		channel: 'Helen Berhe',
+		language: 'amharic',
+		tags: ['helen berhe', 'amharic', 'music']
+	},
+	{
+		videoId: '0-bQLbplMz4',
+		title: 'Helen Berhe - Munanaye (ሙናናዬ) | New Ethiopian Music 2026 (Official Video)',
+		channel: 'Helen Berhe',
+		language: 'amharic',
+		tags: ['helen berhe', 'amharic', 'music']
+	},
+	{
+		videoId: 'EI_RIkIuVy0',
+		title: 'Helen Berhe - Nafkognal (ናፍቆኛል) | New Ethiopian Music 2026 (Official Video)',
+		channel: 'Helen Berhe',
+		language: 'amharic',
+		tags: ['helen berhe', 'amharic', 'music']
+	},
+	{
+		videoId: 'GvBjlXCdsBs',
+		title: 'Helen Berhe - Arada (አራዳ) | New Ethiopian Music 2026 (Official Video)',
 		channel: 'Helen Berhe',
 		language: 'amharic',
 		tags: ['helen berhe', 'amharic', 'music']
 	},
 	{
 		videoId: 'xPwlVss7yN8',
-		title: 'Lij Michael - Lij Michael - የሺ | Yeshi | Ethiopian New Musi',
+		title: 'Lij Michael - የሺ | Yeshi | Ethiopian New Musi',
+		channel: 'Lij Michael',
+		language: 'amharic',
+		tags: ['lij michael', 'amharic', 'music']
+	},
+	{
+		videoId: 'odu765QmBF0',
+		title: 'Lij Michael - lij mic - ልጅ ሚካኤል - አለው መሰንቆ - Ethiopian New music Alew Mesenqo Official Video 2023',
+		channel: 'Lij Michael',
+		language: 'amharic',
+		tags: ['lij michael', 'amharic', 'music']
+	},
+	{
+		videoId: 'UKrXRXopxIc',
+		title: 'Lij Michael - Lij Michel Faf Arada le Arada (አራዳ ላራዳ)',
+		channel: 'Lij Michael',
+		language: 'amharic',
+		tags: ['lij michael', 'amharic', 'music']
+	},
+	{
+		videoId: '-5tyZKEwXJw',
+		title: 'Lij Michael Faf Tecawece Bate (ተጫወቺ ባቲ)',
+		channel: 'Lij Michael',
+		language: 'amharic',
+		tags: ['lij michael', 'amharic', 'music']
+	},
+	{
+		videoId: 'H50SZRIBtJY',
+		title: 'Lij Michael - Sami Dan & Lij Michael (Faf) - Ayzosh (አይዞሽ) - New Ethiopian Music Video',
 		channel: 'Lij Michael',
 		language: 'amharic',
 		tags: ['lij michael', 'amharic', 'music']
 	},
 	{
 		videoId: 'VpraLnMvgMw',
-		title: 'Tsehaye Yohannes - Tsehaye Yohannes - Betesfa - ፀሐዬ ዮሃንስ - በተስፋ ',
+		title: 'Tsehaye Yohannes - Betesfa - ፀሐዬ ዮሃንስ - በተስፋ',
+		channel: 'Tsehaye Yohannes',
+		language: 'amharic',
+		tags: ['tsehaye yohannes', 'amharic', 'music']
+	},
+	{
+		videoId: 'dqMaHvS3ntE',
+		title: 'Tsehaye Yohannes - Hit Track',
+		channel: 'Tsehaye Yohannes',
+		language: 'amharic',
+		tags: ['tsehaye yohannes', 'amharic', 'music']
+	},
+	{
+		videoId: 'rNDJH9BVNSo',
+		title: 'Tsehaye Yohannes - ያውና እዛ ቁጭ ብለሽ ደምቀሽ ትታያለሽ | Yawna eza kuch blesh demkesh titayalesh | Tsehaye betesfa Music',
+		channel: 'Tsehaye Yohannes',
+		language: 'amharic',
+		tags: ['tsehaye yohannes', 'amharic', 'music']
+	},
+	{
+		videoId: 'jWSRjGB3JMU',
+		title: 'Tsehaye Yohannes - Hit Track',
+		channel: 'Tsehaye Yohannes',
+		language: 'amharic',
+		tags: ['tsehaye yohannes', 'amharic', 'music']
+	},
+	{
+		videoId: 'QNLw_n_WpDw',
+		title: 'Tsehaye Yohannes - Blen | ብሌን (Official Music Video)',
 		channel: 'Tsehaye Yohannes',
 		language: 'amharic',
 		tags: ['tsehaye yohannes', 'amharic', 'music']
@@ -694,6 +1529,36 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		language: 'amharic',
 		tags: ['tibebu workiye', 'amharic', 'music']
 	},
+	{
+		videoId: 'BcXh10KyKTI',
+		title: 'Tibebu Workiye – Ligletsilish - ጥበቡ ወርቅዬ - ልግለጽልሽ - Ethiopian Music',
+		channel: 'Tibebu Workiye',
+		language: 'amharic',
+		tags: ['tibebu workiye', 'amharic', 'music']
+	},
+	{
+		videoId: 'ViRiibBCgxk',
+		title: 'Tibebu Workiye - Tibebu Workye – Endet - ጥበቡ ወርቅዬ - እንዴት - Ethiopian Music',
+		channel: 'Tibebu Workiye',
+		language: 'amharic',
+		tags: ['tibebu workiye', 'amharic', 'music']
+	},
+	{
+		videoId: 'tMFjk5VwKmE',
+		title: 'Tibebu Workiye - Tibebu Workye - Zim - ጥበቡ ወርቅዬ - ዝም - Ethiopian Music',
+		channel: 'Tibebu Workiye',
+		language: 'amharic',
+		tags: ['tibebu workiye', 'amharic', 'music']
+	},
+	{
+		videoId: '8sLbdUC9ovY',
+		title: 'Tibebu Workiye - Hit Track',
+		channel: 'Tibebu Workiye',
+		language: 'amharic',
+		tags: ['tibebu workiye', 'amharic', 'music']
+	},
+	// ============================================================
+
 	{
 		videoId: '4ltz7XAnlbs',
 		title: 'Merkeb Bonitua - Teddy Yo. Ft Merkeb Bonitua ቴዲ ዮ ft መርከብ ቦኒቷ ',
@@ -862,6 +1727,7 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		language: 'tigrinya',
 		tags: ['solomon bayre', 'tigrinya', 'music']
 	},
+
 	{
 		videoId: '4NRXx6U8ABQ',
 		title: 'The Weeknd - Blinding Lights',
@@ -1144,7 +2010,6 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 	}
 ];
 
-/** Extracts and normalizes the primary singer/artist name from track metadata. */
 export function extractSinger(track?: { channel?: string; title?: string } | null): string {
 	if (!track) return '';
 	const ch = (track.channel ?? '').toLowerCase().trim();
