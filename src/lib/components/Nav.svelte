@@ -97,7 +97,7 @@
 		>
 			<a
 				href="/"
-				class="relative inline-flex items-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-3.5 py-1 text-xs font-medium transition-colors {isHome
+				class="relative hidden sm:inline-flex items-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-3.5 py-1 text-xs font-medium transition-colors {isHome
 					? 'bg-lamp/15 text-lamp border border-lamp/35'
 					: 'text-taupe hover:bg-cream/5 hover:text-cream'}"
 				aria-current={isHome ? 'page' : undefined}
