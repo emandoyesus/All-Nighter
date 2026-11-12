@@ -2368,12 +2368,42 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 	},
 	// ============================================================
 
+	// ENGLISH (Top 5 tracks per artist)
+	// ============================================================
 	{
 		videoId: '4NRXx6U8ABQ',
 		title: 'The Weeknd - Blinding Lights',
 		channel: 'The Weeknd',
 		language: 'english',
 		tags: ['the weeknd', 'blinding lights', 'r&b', 'synth-pop', 'english', 'music']
+	},
+	{
+		videoId: 'Mx92lTYxrJQ',
+		title: 'The Weeknd, JENNIE, Lily-Rose Depp - One Of The Girls (Official Video)',
+		channel: 'The Weeknd',
+		language: 'english',
+		tags: ['the weeknd', 'english', 'music']
+	},
+	{
+		videoId: 'dMoFcvfd5t4',
+		title: 'The Weeknd ft. Future - Double Fantasy (Official Music Video)',
+		channel: 'The Weeknd',
+		language: 'english',
+		tags: ['the weeknd', 'english', 'music']
+	},
+	{
+		videoId: 'XXYlFuWEuKI',
+		title: 'The Weeknd - Save Your Tears (Official Music Video)',
+		channel: 'The Weeknd',
+		language: 'english',
+		tags: ['the weeknd', 'english', 'music']
+	},
+	{
+		videoId: 'JPIhUaONiLU',
+		title: 'The Weeknd - Often (NSFW) (Official Video)',
+		channel: 'The Weeknd',
+		language: 'english',
+		tags: ['the weeknd', 'english', 'music']
 	},
 	{
 		videoId: 'nSDgHBxUbVQ',
@@ -2383,11 +2413,67 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['ed sheeran', 'photograph', 'pop', 'acoustic', 'english', 'music']
 	},
 	{
+		videoId: '2Vv-BfVoq4g',
+		title: 'Ed Sheeran - Perfect (Official Music Video)',
+		channel: 'Ed Sheeran',
+		language: 'english',
+		tags: ['ed sheeran', 'english', 'music']
+	},
+	{
+		videoId: 'JGwWNGJdvx8',
+		title: 'Ed Sheeran - Shape of You (Official Music Video)',
+		channel: 'Ed Sheeran',
+		language: 'english',
+		tags: ['ed sheeran', 'english', 'music']
+	},
+	{
+		videoId: 'lp-EO5I60KA',
+		title: 'Ed Sheeran - Thinking Out Loud (Official Music Video)',
+		channel: 'Ed Sheeran',
+		language: 'english',
+		tags: ['ed sheeran', 'english', 'music']
+	},
+	{
+		videoId: '77gbkfc1GBY',
+		title: 'Ed Sheeran - Very surreal day shooting this. I felt young wild and free. A Little More out now',
+		channel: 'Ed Sheeran',
+		language: 'english',
+		tags: ['ed sheeran', 'english', 'music']
+	},
+	{
 		videoId: '60ItHLz5WEA',
 		title: 'Alan Walker - Faded',
 		channel: 'Alan Walker',
 		language: 'english',
 		tags: ['alan walker', 'faded', 'edm', 'electronic', 'english', 'music']
+	},
+	{
+		videoId: '1-xGerv5FOk',
+		title: 'Alan Walker - Alone',
+		channel: 'Alan Walker',
+		language: 'english',
+		tags: ['alan walker', 'english', 'music']
+	},
+	{
+		videoId: 'GPUx0Z_t9Eo',
+		title: 'Alan Walker - ♫✨ Headlights • Alok & Alan Walker ft KIDDO',
+		channel: 'Alan Walker',
+		language: 'english',
+		tags: ['alan walker', 'english', 'music']
+	},
+	{
+		videoId: 'icIf7RR7xus',
+		title: 'Alan Walker - Hit Track',
+		channel: 'Alan Walker',
+		language: 'english',
+		tags: ['alan walker', 'english', 'music']
+	},
+	{
+		videoId: 'uebrUqs6K50',
+		title: 'Alan Walker - A Song NEVER Mean’t for the World',
+		channel: 'Alan Walker',
+		language: 'english',
+		tags: ['alan walker', 'english', 'music']
 	},
 	{
 		videoId: 'hLQl3WQQoQ0',
@@ -2397,11 +2483,67 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['adele', 'someone like you', 'soul', 'pop', 'english', 'music']
 	},
 	{
+		videoId: 'jDvYDzFOK9A',
+		title: 'Adele - I Drink Wine (Official Video)',
+		channel: 'Adele',
+		language: 'english',
+		tags: ['adele', 'english', 'music']
+	},
+	{
+		videoId: 'YQHsXMglC9A',
+		title: 'Adele - Hello (Official Music Video)',
+		channel: 'Adele',
+		language: 'english',
+		tags: ['adele', 'english', 'music']
+	},
+	{
+		videoId: 'hMYhDTOeCwg',
+		title: 'Adele - Rolling in the Deep Official Music Video',
+		channel: 'Adele',
+		language: 'english',
+		tags: ['adele', 'english', 'music']
+	},
+	{
+		videoId: 'uXqtxVQ1Cs4',
+		title: 'Adele - Rolling In The Deep | Live From Munich',
+		channel: 'Adele',
+		language: 'english',
+		tags: ['adele', 'english', 'music']
+	},
+	{
 		videoId: 'lWA2pjMjpBs',
 		title: 'Rihanna - Diamonds',
 		channel: 'Rihanna',
 		language: 'english',
 		tags: ['rihanna', 'diamonds', 'pop', 'r&b', 'english', 'music']
+	},
+	{
+		videoId: 'sEhy-RXkNo0',
+		title: 'Rihanna - Man Down',
+		channel: 'Rihanna',
+		language: 'english',
+		tags: ['rihanna', 'english', 'music']
+	},
+	{
+		videoId: 'HL1UzIK-flA',
+		title: 'Rihanna - Work (Explicit) ft. Drake',
+		channel: 'Rihanna',
+		language: 'english',
+		tags: ['rihanna', 'english', 'music']
+	},
+	{
+		videoId: 'fyaI4-5849w',
+		title: 'Rihanna - DJ Khaled - Wild Thoughts (Official Video) ft. Rihanna, Bryson Tiller',
+		channel: 'Rihanna',
+		language: 'english',
+		tags: ['rihanna', 'english', 'music']
+	},
+	{
+		videoId: 'ehcVomMexkY',
+		title: 'Rihanna - Pour It Up (Explicit)',
+		channel: 'Rihanna',
+		language: 'english',
+		tags: ['rihanna', 'english', 'music']
 	},
 	{
 		videoId: 'mWRsgZuwf_8',
@@ -2411,11 +2553,67 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['imagine dragons', 'demons', 'alternative rock', 'english', 'music']
 	},
 	{
+		videoId: 'fKopy74weus',
+		title: 'Imagine Dragons - Thunder',
+		channel: 'Imagine Dragons',
+		language: 'english',
+		tags: ['imagine dragons', 'english', 'music']
+	},
+	{
+		videoId: 'ktvTqknDobU',
+		title: 'Imagine Dragons - Radioactive',
+		channel: 'Imagine Dragons',
+		language: 'english',
+		tags: ['imagine dragons', 'english', 'music']
+	},
+	{
+		videoId: 'q392mSz4VeY',
+		title: 'Imagine Dragons - Wake Up (Official Music Video)',
+		channel: 'Imagine Dragons',
+		language: 'english',
+		tags: ['imagine dragons', 'english', 'music']
+	},
+	{
+		videoId: '7wtfhZwyrcc',
+		title: 'Imagine Dragons - Believer (Official Music Video)',
+		channel: 'Imagine Dragons',
+		language: 'english',
+		tags: ['imagine dragons', 'english', 'music']
+	},
+	{
 		videoId: 'lY2yjAdbvdQ',
 		title: 'Shawn Mendes - Treat You Better',
 		channel: 'Shawn Mendes',
 		language: 'english',
 		tags: ['shawn mendes', 'treat you better', 'pop', 'acoustic', 'english', 'music']
+	},
+	{
+		videoId: 'dT2owtxkU8k',
+		title: 'Shawn Mendes - Theres Nothing Holdin Me Back (Official Music Video)',
+		channel: 'Shawn Mendes',
+		language: 'english',
+		tags: ['shawn mendes', 'english', 'music']
+	},
+	{
+		videoId: 'Pkh8UtuejGw',
+		title: 'Shawn Mendes, Camila Cabello - Señorita',
+		channel: 'Shawn Mendes',
+		language: 'english',
+		tags: ['shawn mendes', 'english', 'music']
+	},
+	{
+		videoId: '2jpJBiT8gGQ',
+		title: 'Shawn Mendes – Treat You Better (Official Music Video | Ultra HD Remastered)',
+		channel: 'Shawn Mendes',
+		language: 'english',
+		tags: ['shawn mendes', 'english', 'music']
+	},
+	{
+		videoId: 'BNUk1RolXXY',
+		title: 'Shawn Mendes - The Best Songs By Shawn Mendes (Part 1) 🎶',
+		channel: 'Shawn Mendes',
+		language: 'english',
+		tags: ['shawn mendes', 'english', 'music']
 	},
 	{
 		videoId: 'TdrL3QxjyVw',
@@ -2425,11 +2623,67 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['lana del rey', 'summertime sadness', 'indie', 'dream pop', 'english', 'music']
 	},
 	{
+		videoId: 'o_1aF54DO60',
+		title: 'Lana Del Rey - Young and Beautiful',
+		channel: 'Lana Del Rey',
+		language: 'english',
+		tags: ['lana del rey', 'english', 'music']
+	},
+	{
+		videoId: 'F4ELqraXx-U',
+		title: 'Lana Del Rey - White Mustang (Official Music Video)',
+		channel: 'Lana Del Rey',
+		language: 'english',
+		tags: ['lana del rey', 'english', 'music']
+	},
+	{
+		videoId: 'Bag1gUxuU0g',
+		title: 'Lana Del Rey - Born To Die',
+		channel: 'Lana Del Rey',
+		language: 'english',
+		tags: ['lana del rey', 'english', 'music']
+	},
+	{
+		videoId: 'qolmz4FlnZ0',
+		title: 'Lana Del Rey - Doin Time',
+		channel: 'Lana Del Rey',
+		language: 'english',
+		tags: ['lana del rey', 'english', 'music']
+	},
+	{
 		videoId: 'S9bCLPwzSC0',
 		title: 'Eminem - Mockingbird',
 		channel: 'Eminem',
 		language: 'english',
 		tags: ['eminem', 'mockingbird', 'hip-hop', 'rap', 'english', 'music']
+	},
+	{
+		videoId: 'j5-yKhDd64s',
+		title: 'Eminem - Not Afraid',
+		channel: 'Eminem',
+		language: 'english',
+		tags: ['eminem', 'english', 'music']
+	},
+	{
+		videoId: 'YVkUvmDQ3HY',
+		title: 'Eminem - Without Me (Official Music Video)',
+		channel: 'Eminem',
+		language: 'english',
+		tags: ['eminem', 'english', 'music']
+	},
+	{
+		videoId: '22tVWwmTie8',
+		title: 'Eminem - Houdini [Official Music Video]',
+		channel: 'Eminem',
+		language: 'english',
+		tags: ['eminem', 'english', 'music']
+	},
+	{
+		videoId: '1wYNFfgrXTI',
+		title: 'Eminem - When Im Gone (Official Music Video)',
+		channel: 'Eminem',
+		language: 'english',
+		tags: ['eminem', 'english', 'music']
 	},
 	{
 		videoId: 'cxjvTXo9WWM',
@@ -2439,11 +2693,67 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['sia', 'unstoppable', 'pop', 'english', 'music']
 	},
 	{
+		videoId: 'YaEG2aWJnZ8',
+		title: 'Sia - Unstoppable (Official Video - Live from the Nostalgic For The Present Tour)',
+		channel: 'Sia',
+		language: 'english',
+		tags: ['sia', 'english', 'music']
+	},
+	{
+		videoId: '2vjPBrBU-TM',
+		title: 'Sia - Chandelier (Official Video)',
+		channel: 'Sia',
+		language: 'english',
+		tags: ['sia', 'english', 'music']
+	},
+	{
+		videoId: 'nYh-n7EOtMA',
+		title: 'Sia - Cheap Thrills (Official Lyric Video) ft. Sean Paul',
+		channel: 'Sia',
+		language: 'english',
+		tags: ['sia', 'english', 'music']
+	},
+	{
+		videoId: 'GC8N9qxXEM4',
+		title: 'Sia Through the Years (2000–2025) | Stunning Evolution ✨ #Shorts',
+		channel: 'Sia',
+		language: 'english',
+		tags: ['sia', 'english', 'music']
+	},
+	{
 		videoId: 'oyEuk8j8imI',
 		title: 'Justin Bieber - Love Yourself',
 		channel: 'Justin Bieber',
 		language: 'english',
 		tags: ['justin bieber', 'love yourself', 'pop', 'r&b', 'english', 'music']
+	},
+	{
+		videoId: 'CHVhwcOg6y8',
+		title: 'Justin Bieber - One Time (Official Music Video)',
+		channel: 'Justin Bieber',
+		language: 'english',
+		tags: ['justin bieber', 'english', 'music']
+	},
+	{
+		videoId: 'LXUSaVw3Mvk',
+		title: 'Justin Bieber - One Less Lonely Girl',
+		channel: 'Justin Bieber',
+		language: 'english',
+		tags: ['justin bieber', 'english', 'music']
+	},
+	{
+		videoId: '8EJ3zbKTWQ8',
+		title: 'Justin Bieber - Yummy (Official Video)',
+		channel: 'Justin Bieber',
+		language: 'english',
+		tags: ['justin bieber', 'english', 'music']
+	},
+	{
+		videoId: 'Fp8msa5uYsc',
+		title: 'Justin Bieber - Ghost',
+		channel: 'Justin Bieber',
+		language: 'english',
+		tags: ['justin bieber', 'english', 'music']
 	},
 	{
 		videoId: 'K-a8s8OLBSE',
@@ -2453,11 +2763,67 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['taylor swift', 'cardigan', 'folk', 'pop', 'english', 'music']
 	},
 	{
+		videoId: 'ko70cExuzZM',
+		title: 'Taylor Swift - The Fate of Ophelia (Official Music Video)',
+		channel: 'Taylor Swift',
+		language: 'english',
+		tags: ['taylor swift', 'english', 'music']
+	},
+	{
+		videoId: 'mw3kSNIxjqo',
+		title: 'Taylor Swift - Patient Zero (Official Music Video)',
+		channel: 'Taylor Swift',
+		language: 'english',
+		tags: ['taylor swift', 'english', 'music']
+	},
+	{
+		videoId: 'tCXGJQYZ9JA',
+		title: 'Taylor Swift - Delicate',
+		channel: 'Taylor Swift',
+		language: 'english',
+		tags: ['taylor swift', 'english', 'music']
+	},
+	{
+		videoId: 'e-ORhEE9VVg',
+		title: 'Taylor Swift - Blank Space',
+		channel: 'Taylor Swift',
+		language: 'english',
+		tags: ['taylor swift', 'english', 'music']
+	},
+	{
 		videoId: '50VNCymT-Cs',
 		title: 'Alec Benjamin - Let Me Down Slowly',
 		channel: 'Alec Benjamin',
 		language: 'english',
 		tags: ['alec benjamin', 'let me down slowly', 'indie pop', 'storytelling', 'english', 'music']
+	},
+	{
+		videoId: 'j_9LN8x2z3k',
+		title: 'Alec Benjamin - The Book Of You & I [Official Music Video]',
+		channel: 'Alec Benjamin',
+		language: 'english',
+		tags: ['alec benjamin', 'english', 'music']
+	},
+	{
+		videoId: 'F5EbXtaiWww',
+		title: 'Alec Benjamin - Oh My God [Official Music Video]',
+		channel: 'Alec Benjamin',
+		language: 'english',
+		tags: ['alec benjamin', 'english', 'music']
+	},
+	{
+		videoId: 'V1Pl8CzNzCw',
+		title: 'Alec Benjamin - Billie Eilish, Khalid - lovely',
+		channel: 'Alec Benjamin',
+		language: 'english',
+		tags: ['alec benjamin', 'english', 'music']
+	},
+	{
+		videoId: 'tscMSXk_jaQ',
+		title: 'Alec Benjamin - If We Have Each Other [Official Music Video]',
+		channel: 'Alec Benjamin',
+		language: 'english',
+		tags: ['alec benjamin', 'english', 'music']
 	},
 	{
 		videoId: 'SlPhMPnQ58k',
@@ -2467,11 +2833,67 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['maroon 5', 'memories', 'pop rock', 'english', 'music']
 	},
 	{
+		videoId: 'aJOTlE1K90k',
+		title: 'Maroon 5 - Girls Like You ft. Cardi B (Official Music Video)',
+		channel: 'Maroon 5',
+		language: 'english',
+		tags: ['maroon 5', 'english', 'music']
+	},
+	{
+		videoId: '09R8_2nJtjg',
+		title: 'Maroon 5 - Sugar (Official Music Video)',
+		channel: 'Maroon 5',
+		language: 'english',
+		tags: ['maroon 5', 'english', 'music']
+	},
+	{
+		videoId: 'qpgTC9MDx1o',
+		title: 'Maroon 5 - Animals',
+		channel: 'Maroon 5',
+		language: 'english',
+		tags: ['maroon 5', 'english', 'music']
+	},
+	{
+		videoId: 'KRaWnd3LJfs',
+		title: 'Maroon 5 - Payphone ft. Wiz Khalifa (Explicit) (Official Music Video)',
+		channel: 'Maroon 5',
+		language: 'english',
+		tags: ['maroon 5', 'english', 'music']
+	},
+	{
 		videoId: 'Ahha3Cqe_fk',
 		title: 'Katy Perry - The One That Got Away',
 		channel: 'Katy Perry',
 		language: 'english',
 		tags: ['katy perry', 'the one that got away', 'dance pop', 'english', 'music']
+	},
+	{
+		videoId: 'CevxZvSJLk8',
+		title: 'Katy Perry - Roar',
+		channel: 'Katy Perry',
+		language: 'english',
+		tags: ['katy perry', 'english', 'music']
+	},
+	{
+		videoId: 'dPI-mRFEIH0',
+		title: 'Katy Perry - Bon Appétit (Official) ft. Migos',
+		channel: 'Katy Perry',
+		language: 'english',
+		tags: ['katy perry', 'english', 'music']
+	},
+	{
+		videoId: '0KSOMA3QBU0',
+		title: 'Katy Perry - Dark Horse ft. Juicy J',
+		channel: 'Katy Perry',
+		language: 'english',
+		tags: ['katy perry', 'english', 'music']
+	},
+	{
+		videoId: 'EVIJUH29pjU',
+		title: 'Katy Perry - WOMAN’S WORLD (Official Video)',
+		channel: 'Katy Perry',
+		language: 'english',
+		tags: ['katy perry', 'english', 'music']
 	},
 	{
 		videoId: 'MwpMEbgC7DA',
@@ -2481,6 +2903,34 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['tom odell', 'another love', 'piano pop', 'indie', 'english', 'music']
 	},
 	{
+		videoId: 'V1Pl8CzNzCw',
+		title: 'Tom Odell - Billie Eilish, Khalid - lovely',
+		channel: 'Tom Odell',
+		language: 'english',
+		tags: ['tom odell', 'english', 'music']
+	},
+	{
+		videoId: '4fgzu9Fo66Y',
+		title: 'Tom Odell - Magnetised (Official Video)',
+		channel: 'Tom Odell',
+		language: 'english',
+		tags: ['tom odell', 'english', 'music']
+	},
+	{
+		videoId: 'KMIKzWyZPSA',
+		title: 'Tom Odell - Black Friday (Official Music Video)',
+		channel: 'Tom Odell',
+		language: 'english',
+		tags: ['tom odell', 'english', 'music']
+	},
+	{
+		videoId: 'rPjJZRWAqkE',
+		title: 'Tom Odell - I Know (Official Video)',
+		channel: 'Tom Odell',
+		language: 'english',
+		tags: ['tom odell', 'english', 'music']
+	},
+	{
 		videoId: 'DW3tI9HCslo',
 		title: 'XXXTentacion - SAD!',
 		channel: 'XXXTentacion',
@@ -2488,11 +2938,32 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['xxxtentacion', 'sad', 'emo rap', 'alternative', 'english', 'music']
 	},
 	{
-		videoId: 'L3wKzyIN1yk',
-		title: 'Rag\'n\'Bone Man - Human',
-		channel: 'Rag\'n\'Bone Man',
+		videoId: 'GX8Hg6kWQYI',
+		title: 'XXXTentacion - MOONLIGHT (OFFICIAL MUSIC VIDEO)',
+		channel: 'XXXTentacion',
 		language: 'english',
-		tags: ['rag\'n\'bone man', 'human', 'soul', 'blues', 'english', 'music']
+		tags: ['xxxtentacion', 'english', 'music']
+	},
+	{
+		videoId: 'p_d1iNXis4c',
+		title: 'XXXTentacion - HOPE (Mother Of Gekyume in Music Video) [FAN MADE]',
+		channel: 'XXXTentacion',
+		language: 'english',
+		tags: ['xxxtentacion', 'english', 'music']
+	},
+	{
+		videoId: 'iAeYPfrXwk4',
+		title: 'XXXTentacion - SAD! (Official Music Video)',
+		channel: 'XXXTentacion',
+		language: 'english',
+		tags: ['xxxtentacion', 'english', 'music']
+	},
+	{
+		videoId: 'ca0h9TnbTIo',
+		title: 'XXXTentacion - PnB Rock - Middle Child (feat. XXXTENTACION)  [Official Music Video]',
+		channel: 'XXXTentacion',
+		language: 'english',
+		tags: ['xxxtentacion', 'english', 'music']
 	},
 	{
 		videoId: 'pRpeEdMmmQ0',
@@ -2502,11 +2973,67 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['shakira', 'waka waka', 'latin pop', 'dance', 'english', 'music']
 	},
 	{
+		videoId: 'fcnDmrtj6Sk',
+		title: 'Shakira, Burna Boy - Dai Dai (Official Video)',
+		channel: 'Shakira',
+		language: 'english',
+		tags: ['shakira', 'english', 'music']
+	},
+	{
+		videoId: 'DUT5rEU6pqM',
+		title: 'Shakira - Hips Dont Lie (featuring Wyclef Jean) (Official 4K Video) ft. Wyclef Jean',
+		channel: 'Shakira',
+		language: 'english',
+		tags: ['shakira', 'english', 'music']
+	},
+	{
+		videoId: 'PLPRr_hPpxc',
+		title: 'Shakira - Dai dai Shakira & Burna Boy Official Video',
+		channel: 'Shakira',
+		language: 'english',
+		tags: ['shakira', 'english', 'music']
+	},
+	{
+		videoId: 'XrwmI6YF3Qc',
+		title: 'Shakira - Dai Dai 🌍⚽ Official FIFA World Cup Anthem 2026 | Shakira & Burna Boy | #Shorts #trending',
+		channel: 'Shakira',
+		language: 'english',
+		tags: ['shakira', 'english', 'music']
+	},
+	{
 		videoId: 'VPRjCeoBqrI',
 		title: 'Coldplay - A Sky Full of Stars',
 		channel: 'Coldplay',
 		language: 'english',
 		tags: ['coldplay', 'a sky full of stars', 'alternative rock', 'pop', 'english', 'music']
+	},
+	{
+		videoId: 'pSeaHfkd3M8',
+		title: 'Coldplay - ALL MY LOVE (Official Video)',
+		channel: 'Coldplay',
+		language: 'english',
+		tags: ['coldplay', 'english', 'music']
+	},
+	{
+		videoId: 'o4OlL0OpbW8',
+		title: 'Coldplay - ALL MY LOVE (Official Video) (Directors Cut)',
+		channel: 'Coldplay',
+		language: 'english',
+		tags: ['coldplay', 'english', 'music']
+	},
+	{
+		videoId: 'YykjpeuMNEk',
+		title: 'Coldplay - Hymn For The Weekend (Official Video)',
+		channel: 'Coldplay',
+		language: 'english',
+		tags: ['coldplay', 'english', 'music']
+	},
+	{
+		videoId: 'QtXby3twMmI',
+		title: 'Coldplay - Adventure Of A Lifetime (Official Video)',
+		channel: 'Coldplay',
+		language: 'english',
+		tags: ['coldplay', 'english', 'music']
 	},
 	{
 		videoId: 'V1Pl8CzNzCw',
@@ -2516,11 +3043,67 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['billie eilish', 'lovely', 'dark pop', 'alternative', 'english', 'music']
 	},
 	{
+		videoId: 'V9PVRfjEBTI',
+		title: 'Billie Eilish - BIRDS OF A FEATHER (Official Music Video)',
+		channel: 'Billie Eilish',
+		language: 'english',
+		tags: ['billie eilish', 'english', 'music']
+	},
+	{
+		videoId: 'viimfQi_pUw',
+		title: 'Billie Eilish - ocean eyes (Official Music Video)',
+		channel: 'Billie Eilish',
+		language: 'english',
+		tags: ['billie eilish', 'english', 'music']
+	},
+	{
+		videoId: 'gBRi6aZJGj4',
+		title: 'Billie Eilish - Bellyache (Official Music Video)',
+		channel: 'Billie Eilish',
+		language: 'english',
+		tags: ['billie eilish', 'english', 'music']
+	},
+	{
+		videoId: 'S2dRcipMCpw',
+		title: 'Billie Eilish - Lost Cause (Official Music Video)',
+		channel: 'Billie Eilish',
+		language: 'english',
+		tags: ['billie eilish', 'english', 'music']
+	},
+	{
 		videoId: 'zABLecsR5UE',
 		title: 'Lewis Capaldi - Someone You Loved',
 		channel: 'Lewis Capaldi',
 		language: 'english',
 		tags: ['lewis capaldi', 'someone you loved', 'emotional pop', 'english', 'music']
+	},
+	{
+		videoId: 'Jtauh8GcxBY',
+		title: 'Lewis Capaldi - Before You Go (Official Video)',
+		channel: 'Lewis Capaldi',
+		language: 'english',
+		tags: ['lewis capaldi', 'english', 'music']
+	},
+	{
+		videoId: 'QwtRXG1QpR4',
+		title: 'Lewis Capaldi - Bruises (Official Video)',
+		channel: 'Lewis Capaldi',
+		language: 'english',
+		tags: ['lewis capaldi', 'english', 'music']
+	},
+	{
+		videoId: 'zRVTfD0mA5o',
+		title: 'Lewis Capaldi - Lewis Calpadi Stops Concert Due To Tourette’s 🥺 #lewiscapaldi #concert',
+		channel: 'Lewis Capaldi',
+		language: 'english',
+		tags: ['lewis capaldi', 'english', 'music']
+	},
+	{
+		videoId: 'L__dHv3hzVU',
+		title: 'Lewis Capaldi - The Best Songs By Lewis Capaldi (Part 1) 🎶',
+		channel: 'Lewis Capaldi',
+		language: 'english',
+		tags: ['lewis capaldi', 'english', 'music']
 	},
 	{
 		videoId: 'UtF6Jej8yb4',
@@ -2530,6 +3113,34 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['avicii', 'the nights', 'edm', 'progressive house', 'english', 'music']
 	},
 	{
+		videoId: 'IcrbM1l_BoI',
+		title: 'Avicii - Wake Me Up (Official Video)',
+		channel: 'Avicii',
+		language: 'english',
+		tags: ['avicii', 'english', 'music']
+	},
+	{
+		videoId: 'cHHLHGNpCSA',
+		title: 'Avicii - Waiting For Love',
+		channel: 'Avicii',
+		language: 'english',
+		tags: ['avicii', 'english', 'music']
+	},
+	{
+		videoId: '_ovdm2yX4MA',
+		title: 'Avicii - Levels',
+		channel: 'Avicii',
+		language: 'english',
+		tags: ['avicii', 'english', 'music']
+	},
+	{
+		videoId: 'BNIAyzmdf_g',
+		title: 'Avicii Greatest Hits Full Album 2024 - Avicii Best Songs Playlist 2024 (Full Collection)',
+		channel: 'Avicii',
+		language: 'english',
+		tags: ['avicii', 'english', 'music']
+	},
+	{
 		videoId: 'hT_nvWreIhg',
 		title: 'OneRepublic - Counting Stars',
 		channel: 'OneRepublic',
@@ -2537,11 +3148,32 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['onerepublic', 'counting stars', 'pop rock', 'english', 'music']
 	},
 	{
-		videoId: '0yW7w8F2TVA',
-		title: 'James Arthur - Say You Won\'t Let Go',
-		channel: 'James Arthur',
+		videoId: 'LHDrqgaGwzA',
+		title: 'OneRepublic - Lets Hurt Tonight (The Lost Video)',
+		channel: 'OneRepublic',
 		language: 'english',
-		tags: ['james arthur', 'say you wont let go', 'pop', 'soul', 'english', 'music']
+		tags: ['onerepublic', 'english', 'music']
+	},
+	{
+		videoId: 'mNEUkkoUoIA',
+		title: 'OneRepublic - I Ain’t Worried (From “Top Gun: Maverick”) [Official Music Video]',
+		channel: 'OneRepublic',
+		language: 'english',
+		tags: ['onerepublic', 'english', 'music']
+	},
+	{
+		videoId: '4-vU1jjuId8',
+		title: 'OneRepublic - 🎤 | Top 10 Most Streamed Songs on Spotify | All Time Hits',
+		channel: 'OneRepublic',
+		language: 'english',
+		tags: ['onerepublic', 'english', 'music']
+	},
+	{
+		videoId: '3rKoJSjbTEo',
+		title: 'OneRepublic - It may not be 2014, but we did drop a gold-filled ‘Native’ vinyl ft. “Love Runs Out,” and more.',
+		channel: 'OneRepublic',
+		language: 'english',
+		tags: ['onerepublic', 'english', 'music']
 	},
 	{
 		videoId: 'JRfuAukYTKg',
@@ -2551,11 +3183,67 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['david guetta', 'titanium', 'edm', 'dance pop', 'english', 'music']
 	},
 	{
+		videoId: '90RLzVUuXe4',
+		title: 'David Guetta & Bebe Rexha - Im Good (Blue) [Official Music Video]',
+		channel: 'David Guetta',
+		language: 'english',
+		tags: ['david guetta', 'english', 'music']
+	},
+	{
+		videoId: 'BPiW0tkWfeg',
+		title: 'David Guetta - Lovers On The Sun (Official Video) ft Sam Martin',
+		channel: 'David Guetta',
+		language: 'english',
+		tags: ['david guetta', 'english', 'music']
+	},
+	{
+		videoId: 'N9hazmsUxrM',
+		title: 'David Guetta - Hit Track',
+		channel: 'David Guetta',
+		language: 'english',
+		tags: ['david guetta', 'english', 'music']
+	},
+	{
+		videoId: 'PVzljDmoPVs',
+		title: 'David Guetta - She Wolf (Falling To Pieces) ft. Sia (Official Video)',
+		channel: 'David Guetta',
+		language: 'english',
+		tags: ['david guetta', 'english', 'music']
+	},
+	{
 		videoId: 'TUVcZfQe-Kw',
 		title: 'Dua Lipa - Levitating',
 		channel: 'Dua Lipa',
 		language: 'english',
 		tags: ['dua lipa', 'levitating', 'dance pop', 'disco', 'english', 'music']
+	},
+	{
+		videoId: 'k2qgadSvNyU',
+		title: 'Dua Lipa - New Rules (Official Music Video)',
+		channel: 'Dua Lipa',
+		language: 'english',
+		tags: ['dua lipa', 'english', 'music']
+	},
+	{
+		videoId: '3DcoC8p9az8',
+		title: 'Dua Lipa - Training Season (Live from the Royal Albert Hall) [Official Performance Video]',
+		channel: 'Dua Lipa',
+		language: 'english',
+		tags: ['dua lipa', 'english', 'music']
+	},
+	{
+		videoId: 'suAR1PYFNYA',
+		title: 'Dua Lipa - Houdini (Official Music Video)',
+		channel: 'Dua Lipa',
+		language: 'english',
+		tags: ['dua lipa', 'english', 'music']
+	},
+	{
+		videoId: 'Mgfe5tIwOj0',
+		title: 'Dua Lipa - IDGAF (Official Music Video)',
+		channel: 'Dua Lipa',
+		language: 'english',
+		tags: ['dua lipa', 'english', 'music']
 	},
 	{
 		videoId: 'IPfJnp1guPc',
@@ -2565,11 +3253,32 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['khalid', 'young dumb & broke', 'r&b', 'chill pop', 'english', 'music']
 	},
 	{
-		videoId: '3AtDnEC4zak',
-		title: 'Charlie Puth - We Don\'t Talk Anymore (feat. Selena Gomez)',
-		channel: 'Charlie Puth',
+		videoId: 'x3bfa3DZ8JM',
+		title: 'Khalid - Better (Official Video)',
+		channel: 'Khalid',
 		language: 'english',
-		tags: ['charlie puth', 'we dont talk anymore', 'pop', 'r&b', 'english', 'music']
+		tags: ['khalid', 'english', 'music']
+	},
+	{
+		videoId: 'xYtsL9znopI',
+		title: 'Khalid & Normani - Love Lies (Official Video)',
+		channel: 'Khalid',
+		language: 'english',
+		tags: ['khalid', 'english', 'music']
+	},
+	{
+		videoId: 'jrXXgp8XP1E',
+		title: 'Khalid - out of body (Official Video)',
+		channel: 'Khalid',
+		language: 'english',
+		tags: ['khalid', 'english', 'music']
+	},
+	{
+		videoId: 'rbHIDVVTSNA',
+		title: 'Khalid - Right Back (Official Video) ft. A Boogie Wit Da Hoodie',
+		channel: 'Khalid',
+		language: 'english',
+		tags: ['khalid', 'english', 'music']
 	},
 	{
 		videoId: 'BcqxLCWn-CE',
@@ -2579,11 +3288,67 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['lauv', 'i like me better', 'indie pop', 'emotional', 'english', 'music']
 	},
 	{
+		videoId: 'AH8b7EynJ60',
+		title: 'Lauv - All 4 Nothing (Im So In Love) [Official Video]',
+		channel: 'Lauv',
+		language: 'english',
+		tags: ['lauv', 'english', 'music']
+	},
+	{
+		videoId: 'FHtQrPX_JpY',
+		title: 'Lauv - 26 [Official Video]',
+		channel: 'Lauv',
+		language: 'english',
+		tags: ['lauv', 'english', 'music']
+	},
+	{
+		videoId: 'hWVr6RPMuFE',
+		title: 'Lauv - I Like Me Better (Official Music Video)',
+		channel: 'Lauv',
+		language: 'english',
+		tags: ['lauv', 'english', 'music']
+	},
+	{
+		videoId: 'mpHDFHLEm7Q',
+		title: 'Lauv - Love U Like That (Lyrics) i love you like that',
+		channel: 'Lauv',
+		language: 'english',
+		tags: ['lauv', 'english', 'music']
+	},
+	{
 		videoId: 'I0czvJ_jikg',
 		title: 'Dean Lewis - Be Alright',
 		channel: 'Dean Lewis',
 		language: 'english',
 		tags: ['dean lewis', 'be alright', 'pop', 'acoustic', 'english', 'music']
+	},
+	{
+		videoId: 'QCtEe-zsCtQ',
+		title: 'Dean Lewis - How Do I Say Goodbye (Official Video)',
+		channel: 'Dean Lewis',
+		language: 'english',
+		tags: ['dean lewis', 'english', 'music']
+	},
+	{
+		videoId: 'GurljGjfrVs',
+		title: 'Dean Lewis - With You (Official Video)',
+		channel: 'Dean Lewis',
+		language: 'english',
+		tags: ['dean lewis', 'english', 'music']
+	},
+	{
+		videoId: 'bQ4RWaR0mQE',
+		title: 'Dean Lewis - Naked (Official Video)',
+		channel: 'Dean Lewis',
+		language: 'english',
+		tags: ['dean lewis', 'english', 'music']
+	},
+	{
+		videoId: 'tiXhXpbqwSo',
+		title: 'Dean Lewis - I Hate That Its True (Official Video)',
+		channel: 'Dean Lewis',
+		language: 'english',
+		tags: ['dean lewis', 'english', 'music']
 	},
 	{
 		videoId: 'Oa_RSwwpPaA',
@@ -2593,11 +3358,67 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['benson boone', 'beautiful things', 'pop rock', 'english', 'music']
 	},
 	{
+		videoId: 'vL19WbWOxag',
+		title: 'Benson Boone - Mr Electric Blue (Official Music Video)',
+		channel: 'Benson Boone',
+		language: 'english',
+		tags: ['benson boone', 'english', 'music']
+	},
+	{
+		videoId: 'HPR-VwzbDRg',
+		title: 'Benson Boone - In The Stars (Official Music Video)',
+		channel: 'Benson Boone',
+		language: 'english',
+		tags: ['benson boone', 'english', 'music']
+	},
+	{
+		videoId: 'u2ah9tWTkmk',
+		title: 'Benson Boone - Alex Warren - Ordinary (Official Video)',
+		channel: 'Benson Boone',
+		language: 'english',
+		tags: ['benson boone', 'english', 'music']
+	},
+	{
+		videoId: 'ptlsli-QXXc',
+		title: 'Benson Boone - The Time Of My Life (Official Music Video)',
+		channel: 'Benson Boone',
+		language: 'english',
+		tags: ['benson boone', 'english', 'music']
+	},
+	{
 		videoId: '51u5fnyrGj4',
 		title: 'Duncan Laurence - Arcade',
 		channel: 'Duncan Laurence',
 		language: 'english',
 		tags: ['duncan laurence', 'arcade', 'pop', 'emotional', 'english', 'music']
+	},
+	{
+		videoId: 'I4ysCjbipbc',
+		title: 'Duncan Laurence - Heal Me (Official Music Video)',
+		channel: 'Duncan Laurence',
+		language: 'english',
+		tags: ['duncan laurence', 'english', 'music']
+	},
+	{
+		videoId: '308v08mFWWc',
+		title: 'Duncan Laurence feat. FLETCHER – Arcade - Loving You Is A Losing Game (Live On The Ellen Show)',
+		channel: 'Duncan Laurence',
+		language: 'english',
+		tags: ['duncan laurence', 'english', 'music']
+	},
+	{
+		videoId: 'LixyC0s_Gxc',
+		title: 'Duncan Laurence - Duncan-Laurence-Loving-You-Is-A-Losing-Game-Arcade concert',
+		channel: 'Duncan Laurence',
+		language: 'english',
+		tags: ['duncan laurence', 'english', 'music']
+	},
+	{
+		videoId: 'WQb5-r6QAeA',
+		title: 'Duncan Laurence - ARCADE but everyone sings it',
+		channel: 'Duncan Laurence',
+		language: 'english',
+		tags: ['duncan laurence', 'english', 'music']
 	},
 	{
 		videoId: 'fbHbTBP_u7U',
@@ -2607,11 +3428,67 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['nf', 'let you down', 'hip-hop', 'rap', 'english', 'music']
 	},
 	{
+		videoId: 'lLFoLJIXayk',
+		title: 'NF - FEAR',
+		channel: 'NF',
+		language: 'english',
+		tags: ['nf', 'english', 'music']
+	},
+	{
+		videoId: 'Kyng8yYwvwg',
+		title: 'NF - WASHED UP',
+		channel: 'NF',
+		language: 'english',
+		tags: ['nf', 'english', 'music']
+	},
+	{
+		videoId: 'fnlJw9H0xAM',
+		title: 'NF - The Search',
+		channel: 'NF',
+		language: 'english',
+		tags: ['nf', 'english', 'music']
+	},
+	{
+		videoId: 'lxRwEPvL-mQ',
+		title: 'NF - When I Grow Up',
+		channel: 'NF',
+		language: 'english',
+		tags: ['nf', 'english', 'music']
+	},
+	{
 		videoId: 'PVjiKRfKpPI',
 		title: 'Hozier - Take Me to Church',
 		channel: 'Hozier',
 		language: 'english',
 		tags: ['hozier', 'take me to church', 'indie rock', 'soul', 'english', 'music']
+	},
+	{
+		videoId: 'NTpbbQUBbuo',
+		title: 'Hozier - Too Sweet (Official Video)',
+		channel: 'Hozier',
+		language: 'english',
+		tags: ['hozier', 'english', 'music']
+	},
+	{
+		videoId: 'nH7bjV0Q_44',
+		title: 'Hozier - Work Song (Official Video)',
+		channel: 'Hozier',
+		language: 'english',
+		tags: ['hozier', 'english', 'music']
+	},
+	{
+		videoId: 'Yj4H_-VOceM',
+		title: 'Hozier - Nobodys Soldier (Official Video)',
+		channel: 'Hozier',
+		language: 'english',
+		tags: ['hozier', 'english', 'music']
+	},
+	{
+		videoId: 'OSye8OO5TkM',
+		title: 'Hozier - Movement',
+		channel: 'Hozier',
+		language: 'english',
+		tags: ['hozier', 'english', 'music']
 	},
 	{
 		videoId: 'RBumgq5yVrA',
@@ -2621,11 +3498,67 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['passenger', 'let her go', 'folk pop', 'acoustic', 'english', 'music']
 	},
 	{
+		videoId: 'RGq8HhCxYrM',
+		title: 'Passenger - Alex Warren - PASSENGER (Official Video)',
+		channel: 'Passenger',
+		language: 'english',
+		tags: ['passenger', 'english', 'music']
+	},
+	{
+		videoId: 'u2ah9tWTkmk',
+		title: 'Passenger - Alex Warren - Ordinary (Official Video)',
+		channel: 'Passenger',
+		language: 'english',
+		tags: ['passenger', 'english', 'music']
+	},
+	{
+		videoId: 'vRnUXm5tFIc',
+		title: 'Passenger - Let Her Go (Official Video) | Emotional Acoustic Hit',
+		channel: 'Passenger',
+		language: 'english',
+		tags: ['passenger', 'english', 'music']
+	},
+	{
+		videoId: 'kTSSypF_6QU',
+		title: 'Passenger | Let Her Go (Official Video) (Lyrics)',
+		channel: 'Passenger',
+		language: 'english',
+		tags: ['passenger', 'english', 'music']
+	},
+	{
 		videoId: 'u2ah9tWTkmk',
 		title: 'Alex Warren - Ordinary',
 		channel: 'Alex Warren',
 		language: 'english',
 		tags: ['alex warren', 'ordinary', 'pop', 'storytelling', 'english', 'music']
+	},
+	{
+		videoId: 'hkUSnrHQJHg',
+		title: 'Alex Warren - FEVER DREAM (Official Video)',
+		channel: 'Alex Warren',
+		language: 'english',
+		tags: ['alex warren', 'english', 'music']
+	},
+	{
+		videoId: 'jXqf3uqLkkU',
+		title: 'Alex Warren - Eternity (Official Video)',
+		channel: 'Alex Warren',
+		language: 'english',
+		tags: ['alex warren', 'english', 'music']
+	},
+	{
+		videoId: 'ZAMN1OZS5kI',
+		title: 'Alex Warren - She faces her biggest fears every video lol',
+		channel: 'Alex Warren',
+		language: 'english',
+		tags: ['alex warren', 'english', 'music']
+	},
+	{
+		videoId: 'g0P7HG2fbeY',
+		title: 'Alex Warren - The Best Songs By Alex Warren (Part 1) 🎶',
+		channel: 'Alex Warren',
+		language: 'english',
+		tags: ['alex warren', 'english', 'music']
 	},
 	{
 		videoId: 'eVTXPUF4Oz4',
@@ -2635,6 +3568,34 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['linkin park', 'in the end', 'alternative rock', 'nu metal', 'english', 'music']
 	},
 	{
+		videoId: '4qlCC1GOwFw',
+		title: 'Linkin Park - One Step Closer [Official HD Music Video] - Linkin Park',
+		channel: 'Linkin Park',
+		language: 'english',
+		tags: ['linkin park', 'english', 'music']
+	},
+	{
+		videoId: 'Gd9OhYroLN0',
+		title: 'Linkin Park - Crawling [Official HD Music Video] - Linkin Park',
+		channel: 'Linkin Park',
+		language: 'english',
+		tags: ['linkin park', 'english', 'music']
+	},
+	{
+		videoId: 'kXYiU_JCYtU',
+		title: 'Linkin Park - Numb (Official Music Video) [4K UPGRADE] – Linkin Park',
+		channel: 'Linkin Park',
+		language: 'english',
+		tags: ['linkin park', 'english', 'music']
+	},
+	{
+		videoId: 'zsCD5XCu6CM',
+		title: 'Linkin Park - Somewhere I Belong (Official Music Video) [4K UPGRADE] – Linkin Park',
+		channel: 'Linkin Park',
+		language: 'english',
+		tags: ['linkin park', 'english', 'music']
+	},
+	{
 		videoId: 'GCdwKhTtNNw',
 		title: 'The Neighbourhood - Sweater Weather',
 		channel: 'The Neighbourhood',
@@ -2642,12 +3603,68 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['the neighbourhood', 'sweater weather', 'indie rock', 'alternative', 'english', 'music']
 	},
 	{
+		videoId: '8giBPUpzKRw',
+		title: 'The Neighbourhood - Stargazing (Official Video)',
+		channel: 'The Neighbourhood',
+		language: 'english',
+		tags: ['the neighbourhood', 'english', 'music']
+	},
+	{
+		videoId: 'tdyINwquKu8',
+		title: 'The Neighbourhood - Hell or High Water (Official Video)',
+		channel: 'The Neighbourhood',
+		language: 'english',
+		tags: ['the neighbourhood', 'english', 'music']
+	},
+	{
+		videoId: 'mPxdf1KqRIQ',
+		title: 'The Neighbourhood - Whyd You Have To Leave? (Official Video)',
+		channel: 'The Neighbourhood',
+		language: 'english',
+		tags: ['the neighbourhood', 'english', 'music']
+	},
+	{
+		videoId: '92u2nAUOkmg',
+		title: 'The Neighbourhood - Private (Official Music Video)',
+		channel: 'The Neighbourhood',
+		language: 'english',
+		tags: ['the neighbourhood', 'english', 'music']
+	},
+	{
 		videoId: 'e2vBLd5Egnk',
 		title: 'Martin Garrix & Dua Lipa - Scared to Be Lonely',
 		channel: 'Martin Garrix',
 		language: 'english',
 		tags: ['martin garrix', 'scared to be lonely', 'future bass', 'edm', 'english', 'music']
-	}
+	},
+	{
+		videoId: 'Lpjcm1F8tY8',
+		title: 'Martin Garrix feat. Bonn - High On Life (Official Video)',
+		channel: 'Martin Garrix',
+		language: 'english',
+		tags: ['martin garrix', 'english', 'music']
+	},
+	{
+		videoId: 'gCYcHz2k5x0',
+		title: 'Martin Garrix - Animals (Official Video)',
+		channel: 'Martin Garrix',
+		language: 'english',
+		tags: ['martin garrix', 'english', 'music']
+	},
+	{
+		videoId: '67auoS0oMzU',
+		title: 'Martin Garrix & U2 - Fireflies (Official Video)',
+		channel: 'Martin Garrix',
+		language: 'english',
+		tags: ['martin garrix', 'english', 'music']
+	},
+	{
+		videoId: 'yrt9GwugK7g',
+		title: 'Martin Garrix & Ed Sheeran - Repeat It (Acoustic Version) [Official Video]',
+		channel: 'Martin Garrix',
+		language: 'english',
+		tags: ['martin garrix', 'english', 'music']
+	},
 ];
 
 export function extractSinger(track?: { channel?: string; title?: string } | null): string {
