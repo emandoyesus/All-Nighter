@@ -86,29 +86,29 @@
 	function getTierBadgeClass(tier: Achievement['tier']): string {
 		switch (tier) {
 			case 'bronze':
-				return 'border-amber-600/50 bg-gradient-to-br from-amber-700/25 via-amber-900/40 to-amber-950/80 text-amber-300 shadow-[0_0_12px_rgba(217,119,6,0.25)]';
+				return 'border-amber/40 bg-amber/10 text-amber';
 			case 'silver':
-				return 'border-slate-300/50 bg-gradient-to-br from-slate-400/20 via-slate-700/40 to-slate-900/80 text-slate-100 shadow-[0_0_12px_rgba(203,213,225,0.2)]';
+				return 'border-slate-400/40 bg-slate-400/10 text-slate-200';
 			case 'gold':
-				return 'border-yellow-400/60 bg-gradient-to-br from-yellow-500/25 via-amber-600/40 to-yellow-950/80 text-yellow-300 shadow-[0_0_16px_rgba(234,179,8,0.3)]';
+				return 'border-amber/50 bg-amber/15 text-amber';
 			case 'neon':
-				return 'border-violet-400/70 bg-gradient-to-br from-violet-500/25 via-fuchsia-600/35 to-violet-950/80 text-violet-200 shadow-[0_0_18px_rgba(168,85,247,0.35)]';
+				return 'border-violet-400/50 bg-violet-400/10 text-violet-300';
 		}
 	}
 
 	function getTierCardClass(tier: Achievement['tier'], unlocked: boolean): string {
 		if (!unlocked) {
-			return 'border-cream/10 bg-[#080d0f]/90 hover:border-cream/20 hover:bg-[#0c1215] opacity-85 hover:opacity-100';
+			return 'border-cream/10 bg-[#060a0b] opacity-75 hover:opacity-100 hover:border-cream/20';
 		}
 		switch (tier) {
 			case 'bronze':
-				return 'border-amber-600/40 bg-gradient-to-br from-amber-950/30 via-[#0d0905] to-[#060a0b] shadow-[0_4px_20px_-6px_rgba(217,119,6,0.2)] hover:border-amber-500/65';
+				return 'border-amber/35 bg-[#060a0b] hover:border-amber/55';
 			case 'silver':
-				return 'border-slate-400/40 bg-gradient-to-br from-slate-800/30 via-[#0c1215] to-[#060a0b] shadow-[0_4px_20px_-6px_rgba(148,163,184,0.2)] hover:border-slate-300/65';
+				return 'border-slate-400/35 bg-[#060a0b] hover:border-slate-400/55';
 			case 'gold':
-				return 'border-yellow-500/45 bg-gradient-to-br from-amber-900/30 via-[#120f06] to-[#060a0b] shadow-[0_4px_25px_-6px_rgba(234,179,8,0.25)] hover:border-yellow-400/70';
+				return 'border-amber/50 bg-[#060a0b] hover:border-amber/70';
 			case 'neon':
-				return 'border-violet-400/50 bg-gradient-to-br from-violet-950/35 via-[#0e0a19] to-[#060a0b] shadow-[0_4px_25px_-6px_rgba(168,85,247,0.3)] hover:border-violet-300/75';
+				return 'border-violet-400/40 bg-[#060a0b] hover:border-violet-400/60';
 		}
 	}
 
@@ -348,7 +348,7 @@
 								<span class="text-cream">{stats.rank.progress}%</span>
 							</div>
 							<div class="h-1.5 w-full rounded-full bg-night-3 overflow-hidden border border-cream/10">
-								<div class="h-full rounded-full bg-gradient-to-r from-teal-500 to-lamp transition-all duration-500" style="width: {stats.rank.progress}%"></div>
+								<div class="h-full rounded-full bg-lamp transition-all duration-500" style="width: {stats.rank.progress}%"></div>
 							</div>
 						</div>
 					{/if}
@@ -450,7 +450,7 @@
 									{@const pct = Math.min(100, Math.round((a.current / a.target) * 100))}
 									<div class="mt-2 h-1 w-full rounded-full bg-night-3 overflow-hidden border border-cream/10">
 										<div
-											class="h-full rounded-full bg-gradient-to-r from-amber-500/60 to-lamp/60"
+											class="h-full rounded-full bg-lamp"
 											style="width: {pct}%"
 										></div>
 									</div>

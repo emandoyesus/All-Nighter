@@ -68,29 +68,29 @@
 	function getTierBadgeClass(tier: Achievement['tier']): string {
 		switch (tier) {
 			case 'bronze':
-				return 'border-amber-600/50 bg-gradient-to-br from-amber-700/25 via-amber-900/40 to-amber-950/80 text-amber-300 shadow-[0_0_12px_rgba(217,119,6,0.25)]';
+				return 'border-amber/40 bg-amber/10 text-amber';
 			case 'silver':
-				return 'border-slate-300/50 bg-gradient-to-br from-slate-400/20 via-slate-700/40 to-slate-900/80 text-slate-100 shadow-[0_0_12px_rgba(203,213,225,0.2)]';
+				return 'border-slate-400/40 bg-slate-400/10 text-slate-200';
 			case 'gold':
-				return 'border-yellow-400/60 bg-gradient-to-br from-yellow-500/25 via-amber-600/40 to-yellow-950/80 text-yellow-300 shadow-[0_0_16px_rgba(234,179,8,0.3)]';
+				return 'border-amber/50 bg-amber/15 text-amber';
 			case 'neon':
-				return 'border-violet-400/70 bg-gradient-to-br from-violet-500/25 via-fuchsia-600/35 to-violet-950/80 text-violet-200 shadow-[0_0_18px_rgba(168,85,247,0.35)]';
+				return 'border-violet-400/50 bg-violet-400/10 text-violet-300';
 		}
 	}
 
 	function getTierCardClass(tier: Achievement['tier'], unlocked: boolean): string {
 		if (!unlocked) {
-			return 'border-cream/10 bg-[#080d0f]/90 hover:border-cream/20 hover:bg-[#0c1215] opacity-85 hover:opacity-100';
+			return 'border-cream/10 bg-[#060a0b] opacity-75 hover:opacity-100 hover:border-cream/20';
 		}
 		switch (tier) {
 			case 'bronze':
-				return 'border-amber-600/40 bg-gradient-to-br from-amber-950/30 via-[#0d0905] to-[#060a0b] shadow-[0_4px_20px_-6px_rgba(217,119,6,0.2)] hover:border-amber-500/65';
+				return 'border-amber/35 bg-[#060a0b] hover:border-amber/55';
 			case 'silver':
-				return 'border-slate-400/40 bg-gradient-to-br from-slate-800/30 via-[#0c1215] to-[#060a0b] shadow-[0_4px_20px_-6px_rgba(148,163,184,0.2)] hover:border-slate-300/65';
+				return 'border-slate-400/35 bg-[#060a0b] hover:border-slate-400/55';
 			case 'gold':
-				return 'border-yellow-500/45 bg-gradient-to-br from-amber-900/30 via-[#120f06] to-[#060a0b] shadow-[0_4px_25px_-6px_rgba(234,179,8,0.25)] hover:border-yellow-400/70';
+				return 'border-amber/50 bg-[#060a0b] hover:border-amber/70';
 			case 'neon':
-				return 'border-violet-400/50 bg-gradient-to-br from-violet-950/35 via-[#0e0a19] to-[#060a0b] shadow-[0_4px_25px_-6px_rgba(168,85,247,0.3)] hover:border-violet-300/75';
+				return 'border-violet-400/40 bg-[#060a0b] hover:border-violet-400/60';
 		}
 	}
 
@@ -730,7 +730,7 @@
 						<!-- Mini Progress Bar -->
 						<div class="h-1.5 w-full rounded-full bg-night-3 overflow-hidden border border-cream/10 p-[1px]">
 							<div
-								class="h-full rounded-full bg-gradient-to-r from-teal-500 to-lamp transition-all duration-500"
+								class="h-full rounded-full bg-lamp transition-all duration-500"
 								style="width: {Math.round((userStats.unlockedCount / userStats.totalAchievements) * 100)}%"
 							></div>
 						</div>
@@ -1046,19 +1046,19 @@
 
 						<!-- Master Rarity Tiers Bar -->
 						<div class="grid grid-cols-4 gap-2 text-center text-xs font-mono">
-							<div class="rounded-lg border border-amber-600/30 bg-amber-950/20 py-1.5 px-2">
+							<div class="rounded-lg border border-amber/30 bg-[#060a0b] py-1.5 px-2">
 								<span class="text-[10px] text-amber-300 font-semibold block">🥉 Bronze</span>
 								<span class="text-xs font-bold text-cream mt-0.5 block">{tierCounts.unlocked.bronze} / {tierCounts.total.bronze}</span>
 							</div>
-							<div class="rounded-lg border border-slate-400/30 bg-slate-800/20 py-1.5 px-2">
+							<div class="rounded-lg border border-slate-400/30 bg-[#060a0b] py-1.5 px-2">
 								<span class="text-[10px] text-slate-200 font-semibold block">🥈 Silver</span>
 								<span class="text-xs font-bold text-cream mt-0.5 block">{tierCounts.unlocked.silver} / {tierCounts.total.silver}</span>
 							</div>
-							<div class="rounded-lg border border-yellow-500/35 bg-yellow-950/20 py-1.5 px-2">
-								<span class="text-[10px] text-yellow-300 font-semibold block">🥇 Gold</span>
+							<div class="rounded-lg border border-amber/40 bg-[#060a0b] py-1.5 px-2">
+								<span class="text-[10px] text-amber-300 font-semibold block">🥇 Gold</span>
 								<span class="text-xs font-bold text-cream mt-0.5 block">{tierCounts.unlocked.gold} / {tierCounts.total.gold}</span>
 							</div>
-							<div class="rounded-lg border border-violet-400/40 bg-violet-950/25 py-1.5 px-2">
+							<div class="rounded-lg border border-violet-400/30 bg-[#060a0b] py-1.5 px-2">
 								<span class="text-[10px] text-violet-300 font-semibold block">💎 Mythic</span>
 								<span class="text-xs font-bold text-cream mt-0.5 block">{tierCounts.unlocked.neon} / {tierCounts.total.neon}</span>
 							</div>
@@ -1138,7 +1138,7 @@
 												</div>
 												<div class="h-1.5 w-full rounded-full bg-night-3 overflow-hidden border border-cream/10 p-[1px]">
 													<div
-														class="h-full rounded-full bg-gradient-to-r from-amber-500/70 to-lamp/70 transition-all duration-500"
+														class="h-full rounded-full bg-lamp transition-all duration-500"
 														style="width: {pct}%"
 													></div>
 												</div>
