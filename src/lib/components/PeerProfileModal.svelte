@@ -419,23 +419,40 @@
 							<span>Edit Profile</span>
 						</button>
 					{:else if room.isHost && activePeer}
-						<button
-							type="button"
-							class="btn btn-sm text-xs inline-flex items-center gap-1.5 {isAdmin ? 'btn-danger-outline' : 'btn-secondary text-aqua-foam border-teal-500/40'}"
-							onclick={() => {
-								if (activePeer) {
-									room.toggleAdmin(activePeer.id, activePeer.name);
-								}
-							}}
-						>
-							{#if isAdmin}
-								<IconShield size={13} stroke={2} />
-								<span>Revoke Admin</span>
-							{:else}
-								<IconShieldCheck size={13} stroke={2} />
-								<span>Make Room Admin</span>
-							{/if}
-						</button>
+						<div class="flex flex-wrap items-center gap-2">
+							<button
+								type="button"
+								class="btn btn-sm text-xs inline-flex items-center gap-1.5 {isAdmin ? 'btn-danger-outline' : 'btn-secondary text-aqua-foam border-teal-500/40'}"
+								onclick={() => {
+									if (activePeer) {
+										room.toggleAdmin(activePeer.id, activePeer.name);
+									}
+								}}
+							>
+								{#if isAdmin}
+									<IconShield size={13} stroke={2} />
+									<span>Revoke Admin</span>
+								{:else}
+									<IconShieldCheck size={13} stroke={2} />
+									<span>Make Room Admin</span>
+								{/if}
+							</button>
+
+							<button
+								type="button"
+								class="btn btn-sm btn-ghost text-xs inline-flex items-center gap-1.5 text-amber hover:bg-amber/15 border border-amber/35 cursor-pointer transition-all"
+								onclick={async () => {
+									if (activePeer && confirm(`Are you sure you want to transfer host ownership of this room to ${activePeer.name}? You will step down as host.`)) {
+										await room.transferOwnership(activePeer.id, activePeer.name);
+										open = false;
+									}
+								}}
+								title="Transfer permanent room host ownership to {activePeer.name}"
+							>
+								<IconCrown size={13} stroke={2} />
+								<span>Transfer Host</span>
+							</button>
+						</div>
 					{:else}
 						<span class="text-xs font-mono text-faint">Logged with All Nighter</span>
 					{/if}

@@ -223,16 +223,18 @@
 				<h3 class="text-sm font-medium">Up next</h3>
 				<span class="num text-xs text-faint">{room.state.queue.length} in queue</span>
 			</div>
-			<button
-				type="button"
-				class="inline-flex items-center gap-1.5 rounded-field border border-cream/15 bg-night/60 px-2.5 py-1 text-xs text-taupe transition-colors hover:border-lamp/40 hover:text-cream disabled:opacity-30 disabled:pointer-events-none"
-				onclick={() => room.shuffleQueue()}
-				disabled={room.state.queue.length <= 1 || !room.canControlPlayback}
-				title={!room.canControlPlayback ? 'Aux is set to Admin only' : (room.state.queue.length <= 1 ? 'Need at least 2 tracks to shuffle' : 'Shuffle queue')}
-			>
-				<IconArrowsShuffle size={13} stroke={1.8} class="text-lamp" />
-				<span>Shuffle</span>
-			</button>
+			{#if room.isAdminUser}
+				<button
+					type="button"
+					class="inline-flex items-center gap-1.5 rounded-field border border-cream/15 bg-night/60 px-2.5 py-1 text-xs text-taupe transition-colors hover:border-lamp/40 hover:text-cream disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+					onclick={() => room.shuffleQueue()}
+					disabled={room.state.queue.length <= 1}
+					title={room.state.queue.length <= 1 ? 'Need at least 2 tracks to shuffle' : 'Shuffle playlist (Admin)'}
+				>
+					<IconArrowsShuffle size={13} stroke={1.8} class="text-lamp" />
+					<span>Shuffle</span>
+				</button>
+			{/if}
 		</div>
 
 		<ul class="divide-y divide-cream/8 max-h-[340px] overflow-y-auto">
@@ -301,24 +303,26 @@
 						>
 							<IconThumbUp size={15} stroke={1.5} />
 						</button>
-						<button
-							class="icon-btn text-faint hover:text-cream disabled:opacity-20 hidden sm:inline-flex"
-							onclick={() => room.moveQueue(i, i - 1)}
-							disabled={i === 0}
-							title="Move up"
-							aria-label="Move {track.title} up"
-						>
-							<IconChevronUp size={15} stroke={1.5} />
-						</button>
-						<button
-							class="icon-btn text-faint hover:text-cream disabled:opacity-20 hidden sm:inline-flex"
-							onclick={() => room.moveQueue(i, i + 1)}
-							disabled={i === room.state.queue.length - 1}
-							title="Move down"
-							aria-label="Move {track.title} down"
-						>
-							<IconChevronDown size={15} stroke={1.5} />
-						</button>
+						{#if room.isAdminUser}
+							<button
+								class="icon-btn text-faint hover:text-cream disabled:opacity-20 hidden sm:inline-flex"
+								onclick={() => room.moveQueue(i, i - 1)}
+								disabled={i === 0}
+								title="Move up"
+								aria-label="Move {track.title} up"
+							>
+								<IconChevronUp size={15} stroke={1.5} />
+							</button>
+							<button
+								class="icon-btn text-faint hover:text-cream disabled:opacity-20 hidden sm:inline-flex"
+								onclick={() => room.moveQueue(i, i + 1)}
+								disabled={i === room.state.queue.length - 1}
+								title="Move down"
+								aria-label="Move {track.title} down"
+							>
+								<IconChevronDown size={15} stroke={1.5} />
+							</button>
+						{/if}
 						<button
 							class="icon-btn disabled:opacity-20 disabled:cursor-not-allowed"
 							onclick={() => room.playNow(track)}

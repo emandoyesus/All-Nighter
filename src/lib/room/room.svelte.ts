@@ -31,7 +31,7 @@ import { supabase, isSupabaseConfigured } from '#lib/supabase';
 import { buildNightFromRoom, saveToMyNights } from '#lib/data/local-logbook';
 import type { Night } from '#lib/data/archive';
 import { recordStat } from '#lib/data/profile-stats';
-import { getRelatedYouTubeTrack, isBannedMusic, detectMusicLanguage } from './youtube';
+import { getRelatedTrackSync, getRelatedYouTubeTrack, isBannedMusic, detectMusicLanguage } from './youtube';
 
 const LS_NAME = 'an.callsign';
 const LS_ID = 'an.client';
@@ -179,11 +179,11 @@ function emptyState(): RoomState {
 }
 
 export const DEFAULT_STARTER_TRACK: Track = {
-	uid: 'starter-alan-walker-alone',
-	videoId: '1-xGerv5FOk',
+	uid: 'starter-teddy-afro-alamin',
+	videoId: 'xE-9kJOPbxE',
 	source: 'youtube',
-	title: 'Alan Walker - Alone',
-	channel: 'Alan Walker',
+	title: 'Teddy Afro - Alamin',
+	channel: 'Teddy Afro',
 	addedBy: 'All Nighter',
 	dedication: 'Starting track · Lock in till sunrise',
 	votes: 1
@@ -409,13 +409,17 @@ class Room {
 	/** Whether this user is an admin or the room host. */
 	isAdminUser = $derived(
 		this.isHost ||
-		(this.state.admins?.includes(this.clientId) ?? false) ||
-		(this.state.admins?.includes(this.name) ?? false)
+		Boolean(this.clientId && this.state.admins?.includes(this.clientId)) ||
+		Boolean(this.name && this.state.admins?.includes(this.name))
 	);
 	/** Whether host or admin can skip directly. */
 	canSkip = $derived(this.isAdminUser);
-	/** Whether this user is allowed to Play / Pause / Seek / Shuffle (Admins only). */
+	/** Whether this user is allowed to Play / Pause / Seek (Admins only). */
 	canControlPlayback = $derived(this.isAdminUser);
+	/** Whether this user is allowed to shuffle the playlist (Admins only). */
+	canShuffle = $derived(this.isAdminUser);
+	/** Whether the player was paused due to the 30-minute uninterrupted autoplay limit. */
+	isAutoplayPaused = $derived(Boolean(this.state.autoplayPaused && !this.state.playing));
 	/** This user's one-line intention for the night. */
 	intention = $state('');
 	/** Rooms advertised on the broker right now. */
@@ -756,6 +760,8 @@ class Room {
 					this.onRemoteRoomDeleted(cmd.by);
 				} else if (cmd.type === 'room_archived') {
 					this.onRemoteRoomArchived(cmd.night);
+				} else if (cmd.type === 'transfer_host') {
+					this.onRemoteHostTransferred(cmd.to, cmd.toId, cmd.by);
 				}
 			} catch {
 				/* ignore malformed */
@@ -963,6 +969,8 @@ class Room {
 			isPrivate: !!msg.isPrivate,
 			accessKeyHash: msg.accessKeyHash,
 			adminOnlyPlayback: !!msg.adminOnlyPlayback,
+			autoplayPaused: isApproved ? !!msg.autoplayPaused : false,
+			autoArchive: !!msg.autoArchive,
 			admins: Array.isArray(msg.admins) ? msg.admins : []
 		};
 	}
@@ -1416,7 +1424,7 @@ class Room {
 				playing: false,
 				position: 0,
 				clock: Date.now(),
-				by: this.name || 'host',
+				by: this.clientId,
 				isPrivate,
 				doorLocked: isPrivate,
 				accessKeyHash: accessKeyHash || undefined,
@@ -1470,7 +1478,7 @@ class Room {
 						playing: false,
 						position: 0,
 						clock: Date.now(),
-						by: this.name || 'host'
+						by: this.clientId
 					};
 					this.publishState();
 				}
@@ -1684,6 +1692,54 @@ class Room {
 				goto(`/archive/${night.slug}`);
 			}
 		}
+	}
+
+	private onRemoteHostTransferred(toName: string, toId?: string, by?: string): void {
+		this.canonicalHost = toName;
+		const amINewHost = Boolean(
+			(toId && this.clientId === toId) ||
+			(this.name && this.name.trim().toLowerCase() === toName.trim().toLowerCase())
+		);
+		this.isHost = amINewHost;
+		if (amINewHost) {
+			this.roomAlert = {
+				type: 'info',
+				message: `👑 You are now the host of this room (ownership transferred by ${by || 'previous host'}).`
+			};
+		}
+		this.writeLog(`👑 Host ownership transferred to ${toName}`);
+		this.updateAd();
+	}
+
+	/** Transfer room host ownership to another peer (Host only) */
+	async transferOwnership(newHostId: string, newHostName: string): Promise<void> {
+		if (!this.isHost) {
+			console.warn('[Room] Only the current host can transfer ownership.');
+			return;
+		}
+		const cleanName = newHostName.trim();
+		if (!cleanName) return;
+
+		// 1. Update local host authority
+		this.isHost = false;
+		this.canonicalHost = cleanName;
+
+		// 2. Broadcast via MQTT ctl to all connected peers
+		this.pub(
+			this.t('ctl'),
+			JSON.stringify({ type: 'transfer_host', to: cleanName, toId: newHostId, by: this.name })
+		);
+
+		// 3. Persist new host in Supabase
+		await this.dbSync.transferHost(newHostId, cleanName);
+
+		// 4. Log and re-publish directory ad
+		this.writeLog(`👑 Host ownership transferred to ${cleanName}`);
+		this.updateAd();
+		this.roomAlert = {
+			type: 'info',
+			message: `Host ownership was transferred to ${cleanName}.`
+		};
 	}
 
 	private syncUrl(slug: string): void {
@@ -2093,6 +2149,7 @@ class Room {
 	}
 
 	moveQueue(fromIndex: number, toIndex: number): void {
+		if (!this.isAdminUser) return;
 		if (fromIndex < 0 || fromIndex >= this.state.queue.length) return;
 		if (toIndex < 0 || toIndex >= this.state.queue.length) return;
 		if (fromIndex === toIndex) return;
@@ -2105,7 +2162,7 @@ class Room {
 	}
 
 	shuffleQueue(): void {
-		if (!this.canControlPlayback || this.state.queue.length <= 1) return;
+		if (!this.isAdminUser || this.state.queue.length <= 1) return;
 		this.mutate((s) => {
 			const q = [...s.queue];
 			for (let i = q.length - 1; i > 0; i--) {
@@ -2113,7 +2170,7 @@ class Room {
 				[q[i], q[j]] = [q[j], q[i]];
 			}
 			return { ...s, queue: q };
-		}, 'shuffled the queue');
+		}, 'shuffled the playlist');
 	}
 
 	playNow(track: Track): void {
@@ -2139,15 +2196,26 @@ class Room {
 	}
 
 	toggle(position: number): void {
-		if (!this.canControlPlayback) return;
-		if (!this.state.playing && !this.isHost) {
+		const isStartingFromAutoplayPause = !this.state.playing && this.isAutoplayPaused;
+		if (!this.canControlPlayback && !isStartingFromAutoplayPause) return;
+		if (!this.state.playing && !this.isHost && !isStartingFromAutoplayPause) {
 			this.roomAlert = {
 				type: 'info',
 				message: 'The host must start the player.'
 			};
 			return;
 		}
-		this.mutate((s) => ({ ...s, playing: !s.playing, position }));
+		const nextPlaying = !this.state.playing;
+		if (nextPlaying) {
+			this.autoplayStartedAt = Date.now();
+		}
+		this.mutate(
+			(s) => ({ ...s, playing: nextPlaying, autoplayPaused: false, position }),
+			isStartingFromAutoplayPause ? 'Autoplay resumed by listener' : undefined
+		);
+		if (nextPlaying && this.state.current) {
+			void this.ensureAutoplayQueued(this.state.current);
+		}
 	}
 
 	seekTo(position: number): void {
@@ -2160,32 +2228,37 @@ class Room {
 	 * Only the director executes this to ensure rock-solid determinism across all peers.
 	 */
 	async ensureAutoplayQueued(forTrack?: Track | null): Promise<void> {
-		if (!this.canControlPlayback || !this.isDirector()) return;
+		if (!this.canControlPlayback && !this.isDirector() && !this.isHost) return;
 		if (this.isQueuingAutoplay) return;
 
 		const current = forTrack || this.state.current;
 		if (!current?.videoId) return;
 
 		// 30-minute uninterrupted autoplay limit
-		if (this.autoplayStartedAt === null) {
-			this.autoplayStartedAt = Date.now();
-		} else if (Date.now() - this.autoplayStartedAt >= 30 * 60 * 1000) {
+		if (this.autoplayStartedAt !== null && Date.now() - this.autoplayStartedAt >= 30 * 60 * 1000) {
 			return; // 30 minutes reached: let current queue finish and pause naturally
 		}
 
-		// If queue already has tracks waiting, do not add another
-		if (this.state.queue.length > 0) return;
+		// If human tracks are in the queue, do not add an autoplay track
+		const hasHumanTracks = this.state.queue.some((t) => t.addedBy !== 'Autoplay');
+		if (hasHumanTracks) return;
+
+		const currentLang = detectMusicLanguage(current);
+
+		// If queue already has an autoplay track of the same language, no need to replace
+		if (this.state.queue.length > 0) {
+			const existing = this.state.queue[0];
+			if (existing.addedBy === 'Autoplay' && detectMusicLanguage(existing) === currentLang) {
+				return;
+			}
+		}
 
 		this.isQueuingAutoplay = true;
 		try {
 			this.playedVideoIds.add(current.videoId);
 
-			const related = await getRelatedYouTubeTrack(current, this.playedVideoIds);
-			if (!related?.videoId) return;
-
-			// Double check: if queue changed or received human tracks while fetching, abort
-			if (this.state.queue.length > 0) return;
-			if (related.videoId === current.videoId) return;
+			const related = getRelatedTrackSync(current, this.playedVideoIds);
+			if (!related?.videoId || related.videoId === current.videoId) return;
 
 			this.playedVideoIds.add(related.videoId);
 
@@ -2202,13 +2275,13 @@ class Room {
 
 			this.mutate(
 				(s) => {
-					if (s.queue.length > 0) return s;
+					const humanQueue = s.queue.filter((t) => t.addedBy !== 'Autoplay');
+					if (humanQueue.length > 0) return s;
 					return {
 						...s,
-						queue: [...s.queue, autoTrack]
+						queue: [autoTrack]
 					};
-				},
-				`Suggested next · “${autoTrack.title}”`
+				}
 			);
 		} catch (err) {
 			console.warn('[Room] Failed to queue next autoplay track:', err);
@@ -2218,19 +2291,18 @@ class Room {
 	}
 
 	async continueWithRelated(lastTrack?: Track | null): Promise<void> {
-		if (this.isQueuingAutoplay) return;
-		this.isQueuingAutoplay = true;
-
 		try {
 			// Enforce 30-minute maximum autoplay limit
-			if (this.autoplayStartedAt === null) {
-				this.autoplayStartedAt = Date.now();
-			} else if (Date.now() - this.autoplayStartedAt >= 30 * 60 * 1000) {
+			if (this.autoplayStartedAt !== null && Date.now() - this.autoplayStartedAt >= 30 * 60 * 1000) {
 				this.mutate(
-					(s) => ({ ...s, playing: false }),
-					'Autoplay paused after 30 minutes · Add tracks to resume'
+					(s) => ({ ...s, playing: false, autoplayPaused: true }),
+					'Autoplay paused after 30 minutes · Anyone can resume'
 				);
 				return;
+			}
+
+			if (this.autoplayStartedAt === null) {
+				this.autoplayStartedAt = Date.now();
 			}
 
 			const finishedTrack = lastTrack || this.state.current;
@@ -2238,7 +2310,7 @@ class Room {
 				this.playedVideoIds.add(finishedTrack.videoId);
 			}
 
-			const related = await getRelatedYouTubeTrack(finishedTrack, this.playedVideoIds);
+			const related = getRelatedTrackSync(finishedTrack, this.playedVideoIds);
 			if (!related?.videoId || related.videoId === finishedTrack?.videoId) return;
 
 			this.playedVideoIds.add(related.videoId);
@@ -2264,14 +2336,12 @@ class Room {
 					playing: true,
 					position: 0
 				}),
-				`Queue finished · Autoplaying related: “${nextTrack.title}”`
+				`Autoplaying related: “${nextTrack.title}”`
 			);
 
 			void this.ensureAutoplayQueued(nextTrack);
 		} catch (err) {
 			console.warn('[Room] Failed to continue with related track:', err);
-		} finally {
-			this.isQueuingAutoplay = false;
 		}
 	}
 
@@ -2290,30 +2360,55 @@ class Room {
 				this.autoplayStartedAt = null;
 			}
 			this.mutate(
-				(s) => {
-					return {
-						...s,
-						queue: rest,
-						current: next ?? null,
-						videoId: next?.videoId ?? null,
-						playlistId: next?.playlistId ?? null,
-						source: next?.source,
-						playing: !!next,
-						position: 0
-					};
-				},
+				(s) => ({
+					...s,
+					queue: rest,
+					current: next ?? null,
+					videoId: next?.videoId ?? null,
+					playlistId: next?.playlistId ?? null,
+					source: next?.source,
+					playing: !!next,
+					position: 0
+				}),
 				finished ? `skipped “${finished}”` : 'skipped ahead'
 			);
 			if (next) {
 				void this.ensureAutoplayQueued(next);
 			}
 		} else {
-			// When queue is empty, continue with related music
-			void this.continueWithRelated(lastTrack);
+			// When queue is empty, immediately continue with next related track
+			const related = getRelatedTrackSync(lastTrack, this.playedVideoIds);
+			this.playedVideoIds.add(related.videoId);
+
+			const nextTrack: Track = {
+				uid: `auto-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+				videoId: related.videoId,
+				title: related.title,
+				channel: related.channel,
+				addedBy: 'Autoplay',
+				source: 'youtube',
+				url: `https://www.youtube.com/watch?v=${related.videoId}`,
+				reactions: {}
+			};
+
+			this.mutate(
+				(s) => ({
+					...s,
+					queue: [],
+					current: nextTrack,
+					videoId: nextTrack.videoId,
+					playlistId: null,
+					source: 'youtube',
+					playing: true,
+					position: 0
+				}),
+				finished ? `skipped “${finished}”` : 'skipped ahead'
+			);
+			void this.ensureAutoplayQueued(nextTrack);
 		}
 	}
 
-	/** The video ended on its own: advance, or continue with related music if queue is finished. */
+	/** The video ended on its own: advance immediately, or continue with related music seamlessly. */
 	ended(watchId: string | null): void {
 		if (watchId && this.state.videoId !== watchId) return;
 		if (!this.state.playing) return;
@@ -2344,8 +2439,47 @@ class Room {
 				void this.ensureAutoplayQueued(next);
 			}
 		} else {
-			if (finished) this.writeLog(`finished “${finished}” · queue finished`);
-			void this.continueWithRelated(lastTrack);
+			// Queue is empty: check 30-minute uninterrupted autoplay limit
+			if (this.autoplayStartedAt !== null && Date.now() - this.autoplayStartedAt >= 30 * 60 * 1000) {
+				this.mutate(
+					(s) => ({ ...s, playing: false, autoplayPaused: true }),
+					'Autoplay paused after 30 minutes · Anyone can resume'
+				);
+				return;
+			}
+
+			if (this.autoplayStartedAt === null) {
+				this.autoplayStartedAt = Date.now();
+			}
+
+			// Synchronously select the next related track without any pause or delay
+			const related = getRelatedTrackSync(lastTrack, this.playedVideoIds);
+			this.playedVideoIds.add(related.videoId);
+
+			const nextTrack: Track = {
+				uid: `auto-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+				videoId: related.videoId,
+				title: related.title,
+				channel: related.channel,
+				addedBy: 'Autoplay',
+				source: 'youtube',
+				url: `https://www.youtube.com/watch?v=${related.videoId}`,
+				reactions: {}
+			};
+
+			this.mutate((s) => ({
+				...s,
+				queue: [],
+				current: nextTrack,
+				videoId: nextTrack.videoId,
+				playlistId: null,
+				source: 'youtube',
+				playing: true,
+				position: 0
+			}));
+
+			if (finished) this.writeLog(`finished “${finished}” · autoplaying “${nextTrack.title}”`);
+			void this.ensureAutoplayQueued(nextTrack);
 		}
 	}
 
@@ -2363,7 +2497,10 @@ class Room {
 	}
 
 	isDirector(): boolean {
-		return this.state.by === this.clientId;
+		return (
+			this.state.by === this.clientId ||
+			(this.isHost && (!this.state.by || !this.peers.has(this.state.by)))
+		);
 	}
 
 	roomUrl(): string {

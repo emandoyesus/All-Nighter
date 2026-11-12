@@ -51,6 +51,7 @@ export type RoomState = {
 	adminOnlyPlayback?: boolean;
 	admins?: string[];
 	autoArchive?: boolean;
+	autoplayPaused?: boolean;
 };
 
 export type Peer = {

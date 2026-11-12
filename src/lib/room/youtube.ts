@@ -388,38 +388,77 @@ export function isBannedMusic(videoId?: string | null, title?: string, duration?
 
 export type MusicLanguage = 'amharic' | 'tigrinya' | 'english';
 
-/**
- * Detects whether a track is Amharic, Ethiopian Tigrinya, or English / International music.
- */
+let activeSessionLanguage: MusicLanguage = 'amharic';
+
+export function getActiveSessionLanguage(): MusicLanguage {
+	return activeSessionLanguage;
+}
+
+export function setActiveSessionLanguage(lang: MusicLanguage): void {
+	activeSessionLanguage = lang;
+}
+
 /**
  * Detects whether a track is Amharic, Ethiopian Tigrinya, or English / International music.
  */
 export function detectMusicLanguage(
-	track?: { title?: string; channel?: string; genre?: string } | null
+	track?: { videoId?: string | null; title?: string; channel?: string; genre?: string; language?: MusicLanguage } | null
 ): MusicLanguage {
-	if (!track) return 'english';
+	if (!track) return activeSessionLanguage;
+	if (track.language) {
+		activeSessionLanguage = track.language;
+		return track.language;
+	}
+
+	// 1. Direct match with curated catalog by video ID
+	if (track.videoId) {
+		const match = CURATED_CATALOG.find((c) => c.videoId === track.videoId);
+		if (match?.language) {
+			activeSessionLanguage = match.language;
+			return match.language;
+		}
+	}
+
 	const title = (track.title ?? '').toLowerCase();
 	const channel = (track.channel ?? '').toLowerCase();
 	const genre = (track.genre ?? '').toLowerCase();
 	const combined = `${title} ${channel} ${genre}`;
 
-	// Check Ethiopian Tigrinya indicators first
+	// 2. Check Ethiopian Tigrinya indicators
 	const isTigrinya =
-		/tigrinya|tigrigna|tigrina|tigray|mekelle|dawit\s*nega|abraham\s*gebremedhin|abreham\s*g\/medhin|kiros\s*alemayehu|eden\s*gebreselasie|gidey\s*gebremedhin|haftu\s*zeferu|tesfay\s*gomera|teklemariam|yemane\s*barya|aytekaelen|fetiki|merkeb\s*bonitua|solomon\s*haile|zemen\s*alemseged|tmnit\s*welday|timnit\s*welday|mahlet\s*gebrezgiaber|amir\s*dawud|dawit\s*alemayehu|nahom\s*yohannes|ephrem\s*amare|rahel\s*haile|mesfin\s*berhanu|shewit\s*mezgebo|neguse\s*abadi|anbessa\s*tekle|hermon\s*baraki|alula\s*mampa|tesfaye\s*gebre|freselam\s*mussie|estifanos\s*abraham|amanuel\s*yemane|robel\s*michael|solomon\s*bayre/i.test(
+		/tigrinya|tigrigna|tigrina|tigray|mekelle|asmera|eritrea|eritrean|dawit\s*nega|abraham\s*gebremedhin|abreham\s*g\/medhin|kiros\s*alemayehu|eden\s*gebreselasie|gidey\s*gebremedhin|haftu\s*zeferu|tesfay\s*gomera|teklemariam|yemane\s*barya|aytekaelen|fetiki|merkeb\s*bonitua|solomon\s*haile|zemen\s*alemseged|tmnit\s*welday|timnit\s*welday|mahlet\s*gebrezgiaber|amir\s*dawud|dawit\s*alemayehu|nahom\s*yohannes|ephrem\s*amare|rahel\s*haile|mesfin\s*berhanu|shewit\s*mezgebo|neguse\s*abadi|anbessa\s*tekle|hermon\s*baraki|alula\s*mampa|tesfaye\s*gebre|freselam\s*mussie|estifanos\s*abraham|amanuel\s*yemane|robel\s*michael|solomon\s*bayre/i.test(
 			combined
 		) || /[\u1250-\u1256\u1318-\u131F]/.test(combined);
 
-	if (isTigrinya) return 'tigrinya';
+	if (isTigrinya) {
+		activeSessionLanguage = 'tigrinya';
+		return 'tigrinya';
+	}
 
-	// Check Amharic 90s / Ethiopian modern pop indicators or Ge'ez script
+	// 3. Check Amharic / Ethiopian modern pop indicators or Ge'ez script
 	const isAmharic =
-		/amharic|ethiopian|ethiopia|addis|ephrem\s*tamiru|aster\s*aweke|tamrat\s*desta|tilahun\s*gessesse|tlahoun|aregahegn\s*worash|kuku\s*sebsebe|girma\s*tefera|teddy\s*afro|michael\s*belayneh|belayneh|rophnan|dawit\s*tsige|neway\s*damtie|gosaye|zeritu|eyob\s*mekonnen|hope\s*music|minew\s*shewa|sewasew|nahom|mahmoud\s*ahmed|muluken\s*melesse|abinet\s*agonafir|abdu\s*kiar|abdu\s*kiyar|gigi\s*shibabaw|bizunesh\s*bekele|alemayehu\s*eshete|hirut\s*bekele|betty\s*g|tsegaye\s*eshetu|tsedenia\s*gebremarkos|dagi\s*dagne|dag\s*daniel|bisrat\s*surafel|dereje\s*dubale|alex\s*olympia|alex\s*olompia|fitsum\s*t|haimanot\s*girma|hamelmal\s*abate|helen\s*berhe|lij\s*michael|tsehaye\s*yohannes|tibebu\s*workiye/i.test(
+		/amharic|ethiopia|ethiopian|habesha|habesh|addis|ababa|shewa|gondar|gojjam|wello|oromo|afar|sidama|somali|harar|gurage|wolayta|ephrem\s*tamiru|aster\s*aweke|tamrat\s*desta|tilahun\s*gessesse|tlahoun|aregahegn\s*worash|kuku\s*sebsebe|girma\s*tefera|teddy\s*afro|tewodros\s*kassahun|michael\s*belayneh|belayneh|rophnan|dawit\s*tsige|neway\s*damtie|gosaye|zeritu|eyob\s*mekonnen|hope\s*music|minew\s*shewa|sewasew|nahom|mahmoud\s*ahmed|muluken\s*melesse|abinet\s*agonafir|abdu\s*kiar|abdu\s*kiyar|gigi\s*shibabaw|bizunesh\s*bekele|alemayehu\s*eshete|hirut\s*bekele|betty\s*g|tsegaye\s*eshetu|tsedenia\s*gebremarkos|dagi\s*dagne|dag\s*daniel|bisrat\s*surafel|dereje\s*dubale|alex\s*olympia|alex\s*olompia|fitsum\s*t|haimanot\s*girma|hamelmal\s*abate|helen\s*berhe|lij\s*michael|tsehaye\s*yohannes|tibebu\s*workiye|madingo\s*afework|madingo|veronica\s*adane|veronica|awtar|awtar\s*music|awtar\s*tv|ebs|ebs\s*tv|liham|liham\s*melody|gize\s*network|sami\s*dan|kassmasse|kasmasse|jano|jano\s*band|dan\s*admasu|admas|shewandagn\s*hailu|fikreaddis\s*nekatibeb|fikreaddis|hailu\s*mergia|mulatu\s*astatke|mulatu|selamawit\s*yohannes|yohana|mehari\s*brothers|tariku\s*gankisi|dishtagina|balageru|zefen|tizita|bati|ambassel|anchihoye|alhedim|wubet|yene|yagere|eskista|arada/i.test(
 			combined
 		) || /[\u1200-\u137F]/.test(combined);
 
-	if (isAmharic) return 'amharic';
+	if (isAmharic) {
+		activeSessionLanguage = 'amharic';
+		return 'amharic';
+	}
 
-	return 'english';
+	// 4. Check explicit English / International indicators
+	const isEnglish =
+		/coldplay|adele|weeknd|ed\s*sheeran|taylor\s*swift|billie\s*eilish|post\s*malone|drake|travis\s*scott|kendrick|justin\s*bieber|rihanna|beyonce|bruno\s*mars|maroon\s*5|dua\s*lipa|harry\s*styles|ariana\s*grande|eminem|queen|michael\s*jackson|imagine\s*dragons|arctic\s*monkeys|linkin\s*park|chainsmokers|charlie\s*puth|shawn\s*mendes|olivia\s*rodrigo|sam\s*smith|sia|lana\s*del\s*rey|katy\s*perry|lady\s*gaga|twenty\s*one\s*pilots|marshmello|avicii|alan\s*walker|calvin\s*harris|david\s*guetta|kygo|martin\s*garrix|tiesto|zedd|afrobeats|wizkid|burna\s*boy|davido|rema|asake|ayra\s*starr|tems|omah\s*lay|fireboy|the\s*neighbourhood|tom\s*odell|rag\'n\'bone|xxxtentacion|billie|vevo|billboard|pop\s*hits|acoustic/i.test(
+			combined
+		);
+
+	if (isEnglish) {
+		activeSessionLanguage = 'english';
+		return 'english';
+	}
+
+	// 5. Fallback: preserve current session language so Amharic music never flips to English!
+	return activeSessionLanguage;
 }
 
 export type CuratedTrack = {
@@ -1331,10 +1370,10 @@ export function getSuggestedTracks(
  * - If last track was Tigrinya -> autoplays Ethiopian Tigrinya hit music!
  * - If last track was English -> autoplays English vocal hit music!
  */
-export async function getRelatedYouTubeTrack(
+export function getRelatedTrackSync(
 	currentTrack?: { videoId?: string | null; title?: string; channel?: string; genre?: string } | null,
 	playedVideoIds: Set<string> = new Set()
-): Promise<{ videoId: string; title: string; channel: string; language?: MusicLanguage }> {
+): { videoId: string; title: string; channel: string; language?: MusicLanguage } {
 	const currentVid = currentTrack?.videoId;
 	const targetLang = detectMusicLanguage(currentTrack);
 	const currentSinger = extractSinger(currentTrack);
@@ -1360,4 +1399,11 @@ export async function getRelatedYouTubeTrack(
 		channel: picked.channel,
 		language: targetLang
 	};
+}
+
+export async function getRelatedYouTubeTrack(
+	currentTrack?: { videoId?: string | null; title?: string; channel?: string; genre?: string } | null,
+	playedVideoIds: Set<string> = new Set()
+): Promise<{ videoId: string; title: string; channel: string; language?: MusicLanguage }> {
+	return getRelatedTrackSync(currentTrack, playedVideoIds);
 }

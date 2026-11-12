@@ -11,6 +11,7 @@
 	const ENDED = 0;
 	const PLAYING = 1;
 	const PAUSED = 2;
+	const BUFFERING = 3;
 
 	let containerEl: HTMLDivElement;
 	let frameEl: HTMLDivElement;
@@ -98,6 +99,7 @@
 		if (videoChanged || playlistChanged) {
 			loadedVideoId = s.videoId ?? null;
 			loadedPlaylistId = targetPlaylist;
+			playerState = -1; // Reset from ENDED/PAUSED so the new video begins smoothly
 
 			if (muted) {
 				try {
@@ -132,11 +134,24 @@
 				}
 			} else if (s.videoId) {
 				try {
+					const startSec = Math.max(0, targetTime());
 					if (s.playing) {
-						player.loadVideoById?.({ videoId: s.videoId, startSeconds: Math.max(0, targetTime()) });
+						if (typeof player.loadVideoById === 'function') {
+							try {
+								player.loadVideoById(s.videoId, startSec);
+							} catch {
+								player.loadVideoById({ videoId: s.videoId, startSeconds: startSec });
+							}
+						}
 						player.playVideo?.();
 					} else {
-						player.cueVideoById?.({ videoId: s.videoId, startSeconds: Math.max(0, targetTime()) });
+						if (typeof player.cueVideoById === 'function') {
+							try {
+								player.cueVideoById(s.videoId, startSec);
+							} catch {
+								player.cueVideoById({ videoId: s.videoId, startSeconds: startSec });
+							}
+						}
 					}
 				} catch {
 					/* fallback */
@@ -159,8 +174,10 @@
 					} catch {}
 				}
 			}
-			// Never restart a video that reached ENDED state (calling playVideo repeats the song from 0:00)
-			if (playerState !== PLAYING && playerState !== ENDED) {
+			const isAtEnd = duration > 5 && localTime > 0 && localTime >= duration - 0.75;
+			if ((playerState === ENDED || isAtEnd) && room.state.playing && room.state.videoId) {
+				room.ended(room.state.videoId);
+			} else if (playerState !== PLAYING && playerState !== ENDED && playerState !== BUFFERING) {
 				try {
 					player.playVideo?.();
 				} catch {}
@@ -261,10 +278,13 @@
 		if (!unlocked) {
 			unlock();
 		}
-		if (!room.state.playing && !room.isHost) {
+		const canControl = room.canControlPlayback || (room.isAutoplayPaused && !room.state.playing);
+		if (!canControl) {
 			return;
 		}
-		if (!room.canControlPlayback) return;
+		if (!room.state.playing && !room.isHost && !room.isAutoplayPaused) {
+			return;
+		}
 		const curPos = ready && player?.getCurrentTime ? (player.getCurrentTime() ?? room.state.position) : room.state.position;
 		const nextPlaying = !room.state.playing;
 
@@ -480,6 +500,12 @@
 			applyToPlayer();
 			localTime = player.getCurrentTime() ?? 0;
 			duration = player.getDuration?.() ?? 0;
+
+			// Auto-advance immediately if YouTube reaches the end of the track
+			const isAtEnd = duration > 5 && localTime > 0 && localTime >= duration - 0.75;
+			if (room.state.playing && (playerState === ENDED || isAtEnd)) {
+				room.ended(room.state.videoId);
+			}
 
 			window.dispatchEvent(
 				new CustomEvent('an:player:status', {

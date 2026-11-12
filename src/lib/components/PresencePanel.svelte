@@ -147,23 +147,39 @@
 					</div>
 				</button>
 
-				<!-- Host control to toggle Admin status for peers -->
+				<!-- Host control to toggle Admin status and transfer ownership -->
 				{#if room.isHost && !isPeerHost && !peer.self}
-					<button
-						type="button"
-						class="shrink-0 p-1 rounded transition-colors {isPeerAdmin
-							? 'text-aqua-foam hover:bg-teal-500/20'
-							: 'text-faint hover:text-cream hover:bg-white/5 opacity-0 group-hover:opacity-100 focus:opacity-100'}"
-						onclick={() => room.toggleAdmin(peer.id, peer.name)}
-						title={isPeerAdmin ? `Revoke admin privileges from ${peer.name}` : `Promote ${peer.name} to Admin (aux control)`}
-						aria-label={isPeerAdmin ? `Revoke admin from ${peer.name}` : `Make ${peer.name} admin`}
-					>
-						{#if isPeerAdmin}
-							<IconShieldCheck size={14} stroke={2} />
-						{:else}
-							<IconShield size={14} stroke={1.5} />
-						{/if}
-					</button>
+					<div class="flex items-center gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+						<button
+							type="button"
+							class="p-1 rounded transition-colors {isPeerAdmin
+								? 'text-aqua-foam hover:bg-teal-500/20'
+								: 'text-faint hover:text-cream hover:bg-white/5'}"
+							onclick={() => room.toggleAdmin(peer.id, peer.name)}
+							title={isPeerAdmin ? `Revoke admin privileges from ${peer.name}` : `Promote ${peer.name} to Admin (aux control)`}
+							aria-label={isPeerAdmin ? `Revoke admin from ${peer.name}` : `Make ${peer.name} admin`}
+						>
+							{#if isPeerAdmin}
+								<IconShieldCheck size={14} stroke={2} />
+							{:else}
+								<IconShield size={14} stroke={1.5} />
+							{/if}
+						</button>
+
+						<button
+							type="button"
+							class="p-1 rounded transition-colors text-faint hover:text-amber hover:bg-amber/15"
+							onclick={() => {
+								if (confirm(`Are you sure you want to transfer host ownership of this room to ${peer.name}? You will step down as host.`)) {
+									void room.transferOwnership(peer.id, peer.name);
+								}
+							}}
+							title="Transfer host ownership to {peer.name}"
+							aria-label="Transfer host ownership to {peer.name}"
+						>
+							<IconCrown size={14} stroke={1.8} />
+						</button>
+					</div>
 				{/if}
 			</li>
 		{/each}

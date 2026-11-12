@@ -455,20 +455,22 @@
 					</span>
 					<h4 class="text-base font-medium text-cream">{room.state.current?.title || 'Starting Track Ready'}</h4>
 					<p class="text-xs text-taupe mt-1 mb-4 leading-relaxed">
-						{#if room.isHost}
+						{#if room.isAutoplayPaused}
+							Autoplay paused after 30 minutes of continuous listening. Anyone can resume the player!
+						{:else if room.isHost}
 							You are the host. Start the player when you're ready to begin the session.
 						{:else}
 							Waiting for the host ({room.hostName() || 'Host'}) to start the player.
 						{/if}
 					</p>
-					{#if room.isHost}
+					{#if room.isHost || room.isAutoplayPaused}
 						<button
 							type="button"
 							class="btn btn-amber btn-sm px-5 py-2 text-xs font-mono flex items-center gap-2 cursor-pointer shadow-lg hover:scale-105 transition-all"
 							onclick={() => window.dispatchEvent(new CustomEvent('an:player:toggle'))}
 						>
 							<IconPlay size={15} stroke={2} />
-							<span>Start Player</span>
+							<span>{room.isAutoplayPaused ? 'Resume Music' : 'Start Player'}</span>
 						</button>
 					{/if}
 				</div>
@@ -536,18 +538,20 @@
 					<IconSkip size={18} stroke={1.5} />
 				</button>
 
-				<button
-					class="icon-btn"
-					onclick={() => room.shuffleQueue()}
-					disabled={queued <= 1 || !room.canControlPlayback}
-					aria-label="Shuffle queue"
-					title={!room.canControlPlayback ? 'Aux is set to Admin only' : (queued <= 1 ? 'Need at least 2 tracks to shuffle' : 'Shuffle queue')}
-				>
-					<IconArrowsShuffle size={17} stroke={1.5} />
-				</button>
+				{#if room.isAdminUser}
+					<button
+						class="icon-btn"
+						onclick={() => room.shuffleQueue()}
+						disabled={queued <= 1}
+						aria-label="Shuffle playlist"
+						title={queued <= 1 ? 'Need at least 2 tracks to shuffle' : 'Shuffle playlist (Admin)'}
+					>
+						<IconArrowsShuffle size={17} stroke={1.5} />
+					</button>
+				{/if}
 
-				<!-- Admin Global Pause / Resume -->
-				{#if room.canControlPlayback}
+				<!-- Admin / Exceptional Autoplay Resume Play/Pause -->
+				{#if room.canControlPlayback || room.isAutoplayPaused}
 					<button
 						class="icon-btn {room.state.playing ? 'text-taupe hover:text-amber' : 'text-amber bg-amber/15 border border-amber/30 animate-pulse'}"
 						onclick={() => {
@@ -558,7 +562,7 @@
 							}
 						}}
 						aria-label={room.state.playing ? 'Pause for everyone' : 'Resume for everyone'}
-						title={room.state.playing ? 'Pause music for everyone (Admin confirmation)' : (room.isHost ? 'Start/Resume music for everyone' : 'Waiting for host to start')}
+						title={room.state.playing ? 'Pause music for everyone (Admin confirmation)' : (room.isAutoplayPaused ? 'Resume autoplay for everyone' : (room.isHost ? 'Start/Resume music for everyone' : 'Waiting for host to start'))}
 					>
 						{#if room.state.playing}
 							<IconPause size={17} stroke={1.5} />

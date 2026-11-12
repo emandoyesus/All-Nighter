@@ -221,23 +221,31 @@
 						<IconSkip size={16} stroke={1.5} />
 					</button>
 
-					<!-- Shuffle Button -->
-					<button
-						class="flex h-7 w-7 items-center justify-center rounded-full text-taupe transition-colors hover:text-cream disabled:opacity-30 disabled:hover:text-taupe hidden xs:flex"
-						onclick={() => room.shuffleQueue()}
-						disabled={queued <= 1 || !room.canControlPlayback}
-						title={!room.canControlPlayback ? 'Aux is set to Admin only' : (queued <= 1 ? 'Need at least 2 tracks to shuffle' : 'Shuffle queue')}
-						aria-label="Shuffle queue"
-					>
-						<IconArrowsShuffle size={15} stroke={1.5} />
-					</button>
+					<!-- Shuffle Button (Admins only) -->
+					{#if room.isAdminUser}
+						<button
+							class="flex h-7 w-7 items-center justify-center rounded-full text-taupe transition-colors hover:text-cream disabled:opacity-30 disabled:hover:text-taupe hidden xs:flex"
+							onclick={() => room.shuffleQueue()}
+							disabled={queued <= 1}
+							title={queued <= 1 ? 'Need at least 2 tracks to shuffle' : 'Shuffle playlist (Admin)'}
+							aria-label="Shuffle playlist"
+						>
+							<IconArrowsShuffle size={15} stroke={1.5} />
+						</button>
+					{/if}
 
-					<!-- Admin Global Room Playback Toggle (with confirmation warning) -->
-					{#if room.canControlPlayback}
+					<!-- Admin / Exceptional Autoplay Resume Playback Toggle -->
+					{#if room.canControlPlayback || room.isAutoplayPaused}
 						<button
 							class="flex h-7 w-7 items-center justify-center rounded-full transition-colors {room.state.playing ? 'text-taupe hover:text-amber hover:bg-amber/10' : 'bg-amber/20 text-amber border border-amber/35 shadow-[0_0_10px_rgba(245,158,11,0.25)] animate-pulse'}"
-							onclick={() => window.dispatchEvent(new CustomEvent('an:open-global-pause-modal'))}
-							title={room.state.playing ? 'Pause music for everyone (Admin confirmation)' : 'Resume music for everyone (Admin)'}
+							onclick={() => {
+								if (room.state.playing) {
+									window.dispatchEvent(new CustomEvent('an:open-global-pause-modal'));
+								} else {
+									window.dispatchEvent(new CustomEvent('an:player:toggle'));
+								}
+							}}
+							title={room.state.playing ? 'Pause music for everyone (Admin confirmation)' : (room.isAutoplayPaused ? 'Resume autoplay for everyone' : 'Resume music for everyone (Admin)')}
 							aria-label={room.state.playing ? 'Pause for everyone' : 'Resume for everyone'}
 						>
 							{#if room.state.playing}

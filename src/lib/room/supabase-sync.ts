@@ -188,12 +188,35 @@ export class SupabaseRoomSync {
 				{ event: 'UPDATE', schema: 'public', table: 'rooms', filter: `slug=eq.${slug}` },
 				(payload) => {
 					const updatedRoom = payload.new as DbRoom;
+					if (updatedRoom?.host_name && this.onHostConfirmed) {
+						const isHostUser = Boolean(
+							(hostId && updatedRoom.host_id === hostId) ||
+							(!updatedRoom.host_id && hostName && updatedRoom.host_name === hostName)
+						);
+						this.onHostConfirmed(isHostUser, updatedRoom.host_name);
+					}
 					if (updatedRoom?.playback_state && this.onRemoteState) {
 						this.onRemoteState(updatedRoom.playback_state);
 					}
 				}
 			)
 			.subscribe();
+	}
+
+	/** Transfer room host ownership in Supabase */
+	async transferHost(newHostId: string, newHostName: string): Promise<void> {
+		if (!this.isEnabled || !supabase || !this.roomSlug) return;
+		try {
+			await supabase
+				.from('rooms')
+				.update({
+					host_id: newHostId,
+					host_name: newHostName
+				})
+				.eq('slug', this.roomSlug);
+		} catch (err) {
+			console.warn('[Supabase] Failed to update room host:', err);
+		}
 	}
 
 	/** Persist chat message in Supabase */
