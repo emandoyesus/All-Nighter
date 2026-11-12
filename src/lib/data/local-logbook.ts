@@ -93,10 +93,10 @@ export function saveToMyNights(night: Night): void {
 export function buildNightFromRoom(
 	roomName: string,
 	roomTitle: string,
-	awake: Array<{ name: string; intention?: string }>,
+	awake: Array<{ name: string; intention?: string; avatar?: string; self?: boolean }>,
 	currentTrack: { title: string; channel?: string; addedBy: string; videoId?: string | null; url?: string } | null,
 	queue: Array<{ title: string; channel?: string; addedBy: string; videoId?: string | null; url?: string }>,
-	allAttendees?: Array<{ name: string; intention?: string }>,
+	allAttendees?: Array<{ name: string; intention?: string; avatar?: string }>,
 	history?: Array<{ title: string; channel?: string; addedBy: string; videoId?: string | null; url?: string }>
 ): Night {
 	const now = new Date();
@@ -131,6 +131,11 @@ export function buildNightFromRoom(
 	// Combine currently awake crew and everyone who joined and left during the night
 	const roster = allAttendees && allAttendees.length > 0 ? allAttendees : awake;
 	const joinedNames = Array.from(new Set(roster.map((p) => p.name.trim()).filter(Boolean)));
+	const attendeeList = roster.map((p) => ({
+		name: p.name.trim(),
+		avatar: p.avatar,
+		role: p.name.trim() === awake.find((a) => a.self)?.name ? 'Host' : 'Crew'
+	}));
 	const allIntentions = Array.from(
 		new Set(roster.map((p) => p.intention).filter((i): i is string => Boolean(i?.trim())))
 	);
@@ -153,6 +158,7 @@ export function buildNightFromRoom(
 		heads: Math.max(awake.length, joinedNames.length),
 		seed: cleanSlug,
 		joined: joinedNames,
+		attendees: attendeeList,
 		intentions: allIntentions,
 		tracklist,
 		chatMoments: []
@@ -168,7 +174,17 @@ export function dbArchiveToNight(row: any): Night {
 	const minsPart = totalMinutes % 60;
 	const hoursStr = `${hoursPart}h ${minsPart.toString().padStart(2, '0')}m`;
 
-	const attendees = Array.isArray(row.attendees) ? row.attendees : [];
+	const attendeesRaw = Array.isArray(row.attendees) ? row.attendees : [];
+	const attendeeList: Array<{ name: string; avatar?: string; role?: string }> = attendeesRaw.map((a: any) => {
+		if (typeof a === 'string') {
+			return { name: a };
+		}
+		return {
+			name: a.name || 'Anonymous',
+			avatar: a.avatar,
+			role: a.role
+		};
+	});
 	const playlist = Array.isArray(row.playlist) ? row.playlist : [];
 
 	const tracklist: ArchiveTrack[] = playlist.map((t: any) => ({
@@ -188,13 +204,14 @@ export function dbArchiveToNight(row: any): Night {
 		iso: row.ended_at || row.started_at || new Date().toISOString(),
 		tag: 'All Nighter',
 		title: row.title || row.slug,
-		note: row.summary || `Session with ${attendees.length || 1} awake till sunrise.`,
+		note: row.summary || `Session with ${attendeeList.length || 1} awake till sunrise.`,
 		hours: hoursStr,
 		minutes: totalMinutes,
 		tracks: tracklist.length,
-		heads: Math.max(attendees.length, 1),
+		heads: Math.max(attendeeList.length, 1),
 		seed: row.slug,
-		joined: attendees.map((a: any) => (typeof a === 'string' ? a : a.name || 'Anonymous')),
+		joined: attendeeList.map((a) => a.name),
+		attendees: attendeeList,
 		intentions: [],
 		tracklist,
 		chatMoments: Array.isArray(row.moments) ? row.moments : []

@@ -281,7 +281,7 @@ export class SupabaseRoomSync {
 		slug?: string;
 		title: string;
 		startedAt: string;
-		attendees: string[];
+		attendees: any[];
 		playlist: any[];
 		summary?: string;
 	}): Promise<void> {

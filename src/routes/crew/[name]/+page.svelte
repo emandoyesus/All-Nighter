@@ -3,6 +3,7 @@
 	import { countUp } from '#lib/count-up';
 	import { reveal } from '#lib/reveal';
 	import { splitReveal } from '#lib/split-reveal';
+	import { getAvatarForPerson } from '#lib/avatars';
 	import type { PageData } from './$types';
 	import IconArrowLeft from '@tabler/icons-svelte/icons/arrow-left';
 	import IconMoon from '@tabler/icons-svelte/icons/moon';
@@ -29,9 +30,21 @@
 				All nights
 			</a>
 			<div class="mt-6 flex flex-wrap items-center gap-4">
-				<span class="grid h-16 w-16 place-items-center rounded-full bg-lamp/15 text-2xl font-semibold text-lamp ring-1 ring-lamp/30">
-					{profile.name.charAt(0).toUpperCase()}
-				</span>
+				<div class="relative grid h-16 w-16 place-items-center overflow-hidden rounded-full border-2 border-lamp/40 bg-[#0a1012] shadow-lg">
+					<img
+						src={getAvatarForPerson(profile.name)}
+						alt={profile.name}
+						class="h-full w-full object-cover"
+						onerror={(e) => {
+							(e.currentTarget as HTMLElement).style.display = 'none';
+							const fallback = (e.currentTarget as HTMLElement).nextElementSibling as HTMLElement;
+							if (fallback) fallback.style.display = 'grid';
+						}}
+					/>
+					<span class="hidden h-full w-full place-items-center bg-lamp/15 text-2xl font-semibold text-lamp ring-1 ring-lamp/30">
+						{profile.name.charAt(0).toUpperCase()}
+					</span>
+				</div>
 				<div>
 					<p class="num text-[11px] uppercase tracking-[0.14em] text-faint">crew profile</p>
 					<h1

@@ -23,6 +23,12 @@ export type ChatMoment = {
 	at: string;
 };
 
+export type NightAttendee = {
+	name: string;
+	avatar?: string;
+	role?: string;
+};
+
 export type Night = {
 	slug: string;
 	date: string;
@@ -37,6 +43,7 @@ export type Night = {
 	seed: string;
 	img?: AssetPath;
 	joined: string[];
+	attendees?: NightAttendee[];
 	intentions: string[];
 	tracklist: ArchiveTrack[];
 	chatMoments: ChatMoment[];

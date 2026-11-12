@@ -84,7 +84,7 @@
 						title: night.title,
 						started_at: new Date(Date.now() - 6 * 3600 * 1000).toISOString(),
 						ended_at: new Date().toISOString(),
-						attendees: room.awake.map((p) => ({ name: p.name, role: p.self ? 'Host' : 'Listener' })),
+						attendees: room.awake.map((p) => ({ name: p.name, role: p.self ? 'Host' : 'Listener', avatar: p.avatar })),
 						playlist: night.tracklist,
 						summary: night.note
 					},

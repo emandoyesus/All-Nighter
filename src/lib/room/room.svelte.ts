@@ -1619,7 +1619,9 @@ class Room {
 					slug: night.slug,
 					title: night.title,
 					startedAt: new Date(this.roomStartedAt || Date.now() - 6 * 3600 * 1000).toISOString(),
-					attendees: night.joined,
+					attendees: (night.attendees && night.attendees.length > 0)
+						? night.attendees
+						: allAttendees.map((a) => ({ name: a.name, avatar: a.avatar })),
 					playlist: night.tracklist,
 					summary: night.note
 				});

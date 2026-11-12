@@ -6,6 +6,7 @@
 	import { splitReveal } from '#lib/split-reveal';
 	import { nights, type Night } from '#lib/data/archive';
 	import { loadMyNights } from '#lib/data/local-logbook';
+	import { getAvatarForPerson } from '#lib/avatars';
 	import type { PageData } from './$types';
 	import IconArrowLeft from '@tabler/icons-svelte/icons/arrow-left';
 	import IconClock from '@tabler/icons-svelte/icons/clock';
@@ -294,17 +295,31 @@
 						<h3 class="text-sm font-medium">Who was there</h3>
 						<span class="num text-xs text-faint">{night.joined.length}</span>
 					</div>
-					<ul class="mt-3 flex flex-wrap gap-1.5">
+					<ul class="mt-3 flex flex-wrap gap-2">
 						{#each night.joined as person (person)}
+							{@const customAvatar = night.attendees?.find((a) => a.name.trim().toLowerCase() === person.trim().toLowerCase())?.avatar}
+							{@const avatarUrl = getAvatarForPerson(person, customAvatar, night.slug)}
 							<li>
 								<a
 									href="/crew/{person}"
-									class="inline-flex items-center gap-1.5 rounded-full bg-night/60 py-1 pl-1 pr-2.5 text-sm ring-1 ring-cream/10 transition-colors hover:ring-lamp/50"
+									class="inline-flex items-center gap-2 rounded-full bg-night/70 py-1 pl-1 pr-3 text-xs ring-1 ring-cream/15 transition-all hover:ring-lamp/50 hover:bg-night group"
 								>
-									<span class="grid h-6 w-6 place-items-center rounded-full bg-lamp/15 text-[11px] font-semibold text-lamp">
-										{person.charAt(0).toUpperCase()}
+									<span class="relative grid h-6 w-6 shrink-0 place-items-center overflow-hidden rounded-full border border-cream/20 bg-[#0a1012]">
+										<img
+											src={avatarUrl}
+											alt={person}
+											class="h-full w-full object-cover"
+											onerror={(e) => {
+												(e.currentTarget as HTMLElement).style.display = 'none';
+												const fallback = (e.currentTarget as HTMLElement).nextElementSibling as HTMLElement;
+												if (fallback) fallback.style.display = 'grid';
+											}}
+										/>
+										<span class="hidden h-full w-full place-items-center bg-lamp/15 text-[10px] font-semibold text-lamp">
+											{person.charAt(0).toUpperCase()}
+										</span>
 									</span>
-									<span class="text-taupe">{person}</span>
+									<span class="text-taupe group-hover:text-cream transition-colors">{person}</span>
 								</a>
 							</li>
 						{/each}
