@@ -256,21 +256,25 @@
 				<IconX size={18} stroke={1.5} />
 			</button>
 
-			<!-- Centered Brand Header -->
+			<!-- Centered Brand Header with Elastic Switch -->
 			<div class="text-center mb-5">
 				<div class="mx-auto mb-3 grid h-11 w-11 place-items-center rounded-full border border-cream/15 bg-[#141c1f] text-lamp shadow-sm">
 					<IconMoon size={22} stroke={1.8} />
 				</div>
-				<h2 id="auth-modal-title" class="text-xl font-bold tracking-tight text-cream">
-					{emailSent ? 'Check your email' : mode === 'signin' ? 'Sign in to All Nighter' : 'Create your account'}
-				</h2>
-				<p class="mt-1 text-xs text-taupe leading-relaxed">
-					{emailSent
-						? 'We sent a verification link to your inbox'
-						: mode === 'signin'
-							? 'Welcome back! Please enter your details.'
-							: 'Join the community and focus together till sunrise.'}
-				</p>
+				{#key mode}
+					<div class="auth-fade-elastic">
+						<h2 id="auth-modal-title" class="text-xl font-bold tracking-tight text-cream">
+							{emailSent ? 'Check your email' : mode === 'signin' ? 'Sign in to All Nighter' : 'Create your account'}
+						</h2>
+						<p class="mt-1 text-xs text-taupe leading-relaxed">
+							{emailSent
+								? 'We sent a verification link to your inbox'
+								: mode === 'signin'
+									? 'Welcome back! Please enter your details.'
+									: 'Join the community and focus together till sunrise.'}
+						</p>
+					</div>
+				{/key}
 			</div>
 
 			{#if emailSent}
@@ -299,18 +303,28 @@
 					</button>
 				</div>
 			{:else}
-				<!-- Clean Social-Style Segmented Tab Switcher -->
-				<div class="grid grid-cols-2 rounded-xl bg-[#141c1f] p-1 border border-cream/10 text-xs font-medium mb-3.5">
+				<!-- Clean Social-Style Segmented Tab Switcher with Elastic Slider -->
+				<div class="relative grid grid-cols-2 rounded-xl bg-[#141c1f] p-1 border border-cream/10 text-xs font-medium mb-3.5 overflow-hidden">
+					<!-- Elastic sliding pill background -->
+					<div
+						class="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-lg bg-[#1f292e] border border-cream/15 shadow-md pointer-events-none"
+						style="
+							transform: translateX({mode === 'signin' ? '0%' : 'calc(100% + 8px)'});
+							transition: transform 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+						"
+						aria-hidden="true"
+					></div>
+
 					<button
 						type="button"
-						class="rounded-lg py-2 transition-all cursor-pointer text-center {mode === 'signin' ? 'bg-[#1d262a] text-cream shadow-sm font-semibold' : 'text-taupe hover:text-cream'}"
+						class="relative z-10 rounded-lg py-2 transition-colors cursor-pointer text-center {mode === 'signin' ? 'text-cream font-semibold' : 'text-taupe hover:text-cream'}"
 						onclick={() => handleSwitchMode('signin')}
 					>
 						Sign in
 					</button>
 					<button
 						type="button"
-						class="rounded-lg py-2 transition-all cursor-pointer text-center {mode === 'signup' ? 'bg-[#1d262a] text-cream shadow-sm font-semibold' : 'text-taupe hover:text-cream'}"
+						class="relative z-10 rounded-lg py-2 transition-colors cursor-pointer text-center {mode === 'signup' ? 'text-cream font-semibold' : 'text-taupe hover:text-cream'}"
 						onclick={() => handleSwitchMode('signup')}
 					>
 						Sign up
@@ -357,52 +371,54 @@
 
 				<form class="space-y-3.5" onsubmit={handleSubmit}>
 					{#if mode === 'signup'}
-						<!-- Callsign Field -->
-						<div>
-							<div class="flex items-center justify-between mb-1.5">
-								<label for="auth-callsign" class="text-xs font-medium text-cream/90">
-									Callsign / Username
-								</label>
-								<button
-									type="button"
-									class="text-[11px] text-faint hover:text-lamp flex items-center gap-1 transition-colors cursor-pointer"
-									onclick={handleRandomCallsign}
-									title="Roll random callsign"
-								>
-									<IconDice size={12} stroke={1.5} />
-									<span>Suggest</span>
-								</button>
-							</div>
-							<div class="relative">
-								<input
-									id="auth-callsign"
-									type="text"
-									maxlength="24"
-									required
-									autocomplete="nickname"
-									class="w-full rounded-lg border border-cream/15 bg-[#141c1f] px-3.5 py-2.5 text-sm text-cream outline-none focus:border-lamp focus:ring-1 focus:ring-lamp/40 transition-colors placeholder:text-faint/50"
-									placeholder="e.g. midnight-coder"
-									bind:value={callsign}
-								/>
-							</div>
-						</div>
-
-						<!-- Choose Starter Avatar (Hand-drawn Ink Sketches) -->
-						<div>
-							<span class="block text-xs font-medium text-cream/90 mb-1.5">
-								Choose Avatar
-							</span>
-							<div class="grid grid-cols-6 gap-2 pt-0.5">
-								{#each PRESET_AVATARS as preset}
+						<div class="space-y-3.5 auth-field-elastic overflow-hidden">
+							<!-- Callsign Field -->
+							<div>
+								<div class="flex items-center justify-between mb-1.5">
+									<label for="auth-callsign" class="text-xs font-medium text-cream/90">
+										Callsign / Username
+									</label>
 									<button
 										type="button"
-										class="relative aspect-square w-full rounded-full border-2 p-0.5 transition-all cursor-pointer {avatarUrl === preset.url ? 'border-lamp ring-2 ring-lamp/30 scale-105' : 'border-cream/15 opacity-75 hover:opacity-100 hover:border-cream/40'}"
-										onclick={() => (avatarUrl = preset.url)}
-										title="{preset.name} - {preset.tagline}"
+										class="text-[11px] text-faint hover:text-lamp flex items-center gap-1 transition-colors cursor-pointer"
+										onclick={handleRandomCallsign}
+										title="Roll random callsign"
 									>
-										<img src={preset.url} alt={preset.name} class="h-full w-full rounded-full object-cover" />
+										<IconDice size={12} stroke={1.5} />
+										<span>Suggest</span>
 									</button>
-								{/each}
+								</div>
+								<div class="relative">
+									<input
+										id="auth-callsign"
+										type="text"
+										maxlength="24"
+										required
+										autocomplete="nickname"
+										class="w-full rounded-lg border border-cream/15 bg-[#141c1f] px-3.5 py-2.5 text-sm text-cream outline-none focus:border-lamp focus:ring-1 focus:ring-lamp/40 transition-colors placeholder:text-faint/50"
+										placeholder="e.g. midnight-coder"
+										bind:value={callsign}
+									/>
+								</div>
+							</div>
+
+							<!-- Choose Starter Avatar (Hand-drawn Ink Sketches) -->
+							<div>
+								<span class="block text-xs font-medium text-cream/90 mb-1.5">
+									Choose Avatar
+								</span>
+								<div class="grid grid-cols-6 gap-2 pt-0.5">
+									{#each PRESET_AVATARS as preset}
+										<button
+											type="button"
+											class="relative aspect-square w-full rounded-full border-2 p-0.5 transition-all cursor-pointer {avatarUrl === preset.url ? 'border-lamp ring-2 ring-lamp/30 scale-105' : 'border-cream/15 opacity-75 hover:opacity-100 hover:border-cream/40'}"
+											onclick={() => (avatarUrl = preset.url)}
+											title="{preset.name} - {preset.tagline}"
+										>
+											<img src={preset.url} alt={preset.name} class="h-full w-full rounded-full object-cover" />
+										</button>
+									{/each}
+								</div>
 							</div>
 						</div>
 					{/if}

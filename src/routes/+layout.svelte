@@ -4,6 +4,7 @@
 	import '../app.css';
 	import { onMount } from 'svelte';
 	import { afterNavigate } from '$app/navigation';
+	import { page } from '$app/state';
 	import favicon from '#lib/assets/favicon.svg';
 	import { ScrollTrigger } from '#lib/motion';
 	import { room } from '#lib/room/room.svelte';
@@ -71,7 +72,11 @@
 <SiteAudioPlayer />
 
 <div class="relative min-h-screen flex flex-col {room.joinState === 'approved' ? 'pb-16 sm:pb-20' : ''}">
-	{@render children()}
+	{#key page.url.pathname}
+		<div class="flex-1 flex flex-col page-elastic-enter">
+			{@render children()}
+		</div>
+	{/key}
 </div>
 
 <!-- Persistent Shared Music Dock across the site -->

@@ -21,7 +21,43 @@
 	let lastY = 0;
 	let hidden = false;
 
+	let navElement: HTMLElement | undefined = $state();
+	let indicatorLeft = $state(0);
+	let indicatorWidth = $state(0);
+	let indicatorTop = $state(2);
+	let indicatorBottom = $state(2);
+	let indicatorReady = $state(false);
+
+	function updateIndicator() {
+		if (!navElement) return;
+		const activeLink = navElement.querySelector<HTMLElement>('a[aria-current="page"]');
+		if (activeLink) {
+			const navRect = navElement.getBoundingClientRect();
+			const linkRect = activeLink.getBoundingClientRect();
+			indicatorLeft = linkRect.left - navRect.left;
+			indicatorWidth = linkRect.width;
+			indicatorTop = linkRect.top - navRect.top;
+			indicatorBottom = navRect.bottom - linkRect.bottom;
+			indicatorReady = true;
+		} else {
+			indicatorReady = false;
+		}
+	}
+
+	$effect(() => {
+		// Track route and state changes
+		pathname;
+		room.title;
+		inRoom;
+		live;
+		if (typeof window !== 'undefined') {
+			requestAnimationFrame(() => updateIndicator());
+		}
+	});
+
 	onMount(() => {
+		window.addEventListener('resize', updateIndicator);
+
 		if (prefersReducedMotion()) return;
 
 		setupGsap();
@@ -48,6 +84,7 @@
 		window.addEventListener('scroll', onScroll, { passive: true });
 		return () => {
 			window.removeEventListener('scroll', onScroll);
+			window.removeEventListener('resize', updateIndicator);
 		};
 	});
 
@@ -90,16 +127,29 @@
 			</div>
 		</a>
 
-		<!-- Center: Segmented Navigation Capsule (no glows, crisp borders) -->
+		<!-- Center: Segmented Navigation Capsule (with elastic sliding indicator) -->
 		<nav
-			class="flex items-center rounded-full border border-cream/10 bg-night-2 p-0.5 sm:p-1"
+			bind:this={navElement}
+			class="relative flex items-center rounded-full border border-cream/10 bg-night-2 p-0.5 sm:p-1 overflow-hidden"
 			aria-label="Main navigation"
 		>
+			<!-- Elastic sliding pill background -->
+			<div
+				class="pointer-events-none absolute rounded-full bg-lamp/15 border border-lamp/35 shadow-sm"
+				style="
+					left: {indicatorLeft}px;
+					width: {indicatorWidth}px;
+					top: {indicatorTop}px;
+					bottom: {indicatorBottom}px;
+					opacity: {indicatorReady ? 1 : 0};
+					transition: all 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+				"
+				aria-hidden="true"
+			></div>
+
 			<a
 				href="/"
-				class="relative hidden sm:inline-flex items-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-3.5 py-1 text-xs font-medium transition-colors {isHome
-					? 'bg-lamp/15 text-lamp border border-lamp/35'
-					: 'text-taupe hover:bg-cream/5 hover:text-cream'}"
+				class="relative hidden sm:inline-flex items-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-3.5 py-1 text-xs font-medium z-10 transition-colors {!indicatorReady && isHome ? 'bg-lamp/15 text-lamp border border-lamp/35' : isHome ? 'text-lamp font-semibold' : 'text-taupe hover:text-cream'}"
 				aria-current={isHome ? 'page' : undefined}
 			>
 				{#if isHome}
@@ -110,9 +160,7 @@
 
 			<a
 				href={roomLink}
-				class="relative inline-flex items-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-3.5 py-1 text-xs font-medium transition-colors {isRoom
-					? 'bg-lamp/15 text-lamp border border-lamp/35'
-					: 'text-taupe hover:bg-cream/5 hover:text-cream'}"
+				class="relative inline-flex items-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-3.5 py-1 text-xs font-medium z-10 transition-colors {!indicatorReady && isRoom ? 'bg-lamp/15 text-lamp border border-lamp/35' : isRoom ? 'text-lamp font-semibold' : 'text-taupe hover:text-cream'}"
 				aria-current={isRoom ? 'page' : undefined}
 			>
 				{#if inRoom}
@@ -134,9 +182,7 @@
 
 			<a
 				href="/archive"
-				class="relative inline-flex items-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-3.5 py-1 text-xs font-medium transition-colors {isArchive
-					? 'bg-lamp/15 text-lamp border border-lamp/35'
-					: 'text-taupe hover:bg-cream/5 hover:text-cream'}"
+				class="relative inline-flex items-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-3.5 py-1 text-xs font-medium z-10 transition-colors {!indicatorReady && isArchive ? 'bg-lamp/15 text-lamp border border-lamp/35' : isArchive ? 'text-lamp font-semibold' : 'text-taupe hover:text-cream'}"
 				aria-current={isArchive ? 'page' : undefined}
 			>
 				{#if isArchive}
