@@ -400,11 +400,14 @@ class Room {
 		}
 		return Array.from(map.values());
 	}
-	/** Current room mode: 'normal' (chat open, shared floor) or 'focus' (quiet sprint). */
+	/** Current user's focus mode: 'normal' (chat open, shared floor) or 'focus' (quiet sprint, HUD). Local to this client. */
 	mode = $state<'normal' | 'focus' | 'break'>('normal');
-	/** Seconds remaining in current mode cycle. */
+	private localModeExpiresAt = $state<number | undefined>(undefined);
+	/** Personal pomodoro auto-cycle preference. */
+	cycleAuto = $state(false);
+	/** Seconds remaining in current personal focus mode cycle. */
 	modeRemaining = $derived(
-		this.state.modeExpiresAt ? Math.max(0, Math.floor((this.state.modeExpiresAt - this.now) / 1000)) : 0
+		this.localModeExpiresAt ? Math.max(0, Math.floor((this.localModeExpiresAt - this.now) / 1000)) : 0
 	);
 	/** Whether this user is an admin or the room host. */
 	isAdminUser = $derived(
@@ -797,6 +800,7 @@ class Room {
 				status?: string;
 				intention?: string;
 				tz?: string;
+				inFocus?: boolean;
 			};
 			if (!data?.name) return;
 			const peerName = String(data.name).slice(0, 24);
@@ -812,7 +816,8 @@ class Room {
 				status: data.status ? String(data.status).slice(0, 24) : undefined,
 				intention: data.intention ? String(data.intention).slice(0, 80) : undefined,
 				tz: data.tz ? String(data.tz).slice(0, 40) : undefined,
-				ts: Number(data.ts) || 0
+				ts: Number(data.ts) || 0,
+				inFocus: Boolean(data.inFocus)
 			});
 			this.flushPeers();
 		} catch {
@@ -905,14 +910,6 @@ class Room {
 
 		this.offset = Number(msg.clock) - now;
 		this.lastRemoteAt = now;
-
-		// Play chimes and sync mode if changed
-		if (msg.mode && msg.mode !== this.mode) {
-			const incomingMode = msg.mode === 'break' ? 'normal' : msg.mode;
-			this.mode = incomingMode;
-			if (incomingMode === 'focus') playFocusChime();
-			else playBreakChime();
-		}
 
 		// Gate visitor if room is private or door is locked, and user is not host / permitted with valid key
 		let isPermitted = this.isHost;
@@ -1035,9 +1032,6 @@ class Room {
 			this.t('state'),
 			JSON.stringify({
 				...shared,
-				mode: this.mode,
-				modeExpiresAt: this.state.modeExpiresAt,
-				cycleAuto: this.state.cycleAuto,
 				doorLocked: this.state.doorLocked,
 				isPrivate: this.state.isPrivate,
 				accessKeyHash: this.state.accessKeyHash,
@@ -1114,7 +1108,6 @@ class Room {
 				position: this.state.position,
 				current: this.state.current,
 				videoId: this.state.videoId,
-				mode: this.mode,
 				doorLocked: this.state.doorLocked,
 				history: this.getAllSessionTracks()
 			});
@@ -1850,7 +1843,8 @@ class Room {
 			intention: this.intention || undefined,
 			tz: userTz,
 			ts: Date.now(),
-			self: true
+			self: true,
+			inFocus: this.mode === 'focus'
 		});
 		this.flushPeers();
 		this.pub(
@@ -1861,7 +1855,8 @@ class Room {
 				status: this.statusText || undefined,
 				intention: this.intention || undefined,
 				tz: userTz,
-				ts: Date.now()
+				ts: Date.now(),
+				inFocus: this.mode === 'focus'
 			}),
 			true
 		);
@@ -1917,33 +1912,15 @@ class Room {
 		this.mode = targetMode;
 		const defaultDuration = targetMode === 'focus' ? 50 : 0;
 		const duration = durationMinutes !== undefined ? durationMinutes : defaultDuration;
-		const expiresAt = duration > 0 ? Date.now() + duration * 60 * 1000 : undefined;
-		const label = targetMode === 'focus' ? '🎯 focus mode' : '✨ normal mode';
-		this.mutate(
-			(s) => ({
-				...s,
-				mode: targetMode,
-				modeExpiresAt: expiresAt
-			}),
-			`switched the room to ${label}`
-		);
+		this.localModeExpiresAt = duration > 0 ? Date.now() + duration * 60 * 1000 : undefined;
 		if (targetMode === 'focus') playFocusChime();
 		else playBreakChime();
+		// Announce to peers so they can see this user is locked in without altering their room mode
+		this.announce();
 	}
 
 	toggleAutoCycle(): void {
-		if (!this.isHost) return;
-		const nextAuto = !this.state.cycleAuto;
-		const duration = this.mode === 'focus' ? 50 : 15;
-		const expiresAt = Date.now() + duration * 60 * 1000;
-		this.mutate(
-			(s) => ({
-				...s,
-				cycleAuto: nextAuto,
-				modeExpiresAt: nextAuto ? expiresAt : undefined
-			}),
-			nextAuto ? 'enabled auto cycle' : 'disabled auto cycle'
-		);
+		this.cycleAuto = !this.cycleAuto;
 	}
 
 	toggleDoorLock(): void {
@@ -2594,11 +2571,15 @@ class Room {
 			this.focusSeconds = 0;
 		}
 
-		// Pomodoro automatic cycle transition by host
-		if (this.isHost && this.state.cycleAuto && this.state.modeExpiresAt && now >= this.state.modeExpiresAt) {
+		// Pomodoro automatic cycle transition (local to user)
+		if (this.localModeExpiresAt && now >= this.localModeExpiresAt) {
 			const nextMode = this.mode === 'focus' ? 'normal' : 'focus';
 			const duration = nextMode === 'focus' ? 50 : 15;
-			this.setMode(nextMode, duration);
+			if (this.cycleAuto) {
+				this.setMode(nextMode, duration);
+			} else if (this.mode === 'focus') {
+				this.setMode('normal');
+			}
 		}
 
 		for (const [id, peer] of this.peers) {

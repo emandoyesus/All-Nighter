@@ -63,6 +63,7 @@ export type Peer = {
 	status?: string;
 	intention?: string;
 	tz?: string;
+	inFocus?: boolean;
 };
 
 export type LogEntry = { id: string; who: string; text: string; ts: number };

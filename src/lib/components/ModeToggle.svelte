@@ -39,7 +39,7 @@
 
 <div class="panel p-3 sm:p-3.5">
 	<div class="mb-2 flex items-center justify-between">
-		<p class="text-xs text-faint">Room Mode</p>
+		<p class="text-xs text-faint">Focus Mode</p>
 		{#if room.modeRemaining > 0}
 			<span class="num text-[11px] font-medium {mode === 'focus' ? 'text-amber-300' : 'text-lamp'}">
 				{formatCountdown(room.modeRemaining)} left
@@ -109,14 +109,14 @@
 		<div class="mt-2.5 flex flex-wrap items-center justify-between gap-1.5 border-t border-cream/10 pt-2">
 			<button
 				type="button"
-				class="inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-mono transition-colors {room.state.cycleAuto
+				class="inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-mono transition-colors {room.cycleAuto
 					? 'border-lamp/40 bg-lamp/10 text-lamp'
 					: 'border-cream/10 bg-night/40 text-taupe hover:text-cream'}"
 				onclick={() => room.toggleAutoCycle()}
-				title="Automatically switches between Focus sprints and Normal intervals"
+				title="Automatically switches between Focus sprints and Normal intervals for your session"
 			>
 				<IconRepeat size={11} stroke={1.5} />
-				<span>Auto: {room.state.cycleAuto ? 'On' : 'Off'}</span>
+				<span>Auto: {room.cycleAuto ? 'On' : 'Off'}</span>
 			</button>
 
 			<span
