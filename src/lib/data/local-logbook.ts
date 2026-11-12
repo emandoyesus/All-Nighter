@@ -2,6 +2,18 @@ import type { Night, ArchiveTrack } from './archive';
 
 const LS_MY_NIGHTS = 'an.my_nights';
 
+function getActiveUserId(): string | null {
+	if (typeof window === 'undefined') return null;
+	try {
+		const raw = localStorage.getItem('an.auth_cache');
+		if (raw) {
+			const parsed = JSON.parse(raw);
+			if (parsed?.id && parsed.id !== 'cached-local') return parsed.id;
+		}
+	} catch {}
+	return null;
+}
+
 /** Slug filter to exclude developer test sessions and keep only canonical archives like Log #001 and the real Asylum */
 export function isTestArchiveSlug(slug: string): boolean {
 	const s = (slug || '').trim().toLowerCase();
@@ -39,9 +51,19 @@ export function isTestArchiveSlug(slug: string): boolean {
 	);
 }
 
-export function loadMyNights(): Night[] {
+export function loadMyNights(userId?: string | null): Night[] {
 	if (typeof window !== 'undefined') {
+		const uid = userId || getActiveUserId();
 		try {
+			if (uid) {
+				const userRaw = localStorage.getItem(`${LS_MY_NIGHTS}.${uid}`);
+				if (userRaw) {
+					const parsed = JSON.parse(userRaw);
+					if (Array.isArray(parsed)) {
+						return parsed.filter((item) => !isTestArchiveSlug(item.slug));
+					}
+				}
+			}
 			const raw = localStorage.getItem(LS_MY_NIGHTS);
 			if (raw) {
 				const parsed = JSON.parse(raw);
@@ -71,10 +93,11 @@ export function toArchiveSlug(roomName: string, date = new Date()): string {
 	return `${clean}-${date.toISOString().slice(0, 10)}`;
 }
 
-export function saveToMyNights(night: Night): void {
+export function saveToMyNights(night: Night, userId?: string | null): void {
 	if (typeof window === 'undefined') return;
+	const uid = userId || getActiveUserId();
 	try {
-		const list = loadMyNights();
+		const list = loadMyNights(uid);
 		// Deduplicate: same slug, or same room on same date
 		const base = night.slug.replace(/-\d{4}-\d{2}-\d{2}$/, '');
 		const filtered = list.filter((item) => {
@@ -85,6 +108,43 @@ export function saveToMyNights(night: Night): void {
 		});
 		const next = [night, ...filtered];
 		localStorage.setItem(LS_MY_NIGHTS, JSON.stringify(next));
+		if (uid) {
+			localStorage.setItem(`${LS_MY_NIGHTS}.${uid}`, JSON.stringify(next));
+		}
+	} catch {}
+}
+
+export function resetActiveLogbookToGuest(): void {
+	if (typeof window === 'undefined') return;
+	try {
+		localStorage.removeItem(LS_MY_NIGHTS);
+	} catch {}
+}
+
+export function syncMyNightsOnAuth(user: any): void {
+	if (typeof window === 'undefined' || !user?.id) return;
+	try {
+		const localUser = loadMyNights(user.id);
+		const remoteRaw = user.user_metadata?.my_nights;
+		const remoteNights: Night[] = Array.isArray(remoteRaw) ? remoteRaw : [];
+
+		// Merge by slug
+		const map = new Map<string, Night>();
+		for (const n of remoteNights) {
+			if (n?.slug && !isTestArchiveSlug(n.slug)) map.set(n.slug, n);
+		}
+		for (const n of localUser) {
+			if (n?.slug && !isTestArchiveSlug(n.slug)) map.set(n.slug, n);
+		}
+
+		const merged = Array.from(map.values()).sort((a, b) => {
+			const da = a.iso ? new Date(a.iso).getTime() : 0;
+			const db = b.iso ? new Date(b.iso).getTime() : 0;
+			return db - da;
+		});
+
+		localStorage.setItem(`${LS_MY_NIGHTS}.${user.id}`, JSON.stringify(merged));
+		localStorage.setItem(LS_MY_NIGHTS, JSON.stringify(merged));
 	} catch {}
 }
 

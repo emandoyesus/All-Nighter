@@ -1,3 +1,4 @@
+import { supabase, isSupabaseConfigured } from '#lib/supabase';
 import { loadMyNights } from './local-logbook';
 import { nights } from './archive';
 
@@ -10,6 +11,52 @@ export interface PersistentStats {
 	intentionsSet: number;
 	dawnRituals: number;
 	customUnlocks: string[];
+}
+
+function getActiveUserId(): string | null {
+	if (typeof window === 'undefined') return null;
+	try {
+		const raw = localStorage.getItem('an.auth_cache');
+		if (raw) {
+			const parsed = JSON.parse(raw);
+			if (parsed?.id && parsed.id !== 'cached-local') return parsed.id;
+		}
+	} catch {}
+	return null;
+}
+
+export function mergePersistentStats(
+	a?: Partial<PersistentStats> | null,
+	b?: Partial<PersistentStats> | null
+): PersistentStats {
+	return {
+		tracksQueued: Math.max(Number(a?.tracksQueued) || 0, Number(b?.tracksQueued) || 0),
+		focusMinutes: Math.max(Number(a?.focusMinutes) || 0, Number(b?.focusMinutes) || 0),
+		roomsHosted: Math.max(Number(a?.roomsHosted) || 0, Number(b?.roomsHosted) || 0),
+		intentionsSet: Math.max(Number(a?.intentionsSet) || 0, Number(b?.intentionsSet) || 0),
+		dawnRituals: Math.max(Number(a?.dawnRituals) || 0, Number(b?.dawnRituals) || 0),
+		customUnlocks: Array.from(
+			new Set([
+				...(Array.isArray(a?.customUnlocks) ? a.customUnlocks : []),
+				...(Array.isArray(b?.customUnlocks) ? b.customUnlocks : [])
+			])
+		)
+	};
+}
+
+let syncTimer: ReturnType<typeof setTimeout> | null = null;
+export function scheduleCloudStatsSync(stats: PersistentStats): void {
+	if (typeof window === 'undefined' || !isSupabaseConfigured || !supabase) return;
+	if (syncTimer) clearTimeout(syncTimer);
+	const client = supabase;
+	syncTimer = setTimeout(async () => {
+		try {
+			if (!client) return;
+			await client.auth.updateUser({
+				data: { stats }
+			});
+		} catch {}
+	}, 2000);
 }
 
 export interface Achievement {
@@ -46,7 +93,7 @@ export interface UserProfileStats {
 	totalAchievements: number;
 }
 
-function loadPersistentStats(): PersistentStats {
+export function loadPersistentStats(userId?: string | null): PersistentStats {
 	if (typeof window === 'undefined') {
 		return {
 			tracksQueued: 0,
@@ -57,7 +104,22 @@ function loadPersistentStats(): PersistentStats {
 			customUnlocks: []
 		};
 	}
+	const uid = userId || getActiveUserId();
 	try {
+		if (uid) {
+			const userRaw = localStorage.getItem(`${LS_USER_STATS}.${uid}`);
+			if (userRaw) {
+				const parsed = JSON.parse(userRaw);
+				return {
+					tracksQueued: Number(parsed.tracksQueued) || 0,
+					focusMinutes: Number(parsed.focusMinutes) || 0,
+					roomsHosted: Number(parsed.roomsHosted) || 0,
+					intentionsSet: Number(parsed.intentionsSet) || 0,
+					dawnRituals: Number(parsed.dawnRituals) || 0,
+					customUnlocks: Array.isArray(parsed.customUnlocks) ? parsed.customUnlocks : []
+				};
+			}
+		}
 		const raw = localStorage.getItem(LS_USER_STATS);
 		if (raw) {
 			const parsed = JSON.parse(raw);
@@ -81,18 +143,67 @@ function loadPersistentStats(): PersistentStats {
 	};
 }
 
-export function savePersistentStats(stats: PersistentStats): void {
+export function savePersistentStats(stats: PersistentStats, userId?: string | null): void {
 	if (typeof window === 'undefined') return;
+	const uid = userId || getActiveUserId();
 	try {
 		localStorage.setItem(LS_USER_STATS, JSON.stringify(stats));
+		if (uid) {
+			localStorage.setItem(`${LS_USER_STATS}.${uid}`, JSON.stringify(stats));
+			scheduleCloudStatsSync(stats);
+		}
 		window.dispatchEvent(new CustomEvent('an:stats-updated'));
 	} catch {}
 }
 
-export function recordStat(key: keyof Omit<PersistentStats, 'customUnlocks'>, amount = 1): void {
-	const current = loadPersistentStats();
+export function recordStat(
+	key: keyof Omit<PersistentStats, 'customUnlocks'>,
+	amount = 1,
+	userId?: string | null
+): void {
+	const current = loadPersistentStats(userId);
 	current[key] = (current[key] || 0) + amount;
-	savePersistentStats(current);
+	savePersistentStats(current, userId);
+}
+
+export function resetActiveStatsToGuest(): void {
+	if (typeof window === 'undefined') return;
+	try {
+		const empty: PersistentStats = {
+			tracksQueued: 0,
+			focusMinutes: 0,
+			roomsHosted: 0,
+			intentionsSet: 0,
+			dawnRituals: 0,
+			customUnlocks: []
+		};
+		localStorage.setItem(LS_USER_STATS, JSON.stringify(empty));
+		window.dispatchEvent(new CustomEvent('an:stats-updated'));
+	} catch {}
+}
+
+export function syncUserStatsOnAuth(user: any): PersistentStats {
+	if (typeof window === 'undefined' || !user?.id) {
+		return loadPersistentStats();
+	}
+	try {
+		const remoteStats: Partial<PersistentStats> = user.user_metadata?.stats || {};
+		const localUserRaw = localStorage.getItem(`${LS_USER_STATS}.${user.id}`);
+		const localUserStats: Partial<PersistentStats> = localUserRaw ? JSON.parse(localUserRaw) : {};
+		const legacyRaw = localStorage.getItem(LS_USER_STATS);
+		const legacyStats: Partial<PersistentStats> = legacyRaw ? JSON.parse(legacyRaw) : {};
+
+		const merged = mergePersistentStats(remoteStats, mergePersistentStats(localUserStats, legacyStats));
+
+		localStorage.setItem(`${LS_USER_STATS}.${user.id}`, JSON.stringify(merged));
+		localStorage.setItem(LS_USER_STATS, JSON.stringify(merged));
+		window.dispatchEvent(new CustomEvent('an:stats-updated'));
+
+		scheduleCloudStatsSync(merged);
+		return merged;
+	} catch {
+		return loadPersistentStats(user.id);
+	}
 }
 
 /** Calculate user rank based on total nocturnal minutes */
@@ -142,9 +253,31 @@ function calculateRank(totalMinutes: number, nightsCount: number) {
 }
 
 /** Get full user stats and computed achievements */
-export function getUserProfileStats(callsign?: string): UserProfileStats {
-	const persistent = loadPersistentStats();
-	const myNights = loadMyNights();
+export function getUserProfileStats(callsign?: string, userId?: string | null): UserProfileStats {
+	const activeUid = userId || getActiveUserId();
+	let persistent: PersistentStats;
+
+	let currentCallsign = '';
+	if (typeof localStorage !== 'undefined') {
+		currentCallsign = (localStorage.getItem('an.callsign') || '').trim().toLowerCase();
+	}
+
+	const isSelf = !callsign || (currentCallsign && callsign.trim().toLowerCase() === currentCallsign);
+
+	if (isSelf) {
+		persistent = loadPersistentStats(activeUid);
+	} else {
+		persistent = {
+			tracksQueued: 0,
+			focusMinutes: 0,
+			roomsHosted: 0,
+			intentionsSet: 0,
+			dawnRituals: 0,
+			customUnlocks: []
+		};
+	}
+
+	const myNights = isSelf ? loadMyNights(activeUid) : [];
 
 	// Match archive nights if callsign provided
 	const archiveMatches = callsign

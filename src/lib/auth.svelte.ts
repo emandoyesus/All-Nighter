@@ -1,5 +1,7 @@
 import { supabase, isSupabaseConfigured } from '#lib/supabase';
 import type { User, Session } from '@supabase/supabase-js';
+import { syncUserStatsOnAuth, resetActiveStatsToGuest } from '#lib/data/profile-stats';
+import { syncMyNightsOnAuth, resetActiveLogbookToGuest } from '#lib/data/local-logbook';
 
 export interface CachedAuthProfile {
 	id: string;
@@ -322,6 +324,10 @@ class AuthService {
 			window.dispatchEvent(new CustomEvent('an:update-avatar', { detail: { avatar } }));
 		}
 
+		// Sync persistent user stats, levels & achievements, and session logbook with profile
+		syncUserStatsOnAuth(user);
+		syncMyNightsOnAuth(user);
+
 		// Check if user has explicitly configured their profile after signin/signup
 		const isConfigured = Boolean(
 			user.user_metadata?.profile_configured ||
@@ -404,6 +410,10 @@ class AuthService {
 		try {
 			localStorage.removeItem('an.is_guest');
 			localStorage.removeItem('an.auth_cache');
+			localStorage.removeItem('an.callsign');
+			localStorage.removeItem('an.avatar');
+			resetActiveStatsToGuest();
+			resetActiveLogbookToGuest();
 		} catch {}
 		if (!supabase) return;
 		return supabase.auth.signOut();

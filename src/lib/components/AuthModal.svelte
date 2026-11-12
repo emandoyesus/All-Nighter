@@ -40,7 +40,7 @@
 	const isLockedInRoom = $derived(room.joinState === 'approved');
 
 	function refreshStats(): void {
-		userStats = getUserProfileStats(currentDisplayName);
+		userStats = getUserProfileStats(currentDisplayName, auth.user?.id);
 	}
 
 	function getTierBadgeClass(tier: Achievement['tier']): string {
