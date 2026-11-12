@@ -168,7 +168,7 @@
 					type="button"
 					disabled={!isMatch || isDeleting}
 					class="btn btn-sm text-xs px-4 py-2 font-mono flex items-center gap-1.5 transition-all {isMatch
-						? 'border border-cream/25 bg-cream/10 text-cream hover:bg-cream/20 hover:border-cream/40 cursor-pointer font-medium'
+						? 'border border-ruby/40 bg-ruby/15 text-ruby hover:bg-ruby hover:text-white hover:border-ruby cursor-pointer font-medium shadow-sm'
 						: 'border border-cream/10 bg-night/50 text-faint/40 cursor-not-allowed opacity-60'}"
 					onclick={handleDelete}
 				>

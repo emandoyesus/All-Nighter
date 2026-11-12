@@ -329,7 +329,7 @@
 							<IconPlay size={15} stroke={1.5} />
 						</button>
 						<button
-							class="icon-btn"
+							class="icon-btn text-faint hover:text-ruby hover:bg-ruby/10 transition-colors"
 							onclick={() => room.remove(track.uid)}
 							title="Remove"
 							aria-label="Remove {track.title} from the queue"

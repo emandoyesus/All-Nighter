@@ -322,12 +322,12 @@
 													</button>
 												{:else}
 													<button
-														class="btn btn-ghost text-taupe hover:text-cream hover:bg-cream/5 w-full text-[11px] font-mono tracking-wider py-1.5 border border-cream/15 hover:border-cream/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+														class="btn btn-ghost text-taupe hover:text-ruby hover:bg-ruby/10 w-full text-[11px] font-mono tracking-wider py-1.5 border border-cream/15 hover:border-ruby/40 transition-all flex items-center justify-center gap-1.5 cursor-pointer group"
 														onclick={() => (showDeleteModal = true)}
 														title="Close and delete the room session"
 													>
-														<IconTrash size={13} stroke={1.5} class="text-taupe" />
-														Delete room session
+														<IconTrash size={13} stroke={1.5} class="text-taupe group-hover:text-ruby transition-colors" />
+														<span>Delete room session</span>
 													</button>
 												{/if}
 											</div>
@@ -360,12 +360,12 @@
 										</button>
 									{:else}
 										<button
-											class="btn btn-ghost text-taupe hover:text-cream hover:bg-cream/5 w-full text-[11px] font-mono tracking-wider py-1.5 border border-cream/15 hover:border-cream/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+											class="btn btn-ghost text-taupe hover:text-ruby hover:bg-ruby/10 w-full text-[11px] font-mono tracking-wider py-1.5 border border-cream/15 hover:border-ruby/40 transition-all flex items-center justify-center gap-1.5 cursor-pointer group"
 											onclick={() => (showDeleteModal = true)}
 											title="Close and delete the room session"
 										>
-											<IconTrash size={13} stroke={1.5} class="text-taupe" />
-											Delete room session
+											<IconTrash size={13} stroke={1.5} class="text-taupe group-hover:text-ruby transition-colors" />
+											<span>Delete room session</span>
 										</button>
 									{/if}
 								</div>

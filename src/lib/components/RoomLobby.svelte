@@ -355,7 +355,7 @@
 								</button>
 								<button
 									type="button"
-									class="icon-btn text-faint hover:text-ruby cursor-pointer p-1.5"
+									class="icon-btn text-faint hover:text-ruby hover:bg-ruby/10 cursor-pointer p-1.5 transition-colors"
 									onclick={() => deleteMyRoom(r.slug)}
 									title="Delete and close room"
 								>
