@@ -89,6 +89,7 @@
 		const result: Night[] = [];
 
 		for (const n of myLocalNights) {
+			if (isTestArchiveSlug(n.slug)) continue;
 			if (!seen.has(n.slug)) {
 				seen.add(n.slug);
 				result.push(n);
@@ -97,6 +98,7 @@
 
 		if (currentName) {
 			for (const dn of dbNights) {
+				if (isTestArchiveSlug(dn.slug)) continue;
 				if (!seen.has(dn.slug)) {
 					const isParticipant =
 						dn.joined.some((name) => name.trim().toLowerCase() === currentName) ||

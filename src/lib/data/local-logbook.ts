@@ -2,10 +2,16 @@ import type { Night, ArchiveTrack } from './archive';
 
 const LS_MY_NIGHTS = 'an.my_nights';
 
-/** Slug filter to exclude developer test sessions and keep only canonical archives like Log #001 */
+/** Slug filter to exclude developer test sessions and keep only canonical archives like Log #001 and the real Asylum */
 export function isTestArchiveSlug(slug: string): boolean {
 	const s = (slug || '').trim().toLowerCase();
+	// Preserve authentic sessions
+	if (s === 'the-asylum-2026-11-12') return false;
+	if (s === 'entoto-sunrise-addis-lock-in') return false;
+
 	return (
+		s === 'the-asylum' ||
+		s === 'the-asylum-2026-11-11' ||
 		s === 'k' ||
 		s.startsWith('k-') ||
 		s === 'skubidu' ||
@@ -31,8 +37,7 @@ export function isTestArchiveSlug(slug: string): boolean {
 		s === 'taju-emando' ||
 		s.startsWith('taju-emando-') ||
 		s === 'late-night-shift' ||
-		s.startsWith('late-night-shift-') ||
-		s === 'the-asylum-2026-11-11'
+		s.startsWith('late-night-shift-')
 	);
 }
 
@@ -42,7 +47,16 @@ export function loadMyNights(): Night[] {
 			const raw = localStorage.getItem(LS_MY_NIGHTS);
 			if (raw) {
 				const parsed = JSON.parse(raw);
-				if (Array.isArray(parsed)) return parsed;
+				if (Array.isArray(parsed)) {
+					// Purge test and duplicate entries from user's local storage automatically
+					const cleaned = parsed.filter((item) => !isTestArchiveSlug(item.slug));
+					if (cleaned.length !== parsed.length) {
+						try {
+							localStorage.setItem(LS_MY_NIGHTS, JSON.stringify(cleaned));
+						} catch {}
+					}
+					return cleaned;
+				}
 			}
 		} catch {}
 	}
