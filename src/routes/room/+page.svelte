@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { room } from '#lib/room/room.svelte';
-	import Nav from '#lib/components/Nav.svelte';
 	import Player from '#lib/components/Player.svelte';
 	import QueuePanel from '#lib/components/QueuePanel.svelte';
 	import Countdown from '#lib/components/Countdown.svelte';
@@ -92,8 +91,6 @@
 	<meta name="twitter:description" content="One synchronized room. One shared track queue. Everyone awake and building till dawn." />
 	<meta name="twitter:image" content="https://all-nighter.pro.et/og-image.png" />
 </svelte:head>
-
-<Nav />
 
 {#if !auth.isAuthenticated}
 	{#if auth.loading}

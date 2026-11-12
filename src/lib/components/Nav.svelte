@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
+	import { afterNavigate } from '$app/navigation';
 	import { room } from '#lib/room/room.svelte';
 	import { auth } from '#lib/auth.svelte';
 	import { siteAudio } from '#lib/audio/site-audio.svelte';
@@ -43,6 +44,15 @@
 			indicatorReady = false;
 		}
 	}
+
+	afterNavigate(() => {
+		if (header) {
+			gsap.set(header, { yPercent: 0, overwrite: true });
+			hidden = false;
+			lastY = 0;
+		}
+		requestAnimationFrame(() => updateIndicator());
+	});
 
 	$effect(() => {
 		// Track route and state changes
@@ -133,7 +143,7 @@
 			class="relative flex items-center rounded-full border border-cream/10 bg-night-2 p-0.5 sm:p-1 overflow-hidden"
 			aria-label="Main navigation"
 		>
-			<!-- Elastic sliding pill background -->
+			<!-- Sliding pill background -->
 			<div
 				class="pointer-events-none absolute rounded-full bg-lamp/15 border border-lamp/35 shadow-sm"
 				style="
@@ -142,7 +152,7 @@
 					top: {indicatorTop}px;
 					bottom: {indicatorBottom}px;
 					opacity: {indicatorReady ? 1 : 0};
-					transition: all 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+					transition: left 200ms ease-out, width 200ms ease-out, opacity 150ms ease-out;
 				"
 				aria-hidden="true"
 			></div>

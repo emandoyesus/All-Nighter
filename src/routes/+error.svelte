@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
-	import Nav from '#lib/components/Nav.svelte';
 	import IconArrowLeft from '@tabler/icons-svelte/icons/arrow-left';
 	import IconRadio from '@tabler/icons-svelte/icons/radio';
 	import IconDisc from '@tabler/icons-svelte/icons/disc';
@@ -41,8 +40,6 @@
 <svelte:head>
 	<title>{isNightFinish ? 'Dawn Conquered · All Nighter' : `${status} · All Nighter`}</title>
 </svelte:head>
-
-<Nav />
 
 <main class="relative flex min-h-[calc(100dvh-64px)] md:min-h-[calc(100dvh-68px)] flex-col items-center justify-center px-5 py-16 overflow-hidden">
 	<!-- Subtle ambient radial grid -->

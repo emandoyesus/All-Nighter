@@ -1,5 +1,4 @@
 <script lang="ts">
-	import Nav from '#lib/components/Nav.svelte';
 	import { countUp } from '#lib/count-up';
 	import { reveal } from '#lib/reveal';
 	import { splitReveal } from '#lib/split-reveal';
@@ -19,8 +18,6 @@
 <svelte:head>
 	<title>{profile.name} · Crew · All Nighter</title>
 </svelte:head>
-
-<Nav />
 
 <main>
 	<section class="border-b border-cream/10 bg-night-2">

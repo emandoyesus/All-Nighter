@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import Nav from '#lib/components/Nav.svelte';
 	import ArchiveStats from '#lib/components/ArchiveStats.svelte';
 	import { nights, genres, contributors } from '#lib/data/archive';
 	import type { Night } from '#lib/data/archive';
@@ -242,8 +241,6 @@
 <svelte:head>
 	<title>The Archive · All Nighter</title>
 </svelte:head>
-
-<Nav />
 
 <main>
 	<section class="border-b border-cream/10 bg-night-2">

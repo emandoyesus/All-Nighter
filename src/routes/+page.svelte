@@ -1,5 +1,4 @@
 <script lang="ts">
-	import Nav from '#lib/components/Nav.svelte';
 	import Hero from '#lib/components/Hero.svelte';
 	import Rituals from '#lib/components/Rituals.svelte';
 	import NightZones from '#lib/components/NightZones.svelte';
@@ -10,8 +9,6 @@
 <svelte:head>
 	<title>All Nighter · tonight</title>
 </svelte:head>
-
-<Nav />
 
 <main>
 	<Hero />

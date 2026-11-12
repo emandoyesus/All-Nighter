@@ -13,6 +13,7 @@
 	import SiteAudioPlayer from '#lib/components/SiteAudioPlayer.svelte';
 	import RoomMusicDock from '#lib/components/RoomMusicDock.svelte';
 	import DeskHud from '#lib/components/DeskHud.svelte';
+	import Nav from '#lib/components/Nav.svelte';
 	import PeerProfileModal from '#lib/components/PeerProfileModal.svelte';
 	import GlobalPauseModal from '#lib/components/GlobalPauseModal.svelte';
 	import ProfileSetupModal from '#lib/components/ProfileSetupModal.svelte';
@@ -72,11 +73,10 @@
 <SiteAudioPlayer />
 
 <div class="relative min-h-screen flex flex-col {room.joinState === 'approved' ? 'pb-16 sm:pb-20' : ''}">
-	{#key page.url.pathname}
-		<div class="flex-1 flex flex-col page-elastic-enter">
-			{@render children()}
-		</div>
-	{/key}
+	<Nav />
+	<div class="flex-1 flex flex-col">
+		{@render children()}
+	</div>
 </div>
 
 <!-- Persistent Shared Music Dock across the site -->
