@@ -976,6 +976,23 @@ class Room {
 		if (!msg?.id || this.joinState !== 'approved') return;
 		const chat = this.state.chat || [];
 		if (chat.some((item) => item.id === msg.id)) return;
+
+		// Ensure avatar is populated if missing from network payload
+		if (!msg.avatar) {
+			if (msg.whoId === this.clientId || msg.who === this.name) {
+				msg.avatar = this.avatar;
+			} else if (msg.whoId && this.peers.has(msg.whoId)) {
+				msg.avatar = this.peers.get(msg.whoId)?.avatar;
+			} else {
+				const match = this.getAllAttendees().find(
+					(a) => a.name.trim().toLowerCase() === msg.who.trim().toLowerCase()
+				);
+				if (match?.avatar) msg.avatar = match.avatar;
+			}
+		} else if (msg.who) {
+			this.recordAttendee(msg.who, msg.avatar);
+		}
+
 		this.state = { ...this.state, chat: [...chat, msg].slice(-100) };
 	}
 

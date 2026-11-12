@@ -106,6 +106,7 @@ export class SupabaseRoomSync {
 						id: m.id,
 						who: m.sender_name,
 						whoId: m.sender_id,
+						avatar: (m as any).sender_avatar || (m as any).avatar,
 						text: m.text,
 						ts: new Date(m.created_at).getTime()
 					});
@@ -151,6 +152,7 @@ export class SupabaseRoomSync {
 						id: m.id,
 						who: m.sender_name,
 						whoId: m.sender_id,
+						avatar: (m as any).sender_avatar || (m as any).avatar,
 						text: m.text,
 						ts: new Date(m.created_at).getTime()
 					});

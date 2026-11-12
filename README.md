@@ -1,10 +1,10 @@
 # All Nighter
 
-> **Show up. Lock in till sunrise.**  
-> A shared focus room with synchronized music, chat, and a countdown.  
+> **Doors open at sunset. Lock in till sunrise.**  
+> A shared focus room with synchronized music, chat, and an unbroken countdown to dawn.  
 > 🌐 **Live Production**: [https://all-nighter.pro.et](https://all-nighter.pro.et)
 
-All Nighter is a real-time collaborative focus sanctuary for late-night developers, designers, and students. Built on a serverless peer synchronization architecture, everyone in a room shares one synchronized audio stream, one collaborative queue, real-time presence of who's awake, and an unbroken countdown to dawn.
+All Nighter is a real-time collaborative focus sanctuary running from sunset to sunrise (18:00 to 06:00) for developers, designers, and students. Built on a serverless peer synchronization architecture, everyone in a room shares one synchronized audio stream, one collaborative queue, real-time presence of who's awake, and an unbroken countdown to dawn.
 
 ---
 

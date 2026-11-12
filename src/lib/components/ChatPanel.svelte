@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { room } from '#lib/room/room.svelte';
+	import { auth } from '#lib/auth.svelte';
+	import type { ChatMessage } from '#lib/room/types';
 	import IconSend from '@tabler/icons-svelte/icons/send-2';
 	import IconNotes from '@tabler/icons-svelte/icons/notes';
 	import IconMessages from '@tabler/icons-svelte/icons/messages';
@@ -55,6 +57,23 @@
 		const m = Math.floor(sec / 60);
 		const s = sec % 60;
 		return `${m}:${String(s).padStart(2, '0')}`;
+	}
+
+	function resolveAvatar(msg: ChatMessage, isSelf: boolean): string | null {
+		const direct = msg.avatar || (isSelf ? room.avatar || auth.avatarUrl : null);
+		if (direct && typeof direct === 'string' && direct.trim().length > 0) {
+			return direct.trim();
+		}
+		const awakePeer = room.awake.find(
+			(p) => (msg.whoId && p.id === msg.whoId) || p.name.trim().toLowerCase() === msg.who.trim().toLowerCase()
+		);
+		if (awakePeer?.avatar) return awakePeer.avatar;
+
+		const attendee = room.getAllAttendees().find(
+			(a) => a.name.trim().toLowerCase() === msg.who.trim().toLowerCase()
+		);
+		if (attendee?.avatar) return attendee.avatar;
+		return null;
 	}
 </script>
 
@@ -123,20 +142,43 @@
 		<ul bind:this={list} class="mt-3 max-h-[300px] flex-1 space-y-3 overflow-y-auto pr-1 scroll-smooth">
 			{#each messages as msg (msg.id)}
 				{@const isSelf = msg.whoId === room.clientId}
+				{@const avatar = resolveAvatar(msg, isSelf)}
 				{#if isSelf}
-					<!-- Self Chatbox (Right-aligned) -->
-					<li class="flex flex-col items-end gap-1">
-						<div class="max-w-[85%] rounded-2xl rounded-tr-xs border border-lamp/30 bg-lamp/15 px-3.5 py-2 text-cream shadow-sm">
-							<p class="break-words text-xs leading-relaxed selection:bg-lamp/30">{msg.text}</p>
+					<!-- Self Chatbox (Right-aligned with user profile picture) -->
+					<li class="flex items-start justify-end gap-2 max-w-[92%] ml-auto">
+						<div class="flex flex-col items-end gap-1 min-w-0">
+							<div class="rounded-2xl rounded-tr-xs border border-lamp/30 bg-lamp/15 px-3.5 py-2 text-cream shadow-sm">
+								<p class="break-words text-xs leading-relaxed selection:bg-lamp/30">{msg.text}</p>
+							</div>
+							<div class="flex items-center gap-1.5 px-1 text-[10px] font-mono text-faint">
+								<span>{clock(msg.ts)}</span>
+								<span class="text-lamp font-medium">· you</span>
+							</div>
 						</div>
-						<div class="flex items-center gap-1.5 px-1 text-[10px] font-mono text-faint">
-							<span>{clock(msg.ts)}</span>
-							<span class="text-lamp font-medium">· you</span>
+
+						<!-- Self Avatar -->
+						<div class="shrink-0 rounded-full border border-lamp/35 mt-0.5 overflow-hidden">
+							{#if avatar}
+								<img
+									src={avatar}
+									alt="You"
+									class="h-6 w-6 rounded-full object-cover"
+									loading="lazy"
+									onerror={(e) => {
+										// Fallback to initial if image URL fails to load
+										(e.currentTarget as HTMLElement).style.display = 'none';
+									}}
+								/>
+							{:else}
+								<div class="h-6 w-6 rounded-full bg-lamp/20 text-[10px] font-mono font-bold text-lamp grid place-items-center">
+									{(room.name || 'Y').slice(0, 1).toUpperCase()}
+								</div>
+							{/if}
 						</div>
 					</li>
 				{:else}
 					<!-- Peer Chatbox (Left-aligned) -->
-					<li class="flex items-start gap-2 max-w-[90%]">
+					<li class="flex items-start gap-2 max-w-[92%]">
 						<!-- Peer Avatar or Initial -->
 						<button
 							type="button"
@@ -144,8 +186,16 @@
 							onclick={() => window.dispatchEvent(new CustomEvent('an:inspect-peer', { detail: { name: msg.who, id: msg.whoId } }))}
 							title="Inspect {msg.who}'s profile"
 						>
-							{#if msg.avatar && (msg.avatar.startsWith('http') || msg.avatar.startsWith('/'))}
-								<img src={msg.avatar} alt={msg.who} class="h-6 w-6 rounded-full object-cover" />
+							{#if avatar}
+								<img
+									src={avatar}
+									alt={msg.who}
+									class="h-6 w-6 rounded-full object-cover"
+									loading="lazy"
+									onerror={(e) => {
+										(e.currentTarget as HTMLElement).style.display = 'none';
+									}}
+								/>
 							{:else}
 								<div class="h-6 w-6 rounded-full bg-cream/10 text-[10px] font-mono font-bold text-taupe grid place-items-center">
 									{msg.who.slice(0, 1).toUpperCase()}

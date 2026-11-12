@@ -85,7 +85,7 @@
 					All Nighter
 				</span>
 				<span class="hidden font-mono text-[9px] uppercase tracking-[0.16em] text-lamp/80 lg:inline-block">
-					00:00–06:00
+					18:00–06:00
 				</span>
 			</div>
 		</a>
