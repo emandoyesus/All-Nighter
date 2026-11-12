@@ -473,6 +473,12 @@ class Room {
 		},
 		(slug) => {
 			this.onRemoteRoomArchived(undefined, slug);
+		},
+		(newTitle) => {
+			if (newTitle) {
+				this.title = newTitle;
+				this.updateAd();
+			}
 		}
 	);
 

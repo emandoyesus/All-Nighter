@@ -49,7 +49,8 @@ export class SupabaseRoomSync {
 		private onRemoteQueue: (queue: Track[]) => void,
 		private onRemoteState?: (state: Partial<RoomState>) => void,
 		private onHostConfirmed?: (isHost: boolean, canonicalHostName?: string) => void,
-		private onRoomArchived?: (slug: string, title?: string) => void
+		private onRoomArchived?: (slug: string, title?: string) => void,
+		private onTitleUpdated?: (newTitle: string) => void
 	) {}
 
 	/** Check if database connection is configured */
@@ -197,6 +198,9 @@ export class SupabaseRoomSync {
 					if (updatedRoom?.status === 'archived' || updatedRoom?.status === 'closed') {
 						this.onRoomArchived?.(slug, updatedRoom.title);
 						return;
+					}
+					if (updatedRoom?.title && this.onTitleUpdated) {
+						this.onTitleUpdated(updatedRoom.title);
 					}
 					if (updatedRoom?.host_name && this.onHostConfirmed) {
 						const isHostUser = Boolean(
