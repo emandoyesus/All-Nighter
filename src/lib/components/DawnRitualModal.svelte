@@ -75,18 +75,21 @@
 		const night = getNightObject();
 		saveToMyNights(night);
 
-		// Automatically save to Supabase session_archives if configured
+		// Automatically save to Supabase session_archives if configured (upsert to avoid duplicates)
 		if (isSupabaseConfigured && supabase) {
 			try {
-				await supabase.from('session_archives').insert({
-					slug: night.slug,
-					title: night.title,
-					started_at: new Date(Date.now() - 6 * 3600 * 1000).toISOString(),
-					ended_at: new Date().toISOString(),
-					attendees: room.awake.map((p) => ({ name: p.name, role: p.self ? 'Host' : 'Listener' })),
-					playlist: night.tracklist,
-					summary: night.note
-				});
+				await supabase.from('session_archives').upsert(
+					{
+						slug: night.slug,
+						title: night.title,
+						started_at: new Date(Date.now() - 6 * 3600 * 1000).toISOString(),
+						ended_at: new Date().toISOString(),
+						attendees: room.awake.map((p) => ({ name: p.name, role: p.self ? 'Host' : 'Listener' })),
+						playlist: night.tracklist,
+						summary: night.note
+					},
+					{ onConflict: 'slug' }
+				);
 			} catch (err) {
 				console.warn('Failed to archive to Supabase:', err);
 			}

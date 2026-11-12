@@ -3,6 +3,7 @@
 	import { room, sanitizeRoom, generateRoomKey } from '#lib/room/room.svelte';
 	import type { RoomAd } from '#lib/room/types';
 	import { isRoomPastDawn, areDoorsOpen, getNextSunset } from '#lib/config';
+	import { toArchiveSlug } from '#lib/data/local-logbook';
 	import { auth } from '#lib/auth.svelte';
 	import { supabase } from '#lib/supabase';
 	import IconPlus from '@tabler/icons-svelte/icons/plus';
@@ -36,17 +37,21 @@
 		const unarchived: any[] = [];
 		for (const r of rooms) {
 			if (isRoomPastDawn(r.created_at, now)) {
-				// Room has passed sunrise: archive it immediately
+				// Room has passed sunrise: archive it immediately with canonical slug and upsert to prevent duplicates
+				const canonicalSlug = toArchiveSlug(r.slug, new Date(r.created_at));
 				try {
-					await supabase.from('session_archives').insert({
-						slug: r.slug,
-						title: r.title || r.slug,
-						started_at: r.created_at,
-						ended_at: now.toISOString(),
-						attendees: [r.host_name || 'Crew'],
-						playlist: r.playback_state?.history || r.playback_state?.queue || [],
-						summary: 'Overnight lock-in session archived at sunrise'
-					});
+					await supabase.from('session_archives').upsert(
+						{
+							slug: canonicalSlug,
+							title: r.title || r.slug,
+							started_at: r.created_at,
+							ended_at: now.toISOString(),
+							attendees: [r.host_name || 'Crew'],
+							playlist: r.playback_state?.history || r.playback_state?.queue || [],
+							summary: 'Overnight lock-in session archived at sunrise'
+						},
+						{ onConflict: 'slug' }
+					);
 				} catch {}
 				try {
 					await supabase

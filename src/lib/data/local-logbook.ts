@@ -49,12 +49,29 @@ export function loadMyNights(): Night[] {
 	return [];
 }
 
+export function toArchiveSlug(roomName: string, date = new Date()): string {
+	const clean = (roomName || 'all-nighter')
+		.trim()
+		.toLowerCase()
+		.replace(/[^a-z0-9_-]/g, '-')
+		.replace(/-+/g, '-')
+		.replace(/^-|-$/g, '');
+	return `${clean}-${date.toISOString().slice(0, 10)}`;
+}
+
 export function saveToMyNights(night: Night): void {
 	if (typeof window === 'undefined') return;
 	try {
 		const list = loadMyNights();
-		// Deduplicate by slug or iso
-		const next = [night, ...list.filter((item) => item.slug !== night.slug)];
+		// Deduplicate: same slug, or same room on same date
+		const base = night.slug.replace(/-\d{4}-\d{2}-\d{2}$/, '');
+		const filtered = list.filter((item) => {
+			if (item.slug === night.slug) return false;
+			const itemBase = item.slug.replace(/-\d{4}-\d{2}-\d{2}$/, '');
+			if (itemBase === base && item.date === night.date) return false;
+			return true;
+		});
+		const next = [night, ...filtered];
 		localStorage.setItem(LS_MY_NIGHTS, JSON.stringify(next));
 	} catch {}
 }
@@ -70,7 +87,7 @@ export function buildNightFromRoom(
 ): Night {
 	const now = new Date();
 	const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-	const cleanSlug = `${roomName}-${now.toISOString().slice(0, 10)}`;
+	const cleanSlug = toArchiveSlug(roomName, now);
 
 	// Combine all sources of tracks throughout the night: history, currently playing, and remaining queue
 	const trackMap = new Map<string, { title: string; channel?: string; addedBy: string; videoId?: string | null; url?: string }>();

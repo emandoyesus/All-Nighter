@@ -1,4 +1,5 @@
 import { supabase, isSupabaseConfigured } from '#lib/supabase';
+import { toArchiveSlug } from '#lib/data/local-logbook';
 import type { ChatMessage, Track, RoomState } from './types';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
@@ -277,7 +278,7 @@ export class SupabaseRoomSync {
 
 	/** Archive the completed night session into the database at dawn */
 	async archiveSession(summaryData: {
-		slug: string;
+		slug?: string;
 		title: string;
 		startedAt: string;
 		attendees: string[];
@@ -286,23 +287,30 @@ export class SupabaseRoomSync {
 	}): Promise<void> {
 		if (!this.isEnabled || !supabase) return;
 		try {
-			await supabase.from('session_archives').insert(
+			// Always use canonical date-based slug and upsert to guarantee duplicate prevention
+			const canonicalSlug =
+				summaryData.slug && summaryData.slug.match(/-\d{4}-\d{2}-\d{2}$/)
+					? summaryData.slug
+					: toArchiveSlug(this.roomSlug, new Date(summaryData.startedAt || Date.now()));
+
+			await supabase.from('session_archives').upsert(
 				{
-					slug: summaryData.slug,
+					slug: canonicalSlug,
 					title: summaryData.title,
 					started_at: summaryData.startedAt,
 					ended_at: new Date().toISOString(),
 					attendees: summaryData.attendees,
 					playlist: summaryData.playlist,
 					summary: summaryData.summary || ''
-				}
+				},
+				{ onConflict: 'slug' }
 			);
 
-			// Mark room status as archived
+			// Mark room status as archived in the active rooms table using this.roomSlug
 			await supabase
 				.from('rooms')
 				.update({ status: 'archived', closed_at: new Date().toISOString() })
-				.eq('slug', summaryData.slug);
+				.eq('slug', this.roomSlug);
 		} catch (err) {
 			console.warn('[Supabase] Failed to archive session:', err);
 		}

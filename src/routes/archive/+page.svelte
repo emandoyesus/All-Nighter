@@ -34,7 +34,7 @@
 	async function loadDbArchives(): Promise<void> {
 		if (!supabase) return;
 		try {
-			// 1. Fetch from session_archives
+			// Fetch from session_archives as the single source of truth for past lock-in archives
 			const { data: archives } = await supabase
 				.from('session_archives')
 				.select('*')
@@ -45,35 +45,9 @@
 
 			if (archives && archives.length > 0) {
 				for (const a of archives) {
-					if (!isTestArchiveSlug(a.slug)) {
+					if (!seenSlugs.has(a.slug) && !isTestArchiveSlug(a.slug)) {
 						seenSlugs.add(a.slug);
 						loaded.push(dbArchiveToNight(a));
-					}
-				}
-			}
-
-			// 2. Also fetch any rooms marked 'archived' in rooms table
-			const { data: archivedRooms } = await supabase
-				.from('rooms')
-				.select('*')
-				.eq('status', 'archived')
-				.order('created_at', { ascending: false });
-
-			if (archivedRooms && archivedRooms.length > 0) {
-				for (const r of archivedRooms) {
-					if (!seenSlugs.has(r.slug) && !isTestArchiveSlug(r.slug)) {
-						seenSlugs.add(r.slug);
-						loaded.push(
-							dbArchiveToNight({
-								slug: r.slug,
-								title: r.title || r.slug,
-								started_at: r.created_at,
-								ended_at: r.closed_at || new Date().toISOString(),
-								attendees: [r.host_name || 'Host'],
-								playlist: r.playback_state?.queue || [],
-								summary: 'Overnight lock-in session archived at sunrise'
-							})
-						);
 					}
 				}
 			}
