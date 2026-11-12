@@ -90,6 +90,55 @@ class AuthService {
 				if (raw) {
 					this.cachedUser = JSON.parse(raw);
 				}
+
+				// If an.auth_cache is not yet set, inspect Supabase's persisted session token directly from localStorage
+				if (!this.cachedUser) {
+					for (let i = 0; i < localStorage.length; i++) {
+						const key = localStorage.key(i);
+						if (key && key.startsWith('sb-') && key.endsWith('-auth-token')) {
+							try {
+								const parsed = JSON.parse(localStorage.getItem(key) || '{}');
+								const u = parsed?.user;
+								if (u) {
+									const isGoogle =
+										u.app_metadata?.provider === 'google' ||
+										u.identities?.some((id: any) => id.provider === 'google') ||
+										Boolean(u.user_metadata?.iss?.includes('accounts.google.com'));
+									const googleFirst = extractGoogleFirstName(u.user_metadata, u.email);
+									const resolvedName = isGoogle && googleFirst
+										? googleFirst
+										: (u.user_metadata?.callsign || googleFirst || u.email?.split('@')[0]);
+									const avatar =
+										(u.user_metadata?.avatar_url as string | undefined) ||
+										(u.user_metadata?.picture as string | undefined) ||
+										(u.user_metadata?.avatar as string | undefined);
+									this.cachedUser = {
+										id: u.id,
+										email: u.email || null,
+										displayName: resolvedName || 'night-owl',
+										avatarUrl: avatar || null,
+										provider: u.app_metadata?.provider || (isGoogle ? 'google' : 'email')
+									};
+									// Persist back so subsequent checks are instant
+									localStorage.setItem('an.auth_cache', JSON.stringify(this.cachedUser));
+									break;
+								}
+							} catch {}
+						}
+					}
+				}
+
+				// Also synchronize avatar and callsign fallbacks if available
+				const localAvatar = localStorage.getItem('an.avatar');
+				const localCallsign = localStorage.getItem('an.callsign');
+				if ((!this.cachedUser || !this.cachedUser.avatarUrl) && (localAvatar || localCallsign)) {
+					this.cachedUser = {
+						id: this.cachedUser?.id || 'cached-local',
+						email: this.cachedUser?.email || null,
+						displayName: this.cachedUser?.displayName || localCallsign || 'night-owl',
+						avatarUrl: this.cachedUser?.avatarUrl || localAvatar || null
+					};
+				}
 			} catch {}
 		}
 

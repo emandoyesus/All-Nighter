@@ -246,8 +246,8 @@ class Room {
 	/** Active room slug. Empty while browsing the lobby. */
 	room = $state('');
 	clientId = '';
-	name = $state('');
-	avatar = $state('');
+	name = $state(typeof window !== 'undefined' ? (localStorage.getItem(LS_NAME) || '') : '');
+	avatar = $state(typeof window !== 'undefined' ? (localStorage.getItem(LS_AVATAR) || '') : '');
 	statusText = $state('');
 	status = $state<ConnStatus>('connecting');
 	state = $state<RoomState>(emptyState());

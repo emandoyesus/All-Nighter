@@ -265,6 +265,8 @@
 	}
 
 	let mounted = $state(false);
+	let localAvatarOverride = $state<string | null>(null);
+	let localNameOverride = $state<string | null>(null);
 
 	onMount(() => {
 		mounted = true;
@@ -280,23 +282,55 @@
 			open = false;
 		};
 		const onStats = () => refreshStats();
+		const onAvatar = (e: Event) => {
+			const ce = e as CustomEvent<{ avatar?: string }>;
+			if (ce.detail?.avatar) {
+				localAvatarOverride = ce.detail.avatar;
+			}
+		};
+		const onCallsign = (e: Event) => {
+			const ce = e as CustomEvent<{ name?: string }>;
+			if (ce.detail?.name) {
+				localNameOverride = ce.detail.name;
+			}
+		};
+		const onAuthChanged = () => {
+			localAvatarOverride = auth.avatarUrl;
+			localNameOverride = auth.displayName;
+			refreshStats();
+		};
+
 		window.addEventListener('an:open-profile-modal', onOpen);
 		window.addEventListener('an:open-auth-modal', onAuth);
 		window.addEventListener('an:stats-updated', onStats);
 		window.addEventListener('an:profile-updated', onStats);
+		window.addEventListener('an:update-avatar', onAvatar);
+		window.addEventListener('an:update-callsign', onCallsign);
+		window.addEventListener('an:auth-changed', onAuthChanged);
 		return () => {
 			window.removeEventListener('an:open-profile-modal', onOpen);
 			window.removeEventListener('an:open-auth-modal', onAuth);
 			window.removeEventListener('an:stats-updated', onStats);
 			window.removeEventListener('an:profile-updated', onStats);
+			window.removeEventListener('an:update-avatar', onAvatar);
+			window.removeEventListener('an:update-callsign', onCallsign);
+			window.removeEventListener('an:auth-changed', onAuthChanged);
 		};
 	});
 
 	const currentDisplayAvatar = $derived(
-		auth.avatarUrl || room.avatar || '/default-avatar.svg'
+		localAvatarOverride ||
+		auth.avatarUrl ||
+		room.avatar ||
+		(typeof window !== 'undefined' ? localStorage.getItem('an.avatar') : null) ||
+		'/default-avatar.svg'
 	);
 	const currentDisplayName = $derived(
-		auth.displayName || room.name || 'night-owl'
+		localNameOverride ||
+		auth.displayName ||
+		room.name ||
+		(typeof window !== 'undefined' ? localStorage.getItem('an.callsign') : null) ||
+		'night-owl'
 	);
 </script>
 
@@ -328,14 +362,16 @@
 		aria-label={`Profile: ${currentDisplayName}`}
 		aria-expanded={open}
 	>
-		<img
-			src={currentDisplayAvatar}
-			alt={currentDisplayName}
-			class="h-full w-full rounded-full object-cover"
-			onerror={(e) => {
-				(e.currentTarget as HTMLImageElement).src = '/default-avatar.svg';
-			}}
-		/>
+		{#key currentDisplayAvatar}
+			<img
+				src={currentDisplayAvatar}
+				alt={currentDisplayName}
+				class="h-full w-full rounded-full object-cover"
+				onerror={(e) => {
+					(e.currentTarget as HTMLImageElement).src = '/default-avatar.svg';
+				}}
+			/>
+		{/key}
 		{#if auth.isAuthenticated}
 			<span
 				class="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-lamp border-2 border-night"
@@ -409,14 +445,16 @@
 					<div class="flex items-center gap-3">
 						<!-- Avatar with direct upload trigger -->
 						<div class="relative shrink-0 group">
-							<img
-								src={currentDisplayAvatar}
-								alt={currentDisplayName}
-								class="h-13 w-13 rounded-full object-cover border-2 border-lamp/40 bg-[#0a1012] transition-transform group-hover:scale-[1.03]"
-								onerror={(e) => {
-									(e.currentTarget as HTMLImageElement).src = '/default-avatar.svg';
-								}}
-							/>
+							{#key currentDisplayAvatar}
+								<img
+									src={currentDisplayAvatar}
+									alt={currentDisplayName}
+									class="h-13 w-13 rounded-full object-cover border-2 border-lamp/40 bg-[#0a1012] transition-transform group-hover:scale-[1.03]"
+									onerror={(e) => {
+										(e.currentTarget as HTMLImageElement).src = '/default-avatar.svg';
+									}}
+								/>
+							{/key}
 							<span
 								class="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-lamp border-2 border-[#060a0b]"
 								title="Awake now"
