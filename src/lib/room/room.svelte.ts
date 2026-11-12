@@ -173,7 +173,7 @@ function emptyState(): RoomState {
 		cycleAuto: false,
 		doorLocked: false,
 		isPrivate: false,
-		adminOnlyPlayback: false,
+		adminOnlyPlayback: true,
 		admins: []
 	};
 }
@@ -1143,7 +1143,7 @@ class Room {
 	async createRoom(
 		name: string,
 		isPrivate = false,
-		adminOnlyPlayback = false,
+		adminOnlyPlayback = true,
 		customKey?: string,
 		autoArchive = true
 	): Promise<void> {
@@ -1360,7 +1360,7 @@ class Room {
 		host: boolean,
 		isNew = false,
 		isPrivate = false,
-		adminOnlyPlayback = false,
+		adminOnlyPlayback = true,
 		accessKey = '',
 		accessKeyHash = '',
 		autoArchive = true

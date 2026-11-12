@@ -168,11 +168,13 @@
 
 						<button
 							type="button"
-							class="p-1 rounded transition-colors text-faint hover:text-amber hover:bg-amber/15"
+							class="p-1 rounded transition-colors text-faint hover:text-amber hover:bg-amber/15 cursor-pointer"
 							onclick={() => {
-								if (confirm(`Are you sure you want to transfer host ownership of this room to ${peer.name}? You will step down as host.`)) {
-									void room.transferOwnership(peer.id, peer.name);
-								}
+								window.dispatchEvent(
+									new CustomEvent('an:open-transfer-host', {
+										detail: { id: peer.id, name: peer.name, avatar: peer.avatar }
+									})
+								);
 							}}
 							title="Transfer host ownership to {peer.name}"
 							aria-label="Transfer host ownership to {peer.name}"

@@ -15,6 +15,7 @@
 	import PeerProfileModal from '#lib/components/PeerProfileModal.svelte';
 	import GlobalPauseModal from '#lib/components/GlobalPauseModal.svelte';
 	import ProfileSetupModal from '#lib/components/ProfileSetupModal.svelte';
+	import TransferHostModal from '#lib/components/TransferHostModal.svelte';
 	import type { LayoutProps } from './$types';
 
 	let { children }: LayoutProps = $props();
@@ -80,3 +81,4 @@
 <PeerProfileModal />
 <GlobalPauseModal />
 <ProfileSetupModal />
+<TransferHostModal />

@@ -137,9 +137,15 @@
 			}
 		};
 
+		const onHostTransferred = () => {
+			open = false;
+		};
+
 		window.addEventListener('an:inspect-peer', onInspect);
+		window.addEventListener('an:host-transferred', onHostTransferred);
 		return () => {
 			window.removeEventListener('an:inspect-peer', onInspect);
+			window.removeEventListener('an:host-transferred', onHostTransferred);
 		};
 	});
 </script>
@@ -441,10 +447,13 @@
 							<button
 								type="button"
 								class="btn btn-sm btn-ghost text-xs inline-flex items-center gap-1.5 text-amber hover:bg-amber/15 border border-amber/35 cursor-pointer transition-all"
-								onclick={async () => {
-									if (activePeer && confirm(`Are you sure you want to transfer host ownership of this room to ${activePeer.name}? You will step down as host.`)) {
-										await room.transferOwnership(activePeer.id, activePeer.name);
-										open = false;
+								onclick={() => {
+									if (activePeer) {
+										window.dispatchEvent(
+											new CustomEvent('an:open-transfer-host', {
+												detail: { id: activePeer.id, name: activePeer.name, avatar: activePeer.avatar }
+											})
+										);
 									}
 								}}
 								title="Transfer permanent room host ownership to {activePeer.name}"

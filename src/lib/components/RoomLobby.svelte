@@ -183,7 +183,7 @@
 	let draft = $state('');
 	let isPrivate = $state(false);
 	let roomKeyDraft = $state(generateRoomKey());
-	let adminOnly = $state(false);
+	let adminOnly = $state(true);
 	let nightPlan = $state('');
 	let copiedSlug = $state<string | null>(null);
 	let joinPrivateInput = $state('');
