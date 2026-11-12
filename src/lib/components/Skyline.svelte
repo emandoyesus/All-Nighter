@@ -200,7 +200,8 @@
 
 			const w = canvas.clientWidth;
 			const h = canvas.clientHeight;
-			const dpr = Math.min(window.devicePixelRatio || 1, 2);
+			const isMobile = window.innerWidth < 768;
+			const dpr = isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 2);
 
 			if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
 				canvas.width = Math.round(w * dpr);
@@ -333,5 +334,12 @@
 	.city--near {
 		height: 24vh;
 		opacity: 0.9;
+	}
+
+	@media (max-width: 768px) {
+		.city--far,
+		.city--mid {
+			filter: none;
+		}
 	}
 </style>

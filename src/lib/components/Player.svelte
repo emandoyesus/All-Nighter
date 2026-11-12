@@ -170,7 +170,7 @@
 				<!-- Outer Vinyl / CD Grooves -->
 				<div
 					class="relative h-44 w-44 sm:h-52 sm:w-52 rounded-full bg-[#0d0d0d] p-3 shadow-[0_15px_50px_rgba(0,0,0,0.85),inset_0_0_0_2px_rgba(255,255,255,0.08),inset_0_0_0_10px_rgba(20,20,20,0.9),inset_0_0_0_14px_rgba(255,255,255,0.04),inset_0_0_0_24px_rgba(10,10,10,0.95)] {playing ? 'animate-spin' : ''}"
-					style="animation-duration: 7s; animation-timing-function: linear;"
+					style="animation-duration: 7s; animation-timing-function: linear; will-change: transform; transform: translateZ(0);"
 				>
 					<!-- Vinyl Sheen / Reflection lines -->
 					<div class="absolute inset-0 rounded-full bg-[conic-gradient(from_0deg,transparent_0deg,rgba(255,255,255,0.08)_45deg,transparent_90deg,transparent_180deg,rgba(255,255,255,0.08)_225deg,transparent_270deg)] pointer-events-none"></div>

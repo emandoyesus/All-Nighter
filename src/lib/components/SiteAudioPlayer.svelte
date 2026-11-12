@@ -7,13 +7,16 @@
 	let frameEl: HTMLDivElement | undefined = $state();
 	let player: any = null;
 	let ready = $state(false);
+	let alive = true;
+	let initializing = false;
 
-	onMount(() => {
-		let alive = true;
+	function initPlayer(): void {
+		if (player || initializing || !frameEl || !alive) return;
+		initializing = true;
 
 		loadYouTubeApi()
 			.then((YT) => {
-				if (!alive || !frameEl) return;
+				if (!alive || !frameEl || player) return;
 				player = new YT.Player(frameEl, {
 					width: '320',
 					height: '180',
@@ -59,7 +62,19 @@
 					}
 				});
 			})
-			.catch(() => {});
+			.catch(() => {})
+			.finally(() => {
+				initializing = false;
+			});
+	}
+
+	onMount(() => {
+		alive = true;
+		const isDesktop = window.innerWidth >= 768;
+		// On PC, initialize immediately. On mobile, defer until needed to save resources.
+		if (isDesktop || room.mode === 'focus' || siteAudio.isPlaying) {
+			initPlayer();
+		}
 
 		return () => {
 			alive = false;
@@ -67,6 +82,12 @@
 				player?.destroy();
 			} catch {}
 		};
+	});
+
+	$effect(() => {
+		if (!player && (room.mode === 'focus' || siteAudio.isPlaying)) {
+			initPlayer();
+		}
 	});
 
 	$effect(() => {

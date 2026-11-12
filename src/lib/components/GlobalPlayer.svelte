@@ -348,45 +348,63 @@
 		if (!viewport || !inActiveRoom || !hasVideo || modalOpen || isMinimized) {
 			// Persistent background audio: keep within viewport boundary with safe hidden styling
 			// Avoid top: -9999px as modern Chromium/Firefox throttle or pause offscreen iframes
-			containerEl.style.position = 'fixed';
-			containerEl.style.bottom = '0px';
-			containerEl.style.right = '0px';
-			containerEl.style.top = 'auto';
-			containerEl.style.left = 'auto';
-			containerEl.style.width = '200px';
-			containerEl.style.height = '120px';
-			containerEl.style.opacity = '0.01';
-			containerEl.style.pointerEvents = 'none';
-			containerEl.style.zIndex = '-9999';
+			if (containerEl.style.position !== 'fixed' || containerEl.style.zIndex !== '-9999') {
+				containerEl.style.position = 'fixed';
+				containerEl.style.bottom = '0px';
+				containerEl.style.right = '0px';
+				containerEl.style.top = 'auto';
+				containerEl.style.left = 'auto';
+				containerEl.style.width = '200px';
+				containerEl.style.height = '120px';
+				containerEl.style.opacity = '0.01';
+				containerEl.style.pointerEvents = 'none';
+				containerEl.style.zIndex = '-9999';
+			}
 			return;
 		}
 
 		const rect = viewport.getBoundingClientRect();
 		if (rect.width < 20 || rect.height < 20) {
-			containerEl.style.position = 'fixed';
-			containerEl.style.bottom = '0px';
-			containerEl.style.right = '0px';
-			containerEl.style.top = 'auto';
-			containerEl.style.left = 'auto';
-			containerEl.style.width = '200px';
-			containerEl.style.height = '120px';
-			containerEl.style.opacity = '0.01';
-			containerEl.style.pointerEvents = 'none';
-			containerEl.style.zIndex = '-9999';
+			if (containerEl.style.position !== 'fixed' || containerEl.style.zIndex !== '-9999') {
+				containerEl.style.position = 'fixed';
+				containerEl.style.bottom = '0px';
+				containerEl.style.right = '0px';
+				containerEl.style.top = 'auto';
+				containerEl.style.left = 'auto';
+				containerEl.style.width = '200px';
+				containerEl.style.height = '120px';
+				containerEl.style.opacity = '0.01';
+				containerEl.style.pointerEvents = 'none';
+				containerEl.style.zIndex = '-9999';
+			}
 			return;
 		}
 		const scrollY = window.scrollY;
 		const scrollX = window.scrollX;
 
-		containerEl.style.position = 'absolute';
-		containerEl.style.top = `${rect.top + scrollY}px`;
-		containerEl.style.left = `${rect.left + scrollX}px`;
-		containerEl.style.width = `${rect.width}px`;
-		containerEl.style.height = `${rect.height}px`;
-		containerEl.style.opacity = '1';
-		containerEl.style.pointerEvents = 'auto';
-		containerEl.style.zIndex = '20';
+		const nextTop = `${rect.top + scrollY}px`;
+		const nextLeft = `${rect.left + scrollX}px`;
+		const nextWidth = `${rect.width}px`;
+		const nextHeight = `${rect.height}px`;
+
+		if (containerEl.style.top !== nextTop) containerEl.style.top = nextTop;
+		if (containerEl.style.left !== nextLeft) containerEl.style.left = nextLeft;
+		if (containerEl.style.width !== nextWidth) containerEl.style.width = nextWidth;
+		if (containerEl.style.height !== nextHeight) containerEl.style.height = nextHeight;
+		if (containerEl.style.position !== 'absolute') containerEl.style.position = 'absolute';
+		if (containerEl.style.opacity !== '1') containerEl.style.opacity = '1';
+		if (containerEl.style.pointerEvents !== 'auto') containerEl.style.pointerEvents = 'auto';
+		if (containerEl.style.zIndex !== '20') containerEl.style.zIndex = '20';
 		containerEl.style.borderRadius = 'var(--radius-card, 14px) var(--radius-card, 14px) 0 0';
+	}
+
+	let syncRafId: number | null = null;
+	function scheduleSyncViewportPosition(): void {
+		if (syncRafId !== null) return;
+		syncRafId = requestAnimationFrame(() => {
+			syncRafId = null;
+			syncViewportPosition();
+		});
 	}
 
 	function checkObserver(): void {
@@ -396,15 +414,15 @@
 			if (ro && observedViewport) ro.unobserve(observedViewport);
 			observedViewport = viewport;
 			if (viewport) {
-				if (!ro) ro = new ResizeObserver(() => syncViewportPosition());
+				if (!ro) ro = new ResizeObserver(() => scheduleSyncViewportPosition());
 				ro.observe(viewport);
 			}
 		}
 		if (!mo && document.body) {
-			mo = new MutationObserver(() => syncViewportPosition());
+			mo = new MutationObserver(() => scheduleSyncViewportPosition());
 			mo.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['aria-modal', 'data-minimized'] });
 		}
-		syncViewportPosition();
+		scheduleSyncViewportPosition();
 	}
 
 	onMount(() => {
@@ -524,7 +542,7 @@
 
 			// Check layout alignment in room
 			if (document.getElementById('room-video-viewport')) {
-				syncViewportPosition();
+				scheduleSyncViewportPosition();
 			}
 		}, 500);
 
@@ -540,8 +558,8 @@
 			if (typeof custom.detail === 'number') seek(custom.detail);
 		};
 		const onUnlockEvent = () => unlock();
-		const onWindowResize = () => syncViewportPosition();
-		const onWindowScroll = () => syncViewportPosition();
+		const onWindowResize = () => scheduleSyncViewportPosition();
+		const onWindowScroll = () => scheduleSyncViewportPosition();
 
 		// Any user interaction anywhere in the window unlocks and enables audio immediately
 		const onUserInteraction = (e: Event) => {
@@ -576,6 +594,7 @@
 
 		return () => {
 			alive = false;
+			if (syncRafId !== null) cancelAnimationFrame(syncRafId);
 			window.clearInterval(tickInterval);
 			window.clearInterval(beat);
 			if (ro) ro.disconnect();

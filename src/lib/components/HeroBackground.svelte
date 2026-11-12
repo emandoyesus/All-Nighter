@@ -20,7 +20,7 @@
 			nightPhase = getNightPhase();
 		}, 60000);
 
-		if (prefersReducedMotion() || !container) {
+		if (prefersReducedMotion() || !container || window.innerWidth < 768) {
 			return () => window.clearInterval(phaseTimer);
 		}
 

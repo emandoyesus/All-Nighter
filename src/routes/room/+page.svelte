@@ -146,7 +146,7 @@
 
 		{#if inRoom}
 			<!-- Compact Room Header -->
-			<section class="border-b border-cream/10 bg-night-2/90 px-3 sm:px-5 py-2 sm:py-2.5 backdrop-blur-md sticky top-0 z-40">
+			<section class="border-b border-cream/10 bg-night-2/95 sm:bg-night-2/90 px-3 sm:px-5 py-2 sm:py-2.5 backdrop-blur-none sm:backdrop-blur-md sticky top-0 z-40">
 				<div class="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-2">
 					<div class="flex items-center gap-2 sm:gap-3 flex-wrap min-w-0">
 						<a href="/" class="inline-flex items-center gap-1 text-xs text-taupe transition-colors hover:text-cream font-mono">

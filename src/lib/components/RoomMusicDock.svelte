@@ -100,7 +100,7 @@
 
 {#if room.joinState === 'approved'}
 <aside
-	class="fixed bottom-0 inset-x-0 z-40 border-t border-lamp/20 bg-night-2/95 shadow-[0_-10px_35px_rgba(0,0,0,0.7)] backdrop-blur-xl transition-all select-none"
+	class="fixed bottom-0 inset-x-0 z-40 border-t border-lamp/20 bg-night-2/95 shadow-[0_-10px_35px_rgba(0,0,0,0.7)] backdrop-blur-none sm:backdrop-blur-md md:backdrop-blur-xl transition-all select-none"
 	style="padding-bottom: env(safe-area-inset-bottom, 0px);"
 	aria-label="Room music dock"
 >
