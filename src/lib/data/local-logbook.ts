@@ -26,7 +26,11 @@ export function isTestArchiveSlug(slug: string): boolean {
 export function loadMyNights(): Night[] {
 	if (typeof window !== 'undefined') {
 		try {
-			localStorage.removeItem(LS_MY_NIGHTS);
+			const raw = localStorage.getItem(LS_MY_NIGHTS);
+			if (raw) {
+				const parsed = JSON.parse(raw);
+				if (Array.isArray(parsed)) return parsed;
+			}
 		} catch {}
 	}
 	return [];

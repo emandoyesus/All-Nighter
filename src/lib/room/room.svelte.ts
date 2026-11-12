@@ -1536,12 +1536,8 @@ class Room {
 			return;
 		}
 
-		// Public rooms are automatically archived if dawn or if explicitly requested.
-		// For private rooms, the host decides at the end (shouldArchive override).
-		const isPrivate = !!this.state.isPrivate;
-		const doArchive = isPrivate
-			? (shouldArchive !== undefined ? shouldArchive : false)
-			: (shouldArchive !== undefined ? shouldArchive : this.isDawn);
+		// Whether public or private, automatically archive if dawn (sunrise) is reached or if requested.
+		const doArchive = this.isDawn || (shouldArchive !== undefined ? shouldArchive : false);
 		if (doArchive) {
 			await this.archiveRoom();
 			return;

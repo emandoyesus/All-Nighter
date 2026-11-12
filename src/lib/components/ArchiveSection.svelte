@@ -14,24 +14,32 @@
 	let myNights = $state<Night[]>([]);
 
 	onMount(() => {
-		if (typeof localStorage !== 'undefined') {
-			try {
-				localStorage.removeItem('an.my_nights');
-			} catch {}
-		}
-		myNights = [];
+		myNights = loadMyNights();
 	});
 
 	const allNights = $derived.by(() => {
-		return [...nights];
+		const combined = [...nights];
+		for (const mn of myNights) {
+			if (!combined.some((n) => n.slug === mn.slug)) {
+				combined.push(mn);
+			}
+		}
+		return combined.sort((a, b) => new Date(b.iso).getTime() - new Date(a.iso).getTime());
 	});
 
 	const chronologicalAllNights = $derived.by(() => {
-		return [...nights];
+		const combined = [...nights];
+		for (const mn of myNights) {
+			if (!combined.some((n) => n.slug === mn.slug)) {
+				combined.push(mn);
+			}
+		}
+		return combined.sort((a, b) => new Date(a.iso).getTime() - new Date(b.iso).getTime());
 	});
 
 	function getLogNumber(targetNight: Night): number {
-		return 1;
+		const idx = chronologicalAllNights.findIndex((n) => n.slug === targetNight.slug || n.iso === targetNight.iso);
+		return idx !== -1 ? idx + 1 : 1;
 	}
 </script>
 
