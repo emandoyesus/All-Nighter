@@ -115,6 +115,8 @@
 								<IconChevronRight size={14} stroke={1.5} class="shrink-0 text-faint transition-colors group-hover:text-lamp" />
 							</a>
 						</li>
+					{:else}
+						<li class="px-5 py-6 text-sm text-taupe">No completed all-nighter sessions recorded yet.</li>
 					{/each}
 				</ul>
 			</div>
@@ -147,7 +149,7 @@
 			</div>
 		</div>
 
-		{#if profile.favorite}
+		{#if profile.favorite && profile.nights.length > 0}
 			<div class="panel mt-4 flex flex-wrap items-center gap-3 p-5">
 				<span class="grid h-10 w-10 place-items-center rounded-full bg-lamp/12 text-lamp">
 					<IconFlame size={18} stroke={1.5} />

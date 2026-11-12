@@ -468,6 +468,15 @@
 				</div>
 
 				<div class="flex items-center gap-2">
+					{#if peerName}
+						<a
+							href="/crew/{peerName}"
+							class="btn btn-secondary btn-sm text-xs px-3 font-mono inline-flex items-center gap-1.5"
+							onclick={() => (open = false)}
+						>
+							<span>Crew Profile</span>
+						</a>
+					{/if}
 					<button
 						type="button"
 						class="btn btn-ghost btn-sm text-xs px-4"

@@ -178,7 +178,19 @@
 										<span class="text-faint/70">·</span>
 										added by
 										{#if track.addedBy && track.addedBy.toLowerCase() !== 'autoplay'}
-											<a href="/crew/{track.addedBy}" class="text-taupe hover:text-lamp">{track.addedBy}</a>
+											<button
+												type="button"
+												class="text-taupe hover:text-lamp transition-colors cursor-pointer underline-offset-2 hover:underline inline"
+												onclick={() => {
+													window.dispatchEvent(
+														new CustomEvent('an:inspect-peer', {
+															detail: { name: track.addedBy }
+														})
+													);
+												}}
+											>
+												{track.addedBy}
+											</button>
 										{:else}
 											<span class="text-taupe">{track.addedBy}</span>
 										{/if}
@@ -263,9 +275,17 @@
 							{@const customAvatar = night.attendees?.find((a) => a.name.trim().toLowerCase() === person.trim().toLowerCase())?.avatar}
 							{@const avatarUrl = getAvatarForPerson(person, customAvatar, night.slug)}
 							<li>
-								<a
-									href="/crew/{person}"
-									class="inline-flex items-center gap-2 rounded-full bg-night/70 py-1 pl-1 pr-3 text-xs ring-1 ring-cream/15 transition-all hover:ring-lamp/50 hover:bg-night group"
+								<button
+									type="button"
+									onclick={() => {
+										window.dispatchEvent(
+											new CustomEvent('an:inspect-peer', {
+												detail: { name: person, avatar: customAvatar || avatarUrl }
+											})
+										);
+									}}
+									title="Inspect {person}'s callsign profile"
+									class="inline-flex items-center gap-2 rounded-full bg-night/70 py-1 pl-1 pr-3 text-xs ring-1 ring-cream/15 transition-all hover:ring-lamp/50 hover:bg-night group cursor-pointer"
 								>
 									<span class="relative grid h-6 w-6 shrink-0 place-items-center overflow-hidden rounded-full border border-cream/20 bg-[#0a1012]">
 										<img
@@ -283,7 +303,7 @@
 										</span>
 									</span>
 									<span class="text-taupe group-hover:text-cream transition-colors">{person}</span>
-								</a>
+								</button>
 							</li>
 						{/each}
 					</ul>

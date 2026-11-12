@@ -128,14 +128,21 @@ export type CrewProfile = {
 	favorite: ArchiveTrack | undefined;
 };
 
-export function profileFor(person: string): CrewProfile {
-	const personNights = nightsFor(person);
-	const contributions = tracksFor(person);
+export function buildCrewProfile(person: string, allNights: Night[]): CrewProfile {
+	const clean = (person || '').trim().toLowerCase();
+	const personNights = allNights.filter(
+		(night) =>
+			night.joined?.some((j) => (j || '').trim().toLowerCase() === clean) ||
+			night.attendees?.some((a) => (a.name || '').trim().toLowerCase() === clean)
+	);
+	const contributions = allNights.flatMap((night) =>
+		night.tracklist.filter((track) => (track.addedBy || '').trim().toLowerCase() === clean)
+	);
 	const artistCounts = new Map<string, number>();
 	const genreCounts = new Map<string, number>();
 	for (const track of contributions) {
-		artistCounts.set(track.artist, (artistCounts.get(track.artist) ?? 0) + 1);
-		genreCounts.set(track.genre, (genreCounts.get(track.genre) ?? 0) + 1);
+		if (track.artist) artistCounts.set(track.artist, (artistCounts.get(track.artist) ?? 0) + 1);
+		if (track.genre) genreCounts.set(track.genre, (genreCounts.get(track.genre) ?? 0) + 1);
 	}
 	const top = (counts: Map<string, number>): string =>
 		[...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—';
@@ -150,6 +157,10 @@ export function profileFor(person: string): CrewProfile {
 		topGenre: top(genreCounts),
 		favorite
 	};
+}
+
+export function profileFor(person: string): CrewProfile {
+	return buildCrewProfile(person, nights);
 }
 
 export type ArchiveStats = {
