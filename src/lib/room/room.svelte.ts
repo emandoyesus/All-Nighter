@@ -511,33 +511,21 @@ class Room {
 		this.inited = true;
 
 		this.clientId = loadOrMake(LS_ID, randomId);
-		this.name = loadOrMake(LS_NAME, () => `guest-${Math.floor(Math.random() * 900 + 100)}`);
+		this.name = loadOrMake(LS_NAME, () => auth.displayName || `guest-${Math.floor(Math.random() * 900 + 100)}`);
 		this.avatar = loadOrMake(LS_AVATAR, () => auth.avatarUrl || '/default-avatar.svg');
 
-		// Sync name/avatar if user authenticated with Google or has cloud profile
-		if (auth.user) {
-			const isGoogle =
-				auth.user.app_metadata?.provider === 'google' ||
-				auth.user.identities?.some((id) => id.provider === 'google') ||
-				Boolean(auth.user.user_metadata?.iss?.includes('accounts.google.com'));
-
-			const googleFirstName = extractGoogleFirstName(auth.user.user_metadata, auth.user.email);
-
-			if (isGoogle && googleFirstName) {
-				const cleaned = googleFirstName.slice(0, 24).trim();
-				this.name = cleaned;
-				try {
-					localStorage.setItem(LS_NAME, cleaned);
-				} catch {}
-			}
-
-			const googleAvatar = auth.user.user_metadata?.avatar_url || auth.user.user_metadata?.picture;
-			if (googleAvatar) {
-				this.avatar = googleAvatar;
-				try {
-					localStorage.setItem(LS_AVATAR, googleAvatar);
-				} catch {}
-			}
+		// Sync name/avatar if user authenticated with Google or has cloud profile (or cached profile)
+		if (auth.displayName && (this.name.startsWith('guest-') || !this.name)) {
+			this.name = auth.displayName;
+			try {
+				localStorage.setItem(LS_NAME, auth.displayName);
+			} catch {}
+		}
+		if (auth.avatarUrl && (this.avatar === '/default-avatar.svg' || !this.avatar)) {
+			this.avatar = auth.avatarUrl;
+			try {
+				localStorage.setItem(LS_AVATAR, auth.avatarUrl);
+			} catch {}
 		}
 
 		window.addEventListener('an:update-callsign', (e: Event) => {

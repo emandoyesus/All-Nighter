@@ -1,6 +1,14 @@
 import { supabase, isSupabaseConfigured } from '#lib/supabase';
 import type { User, Session } from '@supabase/supabase-js';
 
+export interface CachedAuthProfile {
+	id: string;
+	email: string | null;
+	displayName: string;
+	avatarUrl: string | null;
+	provider?: string;
+}
+
 export function extractGoogleFirstName(metadata: any, email?: string | null): string {
 	if (!metadata && !email) return '';
 	if (metadata?.given_name && typeof metadata.given_name === 'string') {
@@ -20,48 +28,68 @@ export function extractGoogleFirstName(metadata: any, email?: string | null): st
 class AuthService {
 	user = $state<User | null>(null);
 	session = $state<Session | null>(null);
+	cachedUser = $state<CachedAuthProfile | null>(null);
 	loading = $state<boolean>(true);
 	isGuest = $state<boolean>(false);
-	isAuthenticated = $derived(Boolean(this.user || this.isGuest));
-	isCloudUser = $derived(Boolean(this.user));
+	isAuthenticated = $derived(Boolean(this.user || this.cachedUser || this.isGuest));
+	isCloudUser = $derived(Boolean(this.user || this.cachedUser));
+	email = $derived(this.user?.email || this.cachedUser?.email || null);
 	displayName = $derived.by(() => {
-		if (!this.user) return null;
-		const isGoogle =
-			this.user.app_metadata?.provider === 'google' ||
-			this.user.identities?.some((id) => id.provider === 'google') ||
-			Boolean(this.user.user_metadata?.iss?.includes('accounts.google.com'));
+		if (this.user) {
+			const isGoogle =
+				this.user.app_metadata?.provider === 'google' ||
+				this.user.identities?.some((id) => id.provider === 'google') ||
+				Boolean(this.user.user_metadata?.iss?.includes('accounts.google.com'));
 
-		if (isGoogle) {
-			const googleFirst = extractGoogleFirstName(this.user.user_metadata, this.user.email);
+			if (isGoogle) {
+				const googleFirst = extractGoogleFirstName(this.user.user_metadata, this.user.email);
+				return (
+					googleFirst ||
+					this.user.user_metadata?.callsign ||
+					this.user.email?.split('@')[0] ||
+					null
+				);
+			}
+
 			return (
-				googleFirst ||
 				this.user.user_metadata?.callsign ||
+				this.user.user_metadata?.full_name ||
 				this.user.email?.split('@')[0] ||
 				null
 			);
 		}
 
-		return (
-			this.user.user_metadata?.callsign ||
-			this.user.user_metadata?.full_name ||
-			this.user.email?.split('@')[0] ||
-			null
-		);
+		if (this.cachedUser?.displayName) {
+			return this.cachedUser.displayName;
+		}
+
+		return null;
 	});
 	avatarUrl = $derived.by(() => {
-		if (!this.user) return null;
-		return (
-			this.user.user_metadata?.avatar_url ||
-			this.user.user_metadata?.picture ||
-			this.user.user_metadata?.avatar ||
-			null
-		);
+		if (this.user) {
+			return (
+				this.user.user_metadata?.avatar_url ||
+				this.user.user_metadata?.picture ||
+				this.user.user_metadata?.avatar ||
+				null
+			);
+		}
+
+		if (this.cachedUser?.avatarUrl) {
+			return this.cachedUser.avatarUrl;
+		}
+
+		return null;
 	});
 
 	constructor() {
 		if (typeof window !== 'undefined') {
 			try {
 				this.isGuest = localStorage.getItem('an.is_guest') === '1';
+				const raw = localStorage.getItem('an.auth_cache');
+				if (raw) {
+					this.cachedUser = JSON.parse(raw);
+				}
 			} catch {}
 		}
 
@@ -73,6 +101,12 @@ class AuthService {
 					this.isGuest = false;
 					this.syncUserProfile(this.user);
 					window.dispatchEvent(new CustomEvent('an:auth-changed'));
+				} else {
+					// Supabase confirmed no active session: clear stale cache
+					this.cachedUser = null;
+					try {
+						localStorage.removeItem('an.auth_cache');
+					} catch {}
 				}
 				this.loading = false;
 			}).catch(() => {
@@ -88,6 +122,12 @@ class AuthService {
 						localStorage.removeItem('an.is_guest');
 					} catch {}
 					this.syncUserProfile(this.user);
+					window.dispatchEvent(new CustomEvent('an:auth-changed'));
+				} else {
+					this.cachedUser = null;
+					try {
+						localStorage.removeItem('an.auth_cache');
+					} catch {}
 					window.dispatchEvent(new CustomEvent('an:auth-changed'));
 				}
 				this.loading = false;
@@ -110,6 +150,24 @@ class AuthService {
 			? googleFirstName
 			: (user.user_metadata?.callsign || googleFirstName || user.email?.split('@')[0]);
 
+		const avatar =
+			(user.user_metadata?.avatar_url as string | undefined) ||
+			(user.user_metadata?.picture as string | undefined) ||
+			(user.user_metadata?.avatar as string | undefined);
+
+		// Synchronously update and save cache
+		const cacheEntry: CachedAuthProfile = {
+			id: user.id,
+			email: user.email || null,
+			displayName: resolvedName || 'night-owl',
+			avatarUrl: avatar || null,
+			provider: user.app_metadata?.provider || (isGoogle ? 'google' : 'email')
+		};
+		this.cachedUser = cacheEntry;
+		try {
+			localStorage.setItem('an.auth_cache', JSON.stringify(cacheEntry));
+		} catch {}
+
 		if (resolvedName) {
 			const cleaned = resolvedName.slice(0, 24).trim();
 			try {
@@ -118,7 +176,6 @@ class AuthService {
 			window.dispatchEvent(new CustomEvent('an:update-callsign', { detail: { name: cleaned } }));
 		}
 
-		const avatar = user.user_metadata?.avatar_url || user.user_metadata?.picture;
 		if (avatar) {
 			try {
 				localStorage.setItem('an.avatar', avatar);
@@ -202,8 +259,12 @@ class AuthService {
 
 	async signOut() {
 		this.isGuest = false;
+		this.cachedUser = null;
+		this.user = null;
+		this.session = null;
 		try {
 			localStorage.removeItem('an.is_guest');
+			localStorage.removeItem('an.auth_cache');
 		} catch {}
 		if (!supabase) return;
 		return supabase.auth.signOut();
@@ -219,6 +280,7 @@ class AuthService {
 		if (error) throw error;
 		if (res.user) {
 			this.user = res.user;
+			this.syncUserProfile(res.user);
 		}
 		return res;
 	}

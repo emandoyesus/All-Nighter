@@ -293,10 +293,10 @@
 	});
 
 	const currentDisplayAvatar = $derived(
-		mounted ? (auth.avatarUrl || room.avatar || '/default-avatar.svg') : '/default-avatar.svg'
+		auth.avatarUrl || room.avatar || '/default-avatar.svg'
 	);
 	const currentDisplayName = $derived(
-		mounted ? (auth.displayName || room.name || 'night-owl') : 'night-owl'
+		auth.displayName || room.name || 'night-owl'
 	);
 </script>
 
@@ -452,7 +452,7 @@
 								{#if auth.isAuthenticated}
 									<span class="inline-flex items-center gap-1 text-[10px] text-lamp/90 font-mono">
 										<IconCheck size={10} stroke={2} />
-										{auth.user?.email}
+										{auth.email || auth.user?.email}
 									</span>
 								{:else}
 									<span class="text-[10px] text-faint font-mono">Guest Session</span>
@@ -614,7 +614,7 @@
 								<span class="h-1.5 w-1.5 rounded-full bg-lamp"></span>
 								<p class="text-[9px] font-mono uppercase tracking-wider text-lamp font-semibold">Cloud Synced</p>
 							</div>
-							<p class="truncate text-[11px] font-medium text-cream mt-0.5">{auth.user?.email}</p>
+							<p class="truncate text-[11px] font-medium text-cream mt-0.5">{auth.email || auth.user?.email}</p>
 						</div>
 						<button
 							type="button"
@@ -913,7 +913,7 @@
 							{#if auth.isAuthenticated}
 								<span class="inline-flex items-center gap-1 text-[11px] text-lamp/90 font-mono">
 									<IconCheck size={11} stroke={2} />
-									{auth.user?.email}
+									{auth.email || auth.user?.email}
 								</span>
 							{:else}
 								<span class="text-[11px] text-faint font-mono">Guest Session · Local Profile</span>
