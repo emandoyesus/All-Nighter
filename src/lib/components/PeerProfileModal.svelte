@@ -17,6 +17,8 @@
 	import IconPencil from '@tabler/icons-svelte/icons/pencil';
 	import IconCheck from '@tabler/icons-svelte/icons/check';
 	import IconMusic from '@tabler/icons-svelte/icons/music';
+	import IconLock from '@tabler/icons-svelte/icons/lock';
+	import IconTrophy from '@tabler/icons-svelte/icons/trophy';
 
 	let open = $state(false);
 	let activePeer = $state<Peer | null>(null);
@@ -84,13 +86,42 @@
 	function getTierBadgeClass(tier: Achievement['tier']): string {
 		switch (tier) {
 			case 'bronze':
-				return 'border-amber/40 bg-amber/10 text-amber';
+				return 'border-amber-600/50 bg-gradient-to-br from-amber-700/25 via-amber-900/40 to-amber-950/80 text-amber-300 shadow-[0_0_12px_rgba(217,119,6,0.25)]';
 			case 'silver':
-				return 'border-teal-500/40 bg-teal-500/10 text-aqua-foam';
+				return 'border-slate-300/50 bg-gradient-to-br from-slate-400/20 via-slate-700/40 to-slate-900/80 text-slate-100 shadow-[0_0_12px_rgba(203,213,225,0.2)]';
 			case 'gold':
-				return 'border-amber/50 bg-amber/15 text-amber';
+				return 'border-yellow-400/60 bg-gradient-to-br from-yellow-500/25 via-amber-600/40 to-yellow-950/80 text-yellow-300 shadow-[0_0_16px_rgba(234,179,8,0.3)]';
 			case 'neon':
-				return 'border-violet-400/50 bg-violet-400/10 text-violet-300';
+				return 'border-violet-400/70 bg-gradient-to-br from-violet-500/25 via-fuchsia-600/35 to-violet-950/80 text-violet-200 shadow-[0_0_18px_rgba(168,85,247,0.35)]';
+		}
+	}
+
+	function getTierCardClass(tier: Achievement['tier'], unlocked: boolean): string {
+		if (!unlocked) {
+			return 'border-cream/10 bg-[#080d0f]/90 hover:border-cream/20 hover:bg-[#0c1215] opacity-85 hover:opacity-100';
+		}
+		switch (tier) {
+			case 'bronze':
+				return 'border-amber-600/40 bg-gradient-to-br from-amber-950/30 via-[#0d0905] to-[#060a0b] shadow-[0_4px_20px_-6px_rgba(217,119,6,0.2)] hover:border-amber-500/65';
+			case 'silver':
+				return 'border-slate-400/40 bg-gradient-to-br from-slate-800/30 via-[#0c1215] to-[#060a0b] shadow-[0_4px_20px_-6px_rgba(148,163,184,0.2)] hover:border-slate-300/65';
+			case 'gold':
+				return 'border-yellow-500/45 bg-gradient-to-br from-amber-900/30 via-[#120f06] to-[#060a0b] shadow-[0_4px_25px_-6px_rgba(234,179,8,0.25)] hover:border-yellow-400/70';
+			case 'neon':
+				return 'border-violet-400/50 bg-gradient-to-br from-violet-950/35 via-[#0e0a19] to-[#060a0b] shadow-[0_4px_25px_-6px_rgba(168,85,247,0.3)] hover:border-violet-300/75';
+		}
+	}
+
+	function getTierLabel(tier: Achievement['tier']): string {
+		switch (tier) {
+			case 'bronze':
+				return '🥉 Bronze';
+			case 'silver':
+				return '🥈 Silver';
+			case 'gold':
+				return '🥇 Gold';
+			case 'neon':
+				return '💎 Mythic';
 		}
 	}
 
@@ -359,33 +390,74 @@
 				</div>
 
 				<!-- Achieved Badges & Milestones -->
-				<div>
-					<div class="flex items-center justify-between mb-2">
-						<h4 class="text-xs font-mono uppercase tracking-wider text-faint">Achieved Badges</h4>
-						<span class="text-xs font-mono text-lamp">{achievedBadges.length} Unlocked</span>
+				<div class="space-y-2.5">
+					<div class="flex items-center justify-between border-b border-cream/10 pb-2">
+						<div class="flex items-center gap-1.5">
+							<IconTrophy size={15} stroke={1.8} class="text-amber" />
+							<h4 class="text-xs font-mono uppercase tracking-wider text-faint">Trophy Cabinet</h4>
+						</div>
+						<span class="text-xs font-mono text-lamp font-bold">
+							{stats.unlockedCount} / {stats.totalAchievements} Unlocked
+						</span>
 					</div>
-					{#if achievedBadges.length > 0}
-						<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-							{#each achievedBadges as a (a.id)}
-								<div class="flex items-center gap-2.5 rounded-xl border border-cream/15 bg-[#060a0b] p-2.5 transition-colors">
-									<span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl border text-lg {getTierBadgeClass(a.tier)} shadow-sm select-none">
-										{a.emoji}
-									</span>
+
+					<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+						{#each stats.achievements as a (a.id)}
+							<div
+								class="relative flex flex-col justify-between rounded-xl border p-2.5 transition-all {getTierCardClass(a.tier, a.unlocked)}"
+							>
+								<div class="flex items-start gap-2.5 min-w-0">
+									<div class="relative shrink-0">
+										<span
+											class="grid h-10 w-10 place-items-center rounded-xl border text-xl select-none {a.unlocked ? getTierBadgeClass(a.tier) : 'border-cream/15 bg-night-3 text-faint grayscale opacity-50'}"
+										>
+											{a.emoji}
+										</span>
+										{#if !a.unlocked}
+											<span
+												class="absolute -bottom-1 -right-1 grid h-4 w-4 place-items-center rounded-full bg-[#080d0f] border border-cream/25 text-faint shadow-sm"
+											>
+												<IconLock size={9} stroke={2} />
+											</span>
+										{/if}
+									</div>
 									<div class="min-w-0 flex-1">
 										<div class="flex items-center justify-between gap-1">
-											<p class="text-xs font-semibold text-cream truncate leading-tight">{a.title}</p>
-											<span class="text-[9px] font-mono text-lamp font-bold shrink-0">✓ Done</span>
+											<p class="text-xs font-semibold {a.unlocked ? 'text-cream' : 'text-cream/75'} truncate leading-tight">
+												{a.title}
+											</p>
+											{#if a.unlocked}
+												<span class="text-[9px] font-mono text-lamp font-bold shrink-0">✓ Done</span>
+											{:else}
+												<span class="text-[9px] font-mono text-faint shrink-0">
+													{Math.min(100, Math.round((a.current / a.target) * 100))}%
+												</span>
+											{/if}
 										</div>
 										<p class="truncate text-[10px] text-taupe mt-0.5">{a.description}</p>
+										<div class="flex items-center gap-2 mt-1">
+											<span class="text-[8px] font-mono uppercase tracking-wider text-faint bg-cream/5 px-1 py-0.2 rounded border border-cream/10">
+												{a.category}
+											</span>
+											<span class="text-[8px] font-mono text-taupe">
+												{getTierLabel(a.tier)}
+											</span>
+										</div>
 									</div>
 								</div>
-							{/each}
-						</div>
-					{:else}
-						<div class="rounded-xl border border-cream/10 bg-[#060a0b] p-4 text-center">
-							<p class="text-xs text-taupe font-mono">No badges achieved yet</p>
-						</div>
-					{/if}
+
+								{#if !a.unlocked}
+									{@const pct = Math.min(100, Math.round((a.current / a.target) * 100))}
+									<div class="mt-2 h-1 w-full rounded-full bg-night-3 overflow-hidden border border-cream/10">
+										<div
+											class="h-full rounded-full bg-gradient-to-r from-amber-500/60 to-lamp/60"
+											style="width: {pct}%"
+										></div>
+									</div>
+								{/if}
+							</div>
+						{/each}
+					</div>
 				</div>
 
 				<!-- Current Room Contributions -->

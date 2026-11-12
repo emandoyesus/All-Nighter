@@ -43,16 +43,67 @@
 		userStats = getUserProfileStats(currentDisplayName, auth.user?.id);
 	}
 
+	let achievementFilter = $state<'all' | 'unlocked' | 'locked'>('all');
+
+	const tierCounts = $derived.by(() => {
+		const total = { bronze: 0, silver: 0, gold: 0, neon: 0 };
+		const unlocked = { bronze: 0, silver: 0, gold: 0, neon: 0 };
+		for (const a of userStats.achievements) {
+			total[a.tier] = (total[a.tier] || 0) + 1;
+			if (a.unlocked) unlocked[a.tier] = (unlocked[a.tier] || 0) + 1;
+		}
+		return { total, unlocked };
+	});
+
+	const filteredAchievements = $derived.by(() => {
+		if (achievementFilter === 'unlocked') {
+			return userStats.achievements.filter((a) => a.unlocked);
+		}
+		if (achievementFilter === 'locked') {
+			return userStats.achievements.filter((a) => !a.unlocked);
+		}
+		return userStats.achievements;
+	});
+
 	function getTierBadgeClass(tier: Achievement['tier']): string {
 		switch (tier) {
 			case 'bronze':
-				return 'border-amber/40 bg-amber/10 text-amber';
+				return 'border-amber-600/50 bg-gradient-to-br from-amber-700/25 via-amber-900/40 to-amber-950/80 text-amber-300 shadow-[0_0_12px_rgba(217,119,6,0.25)]';
 			case 'silver':
-				return 'border-teal-500/40 bg-teal-500/10 text-aqua-foam';
+				return 'border-slate-300/50 bg-gradient-to-br from-slate-400/20 via-slate-700/40 to-slate-900/80 text-slate-100 shadow-[0_0_12px_rgba(203,213,225,0.2)]';
 			case 'gold':
-				return 'border-amber/50 bg-amber/15 text-amber';
+				return 'border-yellow-400/60 bg-gradient-to-br from-yellow-500/25 via-amber-600/40 to-yellow-950/80 text-yellow-300 shadow-[0_0_16px_rgba(234,179,8,0.3)]';
 			case 'neon':
-				return 'border-violet-400/50 bg-violet-400/10 text-violet-300';
+				return 'border-violet-400/70 bg-gradient-to-br from-violet-500/25 via-fuchsia-600/35 to-violet-950/80 text-violet-200 shadow-[0_0_18px_rgba(168,85,247,0.35)]';
+		}
+	}
+
+	function getTierCardClass(tier: Achievement['tier'], unlocked: boolean): string {
+		if (!unlocked) {
+			return 'border-cream/10 bg-[#080d0f]/90 hover:border-cream/20 hover:bg-[#0c1215] opacity-85 hover:opacity-100';
+		}
+		switch (tier) {
+			case 'bronze':
+				return 'border-amber-600/40 bg-gradient-to-br from-amber-950/30 via-[#0d0905] to-[#060a0b] shadow-[0_4px_20px_-6px_rgba(217,119,6,0.2)] hover:border-amber-500/65';
+			case 'silver':
+				return 'border-slate-400/40 bg-gradient-to-br from-slate-800/30 via-[#0c1215] to-[#060a0b] shadow-[0_4px_20px_-6px_rgba(148,163,184,0.2)] hover:border-slate-300/65';
+			case 'gold':
+				return 'border-yellow-500/45 bg-gradient-to-br from-amber-900/30 via-[#120f06] to-[#060a0b] shadow-[0_4px_25px_-6px_rgba(234,179,8,0.25)] hover:border-yellow-400/70';
+			case 'neon':
+				return 'border-violet-400/50 bg-gradient-to-br from-violet-950/35 via-[#0e0a19] to-[#060a0b] shadow-[0_4px_25px_-6px_rgba(168,85,247,0.3)] hover:border-violet-300/75';
+		}
+	}
+
+	function getTierLabel(tier: Achievement['tier']): string {
+		switch (tier) {
+			case 'bronze':
+				return '🥉 Bronze';
+			case 'silver':
+				return '🥈 Silver';
+			case 'gold':
+				return '🥇 Gold';
+			case 'neon':
+				return '💎 Mythic';
 		}
 	}
 
@@ -664,32 +715,65 @@
 						</div>
 					</div>
 
-					<!-- Scrollable Badges List -->
-					<div>
-						<div class="flex items-center justify-between mb-1">
-							<span class="text-[9px] font-mono uppercase tracking-wider text-faint">Achieved Badges</span>
-							<span class="text-[9px] font-mono text-lamp">{achievedBadges.length} Unlocked</span>
+					<!-- Trophy Showcase in Dropdown -->
+					<div class="mt-2 space-y-2">
+						<div class="flex items-center justify-between">
+							<div class="flex items-center gap-1.5">
+								<IconTrophy size={13} class="text-amber" />
+								<span class="text-[10px] font-mono uppercase tracking-wider text-faint">Trophy Cabinet</span>
+							</div>
+							<span class="text-[10px] font-mono text-lamp font-bold">
+								{userStats.unlockedCount} / {userStats.totalAchievements} ({Math.round((userStats.unlockedCount / userStats.totalAchievements) * 100)}%)
+							</span>
 						</div>
-						<div class="space-y-1.5 max-h-[140px] overflow-y-auto pr-0.5 custom-scrollbar">
-							{#each achievedBadges as a (a.id)}
-								<div class="flex items-center justify-between gap-2 rounded-lg border p-1.5 text-xs transition-colors border-cream/15 bg-[#060a0b]">
-									<div class="flex items-center gap-2 min-w-0">
-										<span class="grid h-6 w-6 shrink-0 place-items-center rounded-lg border text-xs select-none {getTierBadgeClass(a.tier)}">
-											{a.emoji}
-										</span>
+
+						<!-- Mini Progress Bar -->
+						<div class="h-1.5 w-full rounded-full bg-night-3 overflow-hidden border border-cream/10 p-[1px]">
+							<div
+								class="h-full rounded-full bg-gradient-to-r from-teal-500 to-lamp transition-all duration-500"
+								style="width: {Math.round((userStats.unlockedCount / userStats.totalAchievements) * 100)}%"
+							></div>
+						</div>
+
+						<div class="space-y-1.5 max-h-[160px] overflow-y-auto pr-0.5 custom-scrollbar">
+							{#each userStats.achievements as a (a.id)}
+								<div class="relative flex items-center justify-between gap-2.5 rounded-xl border p-2 text-xs transition-all {getTierCardClass(a.tier, a.unlocked)}">
+									<div class="flex items-center gap-2.5 min-w-0">
+										<div class="relative shrink-0">
+											<span class="grid h-7 w-7 place-items-center rounded-xl border text-sm select-none {a.unlocked ? getTierBadgeClass(a.tier) : 'border-cream/10 bg-night-3 text-faint grayscale opacity-60'}">
+												{a.emoji}
+											</span>
+											{#if !a.unlocked}
+												<span class="absolute -bottom-1 -right-1 grid h-3.5 w-3.5 place-items-center rounded-full bg-[#0a1012] border border-cream/20 text-faint shadow">
+													<IconLock size={8} stroke={2} />
+												</span>
+											{/if}
+										</div>
 										<div class="min-w-0">
-											<p class="truncate text-[11px] font-medium text-cream">{a.title}</p>
-											<p class="truncate text-[9px] text-faint">{a.description}</p>
+											<p class="truncate text-[11px] font-semibold {a.unlocked ? 'text-cream' : 'text-cream/75'} leading-tight">
+												{a.title}
+											</p>
+											<p class="truncate text-[9px] text-faint mt-0.5">
+												{#if a.unlocked}
+													{a.description}
+												{:else}
+													Progress: {a.current} / {a.target}
+												{/if}
+											</p>
 										</div>
 									</div>
-									<span class="shrink-0 rounded bg-lamp/15 px-1 py-0.2 font-mono text-[8px] uppercase tracking-wider text-lamp border border-lamp/30">
-										✓ Done
-									</span>
+									<div class="shrink-0 text-right">
+										{#if a.unlocked}
+											<span class="inline-flex items-center gap-0.5 rounded-full bg-lamp/15 px-2 py-0.5 font-mono text-[8px] font-bold uppercase tracking-wider text-lamp border border-lamp/30">
+												<IconCheck size={9} stroke={3} /> Done
+											</span>
+										{:else}
+											<span class="inline-flex items-center gap-0.5 rounded-full bg-cream/5 px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-wider text-faint border border-cream/10">
+												<IconLock size={8} stroke={2} /> {Math.min(100, Math.round((a.current / a.target) * 100))}%
+											</span>
+										{/if}
+									</div>
 								</div>
-							{:else}
-								<p class="text-[11px] text-faint text-center py-3 bg-[#060a0b] rounded-lg border border-cream/5 font-mono">
-									No badges achieved yet
-								</p>
 							{/each}
 						</div>
 					</div>
@@ -705,7 +789,7 @@
 						}}
 					>
 						<IconAward size={13} stroke={2} class="text-lamp" />
-						<span>Open Full Dossier</span>
+						<span>Open Full Trophy Dossier</span>
 					</button>
 				</div>
 			{/if}
@@ -920,54 +1004,155 @@
 					</div>
 
 					<!-- Achieved Badges & Milestones in Responsive Grid -->
-					<div>
-						<div class="flex items-center justify-between mb-2">
-							<h4 class="text-xs font-mono uppercase tracking-wider text-faint">Achieved Badges & Milestones</h4>
-							<span class="text-xs font-mono text-lamp">{achievedBadges.length} Unlocked</span>
+					<div class="space-y-3">
+						<div class="flex flex-wrap items-center justify-between gap-2 border-b border-cream/10 pb-3">
+							<div>
+								<div class="flex items-center gap-2">
+									<IconTrophy size={18} stroke={1.8} class="text-amber" />
+									<h4 class="text-sm font-mono font-bold uppercase tracking-wider text-cream">
+										Trophy Cabinet & Milestones
+									</h4>
+								</div>
+								<p class="text-xs text-taupe mt-0.5">
+									{userStats.unlockedCount} of {userStats.totalAchievements} unlocked ({Math.round((userStats.unlockedCount / userStats.totalAchievements) * 100)}% complete)
+								</p>
+							</div>
+
+							<!-- Filter Tabs -->
+							<div class="flex items-center rounded-lg border border-cream/15 bg-[#060a0b] p-0.5 text-xs font-mono">
+								<button
+									type="button"
+									class="rounded-md px-2.5 py-1 transition-colors cursor-pointer {achievementFilter === 'all' ? 'bg-cream/15 text-cream font-medium shadow-sm' : 'text-faint hover:text-cream'}"
+									onclick={() => (achievementFilter = 'all')}
+								>
+									All ({userStats.totalAchievements})
+								</button>
+								<button
+									type="button"
+									class="rounded-md px-2.5 py-1 transition-colors cursor-pointer {achievementFilter === 'unlocked' ? 'bg-lamp/20 text-lamp font-medium shadow-sm' : 'text-faint hover:text-cream'}"
+									onclick={() => (achievementFilter = 'unlocked')}
+								>
+									Unlocked ({userStats.unlockedCount})
+								</button>
+								<button
+									type="button"
+									class="rounded-md px-2.5 py-1 transition-colors cursor-pointer {achievementFilter === 'locked' ? 'bg-amber/20 text-amber font-medium shadow-sm' : 'text-faint hover:text-cream'}"
+									onclick={() => (achievementFilter = 'locked')}
+								>
+									Locked ({userStats.totalAchievements - userStats.unlockedCount})
+								</button>
+							</div>
 						</div>
-						{#if achievedBadges.length > 0}
-							<div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-								{#each achievedBadges as a (a.id)}
-									<div class="flex flex-col justify-between rounded-xl border p-3 transition-colors border-cream/15 bg-[#060a0b]">
+
+						<!-- Master Rarity Tiers Bar -->
+						<div class="grid grid-cols-4 gap-2 text-center text-xs font-mono">
+							<div class="rounded-lg border border-amber-600/30 bg-amber-950/20 py-1.5 px-2">
+								<span class="text-[10px] text-amber-300 font-semibold block">🥉 Bronze</span>
+								<span class="text-xs font-bold text-cream mt-0.5 block">{tierCounts.unlocked.bronze} / {tierCounts.total.bronze}</span>
+							</div>
+							<div class="rounded-lg border border-slate-400/30 bg-slate-800/20 py-1.5 px-2">
+								<span class="text-[10px] text-slate-200 font-semibold block">🥈 Silver</span>
+								<span class="text-xs font-bold text-cream mt-0.5 block">{tierCounts.unlocked.silver} / {tierCounts.total.silver}</span>
+							</div>
+							<div class="rounded-lg border border-yellow-500/35 bg-yellow-950/20 py-1.5 px-2">
+								<span class="text-[10px] text-yellow-300 font-semibold block">🥇 Gold</span>
+								<span class="text-xs font-bold text-cream mt-0.5 block">{tierCounts.unlocked.gold} / {tierCounts.total.gold}</span>
+							</div>
+							<div class="rounded-lg border border-violet-400/40 bg-violet-950/25 py-1.5 px-2">
+								<span class="text-[10px] text-violet-300 font-semibold block">💎 Mythic</span>
+								<span class="text-xs font-bold text-cream mt-0.5 block">{tierCounts.unlocked.neon} / {tierCounts.total.neon}</span>
+							</div>
+						</div>
+
+						<!-- Achievement Cards Grid -->
+						{#if filteredAchievements.length > 0}
+							<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+								{#each filteredAchievements as a (a.id)}
+									<div
+										class="relative flex flex-col justify-between rounded-2xl border p-4 transition-all duration-200 {getTierCardClass(a.tier, a.unlocked)}"
+									>
 										<div>
-											<div class="flex items-start justify-between gap-2">
-												<div class="flex items-center gap-2.5">
-													<span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl border text-xl {getTierBadgeClass(a.tier)} shadow-sm select-none">
-														{a.emoji}
-													</span>
+											<div class="flex items-start justify-between gap-3">
+												<div class="flex items-center gap-3 min-w-0">
+													<div class="relative shrink-0">
+														<span
+															class="grid h-12 w-12 place-items-center rounded-2xl border text-2xl select-none {a.unlocked ? getTierBadgeClass(a.tier) : 'border-cream/15 bg-night-3 text-faint grayscale opacity-50'}"
+														>
+															{a.emoji}
+														</span>
+														{#if !a.unlocked}
+															<span
+																class="absolute -bottom-1 -right-1 grid h-5 w-5 place-items-center rounded-full bg-[#080d0f] border border-cream/25 text-faint shadow-md"
+															>
+																<IconLock size={11} stroke={2} />
+															</span>
+														{/if}
+													</div>
 													<div class="min-w-0">
-														<p class="text-sm font-semibold text-cream leading-tight truncate">{a.title}</p>
-														<span class="text-[9px] font-mono uppercase tracking-wider text-faint">{a.category}</span>
+														<h5 class="text-sm font-bold {a.unlocked ? 'text-cream' : 'text-cream/80'} truncate leading-tight">
+															{a.title}
+														</h5>
+														<div class="flex items-center gap-2 mt-1">
+															<span class="text-[9px] font-mono uppercase tracking-wider text-faint bg-cream/5 px-1.5 py-0.5 rounded border border-cream/10">
+																{a.category}
+															</span>
+															<span class="text-[9px] font-mono font-medium text-taupe">
+																{getTierLabel(a.tier)}
+															</span>
+														</div>
 													</div>
 												</div>
-												<span class="shrink-0 rounded px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider border {getTierBadgeClass(a.tier)}">
-													{a.tier}
+												<span
+													class="shrink-0 rounded-full px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider border {a.unlocked ? 'bg-lamp/15 text-lamp border-lamp/30' : 'bg-cream/5 text-faint border-cream/10'}"
+												>
+													{a.unlocked ? 'Unlocked' : 'Locked'}
 												</span>
 											</div>
-											<p class="mt-2 text-xs text-taupe leading-relaxed">{a.description}</p>
+
+											<p class="mt-3 text-xs text-taupe leading-relaxed">
+												{a.description}
+											</p>
 										</div>
 
-										<div class="mt-3 pt-2 border-t border-cream/5">
-											<div class="flex items-center justify-between text-[11px] font-mono text-lamp">
-												<span class="inline-flex items-center gap-1 font-semibold">
-													<IconCheck size={13} stroke={2.5} />
-													Unlocked
-												</span>
-												<span class="text-[10px] text-faint">Completed</span>
-											</div>
+										<!-- Footer status & Progress Bar -->
+										<div class="mt-4 pt-3 border-t border-cream/10">
+											{#if a.unlocked}
+												<div class="flex items-center justify-between text-xs font-mono text-lamp">
+													<span class="inline-flex items-center gap-1.5 font-bold">
+														<IconCheck size={14} stroke={3} />
+														Unlocked & Completed
+													</span>
+													<span class="text-[10px] text-faint">100%</span>
+												</div>
+												<div class="mt-1.5 h-1.5 w-full rounded-full bg-night-3 overflow-hidden border border-cream/10 p-[1px]">
+													<div class="h-full rounded-full bg-lamp w-full"></div>
+												</div>
+											{:else}
+												{@const pct = Math.min(100, Math.round((a.current / a.target) * 100))}
+												<div class="flex items-center justify-between text-xs font-mono text-faint mb-1">
+													<span class="inline-flex items-center gap-1">
+														<IconLock size={12} stroke={2} />
+														Progress: {a.current} / {a.target}
+													</span>
+													<span class="text-cream font-medium">{pct}%</span>
+												</div>
+												<div class="h-1.5 w-full rounded-full bg-night-3 overflow-hidden border border-cream/10 p-[1px]">
+													<div
+														class="h-full rounded-full bg-gradient-to-r from-amber-500/70 to-lamp/70 transition-all duration-500"
+														style="width: {pct}%"
+													></div>
+												</div>
+											{/if}
 										</div>
 									</div>
 								{/each}
 							</div>
 						{:else}
-							<div class="rounded-xl border border-cream/10 bg-[#060a0b] p-6 text-center">
-								<span class="grid h-10 w-10 mx-auto place-items-center rounded-xl bg-lamp/10 text-lamp mb-2">
+							<div class="rounded-xl border border-cream/10 bg-[#060a0b] p-8 text-center">
+								<span class="grid h-10 w-10 mx-auto place-items-center rounded-xl bg-cream/5 text-faint mb-2">
 									<IconAward size={20} stroke={1.5} />
 								</span>
-								<p class="text-sm font-medium text-cream">No badges achieved yet</p>
-								<p class="text-xs text-taupe mt-1 max-w-[36ch] mx-auto">
-									Complete full all-nighters, declare intentions, and queue tracks with the crew to earn milestone badges.
-								</p>
+								<p class="text-sm font-medium text-cream">No achievements match this filter</p>
 							</div>
 						{/if}
 					</div>
