@@ -47,7 +47,7 @@ export class SupabaseRoomSync {
 		private onRemoteMessage: (msg: ChatMessage) => void,
 		private onRemoteQueue: (queue: Track[]) => void,
 		private onRemoteState?: (state: Partial<RoomState>) => void,
-		private onHostConfirmed?: (isHost: boolean) => void
+		private onHostConfirmed?: (isHost: boolean, canonicalHostName?: string) => void
 	) {}
 
 	/** Check if database connection is configured */
@@ -69,10 +69,13 @@ export class SupabaseRoomSync {
 				.maybeSingle();
 
 			if (existing) {
-				if (hostId && existing.host_id === hostId) {
-					this.onHostConfirmed?.(true);
-				}
+				const isHostUser = Boolean(
+					(hostId && existing.host_id === hostId) ||
+					(!existing.host_id && hostName && existing.host_name === hostName)
+				);
+				this.onHostConfirmed?.(isHostUser, existing.host_name || '');
 			} else {
+				this.onHostConfirmed?.(Boolean(hostId || hostName), hostName || '');
 				await supabase.from('rooms').upsert(
 					{
 						slug,

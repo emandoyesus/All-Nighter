@@ -124,7 +124,7 @@
 						<button
 							type="button"
 							class="flex flex-col items-start gap-1 rounded-lg border p-2 text-left text-xs transition-colors cursor-pointer {!archiveOnDelete
-								? 'border-ruby/50 bg-ruby/10 text-ruby'
+								? 'border-cream/30 bg-cream/10 text-cream font-medium'
 								: 'border-cream/10 bg-night-2 text-taupe hover:border-cream/20 hover:text-cream'}"
 							onclick={() => (archiveOnDelete = false)}
 						>
@@ -149,7 +149,8 @@
 					bind:value={confirmInput}
 					placeholder={room.room}
 					autocomplete="off"
-					class="w-full rounded-lg border border-cream/15 bg-night px-3 py-2 text-xs font-mono text-cream outline-none focus:border-cream/40 transition-colors placeholder:text-faint/30"
+					disabled={isDeleting}
+					class="w-full rounded-lg border border-cream/15 bg-night px-3 py-2 text-xs font-mono text-cream outline-none focus:border-cream/40 transition-colors placeholder:text-faint/30 disabled:opacity-50"
 				/>
 			</div>
 
@@ -157,8 +158,9 @@
 			<div class="mt-5 flex items-center justify-end gap-2 border-t border-cream/10 pt-3.5">
 				<button
 					type="button"
-					class="btn btn-ghost btn-sm text-xs px-3.5 text-taupe hover:text-cream"
+					class="btn btn-ghost btn-sm text-xs px-3.5 text-taupe hover:text-cream disabled:opacity-40"
 					onclick={handleClose}
+					disabled={isDeleting}
 				>
 					Cancel
 				</button>
@@ -166,14 +168,29 @@
 					type="button"
 					disabled={!isMatch || isDeleting}
 					class="btn btn-sm text-xs px-4 py-2 font-mono flex items-center gap-1.5 transition-all {isMatch
-						? 'border border-ruby/30 bg-ruby/15 text-ruby hover:bg-ruby hover:text-white cursor-pointer font-medium'
+						? 'border border-cream/25 bg-cream/10 text-cream hover:bg-cream/20 hover:border-cream/40 cursor-pointer font-medium'
 						: 'border border-cream/10 bg-night/50 text-faint/40 cursor-not-allowed opacity-60'}"
 					onclick={handleDelete}
 				>
-					<IconTrash size={14} stroke={1.5} />
-					<span>{isDeleting ? 'Deleting...' : 'Delete Room'}</span>
+					{#if isDeleting}
+						<span class="inline-block h-3.5 w-3.5 rounded-full border-2 border-cream/30 border-t-cream animate-spin"></span>
+						<span>Deleting...</span>
+					{:else}
+						<IconTrash size={14} stroke={1.5} />
+						<span>Delete Room</span>
+					{/if}
 				</button>
 			</div>
+
+			{#if isDeleting}
+				<div class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-night/95 backdrop-blur-sm p-6 text-center animate-in fade-in duration-150">
+					<div class="relative flex h-10 w-10 items-center justify-center">
+						<span class="inline-block h-8 w-8 rounded-full border-2 border-cream/15 border-t-lamp animate-spin"></span>
+					</div>
+					<h4 class="mt-3 text-sm font-semibold text-cream">Deleting Room Session</h4>
+					<p class="mt-1 text-xs text-taupe font-mono">Closing room and disconnecting crew...</p>
+				</div>
+			{/if}
 		</div>
 	</div>
 {/if}

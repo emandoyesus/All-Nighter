@@ -227,6 +227,7 @@
 	const slug = $derived(sanitizeRoom(draft));
 	const hasReachedLimit = $derived(myRooms.length >= 1);
 	let limitAttempted = $state(false);
+	let isCreating = $state(false);
 
 	$effect(() => {
 		if (!hasReachedLimit) {
@@ -234,8 +235,9 @@
 		}
 	});
 
-	function create(event: SubmitEvent): void {
+	async function create(event: SubmitEvent): Promise<void> {
 		event.preventDefault();
+		if (isCreating) return;
 		if (!doorsOpen) {
 			nameError = `Doors unlock at sunset (18:00). Rooms cannot be created during daytime (${sunsetCountdown} remaining).`;
 			return;
@@ -262,7 +264,12 @@
 			// Store the intention before creating the room so announce() picks it up
 			room.setIntention(nightPlan.trim());
 		}
-		void room.createRoom(name, isPrivate, adminOnly, isPrivate ? roomKeyDraft : undefined);
+		isCreating = true;
+		try {
+			await room.createRoom(name, isPrivate, adminOnly, isPrivate ? roomKeyDraft : undefined);
+		} finally {
+			isCreating = false;
+		}
 	}
 
 	function handleJoinPrivate(event: SubmitEvent): void {
@@ -727,13 +734,16 @@
 
 				<button
 					type="submit"
-					class="btn btn-amber w-full font-medium disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
-					disabled={!slug || !doorsOpen}
+					class="btn btn-amber w-full font-medium disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
+					disabled={!slug || !doorsOpen || isCreating}
 					title={!doorsOpen ? 'Doors unlock at sunset (18:00)' : undefined}
 				>
 					{#if !doorsOpen}
 						<IconSunset size={16} stroke={1.8} />
 						<span>Doors Open at 18:00 Sunset ({sunsetCountdown})</span>
+					{:else if isCreating}
+						<span class="inline-block h-4 w-4 rounded-full border-2 border-night/40 border-t-night animate-spin"></span>
+						<span>Lighting up room...</span>
 					{:else}
 						<IconPlus size={16} stroke={1.5} />
 						<span>{isPrivate ? 'Create Private Room' : 'Create a room'}</span>

@@ -392,6 +392,7 @@
 	<!-- Video mount target for persistent GlobalPlayer -->
 	<div
 		id="room-video-viewport"
+		data-video-viewport="true"
 		data-minimized={isMinimized || room.mode === 'focus'}
 		class="relative bg-night overflow-hidden transition-all duration-300 {isMinimized || room.mode === 'focus' ? 'h-0 opacity-0 pointer-events-none' : 'aspect-video'}"
 	>
@@ -444,6 +445,32 @@
 					<p class="mx-auto mt-1 max-w-[36ch] text-xs leading-relaxed text-taupe">
 						Paste any link into the queue below to play for everyone.
 					</p>
+				</div>
+			</div>
+		{:else if !room.state.playing}
+			<div class="absolute inset-0 z-30 grid place-items-center bg-night/85 backdrop-blur-[2px] px-6 text-center">
+				<div class="max-w-[380px] p-4 flex flex-col items-center">
+					<span class="grid h-12 w-12 place-items-center rounded-full bg-amber/15 text-amber ring-1 ring-amber/30 mb-3 shadow-lg">
+						<IconPlay size={22} stroke={1.8} class="translate-x-0.5" />
+					</span>
+					<h4 class="text-base font-medium text-cream">{room.state.current?.title || 'Starting Track Ready'}</h4>
+					<p class="text-xs text-taupe mt-1 mb-4 leading-relaxed">
+						{#if room.isHost}
+							You are the host. Start the player when you're ready to begin the session.
+						{:else}
+							Waiting for the host ({room.hostName() || 'Host'}) to start the player.
+						{/if}
+					</p>
+					{#if room.isHost}
+						<button
+							type="button"
+							class="btn btn-amber btn-sm px-5 py-2 text-xs font-mono flex items-center gap-2 cursor-pointer shadow-lg hover:scale-105 transition-all"
+							onclick={() => window.dispatchEvent(new CustomEvent('an:player:toggle'))}
+						>
+							<IconPlay size={15} stroke={2} />
+							<span>Start Player</span>
+						</button>
+					{/if}
 				</div>
 			</div>
 		{:else if ready && !unlocked}
@@ -523,9 +550,15 @@
 				{#if room.canControlPlayback}
 					<button
 						class="icon-btn {room.state.playing ? 'text-taupe hover:text-amber' : 'text-amber bg-amber/15 border border-amber/30 animate-pulse'}"
-						onclick={() => window.dispatchEvent(new CustomEvent('an:open-global-pause-modal'))}
+						onclick={() => {
+							if (room.state.playing) {
+								window.dispatchEvent(new CustomEvent('an:open-global-pause-modal'));
+							} else {
+								window.dispatchEvent(new CustomEvent('an:player:toggle'));
+							}
+						}}
 						aria-label={room.state.playing ? 'Pause for everyone' : 'Resume for everyone'}
-						title={room.state.playing ? 'Pause music for everyone (Admin confirmation)' : 'Resume music for everyone (Admin)'}
+						title={room.state.playing ? 'Pause music for everyone (Admin confirmation)' : (room.isHost ? 'Start/Resume music for everyone' : 'Waiting for host to start')}
 					>
 						{#if room.state.playing}
 							<IconPause size={17} stroke={1.5} />

@@ -206,7 +206,7 @@
 			} else {
 				player.mute();
 			}
-			if (player.playVideo) player.playVideo();
+			if (player.playVideo && room.state.playing) player.playVideo();
 		} catch {
 			/* settling */
 		}
@@ -261,6 +261,9 @@
 		if (!unlocked) {
 			unlock();
 		}
+		if (!room.state.playing && !room.isHost) {
+			return;
+		}
 		if (!room.canControlPlayback) return;
 		const curPos = ready && player?.getCurrentTime ? (player.getCurrentTime() ?? room.state.position) : room.state.position;
 		const nextPlaying = !room.state.playing;
@@ -300,9 +303,21 @@
 	let mo: MutationObserver | null = null;
 	let observedViewport: HTMLElement | null = null;
 
+	function getTargetViewport(): HTMLElement | null {
+		if (typeof document === 'undefined') return null;
+		const viewports = Array.from(document.querySelectorAll<HTMLElement>('#room-video-viewport, [data-video-viewport]'));
+		for (const vp of viewports) {
+			const rect = vp.getBoundingClientRect();
+			if (rect.width > 20 && rect.height > 20) {
+				return vp;
+			}
+		}
+		return document.getElementById('room-video-viewport');
+	}
+
 	function syncViewportPosition(): void {
 		if (typeof document === 'undefined' || !containerEl) return;
-		const viewport = document.getElementById('room-video-viewport');
+		const viewport = getTargetViewport();
 		const inActiveRoom = room.joinState === 'approved';
 		const hasVideo = !!room.state.videoId;
 
@@ -356,7 +371,7 @@
 
 	function checkObserver(): void {
 		if (typeof document === 'undefined') return;
-		const viewport = document.getElementById('room-video-viewport');
+		const viewport = getTargetViewport();
 		if (viewport !== observedViewport) {
 			if (ro && observedViewport) ro.unobserve(observedViewport);
 			observedViewport = viewport;

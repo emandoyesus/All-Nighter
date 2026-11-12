@@ -349,15 +349,21 @@
 				{#if room.canControlPlayback}
 					<button
 						class="btn btn-ghost btn-sm {room.state.playing ? 'text-taupe hover:text-amber' : 'text-amber bg-amber/15 border border-amber/30 animate-pulse'}"
-						onclick={() => window.dispatchEvent(new CustomEvent('an:open-global-pause-modal'))}
-						title={room.state.playing ? 'Pause music for everyone (Admin confirmation)' : 'Resume music for everyone (Admin)'}
+						onclick={() => {
+							if (room.state.playing) {
+								window.dispatchEvent(new CustomEvent('an:open-global-pause-modal'));
+							} else {
+								window.dispatchEvent(new CustomEvent('an:player:toggle'));
+							}
+						}}
+						title={room.state.playing ? 'Pause music for everyone (Admin confirmation)' : (room.isHost ? 'Start/Resume music for everyone' : 'Waiting for host to start')}
 					>
 						{#if room.state.playing}
 							<IconPause size={15} stroke={1.5} />
 							<span>Pause Room</span>
 						{:else}
 							<IconPlay size={15} stroke={1.5} />
-							<span>Resume Room</span>
+							<span>{room.isHost ? 'Start Player' : 'Resume'}</span>
 						{/if}
 					</button>
 				{/if}

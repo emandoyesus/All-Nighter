@@ -1,8 +1,6 @@
 <script lang="ts">
 	import { room } from '#lib/room/room.svelte';
-	import { auth } from '#lib/auth.svelte';
 	import IconArrowLeft from '@tabler/icons-svelte/icons/arrow-left';
-	import IconDoorEnter from '@tabler/icons-svelte/icons/door-enter';
 	import IconCircleOff from '@tabler/icons-svelte/icons/circle-off';
 	import IconClock from '@tabler/icons-svelte/icons/clock';
 	import IconLock from '@tabler/icons-svelte/icons/lock';
@@ -131,29 +129,8 @@
 				{:else}
 					<div class="mt-3 rounded-field border border-cream/10 bg-night/40 p-4 text-center">
 						<p class="num text-xs leading-relaxed text-faint">
-							Nobody has the light on in this room yet.
+							{host ? `Host ${host} stepped out. Room is currently quiet.` : 'Nobody has the light on in this room yet.'}
 						</p>
-						{#if auth.isCloudUser}
-							<button
-								class="btn btn-primary btn-sm mt-3"
-								onclick={() => room.claimRoom(room.room, room.title)}
-							>
-								<IconDoorEnter size={14} stroke={1.5} />
-								Step inside as host
-							</button>
-						{:else}
-							<div class="mt-3 flex flex-col items-center gap-2">
-								<p class="text-[11px] text-faint">Sign in required to host this room.</p>
-								<button
-									type="button"
-									class="btn btn-primary btn-sm cursor-pointer"
-									onclick={() => window.dispatchEvent(new CustomEvent('an:open-auth-modal', { detail: { mode: 'signin' } }))}
-								>
-									<IconLock size={14} stroke={1.5} />
-									Sign in to host
-								</button>
-							</div>
-						{/if}
 					</div>
 				{/if}
 			</div>

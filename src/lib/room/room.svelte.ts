@@ -268,6 +268,7 @@ class Room {
 	joinState = $state<JoinState>('lobby');
 	title = $state('');
 	isHost = $state(false);
+	canonicalHost = $state('');
 	/** Timestamp when this session was entered */
 	roomStartedAt = $state(0);
 	/** Whether dawn (06:00 AM) has been reached for this room's overnight session */
@@ -277,7 +278,7 @@ class Room {
 			: false
 	);
 	/** Transient alert banner for room deleted / archived events */
-	roomAlert = $state<{ type: 'deleted' | 'archived' | 'error'; message: string; slug?: string } | null>(null);
+	roomAlert = $state<{ type: 'deleted' | 'archived' | 'error' | 'info'; message: string; slug?: string } | null>(null);
 	/** Whether this room was started during the night before dawn */
 	private startedBeforeDawn = false;
 	/** Whether this session was already auto-archived */
@@ -455,9 +456,15 @@ class Room {
 				this.state = s;
 			}
 		},
-		(isHost) => {
-			if (isHost) {
-				this.isHost = true;
+		(isHost, canonicalHostName) => {
+			this.isHost = isHost;
+			if (canonicalHostName) {
+				this.canonicalHost = canonicalHostName;
+			}
+			if (!isHost) {
+				try {
+					localStorage.removeItem('an.host.' + this.room);
+				} catch {}
 			}
 		}
 	);
@@ -1198,27 +1205,6 @@ class Room {
 		this.publishState();
 	}
 
-	/** Claim an unhosted or deserted room and step inside as host. */
-	claimRoom(slug: string, title?: string): void {
-		if (!areDoorsOpen()) {
-			this.roomAlert = {
-				type: 'error',
-				message: 'Doors unlock at sunset (18:00). Rooms cannot be claimed during daytime.'
-			};
-			return;
-		}
-
-		if (!auth.isCloudUser && !auth.user) {
-			console.warn('[room] Must be signed in with an account to claim a room');
-			if (typeof window !== 'undefined') {
-				window.dispatchEvent(new CustomEvent('an:open-auth-modal', { detail: { mode: 'signin' } }));
-			}
-			return;
-		}
-		const clean = sanitizeRoom(slug);
-		this.enterApproved(clean, title?.trim() || clean, true);
-	}
-
 	/** Step into a room (open by default). */
 	joinRoom(slug: string, title?: string): void {
 		const clean = sanitizeRoom(slug);
@@ -1358,6 +1344,12 @@ class Room {
 		this.room = slug;
 		this.title = title;
 		this.isHost = host;
+		if (host) {
+			this.canonicalHost = this.name;
+		} else {
+			const adHost = this.directory.find((entry) => entry.room === slug)?.host;
+			if (adHost) this.canonicalHost = adHost;
+		}
 		this.joinState = 'approved';
 		if (isNew) {
 			this.roomStartedAt = Date.now();
@@ -1404,7 +1396,7 @@ class Room {
 				current: starter,
 				videoId: starter.videoId,
 				source: 'youtube',
-				playing: true,
+				playing: false,
 				position: 0,
 				clock: Date.now(),
 				by: this.name || 'host',
@@ -1458,7 +1450,7 @@ class Room {
 						current: starter,
 						videoId: starter.videoId,
 						source: 'youtube',
-						playing: true,
+						playing: false,
 						position: 0,
 						clock: Date.now(),
 						by: this.name || 'host'
@@ -1740,7 +1732,10 @@ class Room {
 
 	/** Keep the original host name when other members refresh the ad. */
 	hostName(): string {
-		return this.directory.find((entry) => entry.room === this.room)?.host || this.name;
+		if (this.canonicalHost) return this.canonicalHost;
+		const adHost = this.directory.find((entry) => entry.room === this.room)?.host;
+		if (adHost) return adHost;
+		return this.isHost ? this.name : '';
 	}
 
 	/** Explicitly clear an ad for a deleted or archived room from local directory and broker */
@@ -2128,6 +2123,13 @@ class Room {
 
 	toggle(position: number): void {
 		if (!this.canControlPlayback) return;
+		if (!this.state.playing && !this.isHost) {
+			this.roomAlert = {
+				type: 'info',
+				message: 'The host must start the player.'
+			};
+			return;
+		}
 		this.mutate((s) => ({ ...s, playing: !s.playing, position }));
 	}
 
@@ -2468,6 +2470,7 @@ class Room {
 		this.room = '';
 		this.title = '';
 		this.isHost = false;
+		this.canonicalHost = '';
 		this.roomStartedAt = 0;
 		this.dawnArchived = false;
 		this.state = emptyState();

@@ -61,8 +61,7 @@
 	let editAvatar = $state('');
 	let editIntention = $state('');
 	let editMood = $state('');
-	let avatarTab = $state<'upload' | 'presets' | 'url'>('upload');
-	let customUrlInput = $state('');
+	let avatarTab = $state<'presets' | 'upload'>('presets');
 
 	// Feedback & loading
 	let saving = $state(false);
@@ -115,7 +114,6 @@
 		editAvatar = auth.avatarUrl || room.avatar || '/default-avatar.svg';
 		editIntention = room.intention || '';
 		editMood = room.statusText || '';
-		customUrlInput = editAvatar.startsWith('http') ? editAvatar : '';
 		imgPreviewError = false;
 		saveSuccess = false;
 		errorMessage = '';
@@ -135,12 +133,6 @@
 
 	function selectPreset(url: string) {
 		editAvatar = url;
-		imgPreviewError = false;
-	}
-
-	function handleCustomUrlApply() {
-		if (!customUrlInput.trim()) return;
-		editAvatar = customUrlInput.trim();
 		imgPreviewError = false;
 	}
 
@@ -971,13 +963,6 @@
 							>
 								Upload
 							</button>
-							<button
-								type="button"
-								class="rounded px-2.5 py-0.5 transition-colors {avatarTab === 'url' ? 'bg-lamp/20 text-lamp font-medium' : 'text-faint hover:text-cream'}"
-								onclick={() => (avatarTab = 'url')}
-							>
-								URL
-							</button>
 						</div>
 					</div>
 
@@ -1052,26 +1037,6 @@
 									{/if}
 								</button>
 							{/each}
-						</div>
-					{:else if avatarTab === 'url'}
-						<!-- Custom URL -->
-						<div class="rounded-xl border border-cream/10 bg-[#060a0b] p-3 space-y-2">
-							<div class="flex items-center gap-2">
-								<input
-									type="url"
-									class="w-full rounded-lg border border-cream/15 bg-night px-3 py-1.5 text-xs text-cream font-mono outline-none focus:border-lamp placeholder:text-faint/60"
-									placeholder="https://example.com/your-avatar.jpg"
-									bind:value={customUrlInput}
-								/>
-								<button
-									type="button"
-									class="btn btn-ghost btn-sm text-xs shrink-0 border border-cream/15 hover:border-lamp"
-									onclick={handleCustomUrlApply}
-								>
-									Apply
-								</button>
-							</div>
-							<p class="text-[10px] text-faint">Paste a public image link (Discord, GitHub, Gravatar, Unsplash, etc.)</p>
 						</div>
 					{/if}
 				</div>
