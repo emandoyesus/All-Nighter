@@ -179,11 +179,11 @@ function emptyState(): RoomState {
 }
 
 export const DEFAULT_STARTER_TRACK: Track = {
-	uid: 'starter-teddy-afro-alamin',
-	videoId: 'xE-9kJOPbxE',
+	uid: 'starter-alan-walker-alone',
+	videoId: '1-xGerv5FOk',
 	source: 'youtube',
-	title: 'Teddy Afro - Alamin',
-	channel: 'Teddy Afro',
+	title: 'Alan Walker - Alone',
+	channel: 'Alan Walker',
 	addedBy: 'All Nighter',
 	dedication: 'Starting track · Lock in till sunrise',
 	votes: 1
