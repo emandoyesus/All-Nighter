@@ -407,15 +407,10 @@
 					</p>
 				</div>
 			</div>
-			{#if room.status === 'online'}
-				<span class="inline-flex items-center gap-2 rounded-full border border-cream/15 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-taupe">
-					<span class="h-1.5 w-1.5 rounded-full bg-lamp"></span>
+			{#if listings.length > 0}
+				<span class="inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-cream">
+					<span class="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse"></span>
 					live
-				</span>
-			{:else}
-				<span class="inline-flex items-center gap-2 rounded-full border border-cream/15 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
-					<span class="soft-blink h-1.5 w-1.5 rounded-full bg-lamp"></span>
-					listening
 				</span>
 			{/if}
 		</div>
@@ -584,12 +579,12 @@
 			</div>
 		{:else}
 			{#if !doorsOpen}
-				<div class="rounded-xl border border-amber/35 bg-gradient-to-b from-amber/15 via-[#111618] to-night-2 p-4 text-center flex flex-col items-center gap-2.5 animate-in fade-in duration-200">
-					<span class="grid h-10 w-10 place-items-center rounded-xl border border-amber/40 bg-amber/20 text-amber shadow-sm">
+				<div class="rounded-xl border border-cream/10 bg-night-2 p-4 text-center flex flex-col items-center gap-2.5 animate-in fade-in duration-200">
+					<span class="grid h-10 w-10 place-items-center rounded-xl border border-cream/15 bg-cream/5 text-amber shadow-sm">
 						<IconSunset size={20} stroke={1.8} />
 					</span>
 					<div>
-						<div class="inline-flex items-center gap-1.5 rounded-full border border-amber/30 bg-amber/10 px-2 py-0.5 text-[10px] font-mono text-amber mb-1">
+						<div class="inline-flex items-center gap-1.5 rounded-full border border-cream/15 bg-cream/5 px-2 py-0.5 text-[10px] font-mono text-amber mb-1">
 							<span class="h-1.5 w-1.5 rounded-full bg-amber soft-blink"></span>
 							Doors unlock at 18:00 sunset
 						</div>
@@ -599,7 +594,7 @@
 						</p>
 					</div>
 
-					<div class="w-full max-w-[240px] rounded-lg border border-cream/10 bg-night-3/90 p-2 font-mono text-center shadow-inner">
+					<div class="w-full max-w-[240px] rounded-lg border border-cream/10 bg-night/80 p-2 font-mono text-center">
 						<p class="text-[9px] text-faint uppercase tracking-wider">Countdown to sunset</p>
 						<p class="num text-xl font-bold tracking-tight text-amber mt-0.5">{sunsetCountdown}</p>
 						<p class="text-[9px] text-faint mt-0.5">18:00 local time</p>

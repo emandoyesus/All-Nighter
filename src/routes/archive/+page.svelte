@@ -73,9 +73,22 @@
 				(r) => r.slug === item.slug || (r.slug.replace(/-\d{4}-\d{2}-\d{2}$/, '') === base && r.date === item.date)
 			);
 			if (existingIndex !== -1) {
-				if ((item.tracks || 0) > (result[existingIndex].tracks || 0)) {
-					result[existingIndex] = item;
+				const existing = result[existingIndex];
+				// Merge attendee rosters so no participant (e.g. Bisrat) is ever dropped
+				const mergedJoined = Array.from(new Set([...(existing.joined || []), ...(item.joined || [])]));
+				const attendeeMap = new Map<string, any>();
+				for (const a of [...(existing.attendees || []), ...(item.attendees || [])]) {
+					if (a && a.name) attendeeMap.set(a.name.toLowerCase(), a);
 				}
+				const mergedAttendees = Array.from(attendeeMap.values());
+				const richerItem = (item.tracks || 0) >= (existing.tracks || 0) ? item : existing;
+
+				result[existingIndex] = {
+					...richerItem,
+					joined: mergedJoined,
+					attendees: mergedAttendees,
+					heads: Math.max(mergedJoined.length, richerItem.heads || 1)
+				};
 			} else {
 				result.push(item);
 			}
@@ -88,30 +101,21 @@
 		const seen = new Set<string>();
 		const result: Night[] = [];
 
-		for (const n of myLocalNights) {
+		for (const n of allNights) {
 			if (isTestArchiveSlug(n.slug)) continue;
-			if (!seen.has(n.slug)) {
+			const isMine =
+				myLocalNights.some((ln) => ln.slug === n.slug || ln.slug.startsWith(n.slug)) ||
+				(currentName && (
+					n.joined.some((name) => name.trim().toLowerCase() === currentName) ||
+					n.tracklist.some((t) => t.addedBy.trim().toLowerCase() === currentName)
+				));
+			if (isMine && !seen.has(n.slug)) {
 				seen.add(n.slug);
 				result.push(n);
 			}
 		}
 
-		if (currentName) {
-			for (const dn of dbNights) {
-				if (isTestArchiveSlug(dn.slug)) continue;
-				if (!seen.has(dn.slug)) {
-					const isParticipant =
-						dn.joined.some((name) => name.trim().toLowerCase() === currentName) ||
-						dn.tracklist.some((t) => t.addedBy.trim().toLowerCase() === currentName);
-					if (isParticipant) {
-						seen.add(dn.slug);
-						result.push(dn);
-					}
-				}
-			}
-		}
-
-		return result.length > 0 ? result : myLocalNights;
+		return result.length > 0 ? result : allNights;
 	});
 
 	const baseNights = $derived.by(() => {

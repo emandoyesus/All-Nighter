@@ -142,7 +142,10 @@ export function buildCrewProfile(person: string, allNights: Night[]): CrewProfil
 	const genreCounts = new Map<string, number>();
 	for (const track of contributions) {
 		if (track.artist) artistCounts.set(track.artist, (artistCounts.get(track.artist) ?? 0) + 1);
-		if (track.genre) genreCounts.set(track.genre, (genreCounts.get(track.genre) ?? 0) + 1);
+		const g = (track.genre || '').trim().toLowerCase();
+		if (g && g !== 'lo-fi' && g !== 'lofi') {
+			genreCounts.set(track.genre, (genreCounts.get(track.genre) ?? 0) + 1);
+		}
 	}
 	const top = (counts: Map<string, number>): string =>
 		[...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—';
@@ -183,9 +186,20 @@ export function archiveStats(list: Night[] = nights): ArchiveStats {
 		tracks += night.tracks;
 		hours += night.minutes;
 		for (const track of night.tracklist) {
-			artistCounts.set(track.artist, (artistCounts.get(track.artist) ?? 0) + 1);
-			contributorCounts.set(track.addedBy, (contributorCounts.get(track.addedBy) ?? 0) + 1);
-			genreCounts.set(track.genre, (genreCounts.get(track.genre) ?? 0) + 1);
+			if (track.artist) artistCounts.set(track.artist, (artistCounts.get(track.artist) ?? 0) + 1);
+			const addedBy = (track.addedBy || '').trim();
+			if (
+				addedBy &&
+				addedBy.toLowerCase() !== 'autoplay' &&
+				addedBy.toLowerCase() !== 'auto play' &&
+				addedBy.toLowerCase() !== 'system'
+			) {
+				contributorCounts.set(addedBy, (contributorCounts.get(addedBy) ?? 0) + 1);
+			}
+			const g = (track.genre || '').trim().toLowerCase();
+			if (g && g !== 'lo-fi' && g !== 'lofi') {
+				genreCounts.set(track.genre, (genreCounts.get(track.genre) ?? 0) + 1);
+			}
 		}
 	}
 	const top = (counts: Map<string, number>): { name: string; count: number } => {

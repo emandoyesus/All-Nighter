@@ -133,8 +133,10 @@
 								<p class="truncate text-sm">{track.title}</p>
 								<p class="truncate text-xs text-faint">
 									{track.artist}
-									<span class="text-faint/70">·</span>
-									{track.genre}
+									{#if track.genre && track.genre.toLowerCase() !== 'lo-fi' && track.genre.toLowerCase() !== 'lofi'}
+										<span class="text-faint/70">·</span>
+										{track.genre}
+									{/if}
 								</p>
 							</div>
 							<span class="num flex w-10 shrink-0 items-center justify-end gap-1 text-xs text-faint">

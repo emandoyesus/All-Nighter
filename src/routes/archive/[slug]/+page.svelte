@@ -40,9 +40,12 @@
 	const genre = $derived.by(() => {
 		const counts = new Map<string, number>();
 		for (const track of night.tracklist) {
-			counts.set(track.genre, (counts.get(track.genre) ?? 0) + 1);
+			const g = (track.genre || '').trim().toLowerCase();
+			if (g && g !== 'lo-fi' && g !== 'lofi') {
+				counts.set(track.genre, (counts.get(track.genre) ?? 0) + 1);
+			}
 		}
-		return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—';
+		return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
 	});
 
 	const topTrack = $derived(
@@ -130,10 +133,12 @@
 							<IconUsers size={13} stroke={1.5} class="text-amber-200" />
 							<span class="text-cream/90">{night.heads} peak awake</span>
 						</span>
-						<span class="inline-flex items-center gap-1.5 rounded-full border border-cream/10 bg-night/60 px-3 py-1 text-xs text-taupe">
-							<IconDisc size={13} stroke={1.5} class="text-lamp" />
-							<span class="text-cream/90">{genre}</span>
-						</span>
+						{#if genre}
+							<span class="inline-flex items-center gap-1.5 rounded-full border border-cream/10 bg-night/60 px-3 py-1 text-xs text-taupe">
+								<IconDisc size={13} stroke={1.5} class="text-lamp" />
+								<span class="text-cream/90">{genre}</span>
+							</span>
+						{/if}
 					</div>
 				</div>
 			</div>
@@ -173,8 +178,10 @@
 									</p>
 									<p class="truncate text-xs text-faint">
 										{track.artist}
-										<span class="text-faint/70">·</span>
-										{track.genre}
+										{#if track.genre && track.genre.toLowerCase() !== 'lo-fi' && track.genre.toLowerCase() !== 'lofi'}
+											<span class="text-faint/70">·</span>
+											{track.genre}
+										{/if}
 										<span class="text-faint/70">·</span>
 										added by
 										{#if track.addedBy && track.addedBy.toLowerCase() !== 'autoplay'}
@@ -340,13 +347,15 @@
 							<dt class="text-faint">Minutes awake</dt>
 							<dd class="num text-taupe">{night.minutes}</dd>
 						</div>
-						<div class="flex items-center justify-between gap-3">
-							<dt class="text-faint">Main genre</dt>
-							<dd class="num text-taupe">{genre}</dd>
-						</div>
+						{#if genre}
+							<div class="flex items-center justify-between gap-3">
+								<dt class="text-faint">Main genre</dt>
+								<dd class="num text-taupe">{genre}</dd>
+							</div>
+						{/if}
 						<div class="flex items-center justify-between gap-3">
 							<dt class="text-faint">Contributors</dt>
-							<dd class="num text-taupe">{new Set(night.tracklist.map((t) => t.addedBy)).size}</dd>
+							<dd class="num text-taupe">{new Set(night.tracklist.map((t) => (t.addedBy || '').trim()).filter((a) => a && a.toLowerCase() !== 'autoplay' && a.toLowerCase() !== 'auto play' && a.toLowerCase() !== 'system')).size}</dd>
 						</div>
 					</dl>
 					<a href="/room" class="btn btn-ghost btn-sm mt-4 w-full">

@@ -121,7 +121,7 @@ export function buildNightFromRoom(
 		title: t.title,
 		artist: t.channel ?? 'YouTube',
 		addedBy: t.addedBy,
-		genre: 'lo-fi',
+		genre: '',
 		videoId: t.videoId ?? undefined,
 		url: t.url
 	}));
@@ -189,7 +189,7 @@ export function dbArchiveToNight(row: any): Night {
 		title: t.title || 'Untitled Track',
 		artist: t.channel || t.artist || 'YouTube',
 		addedBy: t.addedBy || 'Crew',
-		genre: t.genre || 'lo-fi',
+		genre: t.genre || '',
 		videoId: t.videoId || undefined,
 		url: t.url || undefined
 	}));
