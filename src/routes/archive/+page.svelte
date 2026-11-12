@@ -9,6 +9,7 @@
 	import { auth } from '#lib/auth.svelte';
 	import { reveal } from '#lib/reveal';
 	import { splitReveal } from '#lib/split-reveal';
+	import type { PageData } from './$types';
 	import IconArrowLeft from '@tabler/icons-svelte/icons/arrow-left';
 	import IconSearch from '@tabler/icons-svelte/icons/search';
 	import IconUsers from '@tabler/icons-svelte/icons/users';
@@ -18,10 +19,14 @@
 	import IconChevronDown from '@tabler/icons-svelte/icons/chevron-down';
 	import IconX from '@tabler/icons-svelte/icons/x';
 
+	let { data }: { data: PageData } = $props();
+
 	const ITEMS_PER_ROW = 3;
 	const INITIAL_ROWS = 2;
 	const ITEMS_PER_PAGE = ITEMS_PER_ROW * INITIAL_ROWS; // 6 items (2 rows in 3-column grid)
 	let visibleCount = $state(ITEMS_PER_PAGE);
+
+	const LS_DB_ARCHIVES_CACHE = 'an.db_archives_cache';
 
 	let query = $state('');
 	let contributor = $state('');
@@ -31,13 +36,19 @@
 	let myLocalNights = $state<Night[]>([]);
 	let dbNights = $state<Night[]>([]);
 
+	$effect(() => {
+		if (data.dbNights && data.dbNights.length > 0) {
+			dbNights = data.dbNights;
+		}
+	});
+
 	async function loadDbArchives(): Promise<void> {
 		if (!supabase) return;
 		try {
-			// Fetch from session_archives as the single source of truth for past lock-in archives
+			// Strategy #3: Fetch only necessary lightweight columns (avoiding huge blob loads)
 			const { data: archives } = await supabase
 				.from('session_archives')
-				.select('*')
+				.select('slug, title, started_at, ended_at, attendees, summary, playlist')
 				.order('ended_at', { ascending: false });
 
 			const loaded: Night[] = [];
@@ -52,7 +63,12 @@
 				}
 			}
 
-			dbNights = loaded;
+			if (loaded.length > 0) {
+				dbNights = loaded;
+				try {
+					localStorage.setItem(LS_DB_ARCHIVES_CACHE, JSON.stringify(loaded));
+				} catch {}
+			}
 		} catch (err) {
 			console.warn('[Archive] Failed to load db archives:', err);
 		}
@@ -60,6 +76,20 @@
 
 	onMount(() => {
 		myLocalNights = loadMyNights();
+
+		// If pre-fetch didn't have items, check instant local cloud cache first
+		if (dbNights.length === 0 && typeof window !== 'undefined') {
+			try {
+				const cached = localStorage.getItem(LS_DB_ARCHIVES_CACHE);
+				if (cached) {
+					const parsed = JSON.parse(cached);
+					if (Array.isArray(parsed) && parsed.length > 0) {
+						dbNights = parsed.filter((item) => !isTestArchiveSlug(item.slug));
+					}
+				}
+			} catch {}
+		}
+
 		void loadDbArchives();
 	});
 
