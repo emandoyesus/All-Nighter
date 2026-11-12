@@ -1559,58 +1559,284 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 	},
 	// ============================================================
 
+	// TIGRINYA (Top 5 tracks per artist)
+	// ============================================================
 	{
 		videoId: '4ltz7XAnlbs',
-		title: 'Merkeb Bonitua - Teddy Yo. Ft Merkeb Bonitua ቴዲ ዮ ft መርከብ ቦኒቷ ',
+		title: 'Merkeb Bonitua - Teddy Yo. Ft Merkeb Bonitua ቴዲ ዮ ft መርከብ ቦኒቷ',
+		channel: 'Merkeb Bonitua',
+		language: 'tigrinya',
+		tags: ['merkeb bonitua', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'Zs-r2C86fis',
+		title: 'Merkeb Bonitua - Akayda / ኣካይዳ  New Tigrigna music 2025 ( official video )',
+		channel: 'Merkeb Bonitua',
+		language: 'tigrinya',
+		tags: ['merkeb bonitua', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'iDCKNVRoAuw',
+		title: 'Merkeb Bonitua girma africa / ግርማ ኣፍሪቃ New Tigrigna Guayla hiphop music 2022 (official video)',
+		channel: 'Merkeb Bonitua',
+		language: 'tigrinya',
+		tags: ['merkeb bonitua', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'N36SVDcsDYo',
+		title: 'Merkeb Bonitua - nebereya nebere / ነበረያነበረ  New Tigrigna Guayla hiphop Music 2021 ( official video )',
+		channel: 'Merkeb Bonitua',
+		language: 'tigrinya',
+		tags: ['merkeb bonitua', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'piMoQpP4KtU',
+		title: 'Merkeb Bonitua - Merkeb Baryagabir - Tegomtsets | ተጎምፀፅ - New Ethiopian Music 2017 (Official Video)',
 		channel: 'Merkeb Bonitua',
 		language: 'tigrinya',
 		tags: ['merkeb bonitua', 'tigrinya', 'music']
 	},
 	{
 		videoId: 'WV3f7M-6dNA',
-		title: 'Solomon Haile - Solomon Haile : Bealti Mado [New! Tigrigna Mu',
+		title: 'Solomon Haile - Bealti Mado [New! Tigrigna Mu',
+		channel: 'Solomon Haile',
+		language: 'tigrinya',
+		tags: ['solomon haile', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'Kj69yKj0EIc',
+		title: 'Solomon Haile - (YIGERMENILO)',
+		channel: 'Solomon Haile',
+		language: 'tigrinya',
+		tags: ['solomon haile', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'pUC3dsv6uFA',
+		title: 'Solomon Haile - (NEI BABA)',
+		channel: 'Solomon Haile',
+		language: 'tigrinya',
+		tags: ['solomon haile', 'tigrinya', 'music']
+	},
+	{
+		videoId: '-NkfYOvyod4',
+		title: 'Solomon Haile - Ethiopian music: Solomon Haile - Des Yebelino(ደስ ይብለኒሎ) - New Ethiopian Music 2017(Official Video)',
+		channel: 'Solomon Haile',
+		language: 'tigrinya',
+		tags: ['solomon haile', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'tSG-F2HPDoE',
+		title: 'Solomon Haile - Liwumay',
 		channel: 'Solomon Haile',
 		language: 'tigrinya',
 		tags: ['solomon haile', 'tigrinya', 'music']
 	},
 	{
 		videoId: '18pNqmYpCk0',
-		title: 'Zemen Alemseged - Zemen Alemseged ( ዘመን ኣለምሰገድ ) - በቲ ደመና (beti',
+		title: 'Zemen Alemseged - ( ዘመን ኣለምሰገድ ) - በቲ ደመና (beti',
+		channel: 'Zemen Alemseged',
+		language: 'tigrinya',
+		tags: ['zemen alemseged', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'gSWa6IV51qY',
+		title: 'Zemen Alemseged - Fanusey | ፋኑሰይ - Ethiopian Music 2017 (Official Video)',
+		channel: 'Zemen Alemseged',
+		language: 'tigrinya',
+		tags: ['zemen alemseged', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'F3uwbK-4vso',
+		title: 'Zemen Alemseged Goytay Belni /ጎይታይ በልኒ/ Tigrigna music',
+		channel: 'Zemen Alemseged',
+		language: 'tigrinya',
+		tags: ['zemen alemseged', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'b5Zv12NJaoE',
+		title: 'Zemen Alemseged - Dmtsi Hzbi / Ethiopian Tigrigna Music 2019 (Official Video)',
+		channel: 'Zemen Alemseged',
+		language: 'tigrinya',
+		tags: ['zemen alemseged', 'tigrinya', 'music']
+	},
+	{
+		videoId: '5JRHPRSJz1E',
+		title: 'Zemen Alemseged - DW TV Zemen Alemseged - ህዝባዊ ሰራዊት ትግራይ(ህሰት)',
 		channel: 'Zemen Alemseged',
 		language: 'tigrinya',
 		tags: ['zemen alemseged', 'tigrinya', 'music']
 	},
 	{
 		videoId: 'MqVT5GdW6hQ',
-		title: 'Timnit Welday - Timnit Welday - Wenani (Official Video) | Eth',
+		title: 'Timnit Welday - Wenani (Official Video) | Eth',
+		channel: 'Timnit Welday',
+		language: 'tigrinya',
+		tags: ['timnit welday', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'oBgUwARHrCo',
+		title: 'Timnit Welday - ትምኒት ወልዳይ (ሻነ) Timnit Welday (SHANE) New Tigrigna Music  2025 (Official Video)',
+		channel: 'Timnit Welday',
+		language: 'tigrinya',
+		tags: ['timnit welday', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'mPj2jZLFPuU',
+		title: 'Timnit Welday - Hit Track',
+		channel: 'Timnit Welday',
+		language: 'tigrinya',
+		tags: ['timnit welday', 'tigrinya', 'music']
+	},
+	{
+		videoId: '4vmXRBiw-VU',
+		title: 'Timnit Welday - Nati TV - Timnit Welday | qaH {ቃሕ} - Ethiopian Tigrigna Music 2020 [Official Video]',
+		channel: 'Timnit Welday',
+		language: 'tigrinya',
+		tags: ['timnit welday', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'iJRUeneG7pg',
+		title: 'Timnit Welday - Weni | ወኒ - New Ethiopian Tigrigna Music 2018 (Official Video)',
 		channel: 'Timnit Welday',
 		language: 'tigrinya',
 		tags: ['timnit welday', 'tigrinya', 'music']
 	},
 	{
 		videoId: 'yA2sdHdXy0o',
-		title: 'Amir Dawud - Amir Dawud - Mekele (Official Video) | Ethiop',
+		title: 'Amir Dawud - Mekele (Official Video) | Ethiop',
+		channel: 'Amir Dawud',
+		language: 'tigrinya',
+		tags: ['amir dawud', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'UlqLeuVHpEU',
+		title: 'Amir Dawud - TEDDY AFRO  - ሺ ቢባል (ወደ 90ዎቹ) - Shih Bibal (Back to 90s) | Track 9 (Official Lyrics Video)',
+		channel: 'Amir Dawud',
+		language: 'tigrinya',
+		tags: ['amir dawud', 'tigrinya', 'music']
+	},
+	{
+		videoId: '1QBkn4EB9tQ',
+		title: 'Amir Dawud አሚር ዳውድ - ከአሎ - Kealo -  Best old Tigray Music - Ethiopian Tigrigna Music. RIP Amir!!!',
+		channel: 'Amir Dawud',
+		language: 'tigrinya',
+		tags: ['amir dawud', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'erFlJIfD_gE',
+		title: 'Amir Dawud - ኣሚር ዳውድ - KULU GIZE  ኹሉ ግዜ (TIGRIGNA MUSIC)',
+		channel: 'Amir Dawud',
+		language: 'tigrinya',
+		tags: ['amir dawud', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'YQZnaeReT08',
+		title: 'Amir Dawud - Wave Tv - New Tigrigna Music 2023 {Official Audio} Amir Dawud | ኣሚር ዳውድ {Gual Humera} | ጓል ሑመራ',
 		channel: 'Amir Dawud',
 		language: 'tigrinya',
 		tags: ['amir dawud', 'tigrinya', 'music']
 	},
 	{
 		videoId: 'nO1Sg2Vlgys',
-		title: 'Dawit Alemayehu - Dawit Alemayehu | Aykewnn | ዳዊት አለማየሁ-ኦራ| አይከ',
+		title: 'Dawit Alemayehu - Aykewnn | ዳዊት አለማየሁ-ኦራ| አይከ',
+		channel: 'Dawit Alemayehu',
+		language: 'tigrinya',
+		tags: ['dawit alemayehu', 'tigrinya', 'music']
+	},
+	{
+		videoId: '3F7UDId2Qcw',
+		title: 'Dawit Alemayehu - Welela | ወለላ - New Ethiopian Tigrigna Music 2017 (Official Video)',
+		channel: 'Dawit Alemayehu',
+		language: 'tigrinya',
+		tags: ['dawit alemayehu', 'tigrinya', 'music']
+	},
+	{
+		videoId: '953Am1DJ0W0',
+		title: 'Dawit Alemayehu - Hit Track',
+		channel: 'Dawit Alemayehu',
+		language: 'tigrinya',
+		tags: ['dawit alemayehu', 'tigrinya', 'music']
+	},
+	{
+		videoId: '7XYARv3jdtY',
+		title: 'Dawit Alemayehu - Tewedeshal (Official Video) | ተወደሻል - Ethiopian Music 2018',
+		channel: 'Dawit Alemayehu',
+		language: 'tigrinya',
+		tags: ['dawit alemayehu', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'tc6wlrs9hnY',
+		title: 'Dawit Alemayehu - Mizanish Tezaba | ሚዛንሽ ተዛባ - New Ethiopian Music 2016 (Official Audio)',
 		channel: 'Dawit Alemayehu',
 		language: 'tigrinya',
 		tags: ['dawit alemayehu', 'tigrinya', 'music']
 	},
 	{
 		videoId: 'H-fQKUU0qME',
-		title: 'Nahom Yohannes - Nahom Yohannes   Seb Entay Zeybele   ሰብ እንታይ ',
+		title: 'Nahom Yohannes - Seb Entay Zeybele   ሰብ እንታይ',
+		channel: 'Nahom Yohannes',
+		language: 'tigrinya',
+		tags: ['nahom yohannes', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'BimRyZU2v10',
+		title: 'Nahom Yohannes - LYE.tv - Nahom Yohannes - ጽብቅትን ዕይንትን | Tsebqtn Eyntn - New Eritrean Music 2014',
+		channel: 'Nahom Yohannes',
+		language: 'tigrinya',
+		tags: ['nahom yohannes', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'maQsC09UzL4',
+		title: 'Nahom Yohannes - LYE.tv - Salina Tsegay - Mnada Mnada | ምናዳ ምናዳ - New Eritrean Music 2015',
+		channel: 'Nahom Yohannes',
+		language: 'tigrinya',
+		tags: ['nahom yohannes', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'v6Zq9BWOXuY',
+		title: 'Nahom Yohannes - ela tv - Nahom Yohannes ( Meste ) - Freweini - Eritrean Music 2020 - [ Official Music Video ]',
+		channel: 'Nahom Yohannes',
+		language: 'tigrinya',
+		tags: ['nahom yohannes', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'Bin4nIV4L6U',
+		title: 'Nahom Yohannes - New Eritrean Music 2025 - Bsrah Tegedide  - Nahom Yohannes (Meste) / Yemane Barya - Eritrean Music',
 		channel: 'Nahom Yohannes',
 		language: 'tigrinya',
 		tags: ['nahom yohannes', 'tigrinya', 'music']
 	},
 	{
 		videoId: 'CGteduEW554',
-		title: 'Eden Gebreselassie - Eden Gebreselassie - Aytneknkni | ኣይትነቅንቅኒ - ',
+		title: 'Eden Gebreselassie - Aytneknkni | ኣይትነቅንቅኒ -',
+		channel: 'Eden Gebreselassie',
+		language: 'tigrinya',
+		tags: ['eden gebreselassie', 'tigrinya', 'music']
+	},
+	{
+		videoId: '8kQ0nGWeRhg',
+		title: 'Eden Gebreselassie - Hit Track',
+		channel: 'Eden Gebreselassie',
+		language: 'tigrinya',
+		tags: ['eden gebreselassie', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'swq1IKfaLcs',
+		title: 'Eden Gebreselassie - Swnwano',
+		channel: 'Eden Gebreselassie',
+		language: 'tigrinya',
+		tags: ['eden gebreselassie', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'LOZwy6dQVzE',
+		title: 'Eden Gebreselassie - Ethiopia: Eden Gebreselassie - Nebsey - New Tigirigna Music 2017',
+		channel: 'Eden Gebreselassie',
+		language: 'tigrinya',
+		tags: ['eden gebreselassie', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'f6bK3f7bjwI',
+		title: 'Eden Gebreselassie - Eden G Selassie  Sellila',
 		channel: 'Eden Gebreselassie',
 		language: 'tigrinya',
 		tags: ['eden gebreselassie', 'tigrinya', 'music']
@@ -1623,11 +1849,32 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['dawit nega', 'tigrinya', 'music']
 	},
 	{
-		videoId: '8AVG1A4n8VU',
-		title: 'Ephrem Amare - Ephrem Amare - \'Sey (Official Video) | \'ሰይ - ',
-		channel: 'Ephrem Amare',
+		videoId: 'Rj0AKJEUq2s',
+		title: 'Dawit Nega - Benetselay - New Ethiopian Music 2018',
+		channel: 'Dawit Nega',
 		language: 'tigrinya',
-		tags: ['ephrem amare', 'tigrinya', 'music']
+		tags: ['dawit nega', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'oZ3M-oMnTH4',
+		title: 'Dawit Nega - መንደረይ menderey new Tigrigna music',
+		channel: 'Dawit Nega',
+		language: 'tigrinya',
+		tags: ['dawit nega', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'HGy0J5D-xHE',
+		title: 'Dawit Nega   Zewidero ዘዊደሮ',
+		channel: 'Dawit Nega',
+		language: 'tigrinya',
+		tags: ['dawit nega', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'BSXkWTedwQM',
+		title: 'Dawit Nega - Baba Elen (ባባ ኢለን) Ethiopian TraditionalTigrigna Music (Official Video)',
+		channel: 'Dawit Nega',
+		language: 'tigrinya',
+		tags: ['dawit nega', 'tigrinya', 'music']
 	},
 	{
 		videoId: '-Yjr7CeJVHY',
@@ -1637,29 +1884,169 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['abraham gebremedhin', 'tigrinya', 'music']
 	},
 	{
+		videoId: 'oTAj1PUEMi8',
+		title: 'Abraham Gebremedhin & Eden G/Selassie - ሳላ ደቅኺ | Sala dekiki - New Tigrigna Music 2022',
+		channel: 'Abraham Gebremedhin',
+		language: 'tigrinya',
+		tags: ['abraham gebremedhin', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'AQzD-j8017g',
+		title: 'Abraham Gebremedhin - Abreham G/Medhin – Hamelmalo - ሐመልማሎ - Ethiopian Music',
+		channel: 'Abraham Gebremedhin',
+		language: 'tigrinya',
+		tags: ['abraham gebremedhin', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'JBZA3XE_jPI',
+		title: 'Abraham Gebremedhin - Aykesekinye_አብራሃም ገብረመድህን - ኣይከሰክንየ   Tigrigna Music',
+		channel: 'Abraham Gebremedhin',
+		language: 'tigrinya',
+		tags: ['abraham gebremedhin', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'RDlRPaPp8Y8',
+		title: 'Abraham Gebremedhin - አብርሀም ገብረመድህን ምርጥ የሙዚቃ ስብስብ | Abraham Gebremedhin Best Music Collection',
+		channel: 'Abraham Gebremedhin',
+		language: 'tigrinya',
+		tags: ['abraham gebremedhin', 'tigrinya', 'music']
+	},
+	{
 		videoId: '72HWdjEDxpA',
-		title: 'Kiros Alemayehu - Kiros Alemayehu MeQenaye',
+		title: 'Kiros Alemayehu - MeQenaye',
+		channel: 'Kiros Alemayehu',
+		language: 'tigrinya',
+		tags: ['kiros alemayehu', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'FsEGEiMxeZ0',
+		title: 'Kiros Alemayehu - 20 Best Songs | ኪሮስ ኣለማየሁ - 20 ምሩፃት ደርፍታት New Tigrigna Music mix',
+		channel: 'Kiros Alemayehu',
+		language: 'tigrinya',
+		tags: ['kiros alemayehu', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'c-jwmKoTVS0',
+		title: 'Kiros Alemayehu - ኪሮስ ኣለማዮ ኣንጉዐይ ፍስስ  with lyrics  Kiros Alemayo „anguey fsis“ Tigrigna music',
+		channel: 'Kiros Alemayehu',
+		language: 'tigrinya',
+		tags: ['kiros alemayehu', 'tigrinya', 'music']
+	},
+	{
+		videoId: '-1q6MPUqdVA',
+		title: 'Kiros Alemayehu  ኪሮስ አለማየሁ  ( አየቁንጅና ) 1983 E.C.',
+		channel: 'Kiros Alemayehu',
+		language: 'tigrinya',
+		tags: ['kiros alemayehu', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'HTO-wpzT0Gk',
+		title: 'Kiros Alemayehu  ኪሮስ አለማየሁ  ( ባዕለይ ክማለአኪ ) 1983 E.C.',
 		channel: 'Kiros Alemayehu',
 		language: 'tigrinya',
 		tags: ['kiros alemayehu', 'tigrinya', 'music']
 	},
 	{
 		videoId: 'oK9CyU4A0ko',
-		title: 'Rahel Haile - Rahel Haile - HANENEN | ሃነነን - ራሄል ሃይለ - New ',
+		title: 'Rahel Haile - HANENEN | ሃነነን - ራሄል ሃይለ - New',
+		channel: 'Rahel Haile',
+		language: 'tigrinya',
+		tags: ['rahel haile', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'FaeW6qHH1PI',
+		title: 'Rahel Haile - ላሎዬ🔥Rahel haile - New Tigirnga Live Music (ናይ መድረኽ)🎸🔥',
+		channel: 'Rahel Haile',
+		language: 'tigrinya',
+		tags: ['rahel haile', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'YDZhI7z6HOU',
+		title: 'Rahel Haile – WENAM - New Tigrigna Music 2026 (Official Music Video)- ወናም',
+		channel: 'Rahel Haile',
+		language: 'tigrinya',
+		tags: ['rahel haile', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'BPkHj92MHH8',
+		title: 'Rahel Haile – Tetabeb New Tigrigna Music (Official Music Video)- ተጣበብ',
+		channel: 'Rahel Haile',
+		language: 'tigrinya',
+		tags: ['rahel haile', 'tigrinya', 'music']
+	},
+	{
+		videoId: '3cXOpmHXEms',
+		title: 'Rahel Haile – WENAM - New Tigrigna Music 2026 (Official Music Video)- ወናም',
 		channel: 'Rahel Haile',
 		language: 'tigrinya',
 		tags: ['rahel haile', 'tigrinya', 'music']
 	},
 	{
 		videoId: 'nV-SDXGntHo',
-		title: 'Mesfin Berhanu - Mesfin Berhanu - Tezez | ተዘዝ - New Ethiopian ',
+		title: 'Mesfin Berhanu - Tezez | ተዘዝ - New Ethiopian',
+		channel: 'Mesfin Berhanu',
+		language: 'tigrinya',
+		tags: ['mesfin berhanu', 'tigrinya', 'music']
+	},
+	{
+		videoId: '3bk7WtP8FmI',
+		title: 'Mesfin Berhanu - ethiopian tigray music 2012- mesfin berhanu- gena be`ewanu',
+		channel: 'Mesfin Berhanu',
+		language: 'tigrinya',
+		tags: ['mesfin berhanu', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'C7Eca3_xUwQ',
+		title: 'Mesfin Berhanu - Selam Alewa | ሰላም ኣለዋ - New Tigrigna Music 2018 (Official Video)',
+		channel: 'Mesfin Berhanu',
+		language: 'tigrinya',
+		tags: ['mesfin berhanu', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'Rd9FByKLw9s',
+		title: 'Mesfin Berhanu - Ethiopia: Mesfin Berhanu /Gena Gena/ Mehanenity - NEW! Tigrigna Music Video 2016',
+		channel: 'Mesfin Berhanu',
+		language: 'tigrinya',
+		tags: ['mesfin berhanu', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'Uc7rza42qY4',
+		title: 'Mesfin Berhanu - ela tv - Mesfin Berhanu - ገና ብእዋኑ - Gena Be’Ewanu | New Tigrigna Music 2026 ( Live Performance )',
 		channel: 'Mesfin Berhanu',
 		language: 'tigrinya',
 		tags: ['mesfin berhanu', 'tigrinya', 'music']
 	},
 	{
 		videoId: 'N4VJFlhQC90',
-		title: 'Shewit Mezgebo - Shewit Mezgebo - New Tigrigna music 2026 -ወላይ',
+		title: 'Shewit Mezgebo - New Tigrigna music 2026 -ወላይ',
+		channel: 'Shewit Mezgebo',
+		language: 'tigrinya',
+		tags: ['shewit mezgebo', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'gbgPN47At5U',
+		title: 'Shewit Mezgebo - Shewit Mazgebo - Tsemaekani / New Tigrigna Music 2015',
+		channel: 'Shewit Mezgebo',
+		language: 'tigrinya',
+		tags: ['shewit mezgebo', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'myhQF-cMAII',
+		title: 'Shewit Mezgebo - Eshi Bel | እሺ በል (Official Video) | New Ethiopian Tigrigna Music 2024',
+		channel: 'Shewit Mezgebo',
+		language: 'tigrinya',
+		tags: ['shewit mezgebo', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'ucolLdVzRyg',
+		title: 'Shewit Mezgebo & Semere Mezgebo - Bietey (ቤተይ) - New Tigrigna Music 2021 (Official Video)',
+		channel: 'Shewit Mezgebo',
+		language: 'tigrinya',
+		tags: ['shewit mezgebo', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'e6vSKh9hiBU',
+		title: 'Shewit Mezgebo - Hit Track',
 		channel: 'Shewit Mezgebo',
 		language: 'tigrinya',
 		tags: ['shewit mezgebo', 'tigrinya', 'music']
@@ -1672,8 +2059,64 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['neguse abadi', 'tigrinya', 'music']
 	},
 	{
+		videoId: 'mrRHB__6ndw',
+		title: 'Neguse Abadi - Nguse Abadi(chegar liwushti) ንጉሰ ኣባዲ (ጨጓር ልውሽጢ) New tigrigna music 2026 (Official video)',
+		channel: 'Neguse Abadi',
+		language: 'tigrinya',
+		tags: ['neguse abadi', 'tigrinya', 'music']
+	},
+	{
+		videoId: '953Am1DJ0W0',
+		title: 'Neguse Abadi - Hit Track',
+		channel: 'Neguse Abadi',
+		language: 'tigrinya',
+		tags: ['neguse abadi', 'tigrinya', 'music']
+	},
+	{
+		videoId: '2kH4vOv7Lq0',
+		title: 'Neguse Abadi - Nguse Abadi - Tsray Zdeleye / New Ethiopan Tigrigna music (Official Video)',
+		channel: 'Neguse Abadi',
+		language: 'tigrinya',
+		tags: ['neguse abadi', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'js2LzodaJ2o',
+		title: 'Neguse Abadi - Filimon Bekele - Hiwetye Hiwetye / New Ethiopian Music (Official Music Video)',
+		channel: 'Neguse Abadi',
+		language: 'tigrinya',
+		tags: ['neguse abadi', 'tigrinya', 'music']
+	},
+	{
 		videoId: '-YlVudyi588',
 		title: 'Anbessa Tekle - Gamey Kuhulo by Anbessa /Tigray',
+		channel: 'Anbessa Tekle',
+		language: 'tigrinya',
+		tags: ['anbessa tekle', 'tigrinya', 'music']
+	},
+	{
+		videoId: '-Q2S7DBi6ZI',
+		title: 'Anbessa Tekle - Anbesa Tekle tigrigna wedding song',
+		channel: 'Anbessa Tekle',
+		language: 'tigrinya',
+		tags: ['anbessa tekle', 'tigrinya', 'music']
+	},
+	{
+		videoId: '5qBB6zS1xEw',
+		title: 'Anbessa Tekle - Anbes tekle',
+		channel: 'Anbessa Tekle',
+		language: 'tigrinya',
+		tags: ['anbessa tekle', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'YBKrfgomGP0',
+		title: 'Anbessa Tekle - Metsikaley do - official video - New Tigrinya Music 2026',
+		channel: 'Anbessa Tekle',
+		language: 'tigrinya',
+		tags: ['anbessa tekle', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'HD1cz2IBTU0',
+		title: 'Anbessa Tekle - Eza Abebakum | እዛ ኣበባኹም - (official video) - New Tigrinya Music 2026',
 		channel: 'Anbessa Tekle',
 		language: 'tigrinya',
 		tags: ['anbessa tekle', 'tigrinya', 'music']
@@ -1686,6 +2129,34 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['hermon baraki', 'tigrinya', 'music']
 	},
 	{
+		videoId: 'NYy9DjqIaLY',
+		title: 'Hermon Baraki - New Tigrinya Clip  Hermon Baraki   2009   Yikid Gidefiwo, Mekelle, Tigray, Ethio',
+		channel: 'Hermon Baraki',
+		language: 'tigrinya',
+		tags: ['hermon baraki', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'sYCGKg1CFDY',
+		title: 'Hermon Baraki   Dehan Diki Ayitebeleni',
+		channel: 'Hermon Baraki',
+		language: 'tigrinya',
+		tags: ['hermon baraki', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'AQuvnTyTrec',
+		title: 'Hermon Baraki - New Tigrinya Clip- Hermon Baraki - 2009 - Yikid Gidefiwo, Mekelle, Tigray, Ethiopia.DAT',
+		channel: 'Hermon Baraki',
+		language: 'tigrinya',
+		tags: ['hermon baraki', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'YOddx5afR6E',
+		title: 'Hermon Baraki - Hermon Beraki - Koinuwa dyu | ኮይኑዋዱዩ - New Eritrean Music 2024 (Official Music Video)',
+		channel: 'Hermon Baraki',
+		language: 'tigrinya',
+		tags: ['hermon baraki', 'tigrinya', 'music']
+	},
+	{
 		videoId: 'BzAnS851RcA',
 		title: 'Alula Mampa - Natu ft. Alula Mampa  - Knegra - official vid',
 		channel: 'Alula Mampa',
@@ -1693,15 +2164,99 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['alula mampa', 'tigrinya', 'music']
 	},
 	{
+		videoId: 'Bi_xFWSykwQ',
+		title: 'Alula Mampa - PHILLO X ALULA MAMPA FT MAHI - AJOKEI TIGRAY- New Tigrigna Music 2022 - ( Official Music Video )',
+		channel: 'Alula Mampa',
+		language: 'tigrinya',
+		tags: ['alula mampa', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'SRw-nyliqyc',
+		title: 'Alula Mampa - ኣሉላ ማምፓ Alula mampa new tigrigna music 2023     በል!',
+		channel: 'Alula Mampa',
+		language: 'tigrinya',
+		tags: ['alula mampa', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'Gjm_0P7a5_g',
+		title: 'Alula Mampa - ግዜ ለኩሉ - ኣሉላ ማምፓ - Gize Lekulu - Alula Mampa - ሓድሽ ትግርኛ ሂፕ ሃፕ - Nee Tigrigna Hip Hop Music',
+		channel: 'Alula Mampa',
+		language: 'tigrinya',
+		tags: ['alula mampa', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'Qeb4aC5sCAk',
+		title: 'Alula Mampa - Time for album ✌🏽',
+		channel: 'Alula Mampa',
+		language: 'tigrinya',
+		tags: ['alula mampa', 'tigrinya', 'music']
+	},
+	{
 		videoId: 'pXrpnJIXE8U',
-		title: 'Freselam Mussie - Freselam Mussie “ ሕራይ በልኒ ‘‘ Hiray belni erit',
+		title: 'Freselam Mussie - “ ሕራይ በልኒ ‘‘ Hiray belni erit',
+		channel: 'Freselam Mussie',
+		language: 'tigrinya',
+		tags: ['freselam mussie', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'G5QjXEIC7Vo',
+		title: 'Freselam Mussie - ‘‘ ባህገይ ተሰለሚ ‘‘ Freselam Mussie  ‘ Bahgey teselemi ‘  - eritrean music 2009',
+		channel: 'Freselam Mussie',
+		language: 'tigrinya',
+		tags: ['freselam mussie', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'nrhDDqpGDSM',
+		title: 'Freselam Mussie - Henok Nago and Freselam  kitichikini',
+		channel: 'Freselam Mussie',
+		language: 'tigrinya',
+		tags: ['freselam mussie', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'mtwx96H7zPs',
+		title: 'Freselam Mussie - ጽንሕ ዘይምበልኪ ‘‘   Freselam Mussie  ‘ Tsinh Zeymbelki ‘ eritrean music with lyrics 2019',
+		channel: 'Freselam Mussie',
+		language: 'tigrinya',
+		tags: ['freselam mussie', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'j82wwo6jlBE',
+		title: 'Freselam Mussie - ‘‘ ይርጋእ እንተኢልኪ ‘‘ Freselam Mussie - eritrean music 2013',
 		channel: 'Freselam Mussie',
 		language: 'tigrinya',
 		tags: ['freselam mussie', 'tigrinya', 'music']
 	},
 	{
 		videoId: 'Ae_z03fZze4',
-		title: 'Estifanos Abraham Zemach - Estifanos Abraham Zemach - Kndey Mo Kbleki (O',
+		title: 'Estifanos Abraham Zemach - Kndey Mo Kbleki (O',
+		channel: 'Estifanos Abraham Zemach',
+		language: 'tigrinya',
+		tags: ['estifanos abraham zemach', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'wWrd0pkQYeU',
+		title: 'Estifanos Abraham Zemach - Niestey- Estifanos Abraham ( Zemach)- Eritrean music - (official video) -ንእስተይ',
+		channel: 'Estifanos Abraham Zemach',
+		language: 'tigrinya',
+		tags: ['estifanos abraham zemach', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'e6vSKh9hiBU',
+		title: 'Estifanos Abraham Zemach - Hit Track',
+		channel: 'Estifanos Abraham Zemach',
+		language: 'tigrinya',
+		tags: ['estifanos abraham zemach', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'XvChnPSiSlI',
+		title: 'Estifanos Abraham Zemach - estifanos abraham (zemach) #music #eritrea #tigrigna  @ERIROYALTYENTERTAINMENT @eri-mam-forever',
+		channel: 'Estifanos Abraham Zemach',
+		language: 'tigrinya',
+		tags: ['estifanos abraham zemach', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'm_pQ97l8jgs',
+		title: 'Estifanos Abraham Zemach - ንዑ ምሳይ ተመረቁ estifanos abraham ( zemach) new eritrean music 2023 @ERIROYALTYENTERTAINMENT Dallas',
 		channel: 'Estifanos Abraham Zemach',
 		language: 'tigrinya',
 		tags: ['estifanos abraham zemach', 'tigrinya', 'music']
@@ -1714,8 +2269,64 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		tags: ['amanuel yemane', 'tigrinya', 'music']
 	},
 	{
+		videoId: 'xFfw5lXp7-0',
+		title: 'Amanuel Yemane - Ethiopian music: Amanuel Yemane - Nigerewa(ንገርዋ) - New Ethiopian Music 2017(Official Video)',
+		channel: 'Amanuel Yemane',
+		language: 'tigrinya',
+		tags: ['amanuel yemane', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'iukjMznrHcI',
+		title: 'Amanuel Yemane - Adilatni - አማኑኤል የማን - ዓዲላትኒ - New Ethiopian Music 2021 (Official Video)',
+		channel: 'Amanuel Yemane',
+		language: 'tigrinya',
+		tags: ['amanuel yemane', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'v-e0MAKxFPI',
+		title: 'Amanuel Yemane - Ghize (Lyrics Video) feat Shewit Mezgebo | Ethiopian Tigrigna Music',
+		channel: 'Amanuel Yemane',
+		language: 'tigrinya',
+		tags: ['amanuel yemane', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'fi7wfk-3LAc',
+		title: 'Amanuel Yemane - Hit Track',
+		channel: 'Amanuel Yemane',
+		language: 'tigrinya',
+		tags: ['amanuel yemane', 'tigrinya', 'music']
+	},
+	{
 		videoId: 'W-TnSBgYsqE',
-		title: 'Robel Michael - Robel Michael - Mizer - New Eritrean Music 20',
+		title: 'Robel Michael - Mizer - New Eritrean Music 20',
+		channel: 'Robel Michael',
+		language: 'tigrinya',
+		tags: ['robel michael', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'h_-lvjoKGQs',
+		title: 'Robel Michael - Eritrea - Robel Michael - Mezekerta - (Official Video) - New Eritrean Music 2015',
+		channel: 'Robel Michael',
+		language: 'tigrinya',
+		tags: ['robel michael', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'QsDKy4OSmgw',
+		title: 'Robel Michael - Eritrea - Robel Michael - Elnaka Nerna - (Official Music Video) - New Eritrean Music 2015',
+		channel: 'Robel Michael',
+		language: 'tigrinya',
+		tags: ['robel michael', 'tigrinya', 'music']
+	},
+	{
+		videoId: '6mbDJjURtuQ',
+		title: 'Robel Michael - Eritrea - Robel Michael - Aytemarri - (Official Music Video) - New Eritrean Music 2015',
+		channel: 'Robel Michael',
+		language: 'tigrinya',
+		tags: ['robel michael', 'tigrinya', 'music']
+	},
+	{
+		videoId: '_oIC_DHf7IU',
+		title: 'Robel Michael - Aytehteyeni (Official Video) | Eritrean Music',
 		channel: 'Robel Michael',
 		language: 'tigrinya',
 		tags: ['robel michael', 'tigrinya', 'music']
@@ -1727,6 +2338,35 @@ export const CURATED_CATALOG: CuratedTrack[] = [
 		language: 'tigrinya',
 		tags: ['solomon bayre', 'tigrinya', 'music']
 	},
+	{
+		videoId: '6cQRdN7TtcY',
+		title: 'Solomon Bayre - Wedi Bayre - Wana Eki Wana - ዋና ኢኺ ዋና -  Ethiopian Tigrigna Music',
+		channel: 'Solomon Bayre',
+		language: 'tigrinya',
+		tags: ['solomon bayre', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'lf4DUrzIZJ0',
+		title: 'Solomon Bayre /Wedi Bayre/ Beynki nei _ ሰለሞን ባይረ (በይንኺ ንዒ)-Tigrigna Music Video 2014',
+		channel: 'Solomon Bayre',
+		language: 'tigrinya',
+		tags: ['solomon bayre', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'ohdRjR_qUKg',
+		title: 'Solomon Bayre - Wana Iki Wana  | ዋና ኢኺ ዋና (official video) - New Ethiopian Music 2026',
+		channel: 'Solomon Bayre',
+		language: 'tigrinya',
+		tags: ['solomon bayre', 'tigrinya', 'music']
+	},
+	{
+		videoId: 'Hj3cpF4xswY',
+		title: 'Solomon Bayre - Zebibey (Official Video) | Ethiopian Music',
+		channel: 'Solomon Bayre',
+		language: 'tigrinya',
+		tags: ['solomon bayre', 'tigrinya', 'music']
+	},
+	// ============================================================
 
 	{
 		videoId: '4NRXx6U8ABQ',
