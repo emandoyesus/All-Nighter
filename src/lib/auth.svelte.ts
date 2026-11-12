@@ -2,6 +2,7 @@ import { supabase, isSupabaseConfigured } from '#lib/supabase';
 import type { User, Session } from '@supabase/supabase-js';
 import { syncUserStatsOnAuth, resetActiveStatsToGuest } from '#lib/data/profile-stats';
 import { syncMyNightsOnAuth, resetActiveLogbookToGuest } from '#lib/data/local-logbook';
+import { DEFAULT_AVATAR } from '#lib/avatars';
 
 export interface CachedAuthProfile {
 	id: string;
@@ -84,6 +85,13 @@ class AuthService {
 	});
 	avatarUrl = $derived.by(() => {
 		if (this.user) {
+			const useGoogle = Boolean(this.user.user_metadata?.use_google_avatar);
+			const googlePhoto = this.user.user_metadata?.picture || this.user.user_metadata?.avatar_url;
+
+			if (useGoogle && googlePhoto) {
+				return googlePhoto;
+			}
+
 			// 1. Explicit custom avatar saved in user metadata
 			const customAvatar =
 				this.user.user_metadata?.custom_avatar ||
@@ -101,16 +109,13 @@ class AuthService {
 						const parsed = JSON.parse(saved);
 						if (parsed.avatarUrl) return parsed.avatarUrl;
 					}
+					const localAvatar = localStorage.getItem('an.avatar');
+					if (localAvatar) return localAvatar;
 				} catch {}
 			}
 
-			// 3. Fallback to Google picture or avatar_url
-			return (
-				this.user.user_metadata?.avatar_url ||
-				this.user.user_metadata?.picture ||
-				this.user.user_metadata?.avatar ||
-				null
-			);
+			// 3. Fallback to default avatar (never forced to Google photo unless user explicitly chose it)
+			return DEFAULT_AVATAR;
 		}
 
 		if (this.cachedUser?.avatarUrl) {
@@ -254,12 +259,18 @@ class AuthService {
 
 		let savedCallsign: string | null = null;
 		let savedAvatar: string | null = null;
+		let savedUseGoogle: boolean | null = null;
 		try {
 			const saved = localStorage.getItem(`an.profile.${user.id}`);
 			if (saved) {
 				const p = JSON.parse(saved);
 				savedCallsign = p.callsign || null;
 				savedAvatar = p.avatarUrl || null;
+				if (p.useGoogleAvatar !== undefined) savedUseGoogle = p.useGoogleAvatar;
+			}
+			const localAvatar = localStorage.getItem('an.avatar');
+			if (!savedAvatar && localAvatar && !localAvatar.includes('googleusercontent.com')) {
+				savedAvatar = localAvatar;
 			}
 		} catch {}
 
@@ -279,16 +290,26 @@ class AuthService {
 			customCallsign ||
 			(isGoogle && googleFirstName ? googleFirstName : (googleFirstName || user.email?.split('@')[0]));
 
+		const useGoogle =
+			user.user_metadata?.use_google_avatar !== undefined
+				? Boolean(user.user_metadata.use_google_avatar)
+				: (savedUseGoogle !== null ? savedUseGoogle : false);
+
 		const customAvatar =
 			user.user_metadata?.custom_avatar ||
 			(user.user_metadata?.profile_edited ? user.user_metadata?.avatar_url : null) ||
 			savedAvatar;
 
+		const googlePhoto =
+			user.user_metadata?.picture ||
+			user.user_metadata?.avatar_url ||
+			null;
+
 		const avatar =
+			(useGoogle && googlePhoto ? googlePhoto : null) ||
 			customAvatar ||
-			(user.user_metadata?.avatar_url as string | undefined) ||
-			(user.user_metadata?.picture as string | undefined) ||
-			(user.user_metadata?.avatar as string | undefined);
+			savedAvatar ||
+			DEFAULT_AVATAR;
 
 		// Synchronously update and save cache
 		const cacheEntry: CachedAuthProfile = {
@@ -348,14 +369,23 @@ class AuthService {
 		} catch {}
 	}
 
-	async signUpWithEmail(email: string, password: string, callsign: string) {
+	async signUpWithEmail(email: string, password: string, callsign: string, avatarUrl?: string) {
 		if (!supabase) throw new Error('Supabase is not configured');
 		const emailRedirectTo = typeof window !== 'undefined' ? `${window.location.origin}/room` : undefined;
+		const chosenAvatar = avatarUrl || DEFAULT_AVATAR;
 		const res = await supabase.auth.signUp({
 			email,
 			password,
 			options: {
-				data: { callsign },
+				data: {
+					callsign,
+					custom_callsign: callsign,
+					avatar_url: chosenAvatar,
+					custom_avatar: chosenAvatar,
+					profile_edited: true,
+					profile_configured: true,
+					use_google_avatar: false
+				},
 				emailRedirectTo
 			}
 		});
@@ -363,6 +393,7 @@ class AuthService {
 			this.isGuest = false;
 			try {
 				localStorage.removeItem('an.is_guest');
+				localStorage.setItem('an.avatar', chosenAvatar);
 			} catch {}
 		}
 		return res;
@@ -419,7 +450,7 @@ class AuthService {
 		return supabase.auth.signOut();
 	}
 
-	async updateProfile(updates: { callsign?: string; avatarUrl?: string; profileConfigured?: boolean }) {
+	async updateProfile(updates: { callsign?: string; avatarUrl?: string; profileConfigured?: boolean; useGoogleAvatar?: boolean }) {
 		if (!supabase) throw new Error('Supabase is not configured');
 		const data: Record<string, any> = {};
 		if (updates.callsign !== undefined) {
@@ -432,6 +463,7 @@ class AuthService {
 			data.profile_edited = true;
 		}
 		if (updates.profileConfigured !== undefined) data.profile_configured = updates.profileConfigured;
+		if (updates.useGoogleAvatar !== undefined) data.use_google_avatar = updates.useGoogleAvatar;
 
 		// Persist locally per user ID immediately
 		if (this.user?.id && typeof localStorage !== 'undefined') {
@@ -440,7 +472,11 @@ class AuthService {
 				const parsed = existing ? JSON.parse(existing) : {};
 				if (updates.callsign !== undefined) parsed.callsign = updates.callsign;
 				if (updates.avatarUrl !== undefined) parsed.avatarUrl = updates.avatarUrl;
+				if (updates.useGoogleAvatar !== undefined) parsed.useGoogleAvatar = updates.useGoogleAvatar;
 				localStorage.setItem(`an.profile.${this.user.id}`, JSON.stringify(parsed));
+				if (updates.avatarUrl) {
+					localStorage.setItem('an.avatar', updates.avatarUrl);
+				}
 			} catch {}
 		}
 

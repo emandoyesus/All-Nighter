@@ -38,6 +38,21 @@
 	}
 
 	let activeWallpaper = $state(0);
+	let showWallpaperTray = $state(false);
+
+	function clickOutsideWallpaper(node: HTMLElement) {
+		const handleClick = (e: MouseEvent | TouchEvent) => {
+			if (showWallpaperTray && !node.contains(e.target as Node)) {
+				showWallpaperTray = false;
+			}
+		};
+		document.addEventListener('pointerdown', handleClick, true);
+		return {
+			destroy() {
+				document.removeEventListener('pointerdown', handleClick, true);
+			}
+		};
+	}
 
 	function setWallpaper(idx: number): void {
 		activeWallpaper = idx;
@@ -318,20 +333,38 @@
 					</button>
 				</div>
 
-				<!-- Wallpaper Picker -->
-				<div class="flex items-center gap-1.5 pl-3 border-l border-cream/10">
+				<!-- Wallpaper Picker (Shows 1 active wallpaper; clicking reveals the other backgrounds) -->
+				<div class="relative flex items-center gap-1.5 pl-3 border-l border-cream/10" use:clickOutsideWallpaper>
 					<span class="num text-xs text-faint mr-0.5">Wallpaper:</span>
-					{#each HUD_WALLPAPERS as wp, idx}
+					{#if !showWallpaperTray}
+						{@const currentWp = HUD_WALLPAPERS[activeWallpaper] || HUD_WALLPAPERS[0]}
 						<button
 							type="button"
-							class="group relative h-6 w-9 overflow-hidden rounded border transition-all {activeWallpaper === idx ? 'border-lamp ring-1 ring-lamp/50 scale-105' : 'border-cream/20 opacity-55 hover:opacity-100 hover:border-cream/50'}"
-							onclick={() => setWallpaper(idx)}
-							title={`Switch to "${wp.label}" background`}
-							aria-label={`Switch to "${wp.label}" background`}
+							class="group relative h-6 w-9 overflow-hidden rounded border border-lamp ring-1 ring-lamp/40 transition-all hover:scale-105 cursor-pointer shadow-sm"
+							onclick={() => (showWallpaperTray = true)}
+							title={`Current: "${currentWp.label}". Click to choose another background`}
+							aria-label={`Current wallpaper: ${currentWp.label}. Click to choose another background`}
 						>
-							<img src={wp.src} alt="" class="h-full w-full object-cover" />
+							<img src={currentWp.src} alt={currentWp.label} class="h-full w-full object-cover" />
 						</button>
-					{/each}
+					{:else}
+						<div class="flex items-center gap-1.5 animate-in fade-in zoom-in-95 duration-150">
+							{#each HUD_WALLPAPERS as wp, idx}
+								<button
+									type="button"
+									class="group relative h-6 w-9 overflow-hidden rounded border transition-all cursor-pointer {activeWallpaper === idx ? 'border-lamp ring-1 ring-lamp/50 scale-105 shadow-sm' : 'border-cream/20 opacity-60 hover:opacity-100 hover:border-cream/50'}"
+									onclick={() => {
+										setWallpaper(idx);
+										showWallpaperTray = false;
+									}}
+									title={`Switch to "${wp.label}" background`}
+									aria-label={`Switch to "${wp.label}" background`}
+								>
+									<img src={wp.src} alt={wp.label} class="h-full w-full object-cover" />
+								</button>
+							{/each}
+						</div>
+					{/if}
 				</div>
 			</div>
 

@@ -146,7 +146,8 @@
 				const { data, error: err } = await auth.signUpWithEmail(
 					email.trim(),
 					password,
-					chosenCallsign
+					chosenCallsign,
+					avatarUrl
 				);
 				if (err) throw err;
 

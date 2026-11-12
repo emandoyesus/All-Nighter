@@ -63,11 +63,14 @@
 		'dawn-walker'
 	];
 
+	let prevOpen = false;
+
 	function syncFromProfile() {
 		errorMessage = '';
 		if (auth.user) {
 			const googleFirst = extractGoogleFirstName(auth.user.user_metadata, auth.user.email);
 			const existingCallsign =
+				auth.user.user_metadata?.custom_callsign ||
 				auth.user.user_metadata?.callsign ||
 				googleFirst ||
 				auth.user.email?.split('@')[0] ||
@@ -75,13 +78,18 @@
 				'night-owl';
 			callsign = existingCallsign;
 
-			const currentAvatar = auth.user.user_metadata?.avatar_url || room.avatar;
-			if (googlePhoto && currentAvatar === googlePhoto) {
+			const explicitlyWantsGoogle = Boolean(auth.user.user_metadata?.use_google_avatar);
+			const customAvatar =
+				auth.user.user_metadata?.custom_avatar ||
+				(auth.user.user_metadata?.profile_edited ? auth.user.user_metadata?.avatar_url : null) ||
+				(typeof localStorage !== 'undefined' ? localStorage.getItem('an.avatar') : null);
+
+			if (explicitlyWantsGoogle && googlePhoto) {
 				avatarType = 'google';
 			} else {
 				avatarType = 'avatar';
-				if (currentAvatar && currentAvatar.startsWith('/avatars/')) {
-					selectedAvatarUrl = currentAvatar;
+				if (customAvatar && (customAvatar.startsWith('/avatars/') || customAvatar.startsWith('data:'))) {
+					selectedAvatarUrl = customAvatar;
 				} else {
 					selectedAvatarUrl = DEFAULT_AVATAR;
 				}
@@ -106,9 +114,10 @@
 	});
 
 	$effect(() => {
-		if (open) {
+		if (open && !prevOpen) {
 			syncFromProfile();
 		}
+		prevOpen = open;
 	});
 
 	function handleRandomCallsign() {
@@ -136,6 +145,7 @@
 			try {
 				localStorage.setItem('an.callsign', cleanName);
 				localStorage.setItem('an.avatar', finalAvatar);
+				localStorage.setItem('an.avatar_choice', avatarType);
 				if (auth.user) {
 					localStorage.setItem('an.profile_configured', auth.user.id);
 				}
@@ -146,7 +156,8 @@
 				await auth.updateProfile({
 					callsign: cleanName,
 					avatarUrl: finalAvatar,
-					profileConfigured: true
+					profileConfigured: true,
+					useGoogleAvatar: avatarType === 'google'
 				});
 			}
 
@@ -345,42 +356,40 @@
 						</div>
 					{/if}
 
-					<!-- Sketch Avatars Grid (Active when avatarType is 'avatar' or non-Google user) -->
-					{#if !isGoogleUser || !googlePhoto || avatarType === 'avatar'}
-						<div class="rounded-xl border border-cream/10 bg-night-2 p-3">
-							<p class="text-[11px] font-mono text-faint mb-2.5 flex items-center gap-1.5">
-								<IconSparkles size={12} stroke={1.8} class="text-lamp" />
-								<span>Select a hand-drawn sketch avatar:</span>
-							</p>
+					<!-- Sketch Avatars Grid (Always visible so users can freely pick any doodle avatar) -->
+					<div class="rounded-xl border border-cream/10 bg-night-2 p-3">
+						<p class="text-[11px] font-mono text-faint mb-2.5 flex items-center gap-1.5">
+							<IconSparkles size={12} stroke={1.8} class="text-lamp" />
+							<span>Select a hand-drawn sketch avatar:</span>
+						</p>
 
-							<div class="grid grid-cols-3 gap-2">
-								{#each NOCTURNAL_AVATARS as av}
-									{@const selected = selectedAvatarUrl === av.url}
-									<button
-										type="button"
-										class="group relative flex flex-col items-center gap-1.5 rounded-xl border p-2 transition-all cursor-pointer {selected ? 'border-lamp bg-lamp/15 text-cream ring-1 ring-lamp/50' : 'border-cream/8 bg-night/60 text-taupe hover:border-cream/25 hover:text-cream'}"
-										onclick={() => {
-											avatarType = 'avatar';
-											selectedAvatarUrl = av.url;
-										}}
-										title={av.description}
-									>
-										<div class="relative h-9 w-9 overflow-hidden rounded-full border border-cream/20 transition-transform group-hover:scale-105">
-											<img src={av.url} alt={av.name} class="h-full w-full object-cover" />
-											{#if selected}
-												<div class="absolute inset-0 flex items-center justify-center bg-night/40 backdrop-blur-[0.5px]">
-													<IconCheck size={14} stroke={3} class="text-lamp" />
-												</div>
-											{/if}
-										</div>
-										<span class="text-[10px] font-mono font-medium truncate w-full text-center {selected ? 'text-lamp' : 'text-taupe'}">
-											{av.name}
-										</span>
-									</button>
-								{/each}
-							</div>
+						<div class="grid grid-cols-3 gap-2">
+							{#each NOCTURNAL_AVATARS as av}
+								{@const selected = avatarType === 'avatar' && selectedAvatarUrl === av.url}
+								<button
+									type="button"
+									class="group relative flex flex-col items-center gap-1.5 rounded-xl border p-2 transition-all cursor-pointer {selected ? 'border-lamp bg-lamp/15 text-cream ring-1 ring-lamp/50' : 'border-cream/8 bg-night/60 text-taupe hover:border-cream/25 hover:text-cream'}"
+									onclick={() => {
+										avatarType = 'avatar';
+										selectedAvatarUrl = av.url;
+									}}
+									title={av.description}
+								>
+									<div class="relative h-9 w-9 overflow-hidden rounded-full border border-cream/20 transition-transform group-hover:scale-105">
+										<img src={av.url} alt={av.name} class="h-full w-full object-cover" />
+										{#if selected}
+											<div class="absolute inset-0 flex items-center justify-center bg-night/40 backdrop-blur-[0.5px]">
+												<IconCheck size={14} stroke={3} class="text-lamp" />
+											</div>
+										{/if}
+									</div>
+									<span class="text-[10px] font-mono font-medium truncate w-full text-center {selected ? 'text-lamp' : 'text-taupe'}">
+										{av.name}
+									</span>
+								</button>
+							{/each}
 						</div>
-					{/if}
+					</div>
 				</div>
 			</div>
 

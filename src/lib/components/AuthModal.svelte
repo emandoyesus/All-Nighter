@@ -255,7 +255,8 @@
 			if (auth.isAuthenticated && isSupabaseConfigured) {
 				await auth.updateProfile({
 					callsign: cleanCallsign,
-					avatarUrl: cleanAvatar
+					avatarUrl: cleanAvatar,
+					useGoogleAvatar: Boolean(googlePhoto && cleanAvatar === googlePhoto)
 				});
 			}
 
