@@ -4,11 +4,20 @@
 	import NightZones from '#lib/components/NightZones.svelte';
 	import ArchiveSection from '#lib/components/ArchiveSection.svelte';
 	import JoinBand from '#lib/components/JoinBand.svelte';
+	import SEO from '#lib/components/SEO.svelte';
+	import { buildWebSiteSchema, buildWebApplicationSchema } from '#lib/seo';
+
+	const schemas = [buildWebSiteSchema(), buildWebApplicationSchema()];
 </script>
 
-<svelte:head>
-	<title>All Nighter · tonight</title>
-</svelte:head>
+<SEO
+	title="All Nighter · Show up. Lock in till sunrise."
+	rawTitle={true}
+	description="Doors open at sunset. Lock in till sunrise. A real-time collaborative focus sanctuary with synchronized music, shared track queue, live presence, and an unbroken countdown to dawn."
+	canonical="/"
+	type="website"
+	jsonLd={schemas}
+/>
 
 <main>
 	<Hero />

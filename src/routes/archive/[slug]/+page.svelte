@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import PlaylistExport from '#lib/components/PlaylistExport.svelte';
+	import SEO from '#lib/components/SEO.svelte';
+	import { buildBreadcrumbs, buildNightSchema } from '#lib/seo';
 	import { reveal } from '#lib/reveal';
 	import { splitReveal } from '#lib/split-reveal';
 	import { nights, type Night } from '#lib/data/archive';
@@ -80,9 +82,23 @@
 	}
 </script>
 
-<svelte:head>
-	<title>{night.title} · Archive · All Nighter</title>
-</svelte:head>
+<SEO
+	title="{night.title} · Archive · All Nighter"
+	rawTitle={true}
+	description={night.note || `${night.title} focus session on All Nighter. ${night.tracks} tracks, ${night.heads} participants.`}
+	canonical="/archive/{night.slug}"
+	type="music.playlist"
+	image={night.img}
+	imageAlt="{night.title} — All Nighter archive"
+	jsonLd={[
+		buildBreadcrumbs([
+			{ name: 'Home', path: '/' },
+			{ name: 'The Archive', path: '/archive' },
+			{ name: night.title, path: `/archive/${night.slug}` }
+		]),
+		buildNightSchema(night)
+	]}
+/>
 
 <main>
 	<section class="border-b border-cream/10 bg-night-2">

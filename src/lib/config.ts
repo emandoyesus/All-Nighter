@@ -1,5 +1,13 @@
 /** Site-wide knobs your crew will actually edit. */
 
+/** Canonical production domain URL and site metadata for SEO and social graph */
+export const SITE_URL = 'https://all-nighter.pro.et';
+export const SITE_NAME = 'All Nighter';
+export const SITE_TAGLINE = 'Doors open at sunset. Lock in till sunrise.';
+export const SITE_DESCRIPTION =
+	'Show up. Lock in till sunrise. A real-time collaborative focus sanctuary with synchronized music, shared track queue, live presence, and an unbroken countdown to dawn.';
+export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
+
 /**
  * Replace with your group invite (https://t.me/+<code> or https://t.me/<name>).
  * The site links here from the nav, hero, and closing band.

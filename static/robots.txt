@@ -1,3 +1,6 @@
-# allow crawling everything by default
+# Allow crawling everything by default
 User-agent: *
-Disallow:
+Allow: /
+
+Sitemap: https://all-nighter.pro.et/sitemap.xml
+Host: https://all-nighter.pro.et

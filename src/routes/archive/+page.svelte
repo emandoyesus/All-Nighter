@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import ArchiveStats from '#lib/components/ArchiveStats.svelte';
+	import SEO from '#lib/components/SEO.svelte';
+	import { buildBreadcrumbs, buildArchiveCollectionSchema } from '#lib/seo';
 	import { nights, genres, contributors } from '#lib/data/archive';
 	import type { Night } from '#lib/data/archive';
 	import { loadMyNights, dbArchiveToNight, isTestArchiveSlug } from '#lib/data/local-logbook';
@@ -238,9 +240,20 @@
 	}
 </script>
 
-<svelte:head>
-	<title>The Archive · All Nighter</title>
-</svelte:head>
+<SEO
+	title="The Archive · All Nighter"
+	rawTitle={true}
+	description="Chronological logbook of overnight focus sessions, tracklists, intentions, and nocturnal rosters on All Nighter."
+	canonical="/archive"
+	type="website"
+	jsonLd={[
+		buildBreadcrumbs([
+			{ name: 'Home', path: '/' },
+			{ name: 'The Archive', path: '/archive' }
+		]),
+		buildArchiveCollectionSchema(allNights)
+	]}
+/>
 
 <main>
 	<section class="border-b border-cream/10 bg-night-2">

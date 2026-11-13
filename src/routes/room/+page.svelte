@@ -16,6 +16,8 @@
 	import ArchiveRoomModal from '#lib/components/ArchiveRoomModal.svelte';
 	import ShareRoomModal from '#lib/components/ShareRoomModal.svelte';
 	import RoomAuthGate from '#lib/components/RoomAuthGate.svelte';
+	import SEO from '#lib/components/SEO.svelte';
+	import { buildBreadcrumbs } from '#lib/seo';
 	import { auth } from '#lib/auth.svelte';
 	import { isSupabaseConfigured } from '#lib/supabase';
 	import { TELEGRAM_URL } from '#lib/config';
@@ -75,22 +77,27 @@
 	}
 </script>
 
-<svelte:head>
-	<title>{room.title ? `${room.title} · All Nighter` : 'The Room · All Nighter'}</title>
-	<meta property="og:type" content="music.radio_station" />
-	<meta property="og:site_name" content="All Nighter" />
-	<meta property="og:title" content="{room.title || 'The Room'} · All Nighter" />
-	<meta property="og:description" content="One synchronized room. One shared track queue. Everyone awake and building till dawn." />
-	<meta property="og:image" content="https://all-nighter.pro.et/og-image.png" />
-	<meta property="og:image:secure_url" content="https://all-nighter.pro.et/og-image.png" />
-	<meta property="og:image:type" content="image/png" />
-	<meta property="og:image:width" content="1200" />
-	<meta property="og:image:height" content="630" />
-	<meta name="twitter:card" content="summary_large_image" />
-	<meta name="twitter:title" content="{room.title || 'The Room'} · All Nighter" />
-	<meta name="twitter:description" content="One synchronized room. One shared track queue. Everyone awake and building till dawn." />
-	<meta name="twitter:image" content="https://all-nighter.pro.et/og-image.png" />
-</svelte:head>
+<SEO
+	title={room.title ? `${room.title} · All Nighter` : 'The Room · All Nighter'}
+	rawTitle={true}
+	description="One synchronized focus room. One shared track queue. Everyone awake and building till dawn."
+	canonical="/room"
+	type="music.radio_station"
+	jsonLd={[
+		buildBreadcrumbs([
+			{ name: 'Home', path: '/' },
+			{ name: 'The Room', path: '/room' }
+		]),
+		{
+			'@context': 'https://schema.org',
+			'@type': 'BroadcastEvent',
+			name: room.title || 'All Nighter Focus Room',
+			url: 'https://all-nighter.pro.et/room',
+			description: 'Real-time collaborative focus room with synchronized audio stream and chat.',
+			isLiveBroadcast: true
+		}
+	]}
+/>
 
 {#if !auth.isAuthenticated}
 	{#if auth.loading}

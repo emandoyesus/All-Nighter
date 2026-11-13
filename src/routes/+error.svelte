@@ -7,6 +7,7 @@
 	import IconSun from '@tabler/icons-svelte/icons/sun';
 	import IconTrophy from '@tabler/icons-svelte/icons/trophy';
 	import IconBookmark from '@tabler/icons-svelte/icons/bookmark';
+	import SEO from '#lib/components/SEO.svelte';
 
 	import { areDoorsOpen } from '#lib/config';
 
@@ -37,9 +38,12 @@
 	});
 </script>
 
-<svelte:head>
-	<title>{isNightFinish ? 'Dawn Conquered · All Nighter' : `${status} · All Nighter`}</title>
-</svelte:head>
+<SEO
+	title={isNightFinish ? 'Dawn Conquered · All Nighter' : `${status} · All Nighter`}
+	rawTitle={true}
+	description="Lost in the dead of night. Signal disconnected."
+	noindex={true}
+/>
 
 <main class="relative flex min-h-[calc(100dvh-64px)] md:min-h-[calc(100dvh-68px)] flex-col items-center justify-center px-5 py-16 overflow-hidden">
 	<!-- Subtle ambient radial grid -->

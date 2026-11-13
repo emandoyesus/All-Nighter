@@ -1,16 +1,27 @@
 {
+  "id": "et.pro.all-nighter",
   "name": "All Nighter",
   "short_name": "All Nighter",
-  "description": "Show up. Lock in till sunrise. A shared room for our all-nighters.",
+  "description": "Show up. Lock in till sunrise. A shared focus room with synchronized music, chat, and an unbroken countdown to dawn.",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#030607",
   "theme_color": "#030607",
+  "categories": ["productivity", "music", "lifestyle"],
   "icons": [
     {
       "src": "favicon.svg",
       "sizes": "any",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "og-image.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }

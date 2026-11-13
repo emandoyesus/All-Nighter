@@ -3,6 +3,8 @@
 	import { reveal } from '#lib/reveal';
 	import { splitReveal } from '#lib/split-reveal';
 	import { getAvatarForPerson } from '#lib/avatars';
+	import SEO from '#lib/components/SEO.svelte';
+	import { buildBreadcrumbs, buildCrewProfileSchema } from '#lib/seo';
 	import type { PageData } from './$types';
 	import IconArrowLeft from '@tabler/icons-svelte/icons/arrow-left';
 	import IconMoon from '@tabler/icons-svelte/icons/moon';
@@ -13,11 +15,26 @@
 
 	let { data }: { data: PageData } = $props();
 	const profile = $derived(data.profile);
+	const avatarUrl = $derived(getAvatarForPerson(profile.name));
 </script>
 
-<svelte:head>
-	<title>{profile.name} · Crew · All Nighter</title>
-</svelte:head>
+<SEO
+	title="{profile.name} · Crew · All Nighter"
+	rawTitle={true}
+	description="Nocturnal profile of {profile.name} on All Nighter. {profile.allNighters} all-nighters completed, top artist: {profile.topArtist}, top genre: {profile.topGenre}."
+	canonical="/crew/{encodeURIComponent(profile.name)}"
+	type="profile"
+	image={avatarUrl}
+	imageAlt="{profile.name} — All Nighter Crew member"
+	jsonLd={[
+		buildBreadcrumbs([
+			{ name: 'Home', path: '/' },
+			{ name: 'The Archive', path: '/archive' },
+			{ name: profile.name, path: `/crew/${encodeURIComponent(profile.name)}` }
+		]),
+		buildCrewProfileSchema(profile, avatarUrl)
+	]}
+/>
 
 <main>
 	<section class="border-b border-cream/10 bg-night-2">
